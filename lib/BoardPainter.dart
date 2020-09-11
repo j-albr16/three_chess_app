@@ -130,8 +130,8 @@ class BoardPainter extends CustomPainter {
     double b = around.y - rotate.y;
     double c = (sqrt(pow(a,2)+pow(b,2)));
     double alpha = asin(a/c);
-    double newAlpha = alpha + 2/3*pi;
-    if(i == 1) newAlpha = alpha + -2/3*pi;
+    double newAlpha = alpha + -2/3*pi;
+    if(i == 1) newAlpha = alpha + 2/3*pi;
     double newA = sin(newAlpha) * c;
     double newB = cos(newAlpha) * c;
 

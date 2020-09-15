@@ -1,39 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:touchable/touchable.dart';
+import 'package:provider/provider.dart';
 
-import 'BoardPainter.dart';
+import './screens/home_screen.dart';
+import './screens/board_screen.dart';
+import './providers/tile_provider.dart';
 
 void main() => runApp(ThreeChessApp());
 
 class ThreeChessApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Three Player Chess"),
-        ),
-        body: Board(),
-      )
-    );
+    return MultiProvider(
+        providers: [
+      ChangeNotifierProvider(create: (ctx) => TileProvider()),
+    ],
+    child: MaterialApp(
+      title: 'three chess app',
+      home: HomeScreen(),
+      routes: {
+        BoardScreen.routeName: (ctx) => BoardScreen(),
+      },
+    ));
   }
 }
-class Board extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 700,
-      width: 700,
-      child: CanvasTouchDetector(
-        builder: (context) {
-           return CustomPaint(
-            painter: BoardPainter(context),
-          );}),
-
-      );
-
-  }
-}
-
-
-

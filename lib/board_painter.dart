@@ -2,10 +2,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:three_chess/providers/tile_provider.dart';
 import 'package:touchable/touchable.dart';
 
-import 'models/Tile.dart';
-import 'models/boardCoordinates.dart';
+import 'models/tile.dart';
+import 'models/board_data.dart';
 
 class BoardPainter extends CustomPainter {
   final BuildContext context;
@@ -60,12 +62,23 @@ class BoardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var myCanvas = TouchyCanvas(context, canvas);
-    List<List<Point>> pointsThird = BoardData.tilePointsThird;
-    int _whiteBoolCount = 0;
-    bool _lastisWhite = true;
+    Provider.of<TileProvider>(context, listen: false).tiles.forEach((key, value) { _drawTile(value, myCanvas);});
+  }
 
 
-    void reset(){
+
+  Offset _toOff(Point point) {
+    return Offset(point.x, point.y);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+/*
+void reset(){
        _whiteBoolCount = 0;
        _lastisWhite = false;
     }
@@ -123,36 +136,4 @@ class BoardPainter extends CustomPainter {
       pointsThird = newPoints;
       reset();
     }
-  }
-
-  Point _rotatePoint(Point rotate, Point around, int i){
-    double a = around.x - rotate.x;
-    double b = around.y - rotate.y;
-    double c = (sqrt(pow(a,2)+pow(b,2)));
-    double alpha = asin(a/c);
-    double newAlpha = alpha + -2/3*pi;
-    if(i == 1) newAlpha = alpha + 2/3*pi;
-    double newA = sin(newAlpha) * c;
-    double newB = cos(newAlpha) * c;
-
-    double newX = around.x + newA;
-    double newY = around.y + newB;
-
-    if(newX.isNaN) newX = around.x;
-
-    if(newY.isNaN) newY = around.y;
-
-    return Point(newX, newY);
-  }
-
-
-
-  Offset _toOff(Point point) {
-    return Offset(point.x, point.y);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
-}
+ */

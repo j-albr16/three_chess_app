@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/providers/piece_provider.dart';
 
 import './screens/home_screen.dart';
 import './screens/board_screen.dart';
@@ -13,6 +14,7 @@ class ThreeChessApp extends StatelessWidget {
     return MultiProvider(
         providers: [
       ChangeNotifierProvider(create: (ctx) => TileProvider()),
+          ChangeNotifierProvider(create: (ctx) => PieceProvider()),
     ],
     child: MaterialApp(
       title: 'three chess app',

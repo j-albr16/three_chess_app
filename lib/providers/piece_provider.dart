@@ -15,10 +15,11 @@ class PieceProvider with ChangeNotifier {
 
   startGame(BuildContext context) {
     _pieces.addAll(startPos);
-    return _pieces.map((e) => PiecePainter(
-      tiles: Provider.of<TileProvider>(context).tiles,
-      piece: e,
-    ));
+    return _pieces.map((e) => CustomPaint(
+            painter: PiecePainter(
+          tiles: Provider.of<TileProvider>(context).tiles,
+          piece: e,
+        )));
   }
 
   List<Piece> startPos = [

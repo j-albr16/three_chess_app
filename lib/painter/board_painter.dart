@@ -29,7 +29,7 @@ class BoardPainter extends CustomPainter {
     //</editor-fold>
 
     Paint paint = Paint();
-    Provider.of<PieceProvider>(context).startGame(context);
+    Provider.of<PieceProvider>(context, listen: false).startGame(context);
     if(tile.isWhite){
       paint.color = Colors.white;
     }

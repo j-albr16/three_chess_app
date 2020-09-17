@@ -51,11 +51,6 @@ class PiecePainter extends CustomPainter {
     // TODO: implement paint
   }
 
-  @override
-  bool hitTest(Offset position) {
-    // TODO: implement hitTest
-    return super.hitTest(position);
-  }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {

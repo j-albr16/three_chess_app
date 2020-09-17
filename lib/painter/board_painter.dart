@@ -80,7 +80,7 @@ class BoardPainter extends CustomPainter {
 /*
 void reset(){
        _whiteBoolCount = 0;
-       _lastisWhite = false;
+      _lastisWhite = false;
     }
     bool _nextBool(){
     if(_whiteBoolCount >= 8){
@@ -134,6 +134,6 @@ void reset(){
         }
       }
       pointsThird = newPoints;
-      reset();
+       reset();
     }
  */

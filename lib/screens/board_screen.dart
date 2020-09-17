@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/board_painter.dart';
+import 'package:three_chess/painter/board_painter.dart';
 import 'package:touchable/touchable.dart';
 
 class BoardScreen extends StatelessWidget {

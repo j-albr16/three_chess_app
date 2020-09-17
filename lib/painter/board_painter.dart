@@ -6,8 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:three_chess/providers/tile_provider.dart';
 import 'package:touchable/touchable.dart';
 
-import 'models/tile.dart';
-import 'models/board_data.dart';
+import '../models/tile.dart';
+import '../models/board_data.dart';
+import '../providers/piece_provider.dart';
 
 class BoardPainter extends CustomPainter {
   final BuildContext context;
@@ -28,6 +29,7 @@ class BoardPainter extends CustomPainter {
     //</editor-fold>
 
     Paint paint = Paint();
+    Provider.of<PieceProvider>(context).startGame(context);
     if(tile.isWhite){
       paint.color = Colors.white;
     }

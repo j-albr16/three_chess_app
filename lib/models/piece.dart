@@ -6,7 +6,8 @@ class Piece{
   String position;
   final PieceType pieceType;
   final PlayerColor player;
+  final String image;
 
 
-  Piece({this.position, this.pieceType, this.player,});
+  Piece({this.position, this.pieceType, this.player,this.image,});
 }

@@ -39,6 +39,11 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+          Container(
+            height: 200,
+            width: 200,
+            child: Image.asset('assets/pieces/black/bishop_black.png', fit: BoxFit.cover,),
+          ),
         ],
       ),
     );

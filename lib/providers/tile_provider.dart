@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:three_chess/models/board_data.dart';
+import '../data/board_data.dart';
 import 'package:three_chess/models/tile.dart';
 
 class TileProvider with ChangeNotifier{
@@ -52,7 +52,6 @@ class TileProvider with ChangeNotifier{
       for(int j = 0; j < idStringThird.length; j++){
         currentBoardThird[idStringThird[j]] = pointsThird[j];
       }
-      print(i.toString());
 
       currentBoardThird.forEach((key, value) {
        tiles[key] = Tile(id: key, points: value, isWhite: _nextBool(), directions: BoardData.adjacentTiles[key]);

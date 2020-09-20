@@ -22,9 +22,19 @@ class PieceProvider with ChangeNotifier {
 
   List<Piece> startPos = [
     Piece(
+      pieceType: PieceType.Queen,
+      player: PlayerColor.white,
+      position: 'L8',
+    ),
+    Piece(
       pieceType: PieceType.Pawn,
       player: PlayerColor.black,
       position: 'B2',
+    ),
+    Piece(
+      pieceType: PieceType.King,
+      player: PlayerColor.red,
+      position: 'H12',
     ),
   ];
 }

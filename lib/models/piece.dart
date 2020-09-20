@@ -8,5 +8,5 @@ class Piece{
   final PlayerColor player;
 
 
-  Piece({this.position, this.pieceType, this.player});
+  Piece({this.position, this.pieceType, this.player,});
 }

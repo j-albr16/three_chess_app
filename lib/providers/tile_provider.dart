@@ -52,6 +52,7 @@ class TileProvider with ChangeNotifier{
       for(int j = 0; j < idStringThird.length; j++){
         currentBoardThird[idStringThird[j]] = pointsThird[j];
       }
+      print(i.toString());
 
       currentBoardThird.forEach((key, value) {
        tiles[key] = Tile(id: key, points: value, isWhite: _nextBool(), directions: BoardData.adjacentTiles[key]);

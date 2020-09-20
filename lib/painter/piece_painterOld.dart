@@ -43,7 +43,7 @@ class PiecePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..color = Colors.brown;
-    loadUiImage(null).then((value) => { //null was piece.image
+    loadUiImage(null).then((value) => {
         canvas.drawImage(value, getMiddleOffset(), paint)
     });
 

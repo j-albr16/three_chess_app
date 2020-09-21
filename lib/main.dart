@@ -7,6 +7,7 @@ import './screens/home_screen.dart';
 import './screens/board_screen.dart';
 import './providers/tile_provider.dart';
 import './providers/image_provider.dart';
+import './models/tile.dart';
 
 void main() => runApp(ThreeChessApp());
 

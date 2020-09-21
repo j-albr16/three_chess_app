@@ -20,7 +20,6 @@ class HomeScreen extends StatelessWidget {
                 fontSize: 45,
                 fontWeight: FontWeight.w400,
               ),),
-              height: 75,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(

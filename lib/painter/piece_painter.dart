@@ -1,7 +1,7 @@
-
-
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,8 +18,10 @@ class PiecePainter extends CustomPainter {
   final List<Piece> pieces;
   final Map<String, Tile> tiles;
   final Map<PieceType, Map<PlayerColor, ui.Image>> images;
+  final Point position;
 
-  PiecePainter({this.pieces, this.tiles, this.images});
+
+  PiecePainter({this.pieces, this.tiles, this.images, this.position});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,8 +32,9 @@ class PiecePainter extends CustomPainter {
 
 
           ui.Image currentImage = images[piece.pieceType][piece.player];
+
         if (currentImage != null) {
-            canvas.drawImage(currentImage, Tile.toOffset(tiles[piece.position].middle), new Paint());
+            canvas.drawImage(currentImage, Tile.toOffset(tiles[piece.position].middle, position, size), paint);
         }
         else{
           print('Piece Painter: Couldnt Paint');

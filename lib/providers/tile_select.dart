@@ -18,11 +18,11 @@ class TileSelect with ChangeNotifier{
     }
   }
 
-  void setByPosition(context, Offset point){
+  void setByPosition(context, Offset point){ //Dont!
     String hitTile = null;
-    MapEntry hitPoly = Provider.of<TileProvider>(context, listen: false).polygons.entries.firstWhere((e) => e.value.isPointInside(_toPoint(point)), orElse: () => null);
-    if(hitPoly != null){
-      hitTile = hitPoly.key;
+    MapEntry hitPath = Provider.of<TileProvider>(context, listen: false).paths.entries.firstWhere((e) => e.value.contains(point), orElse: () => null);
+    if(hitPath != null){
+      hitTile = hitPath.key;
     }
     selectedTile = hitTile;
   }

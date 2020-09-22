@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/tile_provider.dart';
 import 'package:three_chess/providers/tile_select.dart';
-import 'package:poly/poly.dart';
 
 import '../models/tile.dart';
 import '../data/board_data.dart';
@@ -13,9 +12,9 @@ import '../providers/piece_provider.dart';
 
 class BoardPainter extends CustomPainter {
   final BuildContext context;
-  final Point pos;
+  Map<String, Path> paths = {};
 
-  BoardPainter(this.context, this.pos);
+  BoardPainter(this.context);
 
   //White: A-h, 1-4
   //Black: A-D,I-L, 5-8
@@ -38,11 +37,11 @@ class BoardPainter extends CustomPainter {
       paint.color = Colors.brown;
     }
     Path path = Path()
-      ..moveTo((tile.points[0].x + pos.x) * size.width / 700, (tile.points[0].y + pos.y) * size.height / 700)
-      ..lineTo((tile.points[1].x + pos.x) * size.width / 700, (tile.points[1].y + pos.y) * size.height / 700)
-      ..lineTo((tile.points[2].x + pos.x) * size.width / 700, (tile.points[2].y + pos.y) * size.height / 700)
-      ..lineTo((tile.points[3].x + pos.x) * size.width / 700, (tile.points[3].y + pos.y) * size.height / 700)
-      ..lineTo((tile.points[0].x + pos.x) * size.width / 700, (tile.points[0].y + pos.y) * size.height / 700)
+      ..moveTo(tile.points[0].x, tile.points[0].y)
+      ..lineTo(tile.points[1].x, tile.points[1].y)
+      ..lineTo(tile.points[2].x, tile.points[2].y)
+      ..lineTo(tile.points[3].x, tile.points[3].y)
+      ..lineTo(tile.points[0].x, tile.points[0].y)
       ..close();
 
     Paint borderPaint = Paint()
@@ -50,30 +49,42 @@ class BoardPainter extends CustomPainter {
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
+    Paint dotPaint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
     final List<Offset> points = [
-      _toOff(tile.points[0], size),
-      _toOff(tile.points[1], size),
-      _toOff(tile.points[2], size),
-      _toOff(tile.points[3], size),
-      _toOff(tile.points[0], size),
+      _toOff(tile.points[0]),
+      _toOff(tile.points[1]),
+      _toOff(tile.points[2]),
+      _toOff(tile.points[3]),
+      _toOff(tile.points[0]),
     ];
+    paths[tile.id] = path;
     myCanvas
       ..drawPath(path, paint, )
-      ..drawPoints(PointMode.polygon, points, borderPaint, );
-
+      ..drawPoints(PointMode.polygon, points, borderPaint, )
+      ..drawPoints(PointMode.points, [_toOff(tile.middle)], dotPaint);
+    
   }
 
   @override
   void paint(Canvas canvas, Size size) {
+    paths = {};
     var myCanvas = canvas;
     Provider.of<TileProvider>(context, listen: false).tiles.forEach((key, value) { _drawTile(value, myCanvas, size);});
+    Provider.of<TileProvider>(context, listen: false).paths = paths;
   }
 
 
-  Offset _toOff(Point point, Size size) {
-    return Offset((point.x  + pos.x) * size.width  / 700, (point.y  + pos.y) * size.height  / 700);
+  Offset _toOff(Point point) {
+    return Offset((point.x), (point.y));
   }
 
+  Point _toPoint(Offset offset) {
+    return Point(offset.dx, offset.dy);
+  }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {

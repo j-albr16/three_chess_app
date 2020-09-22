@@ -9,15 +9,36 @@ class Tile{
   final bool isWhite;
   final String id;
   final Directions directions;
+
+
   Point get middle{
-    double x1 = points[0].x;
-    double x2 = points[2].x;
-    double y1 = points[0].y;
-    double y2 = points[2].y;
-    return Point(x1 + (1/2 * (x2-x1)), y1 + (1/2 + (y2-y1)));
-}
-  static Offset toOffset(Point point, Point position, Size size){
-      return Offset((point.x + position.x) * size.width / 700, (point.y + position.y) * size.height / 700);
+    double sx = 0;
+    double sy = 0;
+    double sL = 0;
+    for (int i = 0; i < points.length; i++){
+      double x0 = (i == 0 ? points.last : points[i-1]).x;
+      double y0 = (i == 0 ? points.last : points[i-1]).y;
+      double x1 = points[i].x;
+      double y1 = points[i].y;
+      double L = sqrt(pow((x1 - x0),2) + pow((y1 - y0),2)); //Math.p
+      sx += ((x0 + x1)/2) * L;
+      sy += ((y0 + y1)/2) * L;
+      sL += L;
+    }
+
+    double xc = sx / sL;
+    double yc = sy / sL;
+    return Point(xc, yc);
+
+    //     double x1 = points[0].x;
+//     double x2 = points[2].x;
+//     double y1 = points[0].y;
+//     double y2 = points[2].y;
+//     print("x: " +(x1 + (1/2 * (x2-x1))).toString() + "y: " + (y1 + (1/2 + (y2-y1))).toString());
+//     return Point(x1 + (1/2 * (x2-x1)), y1 + (1/2 + (y2-y1)));
+ }
+  static Offset toOffset(Point point){
+      return Offset(point.x , point.y);
   }
 
   Tile({@required this.points, @required this.isWhite, @required this.id, @required this.directions});

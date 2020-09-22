@@ -24,7 +24,7 @@ class PieceProvider with ChangeNotifier {
     Piece(
       pieceType: PieceType.Pawn,
       player: PlayerColor.white,
-      position: 'A2',
+      position: 'A1',
     ),
     Piece(
       pieceType: PieceType.Pawn,

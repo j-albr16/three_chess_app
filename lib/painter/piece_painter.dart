@@ -19,9 +19,10 @@ class PiecePainter extends CustomPainter {
   final Map<String, Tile> tiles;
   final Map<PieceType, Map<PlayerColor, ui.Image>> images;
   final Point position;
+  Size imageProvSize;
 
 
-  PiecePainter({this.pieces, this.tiles, this.images, this.position});
+  PiecePainter({this.pieces, this.tiles, this.images, this.position, this.imageProvSize});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,11 +31,10 @@ class PiecePainter extends CustomPainter {
         Paint paint = Paint()
           ..color = Colors.brown;
 
-
           ui.Image currentImage = images[piece.pieceType][piece.player];
 
         if (currentImage != null) {
-            canvas.drawImage(currentImage, Tile.toOffset(tiles[piece.position].middle, position, size), paint);
+            canvas.drawImage(currentImage, Tile.toOffset(Point(tiles[piece.position].middle.x - (imageProvSize.width / 2) ,tiles[piece.position].middle.y - (imageProvSize.height / 2))), paint);
         }
         else{
           print('Piece Painter: Couldnt Paint');

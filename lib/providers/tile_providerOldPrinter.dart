@@ -59,7 +59,7 @@ class TileProvider with ChangeNotifier {
 
   void generateTiles() {
     tiles = {};
-    List<List<Point>> pointsThird = BoardData.tilePointsThird;
+    List<List<Point>> pointsThird = null;
     int _whiteBoolCount = 0;
     bool _lastisWhite = true;
 
@@ -90,7 +90,7 @@ class TileProvider with ChangeNotifier {
 
     for (int i = 0; i < 3; i++) {
       Map<String, List<Point>> currentBoardThird = {};
-      List<String> idStringThird = BoardData.CoordinateStrings[i];
+      List<String> idStringThird = null;
       for (int j = 0; j < idStringThird.length; j++) {
         currentBoardThird[idStringThird[j]] = pointsThird[j];
       }
@@ -104,7 +104,7 @@ class TileProvider with ChangeNotifier {
             directions: BoardData.adjacentTiles[key]);
       });
       //rotate
-      List<List<Point>> pointsThird2 = BoardData.tilePointsThird;
+      List<List<Point>> pointsThird2 = null;
       List<List<Point>> newPoints = new List();
       for (int k = 0; k < pointsThird2.length; k++) {
         newPoints.add(List());

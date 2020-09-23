@@ -17,7 +17,7 @@ import '../models/tile.dart';
 class PiecePainter extends CustomPainter {
   final List<Piece> pieces;
   final Map<String, Tile> tiles;
-  final Map<PieceType, Map<PlayerColor, ui.Image>> images;
+  final Map<PieceKey, ui.Image> images;
   final Point position;
   Size imageProvSize;
 
@@ -26,14 +26,21 @@ class PiecePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-
       for (Piece piece in pieces) {
-        Paint paint = Paint()
-          ..color = Colors.brown;
 
-          ui.Image currentImage = images[piece.pieceType][piece.player];
+        print('pieces:'+ piece.player.toString());
+
+        Paint paint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+          ui.Image currentImage = images[piece.pieceKey];
 
         if (currentImage != null) {
+          if(piece.position == "L2"){
+            print(tiles[piece.position].points.toString());
+          }
+            print(piece.position);
+
             canvas.drawImage(currentImage, Tile.toOffset(Point(tiles[piece.position].middle.x - (imageProvSize.width / 2) ,tiles[piece.position].middle.y - (imageProvSize.height / 2))), paint);
         }
         else{
@@ -41,13 +48,15 @@ class PiecePainter extends CustomPainter {
         }
       }
 
+
   }
+
 
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     // TODO: implement shouldRepaint
-    return false;
+    return true;
   }
 
 }

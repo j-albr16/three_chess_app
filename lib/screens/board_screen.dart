@@ -43,7 +43,7 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: !Provider.of<ImageProv>(context).isImagesloaded
+      body: !Provider.of<ImageProv>(context).isImagesLoaded
           ? Center(
               child: CircularProgressIndicator(),
             )

@@ -7,37 +7,33 @@ import '../providers/piece_provider.dart';
 class ImageData{
 
 
-  static const Map<PieceType, Map<PlayerColor, String>> assetPaths ={
-    PieceType.Pawn:{
-      PlayerColor.black:'assets/pieces/black/pawn_black.png',
-      PlayerColor.white:'assets/pieces/white/pawn_white.png',
-      PlayerColor.red:'assets/pieces/black/pawn_black.png',
-    },
-    PieceType.Bishop:{
-      PlayerColor.black:'assets/pieces/black/bishop_black.png',
-      PlayerColor.white:'assets/pieces/white/bishop_white.png',
-      PlayerColor.red:'assets/pieces/black/bishop_black.png',
-    },
-    PieceType.Knight:{
-      PlayerColor.black:'assets/pieces/black/knight_black.png',
-      PlayerColor.white:'assets/pieces/white/knight_white.png',
-      PlayerColor.red:'assets/pieces/black/knight_black.png',
-    },
-    PieceType.Rook:{
-      PlayerColor.black:'assets/pieces/black/rook_black.png',
-      PlayerColor.white:'assets/pieces/white/rook_white.png',
-      PlayerColor.red:'assets/pieces/black/rook_black.png',
-    },
-    PieceType.Queen:{
-      PlayerColor.black:'assets/pieces/black/queen_black.png',
-      PlayerColor.white:'assets/pieces/white/queen_white.png',
-      PlayerColor.red:'assets/pieces/black/queen_black.png',
-    },
-    PieceType.King:{
-      PlayerColor.black:'assets/pieces/black/king_black.png',
-      PlayerColor.white:'assets/pieces/white/king_white.png',
-      PlayerColor.red:'assets/pieces/black/king_black.png',
-    },
+  static Map<PieceKey, String> assetPaths ={
+
+    PieceKeyGen.genKey(PieceType.Pawn, PlayerColor.white): 'assets/pieces/pawn_white.png',
+    PieceKeyGen.genKey(PieceType.Pawn, PlayerColor.black): 'assets/pieces/pawn_black.png',
+    PieceKeyGen.genKey(PieceType.Pawn, PlayerColor.red): 'assets/pieces/pawn_red.png',
+
+    PieceKeyGen.genKey(PieceType.Rook, PlayerColor.white): 'assets/pieces/rook_white.png',
+    PieceKeyGen.genKey(PieceType.Rook, PlayerColor.black): 'assets/pieces/rook_black.png',
+    PieceKeyGen.genKey(PieceType.Rook, PlayerColor.red): 'assets/pieces/rook_red.png',
+
+    PieceKeyGen.genKey(PieceType.Knight, PlayerColor.white): 'assets/pieces/knight_white.png',
+    PieceKeyGen.genKey(PieceType.Knight, PlayerColor.black): 'assets/pieces/knight_black.png',
+    PieceKeyGen.genKey(PieceType.Knight, PlayerColor.red): 'assets/pieces/knight_red.png',
+
+    PieceKeyGen.genKey(PieceType.Bishop, PlayerColor.white): 'assets/pieces/bishop_white.png',
+    PieceKeyGen.genKey(PieceType.Bishop, PlayerColor.black): 'assets/pieces/bishop_black.png',
+    PieceKeyGen.genKey(PieceType.Bishop, PlayerColor.red): 'assets/pieces/bishop_red.png',
+
+    PieceKeyGen.genKey(PieceType.King, PlayerColor.white): 'assets/pieces/king_white.png',
+    PieceKeyGen.genKey(PieceType.King, PlayerColor.black): 'assets/pieces/king_black.png',
+    PieceKeyGen.genKey(PieceType.King, PlayerColor.red): 'assets/pieces/king_red.png',
+
+    PieceKeyGen.genKey(PieceType.Queen, PlayerColor.white): 'assets/pieces/queen_white.png',
+    PieceKeyGen.genKey(PieceType.Queen, PlayerColor.black): 'assets/pieces/queen_black.png',
+    PieceKeyGen.genKey(PieceType.Queen, PlayerColor.red): 'assets/pieces/queen_red.png',
+
+
 
   };
 

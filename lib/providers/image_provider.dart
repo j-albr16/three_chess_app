@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
-
-import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart' as image;
@@ -15,8 +13,8 @@ import '../data/image_data.dart';
 
 
 class ImageProv with ChangeNotifier{
-  Map<PieceType, Map<PlayerColor, ui.Image>> images = {};
-  bool isImagesloaded = false;
+  Map<PieceKey, ui.Image> images = {};
+  bool isImagesLoaded = false;
   ui.Size size = ui.Size(55,57);
 
   ImageProv(){
@@ -24,30 +22,18 @@ class ImageProv with ChangeNotifier{
   }
 
   Future <Null> init() async {
-    List tempImages = [];
-    List piecT = [];
-    List playC = [];
+
+
     images = {};
     Map pathStrings = ImageData.assetPaths;
-    for(PieceType pieceType in pathStrings.keys.toList()){
-      for(PlayerColor playerColor in pathStrings[pieceType].keys.toList()){
-        final ByteData data = await rootBundle.load(ImageData.assetPaths[pieceType][playerColor]);
-        tempImages.add(await loadImage(data));
-        piecT.add(pieceType);
-        playC.add(playerColor);
-      }
-    }
-    for(int i = 0; i < piecT.length; i ++){
-      Map<PlayerColor, ui.Image> colors = {};
-      for(int j = 0; j < 3; j++){
-        colors[playC[j]] = tempImages[i];
-      }
-      images[piecT[i]] = colors;
-    }
-    print(images.toString());
+    print(pathStrings.toString());
 
-      isImagesloaded = true;
-      notifyListeners();
+    for(MapEntry<PieceKey, String> assetEntry in pathStrings.entries.toList()){
+        final ByteData data = await rootBundle.load(assetEntry.value);
+        images[assetEntry.key] =  await loadImage(data);
+    }
+      isImagesLoaded = true;
+    notifyListeners();
   }
 
   Future<ui.Image> loadImage(ByteData img) async {

@@ -12,14 +12,14 @@ class Tile{
 
 
   Point get middle{
-    double sx = 0;
-    double sy = 0;
-    double sL = 0;
+    double sx = 0.0;
+    double sy = 0.0;
+    double sL = 0.0;
     for (int i = 0; i < points.length; i++){
-      double x0 = (i == 0 ? points.last : points[i-1]).x;
-      double y0 = (i == 0 ? points.last : points[i-1]).y;
-      double x1 = points[i].x;
-      double y1 = points[i].y;
+      double x0 = (i == 0 ? points.last : points[i-1]).x.toDouble();
+      double y0 = (i == 0 ? points.last : points[i-1]).y.toDouble();
+      double x1 = points[i].x.toDouble();
+      double y1 = points[i].y.toDouble();
       double L = sqrt(pow((x1 - x0),2) + pow((y1 - y0),2)); //Math.p
       sx += ((x0 + x1)/2) * L;
       sy += ((y0 + y1)/2) * L;

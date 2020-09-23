@@ -37,11 +37,11 @@ class BoardPainter extends CustomPainter {
       paint.color = Colors.brown;
     }
     Path path = Path()
-      ..moveTo(tile.points[0].x, tile.points[0].y)
-      ..lineTo(tile.points[1].x, tile.points[1].y)
-      ..lineTo(tile.points[2].x, tile.points[2].y)
-      ..lineTo(tile.points[3].x, tile.points[3].y)
-      ..lineTo(tile.points[0].x, tile.points[0].y)
+      ..moveTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
+      ..lineTo(tile.points[1].x.toDouble(), tile.points[1].y.toDouble())
+      ..lineTo(tile.points[2].x.toDouble(), tile.points[2].y.toDouble())
+      ..lineTo(tile.points[3].x.toDouble(), tile.points[3].y.toDouble())
+      ..lineTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
       ..close();
 
     Paint borderPaint = Paint()
@@ -79,7 +79,7 @@ class BoardPainter extends CustomPainter {
 
 
   Offset _toOff(Point point) {
-    return Offset((point.x), (point.y));
+    return Offset((point.x).toDouble(), (point.y).toDouble());
   }
 
   Point _toPoint(Offset offset) {

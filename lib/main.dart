@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:three_chess/providers/tile_select.dart';
-
 import 'package:responsive_framework/responsive_framework.dart';
+
 import './screens/home_screen.dart';
 import './screens/board_screen.dart';
 import './providers/tile_provider.dart';

@@ -28,8 +28,6 @@ class PiecePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
       for (Piece piece in pieces) {
 
-        print('pieces:'+ piece.player.toString());
-
         Paint paint = Paint()
         ..color = Colors.white
         ..style = PaintingStyle.fill;
@@ -39,7 +37,6 @@ class PiecePainter extends CustomPainter {
           if(piece.position == "L2"){
             print(tiles[piece.position].points.toString());
           }
-            print(piece.position);
 
             canvas.drawImage(currentImage, Tile.toOffset(Point(tiles[piece.position].middle.x - (imageProvSize.width / 2) ,tiles[piece.position].middle.y - (imageProvSize.height / 2))), paint);
         }

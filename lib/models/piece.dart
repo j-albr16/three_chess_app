@@ -24,12 +24,12 @@ static getPlayerColor(PieceKey pieceKey){
 class Piece{
   String position;
   final PieceType pieceType;
-  final PlayerColor player;
+  final PlayerColor playerColor;
   PieceKey get pieceKey{
-    return PieceKeyGen.genKey(pieceType, player);
+    return PieceKeyGen.genKey(pieceType, playerColor);
   }
 
-  Piece({this.position, this.pieceType, this.player,});
+  Piece({this.position, this.pieceType, this.playerColor,});
 
 
 }

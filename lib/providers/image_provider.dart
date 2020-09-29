@@ -26,7 +26,6 @@ class ImageProv with ChangeNotifier{
 
     images = {};
     Map pathStrings = ImageData.assetPaths;
-    print(pathStrings.toString());
 
     for(MapEntry<PieceKey, String> assetEntry in pathStrings.entries.toList()){
         final ByteData data = await rootBundle.load(assetEntry.value);

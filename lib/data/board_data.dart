@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../models/enums.dart';
 
 class BoardData {
 
@@ -195,6 +196,202 @@ class BoardData {
     "K9" : false,
 
     "L9" : true,
+
+  };
+
+  static Map<String, PlayerColor> sideData = {
+
+    "A1" : PlayerColor.white,
+
+    "B1" : PlayerColor.white,
+
+    "C1" : PlayerColor.white,
+
+    "D1" : PlayerColor.white,
+
+    "E1" : PlayerColor.white,
+
+    "F1" : PlayerColor.white,
+
+    "G1" : PlayerColor.white,
+
+    "H1" : PlayerColor.white,
+
+    "A2" : PlayerColor.white,
+
+    "B2" : PlayerColor.white,
+
+    "C2" : PlayerColor.white,
+
+    "D2" : PlayerColor.white,
+
+    "E2" : PlayerColor.white,
+
+    "F2" : PlayerColor.white,
+
+    "G2" : PlayerColor.white,
+
+    "H2" : PlayerColor.white,
+
+    "A3" : PlayerColor.white,
+
+    "B3" : PlayerColor.white,
+
+    "C3" : PlayerColor.white,
+
+    "D3" : PlayerColor.white,
+
+    "E3" : PlayerColor.white,
+
+    "F3" : PlayerColor.white,
+
+    "G3" : PlayerColor.white,
+
+    "H3" : PlayerColor.white,
+
+    "A4" : PlayerColor.white,
+
+    "B4" : PlayerColor.white,
+
+    "C4" : PlayerColor.white,
+
+    "D4" : PlayerColor.white,
+
+    "E4" : PlayerColor.white,
+
+    "F4" : PlayerColor.white,
+
+    "G4" : PlayerColor.white,
+
+    "H4" : PlayerColor.white,
+
+    "L8" : PlayerColor.black,
+
+    "K8" : PlayerColor.black,
+
+    "J8" : PlayerColor.black,
+
+    "I8" : PlayerColor.black,
+
+    "D8" : PlayerColor.black,
+
+    "C8" : PlayerColor.black,
+
+    "B8" : PlayerColor.black,
+
+    "A8" : PlayerColor.black,
+
+    "L7" : PlayerColor.black,
+
+    "K7" : PlayerColor.black,
+
+    "J7" : PlayerColor.black,
+
+    "I7" : PlayerColor.black,
+
+    "D7" : PlayerColor.black,
+
+    "C7" : PlayerColor.black,
+
+    "B7" : PlayerColor.black,
+
+    "A7" : PlayerColor.black,
+
+    "L6" : PlayerColor.black,
+
+    "K6" : PlayerColor.black,
+
+    "J6" : PlayerColor.black,
+
+    "I6" : PlayerColor.black,
+
+    "D6" : PlayerColor.black,
+
+    "C6" : PlayerColor.black,
+
+    "B6" : PlayerColor.black,
+
+    "A6" : PlayerColor.black,
+
+    "L5" : PlayerColor.black,
+
+    "K5" : PlayerColor.black,
+
+    "J5" : PlayerColor.black,
+
+    "I5" : PlayerColor.black,
+
+    "D5" : PlayerColor.black,
+
+    "C5" : PlayerColor.black,
+
+    "B5" : PlayerColor.black,
+
+    "A5" : PlayerColor.black,
+
+    "H12" : PlayerColor.red,
+
+    "G12" : PlayerColor.red,
+
+    "F12" : PlayerColor.red,
+
+    "E12" : PlayerColor.red,
+
+    "I12" : PlayerColor.red,
+
+    "J12" : PlayerColor.red,
+
+    "K12" : PlayerColor.red,
+
+    "L12" : PlayerColor.red,
+
+    "H11" : PlayerColor.red,
+
+    "G11" : PlayerColor.red,
+
+    "F11" : PlayerColor.red,
+
+    "E11" : PlayerColor.red,
+
+    "I11" : PlayerColor.red,
+
+    "J11" : PlayerColor.red,
+
+    "K11" : PlayerColor.red,
+
+    "L11" : PlayerColor.red,
+
+    "H10" : PlayerColor.red,
+
+    "G10" : PlayerColor.red,
+
+    "F10" : PlayerColor.red,
+
+    "E10" : PlayerColor.red,
+
+    "I10" : PlayerColor.red,
+
+    "J10" : PlayerColor.red,
+
+    "K10" : PlayerColor.red,
+
+    "L10" : PlayerColor.red,
+
+    "H9" : PlayerColor.red,
+
+    "G9" : PlayerColor.red,
+
+    "F9" : PlayerColor.red,
+
+    "E9" : PlayerColor.red,
+
+    "I9" : PlayerColor.red,
+
+    "J9" : PlayerColor.red,
+
+    "K9" : PlayerColor.red,
+
+    "L9" : PlayerColor.red,
 
   };
 
@@ -1679,6 +1876,19 @@ class Directions {
   List<String> top;
   List<String> topRight;
   List<String> right;
+
+  List<List<String>> get _allDir{
+    return [bottomRight, bottom, bottomLeft, left, leftTop, top, topRight, right];
+  }
+
+  List<String> getFromEnum(Direction direction){
+    return _allDir[direction.index];
+  }
+
+  List<String> getRelativeEnum(Direction direction, PlayerColor playerColor, PlayerColor side){
+    return _allDir[(direction.index + (3*((playerColor.index - side.index)%3)))%8];
+  }
+
 
   Directions(
       {this.bottomRight,

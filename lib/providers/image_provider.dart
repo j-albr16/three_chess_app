@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart' as image;
 
-import '../models/piece.dart';
+import '../models/enums.dart';
 import '../data/image_data.dart';
 
 // HGSDASD

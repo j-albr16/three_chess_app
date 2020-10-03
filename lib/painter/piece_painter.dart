@@ -1,16 +1,10 @@
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:three_chess/providers/image_provider.dart';
+import 'package:three_chess/models/enums.dart';
 
 import '../models/piece.dart';
-import '../data/board_data.dart';
-import '../providers/tile_provider.dart';
 import '../models/tile.dart';
 
 

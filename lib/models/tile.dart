@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'enums.dart';
 import '../data/board_data.dart';
 
 class Tile{
@@ -9,6 +10,7 @@ class Tile{
   final bool isWhite;
   final String id;
   final Directions directions;
+  final PlayerColor side;
 
 
   Point get middle{
@@ -41,6 +43,6 @@ class Tile{
       return Offset(point.x , point.y);
   }
 
-  Tile({@required this.points, @required this.isWhite, @required this.id, @required this.directions});
+  Tile({@required this.points, @required this.isWhite, @required this.id, @required this.directions, @required this.side});
 
 }

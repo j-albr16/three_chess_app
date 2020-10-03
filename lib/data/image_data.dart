@@ -1,6 +1,6 @@
 
 import '../models/piece.dart';
-import '../providers/piece_provider.dart';
+import '../models/enums.dart';
 
 
 

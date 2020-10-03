@@ -1,12 +1,6 @@
-import 'dart:math' as math;
-
-import 'package:collection/collection.dart';
-import 'package:equatable/equatable.dart';
+import 'enums.dart';
 
 
-enum PieceKey{PawnWhite, PawnBlack, PawnRed, RookWhite, RookBlack, RookRed, KnightWhite, KnightBlack, KnightRed, BishopWhite, BishopBlack, BishopRed, KingWhite, KingBlack, KingRed, QueenWhite, QueenBlack, QueenRed}
-enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
-enum PlayerColor{white, black, red }
 
 class PieceKeyGen {
 static genKey(PieceType pieceType, PlayerColor playerColor){

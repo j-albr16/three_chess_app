@@ -21,7 +21,8 @@ class TileProvider with ChangeNotifier {
             id: e.key,
             points: e.value,
             isWhite: BoardData.tileWhiteData[e.key],
-            directions: BoardData.adjacentTiles[e.key]);
+            directions: BoardData.adjacentTiles[e.key],
+            side: BoardData.sideData[e.key]);
       });
     }
   }

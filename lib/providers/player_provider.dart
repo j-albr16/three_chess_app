@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:three_chess/models/piece.dart';
+import '../models/enums.dart';
 
 
 class PlayerProvider with ChangeNotifier{

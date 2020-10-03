@@ -7,6 +7,7 @@ import 'package:three_chess/providers/piece_provider.dart';
 import 'package:three_chess/providers/player_provider.dart';
 import 'package:three_chess/providers/thinking_board.dart';
 import 'tile_provider.dart';
+import '../models/enums.dart';
 import '../models/piece.dart';
 
 class TileSelect with ChangeNotifier{
@@ -29,6 +30,8 @@ class TileSelect with ChangeNotifier{
     List<Piece> pieces  = pieceProv.pieces;
     Piece selectedPiece = pieces.firstWhere((e) => e.position == newTile, orElse: () => null);
     PlayerColor currPlayer = Provider.of<PlayerProvider>(context, listen: false).currentPlayer;
+
+    ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
     if(!isMoveState){
       print('MoveState: OFF');
       if(selectedPiece?.playerColor == currPlayer){
@@ -37,10 +40,9 @@ class TileSelect with ChangeNotifier{
     }
     else { // isMoveState = true
       print('MoveState: ON');
-      if(true){ // ThinkingBoard.legalMoveTile(selectedTile, newTile, selectedPiece).contains(newTile)
-        // TODO Manage Piece deletion after taking
-        pieceProv.movePieceTo(selectedTile, newTile); // JANS IDEA: make this whole if-block to a ThinkingBoard call, so ThinkingBoard can also manage Piece deletion
-        ThinkingBoard.updateStatus();
+      if(true){ // thinkingBoard.getLegalMoves(selectedTile, selectedPiece, pieces).contains(newTile)
+        pieceProv.movePieceTo(selectedTile, newTile);
+        thinkingBoard.updateStatus();
       }
       isMoveState = false;
     }

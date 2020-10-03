@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../models/piece.dart';
+import '../models/enums.dart';
 
 
 class PieceProvider with ChangeNotifier {

@@ -39,6 +39,10 @@ class TileSelect with ChangeNotifier{
       }
     }
     else { // isMoveState = true
+      Piece piece = pieces.firstWhere((e) => e.position == selectedTile);
+      if (piece.pieceType == PieceType.Bishop){
+        thinkingBoard.getLegalMove(selectedTile, piece, context);
+      }
       print('MoveState: ON');
       if(true){ // thinkingBoard.getLegalMoves(selectedTile, selectedPiece, pieces).contains(newTile)
         pieceProv.movePieceTo(selectedTile, newTile);

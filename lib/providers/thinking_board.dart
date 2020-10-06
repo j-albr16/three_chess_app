@@ -7,13 +7,14 @@ import '../models/piece.dart';
 import '../data/board_data.dart';
 import '../models/enums.dart';
 
+
 class ThinkingBoard with ChangeNotifier {
 
   ThinkingBoard();
 
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
-  List<String> getLegalMove(String selectedTile, Piece piece,BuildContext context) {
+  List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
     switch (piece.pieceType) {
       case PieceType.Pawn:
         return _legalMovesPawn(piece.playerColor);
@@ -30,6 +31,57 @@ class ThinkingBoard with ChangeNotifier {
     }
   }
 
+  void thinkOneStep(List<String> myList, Direction direction, String currTile, BuildContext context ){
+    List<String> nextTile = BoardData.adjacentTiles[currTile].getFromEnum(direction); //NO RELATIVE ENUM YET
+      for(String thisTile in nextTile){
+        oneDirection(myList, direction, thisTile, context);
+      }
+
+  }
+
+  bool canMoveOn(String tile, List<Piece> pieces, PlayerColor myColor, BuildContext context){
+    bool result = false;
+    Piece piece = pieces.singleWhere((e) => e.position == tile, orElse: () => null);
+    if(piece == null){
+      result = true;
+     }
+    else if(piece.playerColor != myColor){
+      result = null;
+    }
+
+    return result;
+  }
+
+  void oneDirection(List<String> myList, Direction direction, String tile, BuildContext context){
+    bool canI = canMoveOn(tile, _getPieces(context), _getPlayerColor(tile, context), context);
+    //Is someTile legal
+    if(canI == true){
+      //yes: add to result
+      myList.add(tile);
+      thinkOneStep(myList, direction, tile, context);
+      // if legal and not a take --> result.addAll(thinkOneStep)
+    }
+    else if(canI == null){
+      myList.add(tile);
+    }
+
+
+      //no: nothing
+  }
+
+  Piece _getPiece(String tile, BuildContext context){
+   List<Piece> pieces = _getPieces(context);
+    return pieces.firstWhere((e) => e.position == tile, orElse: () => null);
+  }
+  List<Piece> _getPieces(BuildContext context){
+    return Provider
+        .of<PieceProvider>(context, listen: false)
+        .pieces;
+  }
+  PlayerColor _getPlayerColor(String tile, BuildContext context) {
+    Piece piece = _getPiece(tile, context);
+    return piece?.playerColor;
+  }
 
   List<String> _legalMovesPawn(PlayerColor playerColor) {
 
@@ -46,77 +98,14 @@ class ThinkingBoard with ChangeNotifier {
   List<String> _legalMovesBishop(PlayerColor playerColor, String selectedTile,
       context) {
     //List of all possible Directions
+    List<String> allLegalMoves = [];
     List<Direction> possibleDirections = [Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
-    // List of all legal moves
-    List<String> _legalMoves = [];
-    //map with all current selected Tiles and directions
-    Map<Direction, List<String>> lookAtTiles = {
-      possibleDirections[0]: [selectedTile],
-      possibleDirections[1]: [selectedTile],
-      possibleDirections[2]: [selectedTile],
-      possibleDirections[3]: [selectedTile]
-    };
-    // starting the loop... getting 4 notValid tiles the loop breaks. (+1 for every step over special tile)
-    int i = 0;
-    while (i < 4) {
-      // going to the next Tile according to given direction
-      lookAtTiles.forEach((key, value) {
-       List<String> currentTile = lookAtTiles[key];
-       List<String> nextTile = BoardData.adjacentTiles[value[0]].key;
-       // checking whether you go to the next BoardThird
-       if (BoardData.sideData[currentTile] != BoardData.sideData[nextTile]){
-         // Changing Direction
-         changeDirection(key, PieceType.Bishop, possibleDirections);
-       }
-        currentTile = nextTile;
-      });
 
-      // checking whether Tile is allowed or not
-      lookAtTiles.forEach((key, value) {
-        // first case where we dont have special field::....
-        if (value.length == 1) {
-          //entry remains if value is valid
-          bool isV = isValid(context, value[0], playerColor);
-          if (!isV) {
-            //entry is removed if value is not valid
-            // counter for not valid tiles is increased
-            lookAtTiles.removeWhere((k, v) => v == value);
-            i += 1;
-          }
-          // checks whether player color is not equal
-          else if (isV == null){
-            // if you can kill a piece also stop moving afterwards but this move is viable
-            lookAtTiles.removeWhere((k, v) => v == value);
-            i += 1;
-            _legalMoves.add(value[0]);
-          }
-        }else{
-          // if step over special tile one more not valid tile is expected
-          i -= 1;
-          value.forEach((element) {
-            // iterate over all received tiles after special Tile split
-            bool isVal = isValid(context, element, playerColor);
-            if (isVal) {
-              // if tile is valid add entry with this tile
-              lookAtTiles.addEntries([MapEntry(key, [element])]);
-              // ceck if you could kill the piece on the tile
-            } else if (isVal == null){
-              //you can move and kill the enemy piece but then you have to stop
-              _legalMoves.add(element);
-            }else{
-              // else tile is not added but counter is increased
-              i += 1;
-            }
-            lookAtTiles.remove(key);
-          });
-        }
-      });
-      // finally adding legal moves for all remaining entries
-      lookAtTiles.forEach((key, value) {
-        _legalMoves.add(value[0]);
-      });
-    }
-    return _legalMoves;
+    possibleDirections.forEach((element) {
+      thinkOneStep(allLegalMoves, element, selectedTile ,context);
+    });
+    print(allLegalMoves.toString());
+    return allLegalMoves;
   }
 
   List<String> _legalMovesKing(PlayerColor playerColor) {
@@ -135,7 +124,7 @@ class ThinkingBoard with ChangeNotifier {
   bool isValid(BuildContext context, String tile,
       PlayerColor playerColor) {
     List<Piece> pieces = Provider
-        .of<PieceProvider>(context)
+        .of<PieceProvider>(context, listen: false)
         .pieces;
     //checks whether no piece is on this tile
     if (pieces.firstWhere((e) => e.position == tile, orElse: () => null) ==

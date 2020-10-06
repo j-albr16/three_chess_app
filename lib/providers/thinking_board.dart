@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
@@ -13,7 +15,7 @@ class ThinkingBoard with ChangeNotifier{
   ThinkingBoard();
   
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
-  
+
   List<String> getLegalMoves(String selectedTile, Piece piece, List<Piece> pieces){
     _pieces = pieces;
     if (piece != null) {
@@ -36,73 +38,61 @@ class ThinkingBoard with ChangeNotifier{
     return [];
     }
 
+    List<String> _getMovesInDirection(){
+
+  }
+
     // Direction must be relative to currentColor for this to Work, need to make a make relative wrapper, possible in Directions
 
-    List<String> _getMovesInDirection(String startTile, Direction direction, {bool onlyOne = false, bool oneMoveTake = true}){
-      //startTile == piece.position
-      List<String> possibleMoves = [];
-      List<String> nextTiles = BoardData.adjacentTiles[startTile].getFromEnum(direction);
-      print("nextTiles: " + nextTiles.toString());
-      bool oneMoveTakeWrapper(bool wrapped){
-        bool result = true;
-        oneMoveTake ? result = wrapped : result = true;
-        return result;
-      }
-
-        if (!onlyOne) {
-          for (String nextTile in nextTiles) {
-            possibleMoves.addAll(_movesInDirection(nextTile, direction));
-          }
-        }
-        else{
-          for (String nextTile in nextTiles) {
-            if (_pieces.firstWhere((e) => e.position == nextTile && e.playerColor == currentColor, orElse: null) == null) {
-              possibleMoves?.add(nextTile);
-            }
-          }
-        }
-      print(possibleMoves.toString());
-      return possibleMoves;
+    List<String> _movesDirection (String StartingTile, Direction direction){
+    
     }
 
-    List<String> _movesInDirection(String currentTile, Direction direction){
-    List<String> possibleMoves = [];
-      List<String> nextTiles = BoardData.adjacentTiles[currentTile].getFromEnum(direction);
+    List<String> _movesOneDirection (String StartingTile, Direction direction, bool canTake) {
+    
+    }
 
-      possibleMoves.add(currentTile);
+    List<String> _LShape (){
 
-      if(nextTiles.isEmpty){
-        return [];
-      }
-      else{
-        for(String checkTile in nextTiles){
-          if(_pieces.firstWhere((e) => e.position == checkTile, orElse: null)?.playerColor != currentColor){
-            possibleMoves.add(checkTile);
+    }
+
+    List<String> _movesKnightDirection (String StartingTile){
+      List<String> possMoves = [];
+
+      for(int i = 0; i < 8; i++){
+        List<String> adjecTiles = null ; // TODO MAKE L SHAPE
+        for(String adjecTile in adjecTiles) {
+          if (_pieces.firstWhere((element) => element.position == adjecTile,
+              orElse: null) == null) { //Check for Piece
+            possMoves.add(adjecTile);
+            possMoves.addAll(_movesKnightDirection(adjecTile));
           }
-          else if(_pieces.firstWhere((e) => e.position == checkTile, orElse: null) == null){
-            possibleMoves.addAll(_movesInDirection(checkTile, direction));
+          else
+          if (_pieces.firstWhere((element) => element.position == adjecTile &&
+              element.playerColor != currentColor, orElse: null) ==
+              null) { //If theres a piece, check if enemy Piece (takeable)
+            possMoves.add(adjecTile);
           }
         }
-        return possibleMoves;
       }
     }
 
 
     List<String> _legalMovesPawn(PlayerColor playerColor, String selectedTile){
       List<String> possibleMoves = [];
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top, onlyOne: true, oneMoveTake: false));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top, onlyOne: true, oneMoveTake: false));
 
       return possibleMoves;
     }
 
     List<String> _legalMovesRook(PlayerColor playerColor, String selectedTile){
       List<String> possibleMoves = [];
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom));
 
       return possibleMoves;
     }
@@ -113,42 +103,42 @@ class ThinkingBoard with ChangeNotifier{
 
     List<String> _legalMovesBishop(PlayerColor playerColor, String selectedTile){
       List<String> possibleMoves = [];
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft));
 
       return possibleMoves;
     }
 
     List<String> _legalMovesKing(PlayerColor playerColor, String selectedTile){
       List<String> possibleMoves = [];
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom, onlyOne: true));
-
-
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight, onlyOne: true));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom, onlyOne: true));
+//
+//
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight, onlyOne: true));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft, onlyOne: true));
 
       return possibleMoves;
     }
 
     List<String> _legalMovesQueen(PlayerColor playerColor, String selectedTile){
       List<String> possibleMoves = [];
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom));
-
-
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight));
-      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.left));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.right));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.top));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottom));
+//
+//
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.topRight));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.leftTop));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomRight));
+//      possibleMoves.addAll(_getMovesInDirection(selectedTile, Direction.bottomLeft));
 
       return possibleMoves;
     }
@@ -157,4 +147,6 @@ class ThinkingBoard with ChangeNotifier{
   void updateStatus(){
 
   }
+
+
 }

@@ -1899,4 +1899,6 @@ class Directions {
       this.top,
       this.topRight,
       this.right});
+
+  List<String> get key => null;
 }

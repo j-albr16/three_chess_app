@@ -138,7 +138,7 @@ class ThinkingBoard with ChangeNotifier {
       context) {
     //List of all possible Directions
     List<String> allLegalMoves = [];
-    //Absolute direction
+    //Absolute direction, sd
     List<Direction> directionsTake = [Direction.topRight, Direction.leftTop];
     List<Direction> directionsMove = [Direction.topRight, Direction.leftTop];
     //Directions relative to board side

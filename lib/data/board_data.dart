@@ -1885,10 +1885,15 @@ class Directions {
     return _allDir[direction.index];
   }
 
-  List<String> getRelativeEnum(Direction direction, PlayerColor playerColor, PlayerColor side){
-    return _allDir[(direction.index + (3*((playerColor.index - side.index)%3)))%8];
+    List<String> getRelativeEnum(Direction direction, PlayerColor playerColor, PlayerColor side){
+   // print("playerColor: " + playerColor.toString()+ " side: " + side.toString() + " direction.index: " + direction.index.toString() + " i: " + ((playerColor != side) ? (direction.index+4)%8 : direction.index).toString());
+    int i = (playerColor != side) ? (direction.index+4)%8 : direction.index;
+    return _allDir[i];
   }
 
+  static Direction makeRelativeEnum(Direction direction, PlayerColor playerColor, PlayerColor side){
+    return Direction.values[(playerColor != side) ? (direction.index+4)%8 : direction.index];
+  }
 
   Directions(
       {this.bottomRight,

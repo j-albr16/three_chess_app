@@ -101,7 +101,8 @@ class TileProvider with ChangeNotifier {
             id: key,
             points: value,
             isWhite: _nextBool(),
-            directions: BoardData.adjacentTiles[key]);
+            directions: BoardData.adjacentTiles[key],
+            side: BoardData.sideData[key],);
       });
       //rotate
       List<List<Point>> pointsThird2 = null;

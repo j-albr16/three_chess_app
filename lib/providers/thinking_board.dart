@@ -2,129 +2,235 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/providers/player_provider.dart';
 
 import '../models/piece.dart';
 import '../data/board_data.dart';
 import '../models/enums.dart';
 
-class ThinkingBoard with ChangeNotifier {
 
+class ThinkingBoard with ChangeNotifier {
+  //Get methods
+  Piece _getPiece(String tile, BuildContext context){
+    List<Piece> pieces = _getPieces(context);
+    return pieces.firstWhere((e) => e.position == tile, orElse: () => null);
+  }
+  List<Piece> _getPieces(BuildContext context){
+    return Provider
+        .of<PieceProvider>(context, listen: false)
+        .pieces;
+  }
+  PlayerColor _getPlayerColor(String pieceId, BuildContext context) {
+    Piece piece = _getPiece(pieceId, context);
+    return piece?.playerColor;
+  }
+
+  PlayerColor _getCurrentColor(context){
+    return Provider.of<PlayerProvider>(context, listen: false).currentPlayer;
+  }
+
+  //constructor
   ThinkingBoard();
 
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
-  List<String> getLegalMove(String selectedTile, Piece piece,BuildContext context) {
+  List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
     switch (piece.pieceType) {
       case PieceType.Pawn:
-        return _legalMovesPawn(piece.playerColor);
+        return _legalMovesPawn(piece.playerColor, selectedTile, context);
       case PieceType.Rook:
-        return _legalMovesRook(piece.playerColor);
+        return _legalMovesRook(piece.playerColor, selectedTile, context);
       case PieceType.Knight:
-        return _legalMovesKnight(piece.playerColor);
+        return _legalMovesKnight(piece.playerColor, selectedTile, context);
       case PieceType.Bishop:
         return _legalMovesBishop(piece.playerColor, selectedTile, context);
       case PieceType.King:
-        return _legalMovesKing(piece.playerColor);
+        return _legalMovesKing(piece.playerColor, selectedTile, context);
       case PieceType.Queen:
-        return _legalMovesQueen(piece.playerColor);
+        return _legalMovesQueen(piece.playerColor, selectedTile, context);
     }
   }
 
+  //Validating movabilty of a tile
+  bool _canMoveOn(String tile, List<Piece> pieces, PlayerColor myColor, BuildContext context){
+    bool result = false;
+    Piece piece = pieces.firstWhere((e) => e.position == tile, orElse: () => null);
+    if(piece == null){
+      result = true;
+    }
+    else if(piece.playerColor != myColor){
+      result = null;
+    }
 
-  List<String> _legalMovesPawn(PlayerColor playerColor) {
+    return result;
+  }
+
+  void thinkOneDirection(List<String> myList, Direction direction, String currTile, BuildContext context ){
+    List<String> nextTile = BoardData.adjacentTiles[currTile]?.getRelativeEnum(direction, _getCurrentColor(context), BoardData.sideData[currTile] );
+      if(nextTile.isNotEmpty){
+        for(int i = 0; i < nextTile.length; i++){
+          _oneDirection(myList, direction, nextTile[i], context);
+        }
+      }
 
   }
 
-  List<String> _legalMovesRook(PlayerColor playerColor) {
+  void thinkOneMove(List<String> myList, Direction direction, String currTile, BuildContext context, {bool canTake = true, canMoveWithoutTake = true}){
+    List<String> nextTile = BoardData.adjacentTiles[currTile]?.getRelativeEnum(direction, _getCurrentColor(context), BoardData.sideData[currTile] );
+    if(nextTile != null){
+      for(String thisTile in nextTile){
+        bool canI = _canMoveOn(thisTile, _getPieces(context), _getPlayerColor(thisTile, context), context);
+        //Is someTile legal
+        if(canI == true && canMoveWithoutTake){ //if tile is empty
+          //yes: add to result
+          myList.add(thisTile);
+          // if legal and not a take --> result.addAll(thinkOneStep)
+        }
+        else if(canI == null && canTake){ //if tile has enemy Piece && taking is enabled (default = true)
+          myList.add(thisTile);
+        }
 
+      }
+    }
   }
 
-  List<String> _legalMovesKnight(PlayerColor playerColor) {
+  void _oneDirection(List<String> myList, Direction direction, String tile, BuildContext context){
+    bool canI = _canMoveOn(tile, _getPieces(context), _getPlayerColor(tile, context), context);
+    //Is someTile legal
+    if(canI == true){ //if tile is empty
+      //yes: add to result
+      myList.add(tile);
+      thinkOneDirection(myList, direction, tile, context);
+      // if legal and not a take --> result.addAll(thinkOneStep)
+    }
+    else if(canI == null){ //if tile has enemy Piece
+      myList.add(tile);
+    }
 
+
+      //no: nothing
+  }
+  
+  List<String> multipleEnum(List<String> myList, List<Direction> directionList, String startTile, context){
+    List<String> result = [];
+    List<String> nextTiles = BoardData.adjacentTiles[startTile].getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile]);
+    for(String thisTile in nextTiles){
+      _stackEnumCalls(result, directionList.sublist(1), thisTile, context);
+    }
+  }
+  
+  void _stackEnumCalls(List<String> myList, List<Direction> directionList, String startTile, context){
+    if(directionList.length == 1){
+      for(String thisTile in BoardData.adjacentTiles[startTile].getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile])){
+        if (_canMoveOn(thisTile, _getPieces(context), _getCurrentColor(context), context)) {
+          myList.add(thisTile);
+        }
+      }
+    }
+    else{
+      for(String thisTile in BoardData.adjacentTiles[startTile].getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile])){
+        _stackEnumCalls(myList, directionList.sublist(1), thisTile, context);
+      }
+    }
+  }
+
+  List<String> _legalMovesPawn(PlayerColor playerColor, String selectedTile,
+      context) {
+    //List of all possible Directions
+    List<String> allLegalMoves = [];
+    //Absolute direction
+    List<Direction> directionsTake = [Direction.topRight, Direction.leftTop];
+    List<Direction> directionsMove = [Direction.topRight, Direction.leftTop];
+    //Directions relative to board side
+    List<Direction> possibleDirectionsTake = directionsTake.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+    List<Direction> possibleDirectionsMove = directionsTake.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+    //Searching all Directions after each other for legal Moves
+    possibleDirectionsTake.forEach((element) {
+      thinkOneMove(allLegalMoves, element, selectedTile ,context, canTake: true, canMoveWithoutTake: true);
+    });
+    possibleDirectionsMove.forEach((element) {
+      thinkOneMove(allLegalMoves, element, selectedTile ,context, canTake: false, canMoveWithoutTake: false);
+    });
+
+    return allLegalMoves;
+  }
+
+  List<String> _legalMovesRook(PlayerColor playerColor, String selectedTile,
+      context) {
+    //List of all possible Directions
+    List<String> allLegalMoves = [];
+    //Absolute direction
+    List<Direction> possibleDirectionsAbsolut = [Direction.top, Direction.right, Direction.bottom, Direction.left];
+    //Directions relative to board side
+    List<Direction> possibleDirections = possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile]));
+    //Searching all Directions after each other for legal Moves
+    possibleDirections.forEach((element) {
+      thinkOneDirection(allLegalMoves, element, selectedTile ,context);
+    });
+
+    return allLegalMoves;
+  }
+
+  List<String> _legalMovesKnight(PlayerColor playerColor, String selectedTile, context) {
+   List<String> legalMoves = [];
+   for(int i = 0; i < 4; i++){
+     for(int j = 0; j < 2; j++){
+       int firstDir = ((i+1)*2)%8;
+       int secondDir = (((firstDir+2)%8)+j*(4))%8;
+      multipleEnum(legalMoves,[Direction.values[firstDir],Direction.values[firstDir],Direction.values[secondDir],], selectedTile, context);
+     }
+   }
+   return legalMoves;
   }
 
   List<String> _legalMovesBishop(PlayerColor playerColor, String selectedTile,
       context) {
     //List of all possible Directions
-    List<Direction> possibleDirections = [Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
-    // List of all legal moves
-    List<String> _legalMoves = [];
-    //map with all current selected Tiles and directions
-    Map<Direction, List<String>> lookAtTiles = {
-      possibleDirections[0]: [selectedTile],
-      possibleDirections[1]: [selectedTile],
-      possibleDirections[2]: [selectedTile],
-      possibleDirections[3]: [selectedTile]
-    };
-    // starting the loop... getting 4 notValid tiles the loop breaks. (+1 for every step over special tile)
-    int i = 0;
-    while (i < 4) {
-      // going to the next Tile according to given direction
-      lookAtTiles.forEach((key, value) {
-       List<String> currentTile = lookAtTiles[key];
-       List<String> nextTile = BoardData.adjacentTiles[value[0]].key;
-       // checking whether you go to the next BoardThird
-       if (BoardData.sideData[currentTile] != BoardData.sideData[nextTile]){
-         // Changing Direction
-         changeDirection(key, PieceType.Bishop, possibleDirections);
-       }
-        currentTile = nextTile;
-      });
+    List<String> allLegalMoves = [];
+    //Absolute direction
+    List<Direction> possibleDirectionsAbsolut = [Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
+    //Directions relative to board side
+    List<Direction> possibleDirections = possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+    //Searching all Directions after each other for legal Moves
+    possibleDirections.forEach((element) {
+      thinkOneDirection(allLegalMoves, element, selectedTile ,context);
+    });
+    //print
+    print(allLegalMoves.toString());
 
-      // checking whether Tile is allowed or not
-      lookAtTiles.forEach((key, value) {
-        // first case where we dont have special field::....
-        if (value.length == 1) {
-          //entry remains if value is valid
-          bool isV = isValid(context, value[0], playerColor);
-          if (!isV) {
-            //entry is removed if value is not valid
-            // counter for not valid tiles is increased
-            lookAtTiles.removeWhere((k, v) => v == value);
-            i += 1;
-          }
-          // checks whether player color is not equal
-          else if (isV == null){
-            // if you can kill a piece also stop moving afterwards but this move is viable
-            lookAtTiles.removeWhere((k, v) => v == value);
-            i += 1;
-            _legalMoves.add(value[0]);
-          }
-        }else{
-          // if step over special tile one more not valid tile is expected
-          i -= 1;
-          value.forEach((element) {
-            // iterate over all received tiles after special Tile split
-            bool isVal = isValid(context, element, playerColor);
-            if (isVal) {
-              // if tile is valid add entry with this tile
-              lookAtTiles.addEntries([MapEntry(key, [element])]);
-              // ceck if you could kill the piece on the tile
-            } else if (isVal == null){
-              //you can move and kill the enemy piece but then you have to stop
-              _legalMoves.add(element);
-            }else{
-              // else tile is not added but counter is increased
-              i += 1;
-            }
-            lookAtTiles.remove(key);
-          });
-        }
-      });
-      // finally adding legal moves for all remaining entries
-      lookAtTiles.forEach((key, value) {
-        _legalMoves.add(value[0]);
-      });
-    }
-    return _legalMoves;
+    return allLegalMoves;
   }
 
-  List<String> _legalMovesKing(PlayerColor playerColor) {
+  List<String> _legalMovesKing(PlayerColor playerColor, String selectedTile,
+      context) {
+    //List of all possible Directions
+    List<String> allLegalMoves = [];
+    //Absolute direction
+    List<Direction> possibleDirectionsAbsolut = [Direction.top, Direction.right, Direction.bottom, Direction.left, Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
+    //Directions relative to board side
+    List<Direction> possibleDirections = possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+    //Searching all Directions after each other for legal Moves
+    possibleDirections.forEach((element) {
+      thinkOneMove(allLegalMoves, element, selectedTile ,context, canTake: true, canMoveWithoutTake: true);
+    });
 
+    return allLegalMoves;
   }
 
-  List<String> _legalMovesQueen(PlayerColor playerColor) {
+  List<String> _legalMovesQueen(PlayerColor playerColor, String selectedTile,
+      context) {
+    //List of all possible Directions
+    List<String> allLegalMoves = [];
+    //Absolute direction
+    List<Direction> possibleDirectionsAbsolut = [Direction.top, Direction.right, Direction.bottom, Direction.left, Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
+    //Directions relative to board side
+    List<Direction> possibleDirections = possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+    //Searching all Directions after each other for legal Moves
+    possibleDirections.forEach((element) {
+      thinkOneDirection(allLegalMoves, element, selectedTile ,context);
+    });
 
+    return allLegalMoves;
   }
 
 
@@ -135,7 +241,7 @@ class ThinkingBoard with ChangeNotifier {
   bool isValid(BuildContext context, String tile,
       PlayerColor playerColor) {
     List<Piece> pieces = Provider
-        .of<PieceProvider>(context)
+        .of<PieceProvider>(context, listen: false)
         .pieces;
     //checks whether no piece is on this tile
     if (pieces.firstWhere((e) => e.position == tile, orElse: () => null) ==

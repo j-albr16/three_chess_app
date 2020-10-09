@@ -62,7 +62,6 @@ class _BoardScreenState extends State<BoardScreen> {
                           painter: BoardPainter(context),
                         ),
                         _buildPieces(),
-                        //DRAGGABLE
                       ],
                     )),
               ),

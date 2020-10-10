@@ -4,11 +4,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/painter/board_painter.dart';
+import 'package:three_chess/painter/highlight_painter.dart';
 import 'package:three_chess/providers/image_provider.dart';
 import 'package:three_chess/providers/tile_select.dart';
+
 import '../painter/piece_painter.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
+import '../models/tile.dart';
 
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
@@ -41,6 +44,8 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Tile> currentHighlight =
+        Provider.of<TileSelect>(context).currentHightlight;
     return Scaffold(
       appBar: AppBar(),
       body: !Provider.of<ImageProv>(context).isImagesLoaded
@@ -61,6 +66,14 @@ class _BoardScreenState extends State<BoardScreen> {
                           key: boardPaintKey,
                           painter: BoardPainter(context),
                         ),
+                        if (currentHighlight != null)
+                          ColorFiltered(
+                            colorFilter: ColorFilter.mode(
+                                Colors.white, BlendMode.lighten),
+                            child: CustomPaint(
+                              painter: HighlightPainter(currentHighlight),
+                            ),
+                          ),
                         _buildPieces(),
                       ],
                     )),

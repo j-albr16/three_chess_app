@@ -12,7 +12,7 @@ class TileProvider with ChangeNotifier {
   double lowestValueX = double.infinity;
   double highestValueY = 0;
   double lowestValueY = double.infinity;
-  double get minHighest{
+  double get minHighest {
     return highestValueX < highestValueY ? highestValueY : highestValueX;
   }
 
@@ -21,9 +21,8 @@ class TileProvider with ChangeNotifier {
     // Map<String, List<Point>> tileData{
     // "A1" : [Point(1,1),Point(1,1),Point(1,1),Point(1,1)]
 
-
     tiles.forEach((id, tile) {
-      for(Point point in tile.points) {
+      for (Point point in tile.points) {
         if (point.x > highestValueX) {
           highestValueX = point.x;
         }
@@ -43,18 +42,19 @@ class TileProvider with ChangeNotifier {
       print('"$id" : ' + tile.isWhite.toString() + ',');
     });
     print('};');
-   // print('Map<String, List<Point>> tileData = {');
+    // print('Map<String, List<Point>> tileData = {');
     //tiles.forEach((id, tile) {
     //  print('"$id" : [Point(${dreiSatzX(tile.points[0].x)},${dreiSatzY(tile.points[0].y)}),Point(${dreiSatzX(tile.points[1].x)},${dreiSatzY(tile.points[1].y)}),Point(${dreiSatzX(tile.points[2].x)},${dreiSatzY(tile.points[2].y)}),Point(${dreiSatzX(tile.points[3].x)},${dreiSatzY(tile.points[3].y)})],');
     //});
     //print('};');
   }
 
-  double dreiSatzX(double zahl){
-    return (zahl - lowestValueX)*(1000/minHighest);
+  double dreiSatzX(double zahl) {
+    return (zahl - lowestValueX) * (1000 / minHighest);
   }
-  double dreiSatzY(double zahl){
-    return (zahl - lowestValueY)*(1000/minHighest);
+
+  double dreiSatzY(double zahl) {
+    return (zahl - lowestValueY) * (1000 / minHighest);
   }
 
   void generateTiles() {
@@ -98,11 +98,12 @@ class TileProvider with ChangeNotifier {
 
       currentBoardThird.forEach((key, value) {
         tiles[key] = Tile(
-            id: key,
-            points: value,
-            isWhite: _nextBool(),
-            directions: BoardData.adjacentTiles[key],
-            side: BoardData.sideData[key],);
+          id: key,
+          points: value,
+          isWhite: _nextBool(),
+          directions: BoardData.adjacentTiles[key],
+          side: BoardData.sideData[key],
+        );
       });
       //rotate
       List<List<Point>> pointsThird2 = null;

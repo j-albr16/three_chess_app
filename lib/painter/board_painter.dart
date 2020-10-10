@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +16,28 @@ class BoardPainter extends CustomPainter {
 
   BoardPainter(this.context);
 
+//Paragraph ....
+//######################
+  final style =
+      TextStyle(color: Colors.black, fontFamily: 'Roboto', fontSize: 5);
+
+  ui.Paragraph drawParagraph(String text) {
+    final paragraphStyle = ui.ParagraphStyle(
+      textDirection: TextDirection.ltr,
+      fontSize: style.fontSize,
+      fontFamily: style.fontFamily,
+      textAlign: TextAlign.justify,
+    );
+    ui.ParagraphBuilder paragraphBuilder = ui.ParagraphBuilder(paragraphStyle)
+      ..pushStyle(style.getTextStyle())
+      ..addText(text);
+
+    return paragraphBuilder.build()..layout(ui.ParagraphConstraints(width: 7));
+  }
+
+//#####################
+//end Paragraph
+
   //White: A-h, 1-4
   //Black: A-D,I-L, 5-8
   ///Third: E-L 9-12
@@ -30,13 +52,11 @@ class BoardPainter extends CustomPainter {
     //</editor-fold>
 
     Paint paint = Paint();
-    if(tile.isWhite){
+    if (tile.isWhite) {
       paint.color = Colors.grey;
-    }
-    else{
       paint.color = Colors.brown;
     }
-    Path path = Path()
+    Path path = Path() // TODO is obsolete since Tile(... @required Path)
       ..moveTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
       ..lineTo(tile.points[1].x.toDouble(), tile.points[1].y.toDouble())
       ..lineTo(tile.points[2].x.toDouble(), tile.points[2].y.toDouble())
@@ -63,20 +83,31 @@ class BoardPainter extends CustomPainter {
     ];
     paths[tile.id] = path;
     myCanvas
-      ..drawPath(path, paint, )
-      ..drawPoints(PointMode.polygon, points, borderPaint, )
-      ..drawPoints(PointMode.points, [_toOff(tile.middle)], dotPaint);
-    
+      ..drawPath(
+        path,
+        paint,
+      )
+      ..drawPoints(
+        ui.PointMode.polygon,
+        points,
+        borderPaint,
+      )
+      ..drawParagraph(drawParagraph(tile.id), _toOff(tile.middle))
+      ..drawPoints(ui.PointMode.points, [_toOff(tile.middle)], dotPaint);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     paths = {};
     var myCanvas = canvas;
-    Provider.of<TileProvider>(context, listen: false).tiles.forEach((key, value) { _drawTile(value, myCanvas, size);});
-    Provider.of<TileProvider>(context, listen: false).paths = paths;
+    Provider.of<TileProvider>(context, listen: false)
+        .tiles
+        .forEach((key, value) {
+      _drawTile(value, myCanvas, size);
+    });
+    Provider.of<TileProvider>(context, listen: false).paths =
+        paths; // TODO Delete since obsolete, but needs clean up in other files
   }
-
 
   Offset _toOff(Point point) {
     return Offset((point.x).toDouble(), (point.y).toDouble());
@@ -91,5 +122,3 @@ class BoardPainter extends CustomPainter {
     return true;
   }
 }
-
-

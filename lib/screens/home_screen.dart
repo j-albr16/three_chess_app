@@ -22,11 +22,7 @@ class HomeScreen extends StatelessWidget {
               ),),
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [Colors.greenAccent, Colors.grey],
-                ),
+                color: Colors.blue,
                 border: Border.all(color: Colors.black87),
                 borderRadius: BorderRadius.circular(5),
                 boxShadow: [

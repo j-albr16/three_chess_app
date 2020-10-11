@@ -9,8 +9,8 @@ class HighlightPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint();
+    print("HIGHLIGHTPAINTER DOES SOMETHING");
     for (Tile toHighlight in highlights) {
-      ;
       paint.color = toHighlight.isWhite ? Colors.grey : Colors.brown;
       canvas.drawPath(toHighlight.path, paint);
     }

@@ -51,11 +51,8 @@ class BoardPainter extends CustomPainter {
     }
     //</editor-fold>
 
-    Paint paint = Paint();
-    if (tile.isWhite) {
-      paint.color = Colors.grey;
-      paint.color = Colors.brown;
-    }
+    Paint paint = Paint()..color = tile.isWhite ? Colors.grey : Colors.brown;
+
     Path path = Path() // TODO is obsolete since Tile(... @required Path)
       ..moveTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
       ..lineTo(tile.points[1].x.toDouble(), tile.points[1].y.toDouble())

@@ -42,10 +42,19 @@ class _BoardScreenState extends State<BoardScreen> {
     );
   }
 
+  Widget _buildHighlighter(List<Tile> currentHighlight) {
+    return currentHighlight == null
+        ? Container()
+        : ColorFiltered(
+            colorFilter: ColorFilter.mode(Colors.white, BlendMode.darken),
+            child: CustomPaint(
+              painter: HighlightPainter(currentHighlight),
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Tile> currentHighlight =
-        Provider.of<TileSelect>(context).currentHightlight;
+    List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHightlight;
     return Scaffold(
       appBar: AppBar(),
       body: !Provider.of<ImageProv>(context).isImagesLoaded
@@ -66,14 +75,7 @@ class _BoardScreenState extends State<BoardScreen> {
                           key: boardPaintKey,
                           painter: BoardPainter(context),
                         ),
-                        if (currentHighlight != null)
-                          ColorFiltered(
-                            colorFilter: ColorFilter.mode(
-                                Colors.white, BlendMode.lighten),
-                            child: CustomPaint(
-                              painter: HighlightPainter(currentHighlight),
-                            ),
-                          ),
+                        _buildHighlighter(currentHighlight),
                         _buildPieces(),
                       ],
                     )),
@@ -85,7 +87,6 @@ class _BoardScreenState extends State<BoardScreen> {
   void _handleTap(TapDownDetails details) {
     final RenderBox box = boardPaintKey.currentContext.findRenderObject();
     final Offset localOffset = box.globalToLocal(details.globalPosition);
-    Provider.of<TileSelect>(context, listen: false)
-        .setByPosition(context, localOffset);
+    Provider.of<TileSelect>(context, listen: false).setByPosition(context, localOffset);
   }
 }

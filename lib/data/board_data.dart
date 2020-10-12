@@ -1892,6 +1892,7 @@ class Directions {
   }
 
   static Direction makeRelativeEnum(Direction direction, PlayerColor playerColor, PlayerColor side){
+    // to test only: return playerColor == side ? direction : [];
     return Direction.values[(playerColor != side) ? (direction.index+4)%8 : direction.index];
   }
 

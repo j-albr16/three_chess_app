@@ -143,18 +143,18 @@ class ThinkingBoard with ChangeNotifier {
     List<String> allLegalMoves = [];
     //Absolute direction, sd
     List<Direction> directionsTake = [Direction.topRight, Direction.leftTop];
-    List<Direction> directionsMove = [Direction.topRight, Direction.leftTop];
+    List<Direction> directionsMove = [Direction.top];
     //Directions relative to board side
     List<Direction> possibleDirectionsTake =
         directionsTake.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     List<Direction> possibleDirectionsMove =
-        directionsTake.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+        directionsMove.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     //Searching all Directions after each other for legal Moves
     possibleDirectionsTake.forEach((element) {
-      thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: true);
+      thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: false);
     });
     possibleDirectionsMove.forEach((element) {
-      thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: false, canMoveWithoutTake: false);
+      thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: false, canMoveWithoutTake: true);
     });
 
     return allLegalMoves;
@@ -167,7 +167,7 @@ class ThinkingBoard with ChangeNotifier {
     List<Direction> possibleDirectionsAbsolut = [Direction.top, Direction.right, Direction.bottom, Direction.left];
     //Directions relative to board side
     List<Direction> possibleDirections =
-        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile]));
+        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     //Searching all Directions after each other for legal Moves
     possibleDirections.forEach((element) {
       thinkOneDirection(allLegalMoves, element, selectedTile, context);

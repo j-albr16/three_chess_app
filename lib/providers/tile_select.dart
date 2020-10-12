@@ -20,6 +20,15 @@ class TileSelect with ChangeNotifier {
 
   List<Tile> currentHightlight = null;
 
+  List<Tile> get currentHighlight{
+    return [...currentHightlight];
+  }
+
+  void set currentHighlight(List<Tile> newHightight){
+    currentHightlight = currentHighlight;
+    notifyListeners();
+  }
+
   void set selectedTile(String newTile) {
     if (newTile != _selectedTile) {
       _selectedTile = newTile;
@@ -42,11 +51,12 @@ class TileSelect with ChangeNotifier {
         Piece piece = pieces.firstWhere((e) => e.position == newTile, orElse: () => null);
         piece != null
             ? currentHightlight = thinkingBoard
-                .getLegalMove(selectedTile, piece, context)
+                .getLegalMove(newTile, piece, context)
                 .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
                 .toList()
             : null;
-        print(currentHightlight.toString());
+        List<String> highlightStrings = currentHightlight.map((e) => e.id).toList();
+        print(highlightStrings.toString());
       }
       if (currentHightlight != null) {
         if (currentHightlight.isEmpty) {

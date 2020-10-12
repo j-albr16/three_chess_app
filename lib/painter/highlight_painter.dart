@@ -8,10 +8,12 @@ class HighlightPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
+    Paint paint = Paint()
+    //..colorFilter = ColorFilter.mode(Color.fromRGBO(255, 255, 255, 1), BlendMode.overlay);
+    ..color = Color.fromRGBO(185, 205, 195, 0.33);
     print("HIGHLIGHTPAINTER DOES SOMETHING");
     for (Tile toHighlight in highlights) {
-      paint.color = toHighlight.isWhite ? Colors.grey : Colors.brown;
+     // paint.color = toHighlight.isWhite ? Colors.grey : Colors.brown;
       canvas.drawPath(toHighlight.path, paint);
     }
   }

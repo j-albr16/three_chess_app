@@ -45,11 +45,9 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget _buildHighlighter(List<Tile> currentHighlight) {
     return currentHighlight == null
         ? Container()
-        : ColorFiltered(
-            colorFilter: ColorFilter.mode(Colors.white, BlendMode.darken),
-            child: CustomPaint(
+        : CustomPaint(
               painter: HighlightPainter(currentHighlight),
-            ));
+            );
   }
 
   @override
@@ -75,7 +73,7 @@ class _BoardScreenState extends State<BoardScreen> {
                           key: boardPaintKey,
                           painter: BoardPainter(context),
                         ),
-                        _buildHighlighter(currentHighlight),
+                        _buildHighlighter(currentHighlight), //[Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((element) => element.id == "A3")]
                         _buildPieces(),
                       ],
                     )),

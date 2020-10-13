@@ -4,24 +4,23 @@ import 'package:flutter/widgets.dart';
 import '../models/piece.dart';
 import '../models/enums.dart';
 
-
 class PieceProvider with ChangeNotifier {
   List<Piece> _pieces = [];
 
   List<Piece> get pieces {
-    return  [..._pieces];
+    return [..._pieces];
   }
 
-  PieceProvider(){
-  startGame();
+  PieceProvider() {
+    startGame();
   }
 
   startGame() {
-    _pieces.addAll(startPos);
+    // _pieces.addAll(startPos); //Is disabled to see Tile Names
     notifyListeners();
   }
-  
-  void movePieceTo(String oldPos, String newPos){
+
+  void movePieceTo(String oldPos, String newPos) {
     if (newPos != null && oldPos != null) {
       _pieces.firstWhere((e) => e.position == oldPos, orElse: () => null)?.position = newPos;
       notifyListeners();
@@ -31,7 +30,7 @@ class PieceProvider with ChangeNotifier {
   List<Piece> startPos = [
     //White
     //#region White
-      //#region pawns
+    //#region pawns
     Piece(
       pieceType: PieceType.Pawn,
       playerColor: PlayerColor.white,
@@ -72,8 +71,8 @@ class PieceProvider with ChangeNotifier {
       playerColor: PlayerColor.white,
       position: 'H2',
     ),
-      //#endregion
-      //#region noPawns
+    //#endregion
+    //#region noPawns
     Piece(
       pieceType: PieceType.Rook,
       playerColor: PlayerColor.white,
@@ -117,7 +116,7 @@ class PieceProvider with ChangeNotifier {
     //#endregion
     //#endregion
     //#region Black
-      //#region pawns
+    //#region pawns
     Piece(
       pieceType: PieceType.Pawn,
       playerColor: PlayerColor.black,
@@ -159,7 +158,7 @@ class PieceProvider with ChangeNotifier {
       position: 'A7',
     ),
     //#endregion
-      //#region noPawns
+    //#region noPawns
     Piece(
       pieceType: PieceType.Rook,
       playerColor: PlayerColor.black,
@@ -203,8 +202,8 @@ class PieceProvider with ChangeNotifier {
     //#endregion
     //#endregion
     //#region red
-      //#region pawns
-      //Pawns
+    //#region pawns
+    //Pawns
     Piece(
       pieceType: PieceType.Pawn,
       playerColor: PlayerColor.red,
@@ -246,7 +245,7 @@ class PieceProvider with ChangeNotifier {
       position: 'L11',
     ),
     //#endregion
-      //#region noPawns
+    //#region noPawns
     Piece(
       pieceType: PieceType.Rook,
       playerColor: PlayerColor.red,

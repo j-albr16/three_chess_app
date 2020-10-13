@@ -18,8 +18,7 @@ class BoardPainter extends CustomPainter {
 
 //Paragraph ....
 //######################
-  final style =
-      TextStyle(color: Colors.black, fontFamily: 'Roboto', fontSize: 5);
+  final style = TextStyle(color: Colors.black, fontFamily: 'Roboto', fontSize: 20);
 
   ui.Paragraph drawParagraph(String text) {
     final paragraphStyle = ui.ParagraphStyle(
@@ -45,8 +44,7 @@ class BoardPainter extends CustomPainter {
   void _drawTile(Tile tile, Canvas myCanvas, Size size) {
     //<editor-fold desc="Checks for InputPoint length == 4">
     if (tile.points.length != 4) {
-      print("Draw Tile got wrong number of Points!: " +
-          tile.points.length.toString());
+      print("Draw Tile got wrong number of Points!: " + tile.points.length.toString());
       return;
     }
     //</editor-fold>
@@ -97,13 +95,10 @@ class BoardPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     paths = {};
     var myCanvas = canvas;
-    Provider.of<TileProvider>(context, listen: false)
-        .tiles
-        .forEach((key, value) {
+    Provider.of<TileProvider>(context, listen: false).tiles.forEach((key, value) {
       _drawTile(value, myCanvas, size);
     });
-    Provider.of<TileProvider>(context, listen: false).paths =
-        paths; // TODO Delete since obsolete, but needs clean up in other files
+    Provider.of<TileProvider>(context, listen: false).paths = paths; // TODO Delete since obsolete, but needs clean up in other files
   }
 
   Offset _toOff(Point point) {

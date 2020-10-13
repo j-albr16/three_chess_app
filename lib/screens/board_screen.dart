@@ -46,13 +46,13 @@ class _BoardScreenState extends State<BoardScreen> {
     return currentHighlight == null
         ? Container()
         : CustomPaint(
-              painter: HighlightPainter(currentHighlight),
-            );
+            painter: HighlightPainter(currentHighlight),
+          );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHightlight;
+    List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHighlight;
     return Scaffold(
       appBar: AppBar(),
       body: !Provider.of<ImageProv>(context).isImagesLoaded
@@ -73,7 +73,8 @@ class _BoardScreenState extends State<BoardScreen> {
                           key: boardPaintKey,
                           painter: BoardPainter(context),
                         ),
-                        _buildHighlighter(currentHighlight), //[Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((element) => element.id == "A3")]
+                        _buildHighlighter(
+                            currentHighlight), //[Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((element) => element.id == "A3")]
                         _buildPieces(),
                       ],
                     )),

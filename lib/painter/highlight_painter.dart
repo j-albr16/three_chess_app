@@ -3,17 +3,23 @@ import 'package:three_chess/models/tile.dart';
 
 class HighlightPainter extends CustomPainter {
   List<Tile> highlights;
-
-  HighlightPainter(this.highlights);
+  Map<String, Color> tileColor;
+  HighlightPainter(this.highlights, {this.tileColor}) {
+    for (String tile in highlights.map((e) => e.id).toList()) {
+      tileColor[tile] ??= Color.fromRGBO(185, 205, 195, 0.33);
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-    //..colorFilter = ColorFilter.mode(Color.fromRGBO(255, 255, 255, 1), BlendMode.overlay);
-    ..color = Color.fromRGBO(185, 205, 195, 0.33);
     print("HIGHLIGHTPAINTER DOES SOMETHING");
+    Color lastColor = Color.fromRGBO(185, 205, 195, 0.33);
+    Paint paint = Paint()..color = lastColor;
     for (Tile toHighlight in highlights) {
-     // paint.color = toHighlight.isWhite ? Colors.grey : Colors.brown;
+      if (lastColor != tileColor[toHighlight.id]) {
+        paint.color = tileColor[toHighlight.id];
+        lastColor = tileColor[toHighlight.id];
+      }
       canvas.drawPath(toHighlight.path, paint);
     }
   }

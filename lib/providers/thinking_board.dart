@@ -83,7 +83,7 @@ class ThinkingBoard with ChangeNotifier {
         BoardData.adjacentTiles[currTile]?.getRelativeEnum(direction, _getCurrentColor(context), BoardData.sideData[currTile]);
     if (nextTile != null) {
       for (String thisTile in nextTile) {
-        bool canI = _canMoveOn(thisTile, _getPieces(context), _getPlayerColor(thisTile, context), context);
+        bool canI = _canMoveOn(thisTile, _getPieces(context), _getCurrentColor(context), context);
         //Is someTile legal
         if (canI == true && canMoveWithoutTake) {
           //if tile is empty
@@ -163,10 +163,8 @@ class ThinkingBoard with ChangeNotifier {
     //Absolute direction
     List<Direction> possibleDirectionsAbsolut = [Direction.top, Direction.right, Direction.bottom, Direction.left];
     //Directions relative to board side
-    List<Direction> possibleDirections =
-        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     //Searching all Directions after each other for legal Moves
-    possibleDirections.forEach((element) {
+    possibleDirectionsAbsolut.forEach((element) {
       thinkOneDirection(allLegalMoves, element, selectedTile, context);
     });
 

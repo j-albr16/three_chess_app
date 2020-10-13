@@ -16,7 +16,7 @@ class PieceProvider with ChangeNotifier {
   }
 
   startGame() {
-    //_pieces.addAll(startPos); //Is disabled to see Tile Names
+    _pieces.addAll(startPos); //Is disabled to see Tile Names
     notifyListeners();
   }
 

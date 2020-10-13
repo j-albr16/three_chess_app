@@ -50,70 +50,45 @@ class TileSelect with ChangeNotifier {
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
     // THIS VERSION HIGHLIGHTS EVERY NEIGHBOUR OF SELECTED TILE NO MATTER WEATHER THERES A PIECE
     // FOR DEBUGGING
-    // if (!isMoveState) {
-    //   // Nothing select before call
-    //   List<String> adjacentTiles = [];
-    //   for (Direction direction in Direction.values) {
-    //     List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
-    //         direction, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
-    //     for (String tile in currentDirectionTiles) {
-    //       adjacentTiles.add(tile);
-    //     }
-    //   }
-    //   currentHighlight = adjacentTiles.map((e) => Provider.of<TileProvider>(context, listen: false).tiles[e]).toList();
-    //   isMoveState = true;
-    // } else {
-    //   //Something selected before call
-    //   currentHighlight = null;
-    //   isMoveState = false;
-    // }
-
     if (!isMoveState) {
-      if (preNotifyPiece?.playerColor == currPlayer) {
-        //Set CurrentHighlight
-        currentHighlight = thinkingBoard
-            .getLegalMove(preNotifyTile, preNotifyPiece, context)
-            .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
-            .toList();
-        // Inverting isMoveState.
-        isMoveState = true;
+      // Nothing select before call
+      List<String> adjacentTiles = [];
+      List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
+          Direction.top, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
+      for (String tile in currentDirectionTiles) {
+        adjacentTiles.add(tile);
       }
+      // for (Direction direction in Direction.values) {
+      //   List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
+      //       direction, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
+      //   for (String tile in currentDirectionTiles) {
+      //     adjacentTiles.add(tile);
+      //   }
+      // }
+      currentHighlight = adjacentTiles.map((e) => Provider.of<TileProvider>(context, listen: false).tiles[e]).toList();
+      isMoveState = true;
     } else {
-      if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {
-        pieceProv.movePieceTo(oldSelected, preNotifyTile);
-        thinkingBoard.updateStatus();
-      }
+      //Something selected before call
       currentHighlight = null;
       isMoveState = false;
     }
 
     // if (!isMoveState) {
-    //   print('MoveState: OFF');
-    //   if (selectedPiece?.playerColor == currPlayer) {
+    //   if (preNotifyPiece?.playerColor == currPlayer) {
+    //     //Set CurrentHighlight
+    //     currentHighlight = thinkingBoard
+    //         .getLegalMove(preNotifyTile, preNotifyPiece, context)
+    //         .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
+    //         .toList();
+    //     // Inverting isMoveState.
     //     isMoveState = true;
-    //     selectedPiece != null
-    //         ? currentHightlight = thinkingBoard
-    //             .getLegalMove(preNotifyTile, selectedPiece, context)
-    //             .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
-    //             .toList()
-    //         : null;
-    //     List<String> highlightStrings = currentHightlight.map((e) => e.id).toList();
-    //     print(highlightStrings.toString());
-    //   }
-    //   if (currentHightlight != null) {
-    //     if (currentHightlight.isEmpty) {
-    //       currentHightlight = null;
-    //     }
     //   }
     // } else {
-    //   // isMoveState = true
-    //   print('MoveState: ON');
-    //   if (true) {
-    //     // thinkingBoard.getLegalMove(selectedTile, selectedPiece, context).contains(newTile)
+    //   if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {
     //     pieceProv.movePieceTo(oldSelected, preNotifyTile);
     //     thinkingBoard.updateStatus();
     //   }
-    //   currentHightlight = null;
+    //   currentHighlight = null;
     //   isMoveState = false;
     // }
   }

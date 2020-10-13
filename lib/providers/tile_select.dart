@@ -50,7 +50,8 @@ class TileSelect with ChangeNotifier {
       // Nothing select before call
       List<String> adjacentTiles = [];
       for (Direction direction in Direction.values) {
-        List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getFromEnum(direction);
+        List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
+            direction, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
         for (String tile in currentDirectionTiles) {
           adjacentTiles.add(tile);
         }

@@ -816,7 +816,7 @@ class BoardData {
         bottom: ["C1"],
         bottomLeft: ["B1"],
         left: ["B2"],
-        leftTop: ["C3"],
+        leftTop: ["B3"],
         top: ["C3"],
         topRight: ["D3"],
         right: ["D2"]),

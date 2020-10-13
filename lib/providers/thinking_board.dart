@@ -34,7 +34,8 @@ class ThinkingBoard with ChangeNotifier {
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
   List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
-    switch (piece.pieceType) {
+    switch (piece?.pieceType) {
+      //Should not be null, but we dont like errors (talking to my self rn)
       case PieceType.Pawn:
         return _legalMovesPawn(piece.playerColor, selectedTile, context);
       case PieceType.Rook:
@@ -48,6 +49,7 @@ class ThinkingBoard with ChangeNotifier {
       case PieceType.Queen:
         return _legalMovesQueen(piece.playerColor, selectedTile, context);
     }
+    return [];
   }
 
   //Validating movabilty of a tile

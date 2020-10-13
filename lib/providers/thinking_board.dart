@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/providers/tile_provider.dart';
 import 'package:three_chess/providers/player_provider.dart';
 
 import '../models/piece.dart';
@@ -65,13 +66,12 @@ class ThinkingBoard with ChangeNotifier {
     return result;
   }
 
-  void thinkOneDirection(List<String> myList, Direction direction, String currTile, BuildContext context) {
-    List<String> nextTile =
-        BoardData.adjacentTiles[currTile]?.getRelativeEnum(direction, _getCurrentColor(context), BoardData.sideData[currTile]);
+  void thinkOneDirection(List<String> myList, Direction direction, String currTile, PlayerColor startingColor, BuildContext context) {
+    List<String> nextTile = BoardData.adjacentTiles[currTile]?.getRelativeEnum(direction, startingColor, BoardData.sideData[currTile]);
     if (nextTile != null) {
       if (nextTile.isNotEmpty) {
         for (int i = 0; i < nextTile.length; i++) {
-          _oneDirection(myList, direction, nextTile[i], context);
+          _oneDirection(myList, direction, nextTile[i], startingColor, context);
         }
       }
     }
@@ -98,14 +98,14 @@ class ThinkingBoard with ChangeNotifier {
     }
   }
 
-  void _oneDirection(List<String> myList, Direction direction, String tile, BuildContext context) {
+  void _oneDirection(List<String> myList, Direction direction, String tile, PlayerColor startingColor, BuildContext context) {
     bool canI = _canMoveOn(tile, _getPieces(context), _getPlayerColor(tile, context), context);
     //Is someTile legal
     if (canI == true) {
       //if tile is empty
       //yes: add to result
       myList.add(tile);
-      thinkOneDirection(myList, direction, tile, context);
+      thinkOneDirection(myList, direction, tile, startingColor, context);
       // if legal and not a take --> result.addAll(thinkOneStep)
     } else if (canI == null) {
       //if tile has enemy Piece
@@ -165,7 +165,8 @@ class ThinkingBoard with ChangeNotifier {
     //Directions relative to board side
     //Searching all Directions after each other for legal Moves
     possibleDirectionsAbsolut.forEach((element) {
-      thinkOneDirection(allLegalMoves, element, selectedTile, context);
+      thinkOneDirection(allLegalMoves, element, selectedTile,
+          Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((e) => e.id == selectedTile).side, context);
     });
 
     return allLegalMoves;
@@ -199,7 +200,8 @@ class ThinkingBoard with ChangeNotifier {
     //Directions relative to board side
     //Searching all Directions after each other for legal Moves
     possibleDirectionsAbsolut.forEach((element) {
-      thinkOneDirection(allLegalMoves, element, selectedTile, context);
+      thinkOneDirection(allLegalMoves, element, selectedTile,
+          Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((e) => e.id == selectedTile).side, context);
     });
     //print
     print(allLegalMoves.toString());
@@ -247,7 +249,8 @@ class ThinkingBoard with ChangeNotifier {
 
     //Searching all Directions after each other for legal Moves
     possibleDirectionsAbsolut.forEach((element) {
-      thinkOneDirection(allLegalMoves, element, selectedTile, context);
+      thinkOneDirection(allLegalMoves, element, selectedTile,
+          Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((e) => e.id == selectedTile).side, context);
     });
 
     return allLegalMoves;

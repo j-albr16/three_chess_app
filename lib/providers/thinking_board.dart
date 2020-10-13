@@ -89,7 +89,7 @@ class ThinkingBoard with ChangeNotifier {
           //if tile is empty
           //yes: add to result
           myList.add(thisTile);
-          // if legal and not a take --> result.addAll(thinkOneStep)
+          // if legal and not a take
         } else if (canI == null && canTake) {
           //if tile has enemy Piece && taking is enabled (default = true)
           myList.add(thisTile);
@@ -146,16 +146,11 @@ class ThinkingBoard with ChangeNotifier {
     //Absolute direction, sd
     List<Direction> directionsTake = [Direction.topRight, Direction.leftTop];
     List<Direction> directionsMove = [Direction.top];
-    //Directions relative to board side
-    List<Direction> possibleDirectionsTake =
-        directionsTake.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
-    List<Direction> possibleDirectionsMove =
-        directionsMove.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     //Searching all Directions after each other for legal Moves
-    possibleDirectionsTake.forEach((element) {
+    directionsTake.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: false);
     });
-    possibleDirectionsMove.forEach((element) {
+    directionsMove.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: false, canMoveWithoutTake: true);
     });
 
@@ -204,10 +199,8 @@ class ThinkingBoard with ChangeNotifier {
     //Absolute direction
     List<Direction> possibleDirectionsAbsolut = [Direction.topRight, Direction.bottomRight, Direction.bottomLeft, Direction.leftTop];
     //Directions relative to board side
-    List<Direction> possibleDirections =
-        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
     //Searching all Directions after each other for legal Moves
-    possibleDirections.forEach((element) {
+    possibleDirectionsAbsolut.forEach((element) {
       thinkOneDirection(allLegalMoves, element, selectedTile, context);
     });
     //print
@@ -230,11 +223,9 @@ class ThinkingBoard with ChangeNotifier {
       Direction.bottomLeft,
       Direction.leftTop
     ];
-    //Directions relative to board side
-    List<Direction> possibleDirections =
-        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+
     //Searching all Directions after each other for legal Moves
-    possibleDirections.forEach((element) {
+    possibleDirectionsAbsolut.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: true);
     });
 
@@ -255,11 +246,9 @@ class ThinkingBoard with ChangeNotifier {
       Direction.bottomLeft,
       Direction.leftTop
     ];
-    //Directions relative to board side
-    List<Direction> possibleDirections =
-        possibleDirectionsAbsolut.map((e) => Directions.makeRelativeEnum(e, playerColor, BoardData.sideData[selectedTile])).toList();
+
     //Searching all Directions after each other for legal Moves
-    possibleDirections.forEach((element) {
+    possibleDirectionsAbsolut.forEach((element) {
       thinkOneDirection(allLegalMoves, element, selectedTile, context);
     });
 
@@ -267,30 +256,4 @@ class ThinkingBoard with ChangeNotifier {
   }
 
   void updateStatus() {}
-
-  bool isValid(BuildContext context, String tile, PlayerColor playerColor) {
-    List<Piece> pieces = Provider.of<PieceProvider>(context, listen: false).pieces;
-    //checks whether no piece is on this tile
-    if (pieces.firstWhere((e) => e.position == tile, orElse: () => null) == null) {
-      return true;
-    }
-    //checks whether the piece has the same color
-    else if (pieces.firstWhere((e) => e.position == tile, orElse: () => null).playerColor != playerColor) {
-      return null;
-    }
-    //checks whether you are on the board
-    else if (tile != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  Direction changeDirection(Direction direction, PieceType pieceType, List<Direction> possibleDirections) {
-    int index = possibleDirections.indexOf(direction);
-    if (pieceType == PieceType.Bishop || pieceType == PieceType.Rook) {
-      index < 2 ? index += 2 : index -= 2;
-    }
-    return possibleDirections[index];
-  }
 }

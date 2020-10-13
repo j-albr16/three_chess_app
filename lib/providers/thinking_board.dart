@@ -99,7 +99,7 @@ class ThinkingBoard with ChangeNotifier {
   }
 
   void _oneDirection(List<String> myList, Direction direction, String tile, PlayerColor startingColor, BuildContext context) {
-    bool canI = _canMoveOn(tile, _getPieces(context), _getPlayerColor(tile, context), context);
+    bool canI = _canMoveOn(tile, _getPieces(context), _getCurrentColor(context), context);
     //Is someTile legal
     if (canI == true) {
       //if tile is empty

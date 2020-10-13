@@ -5,6 +5,7 @@ class HighlightPainter extends CustomPainter {
   List<Tile> highlights;
   Map<String, Color> tileColor;
   HighlightPainter(this.highlights, {this.tileColor}) {
+    tileColor = {};
     for (String tile in highlights.map((e) => e.id).toList()) {
       tileColor[tile] ??= Color.fromRGBO(185, 205, 195, 0.33);
     }

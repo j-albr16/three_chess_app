@@ -22,6 +22,10 @@ class PieceProvider with ChangeNotifier {
 
   void movePieceTo(String oldPos, String newPos) {
     if (newPos != null && oldPos != null) {
+      if (_pieces.firstWhere((e) => e.position == newPos, orElse: () => null) != null) {
+        _pieces.removeWhere((e) => e.position == newPos);
+        // Maybe notify exactly
+      }
       _pieces.firstWhere((e) => e.position == oldPos, orElse: () => null)?.position = newPos;
       notifyListeners();
     }

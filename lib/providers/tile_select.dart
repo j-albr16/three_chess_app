@@ -81,7 +81,9 @@ class TileSelect with ChangeNotifier {
             .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
             .toList();
         // Inverting isMoveState.
-        isMoveState = true;
+        if (currentHighlight?.isNotEmpty == true) {
+          isMoveState = true;
+        }
       }
     } else {
       if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {

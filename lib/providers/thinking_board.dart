@@ -153,7 +153,8 @@ class ThinkingBoard with ChangeNotifier {
     directionsMove.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: false, canMoveWithoutTake: true);
     });
-    if (!_getPiece(selectedTile, context).didMove) {
+    if (!_getPiece(selectedTile, context).didMove &&
+        _canMoveOn(BoardData.adjacentTiles[selectedTile].top[0], _getPieces(context), _getCurrentColor(context), context)) {
       thinkOneMove(allLegalMoves, Direction.top, BoardData.adjacentTiles[selectedTile].top[0], context,
           canTake: false, canMoveWithoutTake: true);
     }

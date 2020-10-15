@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:three_chess/data/board_data%20copy.dart';
 
+import 'tile_provider.dart';
 import '../models/piece.dart';
 import '../models/enums.dart';
 
@@ -26,7 +28,31 @@ class PieceProvider with ChangeNotifier {
         _pieces.removeWhere((e) => e.position == newPos);
         // Maybe notify exactly
       }
-      _pieces.firstWhere((e) => e.position == oldPos, orElse: () => null)?.position = newPos;
+      Piece movedPiece = _pieces.firstWhere((e) => e.position == oldPos, orElse: () => null);
+      if (movedPiece != null) {
+        movedPiece.position = newPos; // moves the selectedPieces
+
+        // Following code listens to weather The King is castling and moves the rook accordingly
+        //moveCountOnCharAxis calulates the diffrence between oldPos and newPos on the character Axis
+        int moveCountOnCharAxis = TileProvider.charCoordinatesOf[movedPiece.playerColor].indexOf(oldPos[0]) -
+            TileProvider.charCoordinatesOf[movedPiece.playerColor].indexOf(newPos[0]);
+        if (movedPiece.pieceType == PieceType.King && moveCountOnCharAxis.abs() == 2) {
+          //If true: This is a castling move
+          if (moveCountOnCharAxis < 0) {
+            //Checks in which direction we should castle
+            String rookPos =
+                TileProvider.charCoordinatesOf[movedPiece.playerColor][7] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
+            _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
+                BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
+          } else if (moveCountOnCharAxis > 0) {
+            //Checks in which direction we should castle
+            String rookPos =
+                TileProvider.charCoordinatesOf[movedPiece.playerColor][0] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
+            _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
+                BoardData.adjacentTiles[movedPiece.position].right[0]; //Places the rook to the right of the King
+          }
+        }
+      }
       notifyListeners();
     }
   }

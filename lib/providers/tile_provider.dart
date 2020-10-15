@@ -9,8 +9,82 @@ class TileProvider with ChangeNotifier {
   Map<String, Tile> tiles = {};
   Map<String, Path> paths = {};
 
+  static Map<PlayerColor, List<String>> charCoordinatesOf = {
+    PlayerColor.white: ["A", "B", "C", "D", "E", "F", "G", "H"],
+    PlayerColor.black: ["L", "K", "J", "I", "D", "C", "B", "A"],
+    PlayerColor.red: ["H", "G", "F", "E", "I", "J", "K", "L"]
+  };
+  static Map<PlayerColor, List<String>> numCoordinatesOf = {
+    PlayerColor.white: ["1", "2", "3", "4"],
+    PlayerColor.black: ["8", "7", "6", "5"],
+    PlayerColor.red: ["12", "11", "10", "9"],
+  };
+
+  static String getEqualCoordinate(String tileId, PlayerColor switchTo, Map<String, Tile> tiles) {
+    if (tiles[tileId].side == switchTo) {
+      return tileId;
+    } else if ((tiles[tileId].side.index + 1) % 3 == switchTo.index) {
+      return nextColorEqualCoordinate(tileId, tiles);
+    }
+    return previousColorEqualCoordinate(tileId, tiles);
+  }
+
+  static String previousColorEqualCoordinate(String tileId, Map<String, Tile> tiles) {
+    PlayerColor currentColor = tiles[tileId].side;
+
+    int charIndex = charCoordinatesOf[currentColor].indexOf(tileId[0]);
+    int numIndex = numCoordinatesOf[currentColor].indexOf(tileId.substring(1));
+
+    PlayerColor previousColor = PlayerColor.values[(currentColor.index + 2) % 3];
+
+    return (charCoordinatesOf[previousColor][charIndex] + numCoordinatesOf[previousColor][numIndex]);
+  }
+
+  static String nextColorEqualCoordinate(String tileId, Map<String, Tile> tiles) {
+    PlayerColor currentColor = tiles[tileId].side;
+
+    int charIndex = charCoordinatesOf[currentColor].indexOf(tileId[0]);
+    int numIndex = numCoordinatesOf[currentColor].indexOf(tileId.substring(1));
+
+    PlayerColor nextColor = PlayerColor.values[(currentColor.index + 1) % 3];
+
+    return (charCoordinatesOf[nextColor][charIndex] + numCoordinatesOf[nextColor][numIndex]);
+  }
+
   TileProvider() {
     generateTiles();
+  }
+
+  void rotateTilesNext() {
+    Map<String, Tile> newTiles = {};
+    for (Tile tile in tiles.values.toList()) {
+      String prevId = previousColorEqualCoordinate(tile.id, tiles);
+      newTiles[prevId] = Tile(
+          id: prevId,
+          points: tile.points,
+          isWhite: BoardData.tileWhiteData[prevId],
+          directions: BoardData.adjacentTiles[prevId],
+          side: BoardData.sideData[prevId],
+          path: tile.path);
+    }
+    tiles = newTiles;
+    notifyListeners();
+  }
+
+  void rotateTilesPrevious() {
+    Map<String, Tile> newTiles = {};
+    for (Tile tile in tiles.values.toList()) {
+      String nextId = nextColorEqualCoordinate(tile.id, tiles);
+      newTiles[nextId] = Tile(
+          id: nextId,
+          points: tile.points,
+          isWhite: BoardData.tileWhiteData[nextId],
+          directions: BoardData.adjacentTiles[nextId],
+          side: BoardData.sideData[nextId],
+          path: tile.path);
+    }
+    tiles = newTiles;
+    notifyListeners();
   }
 
   void printNewColor() {

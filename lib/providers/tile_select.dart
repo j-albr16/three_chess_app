@@ -49,7 +49,7 @@ class TileSelect with ChangeNotifier {
 
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
     // // THIS VERSION HIGHLIGHTS EVERY NEIGHBOUR OF SELECTED TILE NO MATTER WEATHER THERES A PIECE
-    // // FOR DEBUGGING
+    // // --FOR DEBUGGING
     // if (!isMoveState) {
     //   // Nothing select before call
     //   List<String> adjacentTiles = [];

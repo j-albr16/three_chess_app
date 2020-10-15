@@ -86,9 +86,9 @@ class BoardPainter extends CustomPainter {
         ui.PointMode.polygon,
         points,
         borderPaint,
-      )
-      ..drawParagraph(drawParagraph(tile.id), _toOff(tile.middle))
-      ..drawPoints(ui.PointMode.points, [_toOff(tile.middle)], dotPaint);
+      );
+    //..drawParagraph(drawParagraph(tile.id), _toOff(tile.middle))
+    //..drawPoints(ui.PointMode.points, [_toOff(tile.middle)], dotPaint);
   }
 
   @override

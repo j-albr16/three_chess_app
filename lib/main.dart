@@ -12,6 +12,7 @@ import './providers/image_provider.dart';
 import './providers/player_provider.dart';
 import './models/tile.dart';
 import './screens/design-test-screen.dart';
+import './providers/game_provider.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -25,7 +26,8 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider(create: (ctx) => ImageProv()),
           ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
           ChangeNotifierProvider(create: (ctx) => ThinkingBoard()),
-          ChangeNotifierProvider(create: (ctx) => TileSelect())
+          ChangeNotifierProvider(create: (ctx) => TileSelect()),
+          ChangeNotifierProvider(create: (ctx) => GameProvider())
         ],
         child: MaterialApp(
           title: 'three chess app',

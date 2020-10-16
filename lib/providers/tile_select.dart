@@ -49,7 +49,7 @@ class TileSelect with ChangeNotifier {
 
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
     // // THIS VERSION HIGHLIGHTS EVERY NEIGHBOUR OF SELECTED TILE NO MATTER WEATHER THERES A PIECE
-    // // FOR DEBUGGING
+    // // --FOR DEBUGGING
     // if (!isMoveState) {
     //   // Nothing select before call
     //   List<String> adjacentTiles = [];
@@ -81,7 +81,9 @@ class TileSelect with ChangeNotifier {
             .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
             .toList();
         // Inverting isMoveState.
-        isMoveState = true;
+        if (currentHighlight?.isNotEmpty == true) {
+          isMoveState = true;
+        }
       }
     } else {
       if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {

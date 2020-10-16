@@ -115,12 +115,12 @@ class ThinkingBoard with ChangeNotifier {
     //no: nothing
   }
 
-  List<String> multipleEnum(List<String> myList, List<Direction> directionList, String startTile, context) {
-    List<String> result = [];
+  void multipleEnum(List<String> myList, List<Direction> directionList, String startTile, context) {
+    myList ??= [];
     List<String> nextTiles =
         BoardData.adjacentTiles[startTile].getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile]);
     for (String thisTile in nextTiles) {
-      _stackEnumCalls(result, directionList.sublist(1), thisTile, context);
+      _stackEnumCalls(myList, directionList.sublist(1), thisTile, context);
     }
   }
 
@@ -153,7 +153,11 @@ class ThinkingBoard with ChangeNotifier {
     directionsMove.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: false, canMoveWithoutTake: true);
     });
-
+    if (!_getPiece(selectedTile, context).didMove &&
+        _canMoveOn(BoardData.adjacentTiles[selectedTile].top[0], _getPieces(context), _getCurrentColor(context), context)) {
+      thinkOneMove(allLegalMoves, Direction.top, BoardData.adjacentTiles[selectedTile].top[0], context,
+          canTake: false, canMoveWithoutTake: true);
+    }
     return allLegalMoves;
   }
 
@@ -174,21 +178,20 @@ class ThinkingBoard with ChangeNotifier {
 
   List<String> _legalMovesKnight(PlayerColor playerColor, String selectedTile, context) {
     List<String> legalMoves = [];
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 2; j++) {
-        int firstDir = ((i + 1) * 2) % 8;
-        int secondDir = (((firstDir + 2) % 8) + j * (4)) % 8;
-        multipleEnum(
-            legalMoves,
-            [
-              Direction.values[firstDir],
-              Direction.values[firstDir],
-              Direction.values[secondDir],
-            ],
-            selectedTile,
-            context);
+    List<Direction> firstDir = [Direction.top, Direction.left, Direction.bottom, Direction.right];
+    List<List<Direction>> secondDir = [
+      [Direction.left, Direction.right],
+      [Direction.top, Direction.bottom]
+    ];
+    int i = 0;
+    for (Direction firstDire in firstDir) {
+      for (Direction secondDire in secondDir[i % 2]) {
+        print([firstDire, firstDire, secondDire]);
+        multipleEnum(legalMoves, [firstDire, firstDire, secondDire], selectedTile, context);
       }
+      i++;
     }
+
     return legalMoves;
   }
 
@@ -228,6 +231,47 @@ class ThinkingBoard with ChangeNotifier {
     possibleDirectionsAbsolut.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: true);
     });
+    if (!_getPiece(selectedTile, context).didMove) {
+      Map<String, Piece> rooks = {
+        "left": _getPiece(
+            TileProvider.getEqualCoordinate("A1", playerColor, Provider.of<TileProvider>(context, listen: false).tiles), context),
+        "right": _getPiece(
+            TileProvider.getEqualCoordinate("H1", playerColor, Provider.of<TileProvider>(context, listen: false).tiles), context)
+      };
+      Map<String, Piece> usableRooks = {};
+      rooks.entries.forEach((element) {
+        if (element.value != null) {
+          if (!element.value.didMove) {
+            usableRooks[element.key] = element.value;
+          }
+        }
+      });
+      for (MapEntry pieceEntry in usableRooks.entries) {
+        if (pieceEntry.key == "left") {
+          if (_canMoveOn(BoardData.adjacentTiles[selectedTile].left[0], _getPieces(context), _getCurrentColor(context), context) ==
+                  true &&
+              _canMoveOn(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0], _getPieces(context),
+                      _getCurrentColor(context), context) ==
+                  true &&
+              _canMoveOn(
+                      BoardData.adjacentTiles[BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]].left[0],
+                      _getPieces(context),
+                      _getCurrentColor(context),
+                      context) ==
+                  true) {
+            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]);
+          }
+        } else if (pieceEntry.key == "right") {
+          if (_canMoveOn(BoardData.adjacentTiles[selectedTile].right[0], _getPieces(context), _getCurrentColor(context), context) ==
+                  true &&
+              _canMoveOn(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0], _getPieces(context),
+                      _getCurrentColor(context), context) ==
+                  true) {
+            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]);
+          }
+        }
+      }
+    }
 
     return allLegalMoves;
   }

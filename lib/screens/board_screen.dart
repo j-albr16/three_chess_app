@@ -73,8 +73,7 @@ class _BoardScreenState extends State<BoardScreen> {
                           key: boardPaintKey,
                           painter: BoardPainter(context),
                         ),
-                        _buildHighlighter(
-                            currentHighlight), //[Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((element) => element.id == "A3")]
+                        _buildHighlighter(currentHighlight),
                         _buildPieces(),
                       ],
                     )),

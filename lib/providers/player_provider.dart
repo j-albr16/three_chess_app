@@ -1,18 +1,20 @@
 import 'package:flutter/foundation.dart';
 import '../models/enums.dart';
 
+class PlayerProvider with ChangeNotifier {
+  PlayerColor _currentPlayer = PlayerColor.white;
 
-class PlayerProvider with ChangeNotifier{
-  PlayerColor currentPlayer = PlayerColor.white;
+  PlayerColor get currentPlayer {
+    return _currentPlayer;
+  }
 
   PlayerProvider();
 
-  void nextPlayer(){
-
+  void nextPlayer() {
+    _currentPlayer = PlayerColor.values[(_currentPlayer.index + 1) % 3];
   }
 
-  void previousPlayer(){
-
+  void previousPlayer() {
+    _currentPlayer = PlayerColor.values[(_currentPlayer.index + 2) % 3];
   }
-
 }

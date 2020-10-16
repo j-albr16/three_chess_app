@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/board_screen.dart';
+import '../screens/design-test-screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -11,10 +12,25 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: <Widget>[
-          GestureDetector(
-              onTap: ()=>Navigator.of(context).pushNamed(BoardScreen.routeName),
+          menuItem('Chess Board Test',BoardScreen.routeName, context),
+          menuItem('Design Test',DesignTestScreen.routeName, context),
+          Container(
+            height: 200,
+            width: 200,
+            child: Image.asset('assets/pieces/bishop_black.png', fit: BoxFit.cover,),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+Widget menuItem (String title, String routeName, BuildContext context) {
+      return  GestureDetector(
+              onTap: ()=>Navigator.of(context).pushNamed(routeName),
             child: Container(
-              child: Text('Dummy Chess Board',
+              child: Text(title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 45,
@@ -33,14 +49,5 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          Container(
-            height: 200,
-            width: 200,
-            child: Image.asset('assets/pieces/bishop_black.png', fit: BoxFit.cover,),
-          ),
-        ],
-      ),
-    );
-  }
+          );
 }

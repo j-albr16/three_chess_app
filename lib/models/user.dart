@@ -5,4 +5,6 @@ class User {
   String email;
   String userName;
   int score;
+
+  User({this.userName, this.email, this.id, this.score});
 }

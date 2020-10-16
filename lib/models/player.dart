@@ -7,4 +7,7 @@ class Player {
   PlayerColor playerColor;
   User user;
   DateTime remainingTime;
+
+
+  Player({this.playerColor, this.user, this.remainingTime});
 }

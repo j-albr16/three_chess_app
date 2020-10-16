@@ -11,6 +11,7 @@ import './providers/tile_provider.dart';
 import './providers/image_provider.dart';
 import './providers/player_provider.dart';
 import './models/tile.dart';
+import './screens/design-test-screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -31,6 +32,8 @@ class ThreeChessApp extends StatelessWidget {
           home: HomeScreen(),
           routes: {
             BoardScreen.routeName: (ctx) => BoardScreen(),
+            DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
+
           },
           builder: (context, widget) => ResponsiveWrapper.builder(
               BouncingScrollWrapper.builder(context, widget),
@@ -44,4 +47,3 @@ class ThreeChessApp extends StatelessWidget {
   }
 }
 
-class TestProvider with ChangeNotifier {}

@@ -124,7 +124,80 @@ class ThinkingBoard with ChangeNotifier {
     // There are two Options: Either we save all current attacked/defended Fields or we request all possiblities when needed.
     // I will go for the second one now, though we might wanna change that in the future
     print("IS ATTACKED THINKS RN");
-    //Check
+    List<Direction> movesOfRook = [
+      //Could check for Queen as well
+      Direction.top,
+      Direction.right,
+      Direction.bottom,
+      Direction.left,
+    ];
+    List<Direction> movesOfBishop = [
+      //could check for Queen as well
+      Direction.topRight,
+      Direction.bottomRight,
+      Direction.bottomLeft,
+      Direction.leftTop
+    ];
+    List<Direction> movesOfPawn = [
+      //Needs to Check Color of Pawn  for direction
+    ];
+    if (BoardData.sideData[toCheckTile] == _getCurrentColor(context)) {
+      movesOfPawn = [
+        Direction.bottomLeft,
+        Direction.bottomRight,
+      ];
+    } else {
+      movesOfPawn = [
+        Direction.topRight,
+        Direction.leftTop,
+      ];
+    }
+    List<Direction> movesOfKing = [
+      Direction.top,
+      Direction.right,
+      Direction.bottom,
+      Direction.left,
+      Direction.topRight,
+      Direction.bottomRight,
+      Direction.bottomLeft,
+      Direction.leftTop
+    ];
+
+    List<Direction> movesOfQueen = [...movesOfBishop, ...movesOfRook];
+
+    if (isKnightAttacking(toCheckTile, _getCurrentColor(context), context)) {
+      return true;
+    }
+    movesOfRook.forEach((element) {
+      if (isDirectionAttacking(
+          toCheckTile, element, _getCurrentColor(context), PieceType.Rook, BoardData.sideData[toCheckTile], context)) {
+        return true;
+      }
+    });
+    movesOfBishop.forEach((element) {
+      if (isDirectionAttacking(
+          toCheckTile, element, _getCurrentColor(context), PieceType.Bishop, BoardData.sideData[toCheckTile], context)) {
+        return true;
+      }
+    });
+    movesOfQueen.forEach((element) {
+      if (isDirectionAttacking(
+          toCheckTile, element, _getCurrentColor(context), PieceType.Queen, BoardData.sideData[toCheckTile], context)) {
+        return true;
+      }
+    });
+    movesOfKing.forEach((element) {
+      if (isDirectionAttacking(
+          toCheckTile, element, _getCurrentColor(context), PieceType.King, BoardData.sideData[toCheckTile], context)) {
+        return true;
+      }
+    });
+    movesOfPawn.forEach((element) {
+      if (isStepAttacking(toCheckTile, element, _getCurrentColor(context), PieceType.Pawn, BoardData.sideData[toCheckTile], context)) {
+        return true;
+      }
+    });
+    return false;
   }
 
   //Validating movabilty of a tile

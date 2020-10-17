@@ -55,7 +55,7 @@ class TileProvider with ChangeNotifier {
     generateTiles();
   }
 
-  void rotateTilesNext() {
+  void rotateTilesPrevious() {
     Map<String, Tile> newTiles = {};
     for (Tile tile in tiles.values.toList()) {
       String prevId = previousColorEqualCoordinate(tile.id, tiles);
@@ -71,7 +71,7 @@ class TileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void rotateTilesPrevious() {
+  void rotateTilesNext() {
     Map<String, Tile> newTiles = {};
     for (Tile tile in tiles.values.toList()) {
       String nextId = nextColorEqualCoordinate(tile.id, tiles);

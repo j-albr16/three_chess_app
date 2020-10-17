@@ -11,6 +11,7 @@ import 'package:three_chess/providers/tile_select.dart';
 import '../painter/piece_painter.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
+import '../providers/player_provider.dart';
 import '../models/tile.dart';
 
 class BoardScreen extends StatefulWidget {
@@ -54,6 +55,12 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHighlight;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Provider.of<PlayerProvider>(context, listen: false).nextPlayer();
+          Provider.of<TileProvider>(context, listen: false).rotateTilesNext();
+        },
+      ),
       appBar: AppBar(),
       body: !Provider.of<ImageProv>(context).isImagesLoaded
           ? Center(

@@ -12,9 +12,10 @@ import '../providers/piece_provider.dart';
 
 class BoardPainter extends CustomPainter {
   final BuildContext context;
+  Map<String, Tile> tiles;
   Map<String, Path> paths = {};
 
-  BoardPainter(this.context);
+  BoardPainter(this.tiles, this.context);
 
 //Paragraph ....
 //######################
@@ -51,13 +52,7 @@ class BoardPainter extends CustomPainter {
 
     Paint paint = Paint()..color = tile.isWhite ? Colors.grey : Colors.brown;
 
-    Path path = Path() // TODO is obsolete since Tile(... @required Path)
-      ..moveTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
-      ..lineTo(tile.points[1].x.toDouble(), tile.points[1].y.toDouble())
-      ..lineTo(tile.points[2].x.toDouble(), tile.points[2].y.toDouble())
-      ..lineTo(tile.points[3].x.toDouble(), tile.points[3].y.toDouble())
-      ..lineTo(tile.points[0].x.toDouble(), tile.points[0].y.toDouble())
-      ..close();
+    Path path = tile.path;
 
     Paint borderPaint = Paint()
       ..color = Colors.black87
@@ -76,7 +71,6 @@ class BoardPainter extends CustomPainter {
       _toOff(tile.points[3]),
       _toOff(tile.points[0]),
     ];
-    paths[tile.id] = path;
     myCanvas
       ..drawPath(
         path,
@@ -93,12 +87,10 @@ class BoardPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    paths = {};
     var myCanvas = canvas;
-    Provider.of<TileProvider>(context, listen: false).tiles.forEach((key, value) {
+    tiles.forEach((key, value) {
       _drawTile(value, myCanvas, size);
     });
-    Provider.of<TileProvider>(context, listen: false).paths = paths; // TODO Delete since obsolete, but needs clean up in other files
   }
 
   Offset _toOff(Point point) {

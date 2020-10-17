@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -7,12 +8,18 @@ import 'package:three_chess/painter/board_painter.dart';
 import 'package:three_chess/painter/highlight_painter.dart';
 import 'package:three_chess/providers/image_provider.dart';
 import 'package:three_chess/providers/tile_select.dart';
+import '../providers/piece_provider.dart';
+import '../providers/tile_provider.dart';
 
 import '../painter/piece_painter.dart';
+import '../painter/path_clipper.dart';
+import '../models/piece.dart';
+import '../models/tile.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
 import '../providers/player_provider.dart';
 import '../models/tile.dart';
+import '../data/image_data.dart';
 
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
@@ -29,14 +36,51 @@ class _BoardScreenState extends State<BoardScreen> {
     super.initState();
   }
 
+  List<Widget> _buildDraggables(List<Piece> pieces, Map<String, Tile> tiles, context) {
+    List<Draggable> draggables = [];
+    pieces.forEach((element) {
+      draggables.add(Draggable(
+        child: ClipPath(child: Container(), clipper: PathClipper(path: tiles[element.position].path)),
+        feedback: Image.asset(ImageData.assetPaths[element.pieceKey]),
+        childWhenDragging: Container(),
+        onDragStarted: () {
+          Provider.of<PieceProvider>(context).switchInvis(element, true);
+          Provider.of<TileSelect>(context).setSelectedTo(element.position, context);
+        },
+        onDragEnd: (_) {
+          Provider.of<PieceProvider>(context).switchInvis(element, false);
+        },
+      ));
+    });
+    return draggables;
+  }
+
+  List<Widget> _buildDragTargets(List<Tile> viableTiles, context, List<Piece> pieces) {
+    return [
+      ...viableTiles.map((e) => DragTarget(
+            builder: (context, List<int> candidateData, rejectedData) {
+              return ClipPath(child: Container(), clipper: PathClipper(path: e.path));
+            },
+            onWillAccept: (_) {
+              return true;
+            },
+            onAccept: (_) {
+              Provider.of<TileSelect>(context).setSelectedTo(e.id, context);
+            },
+          ))
+    ];
+  }
+
   Widget _buildPieces() {
+    List<Piece> pieces = Provider.of<PieceProvider>(context).pieces;
+    Map<String, Tile> tiles = Provider.of<TileProvider>(context, listen: false).tiles;
     return IgnorePointer(
       child: new CustomPaint(
         size: Size(1000, 1000),
         painter: new PiecePainter(
           imageProvSize: Provider.of<ImageProv>(context, listen: false).size,
-          pieces: Provider.of<PieceProvider>(context).pieces,
-          tiles: Provider.of<TileProvider>(context, listen: false).tiles,
+          pieces: pieces,
+          tiles: tiles,
           images: Provider.of<ImageProv>(context, listen: false).images,
         ),
       ),
@@ -78,10 +122,15 @@ class _BoardScreenState extends State<BoardScreen> {
                       children: [
                         CustomPaint(
                           key: boardPaintKey,
-                          painter: BoardPainter(context),
+                          painter: BoardPainter(Provider.of<TileProvider>(context).tiles, context),
                         ),
                         _buildHighlighter(currentHighlight),
                         _buildPieces(),
+                        ..._buildDraggables(
+                            Provider.of<PieceProvider>(context).pieces, Provider.of<TileProvider>(context).tiles, context),
+                        if (Provider.of<TileSelect>(context).currentHighlight != null)
+                          ..._buildDragTargets(
+                              Provider.of<TileSelect>(context).currentHighlight, context, Provider.of<PieceProvider>(context).pieces)
                       ],
                     )),
               ),

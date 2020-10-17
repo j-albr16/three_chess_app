@@ -39,6 +39,11 @@ class TileSelect with ChangeNotifier {
     }
   }
 
+  void setSelectedTo(String toSelect, context) {
+    changeMoveState(toSelect, context);
+    selectedTile = toSelect;
+  }
+
   void changeMoveState(String preNotifyTile, BuildContext context) {
     String oldSelected = selectedTile; //Just to make the Code more readable
     PieceProvider pieceProv = Provider.of<PieceProvider>(context, listen: false);
@@ -72,7 +77,6 @@ class TileSelect with ChangeNotifier {
     //   currentHighlight = null;
     //   isMoveState = false;
     // }
-
     if (!isMoveState) {
       if (preNotifyPiece?.playerColor == currPlayer) {
         //Set CurrentHighlight

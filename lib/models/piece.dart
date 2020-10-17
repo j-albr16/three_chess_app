@@ -16,6 +16,8 @@ class PieceKeyGen {
 
 class Piece {
   String _position;
+  bool invis = false;
+
   set position(String newPosition) {
     if (!didMove) {
       didMove = true;

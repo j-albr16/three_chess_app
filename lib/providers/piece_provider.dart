@@ -24,6 +24,7 @@ class PieceProvider with ChangeNotifier {
 
   void switchInvis(Piece piece, bool invis) {
     _pieces.firstWhere((element) => element == piece, orElse: () => null)?.invis = invis;
+    notifyListeners();
   }
 
   void movePieceTo(String oldPos, String newPos) {

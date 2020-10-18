@@ -40,8 +40,10 @@ class TileSelect with ChangeNotifier {
   }
 
   void setSelectedTo(String toSelect, context) {
-    changeMoveState(toSelect, context);
-    selectedTile = toSelect;
+    if(toSelect != selectedTile){
+      changeMoveState(toSelect, context);
+      selectedTile = toSelect;
+    }
   }
 
   void changeMoveState(String preNotifyTile, BuildContext context) {

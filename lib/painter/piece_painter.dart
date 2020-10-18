@@ -20,7 +20,7 @@ class PiecePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-      for (Piece piece in pieces) {
+      for (Piece piece in pieces.where((element) => !element.invis)) {
 
         Paint paint = Paint()
         ..color = Colors.white

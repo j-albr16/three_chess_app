@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/helpers/hit_stack.dart';
 import 'package:three_chess/painter/board_painter.dart';
 import 'package:three_chess/painter/highlight_painter.dart';
 import 'package:three_chess/providers/image_provider.dart';
@@ -38,17 +39,26 @@ class _BoardScreenState extends State<BoardScreen> {
 
   List<Widget> _buildDraggables(List<Piece> pieces, Map<String, Tile> tiles, context) {
     List<Draggable> draggables = [];
-    pieces.forEach((element) {
+    pieces.where((element) => element.playerColor == Provider.of<PlayerProvider>(context, listen: false).currentPlayer,).forEach((element) {
       draggables.add(Draggable(
-        child: ClipPath(child: Container(), clipper: PathClipper(path: tiles[element.position].path)),
-        feedback: Image.asset(ImageData.assetPaths[element.pieceKey]),
+        child: Container(child: ClipPath(child: Container(width: double.infinity, height: double.infinity, color: Colors.transparent,), clipper: PathClipper(path: tiles[element.position].path))),
+        feedback: Container(
+            child: Image.asset(ImageData.assetPaths[element.pieceKey],
+              alignment: Alignment.center,
+             // width: Provider.of<ImageProv>(context, listen: false).size.width,
+             //  height: Provider.of<ImageProv>(context, listen: false).size.height,
+            ),
+          ),
         childWhenDragging: Container(),
         onDragStarted: () {
-          Provider.of<PieceProvider>(context).switchInvis(element, true);
-          Provider.of<TileSelect>(context).setSelectedTo(element.position, context);
+          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, true);
+          Provider.of<TileSelect>(context, listen: false).setSelectedTo(element.position, context);
         },
         onDragEnd: (_) {
-          Provider.of<PieceProvider>(context).switchInvis(element, false);
+          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, false);
+        },
+        onDraggableCanceled: (__, _) {
+          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, false);
         },
       ));
     });
@@ -59,7 +69,7 @@ class _BoardScreenState extends State<BoardScreen> {
     return [
       ...viableTiles.map((e) => DragTarget(
             builder: (context, List<int> candidateData, rejectedData) {
-              return ClipPath(child: Container(), clipper: PathClipper(path: e.path));
+              return ClipPath(child: Container(width: double.infinity, height: double.infinity,), clipper: PathClipper(path: e.path));
             },
             onWillAccept: (_) {
               return true;

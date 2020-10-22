@@ -10,7 +10,6 @@ import './screens/board_screen.dart';
 import './providers/tile_provider.dart';
 import './providers/image_provider.dart';
 import './providers/player_provider.dart';
-import './models/tile.dart';
 import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
 

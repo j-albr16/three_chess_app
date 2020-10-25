@@ -12,6 +12,8 @@ import './providers/image_provider.dart';
 import './providers/player_provider.dart';
 import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
+import './providers/auth_provider.dart';
+import './screens/auth_test_screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -26,7 +28,8 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
           ChangeNotifierProvider(create: (ctx) => ThinkingBoard()),
           ChangeNotifierProvider(create: (ctx) => TileSelect()),
-          ChangeNotifierProvider(create: (ctx) => GameProvider())
+          ChangeNotifierProvider(create: (ctx) => GameProvider()),
+          ChangeNotifierProvider(create: (ctx) => AuthProvider()),
         ],
         child: MaterialApp(
           title: 'three chess app',
@@ -34,7 +37,7 @@ class ThreeChessApp extends StatelessWidget {
           routes: {
             BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
-
+            AuthScreen.routeName: (ctx) => AuthScreen(),
           },
           builder: (context, widget) => ResponsiveWrapper.builder(
               BouncingScrollWrapper.builder(context, widget),

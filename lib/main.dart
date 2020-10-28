@@ -35,10 +35,8 @@ class ThreeChessApp extends StatelessWidget {
           routes: {
             BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
-
           },
-          builder: (context, widget) => ResponsiveWrapper.builder(
-              BouncingScrollWrapper.builder(context, widget),
+          builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
               maxWidth: 1200,
               minWidth: 300,
               defaultScaleFactor: 0.312,
@@ -48,4 +46,3 @@ class ThreeChessApp extends StatelessWidget {
         ));
   }
 }
-

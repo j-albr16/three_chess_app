@@ -12,11 +12,10 @@ import '../models/enums.dart';
 class ThinkingBoard with ChangeNotifier {
   //Get methods
   Piece _getPiece(String tile, BuildContext context) {
-    List<Piece> pieces = _getPieces(context);
-    return pieces.firstWhere((e) => e.position == tile, orElse: () => null);
+    return Provider.of<PieceProvider>(context, listen: false).pieces[tile];
   }
 
-  List<Piece> _getPieces(BuildContext context) {
+  Map<String, Piece> _getPieces(BuildContext context) {
     return Provider.of<PieceProvider>(context, listen: false).pieces;
   }
 
@@ -105,105 +104,80 @@ class ThinkingBoard with ChangeNotifier {
     int i = 0;
     for (Direction firstDire in firstDir) {
       for (Direction secondDire in secondDir[i % 2]) {
-        multipleEnum(legalMoves, [firstDire, firstDire, secondDire], toCheckTile, context);
-        if (legalMoves
-                .where((element) =>
-                    _getPiece(element, context)?.playerColor != attackedPlayer &&
-                    _getPiece(element, context)?.pieceType == PieceType.Knight)
-                ?.isNotEmpty ==
-            true) {
-          return true;
+        multipleEnumA(
+            legalMoves,
+            [
+              secondDire,
+              firstDire,
+              firstDire,
+            ],
+            toCheckTile,
+            context);
+        print("CurrentLegalMoves: $legalMoves");
+        if (legalMoves.length >= 1) {
+          if (_getPiece(legalMoves[0], context)?.playerColor != attackedPlayer &&
+              _getPiece(legalMoves[0], context)?.pieceType == PieceType.Knight) {
+            return true;
+          }
         }
+        legalMoves = [];
         i++;
       }
     }
     return false;
   }
 
+  void multipleEnumA(List<String> myList, List<Direction> directionList, String startTile, context) {
+    myList ??= [];
+    List<String> nextTiles =
+        BoardData.adjacentTiles[startTile].getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile]);
+    for (String thisTile in nextTiles) {
+      _stackEnumCallsA(myList, directionList.sublist(1), thisTile, context);
+    }
+  }
+
+  void _stackEnumCallsA(List<String> myList, List<Direction> directionList, String startTile, context) {
+    if (directionList.length == 1) {
+      for (String thisTile in BoardData.adjacentTiles[startTile]
+          .getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile])) {
+        myList.add(thisTile);
+      }
+    } else {
+      for (String thisTile in BoardData.adjacentTiles[startTile]
+          .getRelativeEnum(directionList[0], _getCurrentColor(context), BoardData.sideData[startTile])) {
+        _stackEnumCallsA(myList, directionList.sublist(1), thisTile, context);
+      }
+    }
+  }
+
   bool isAttacked(String toCheckTile, context) {
     // There are two Options: Either we save all current attacked/defended Fields or we request all possiblities when needed.
     // I will go for the second one now, though we might wanna change that in the future
-    print("IS ATTACKED THINKS RN");
-    List<Direction> movesOfRook = [
-      //Could check for Queen as well
-      Direction.top,
-      Direction.right,
-      Direction.bottom,
-      Direction.left,
-    ];
-    List<Direction> movesOfBishop = [
-      //could check for Queen as well
-      Direction.topRight,
-      Direction.bottomRight,
-      Direction.bottomLeft,
-      Direction.leftTop
-    ];
-    List<Direction> movesOfPawn = [
-      //Needs to Check Color of Pawn  for direction
-    ];
-    if (BoardData.sideData[toCheckTile] == _getCurrentColor(context)) {
-      movesOfPawn = [
-        Direction.bottomLeft,
-        Direction.bottomRight,
-      ];
-    } else {
-      movesOfPawn = [
-        Direction.topRight,
-        Direction.leftTop,
-      ];
-    }
-    List<Direction> movesOfKing = [
-      Direction.top,
-      Direction.right,
-      Direction.bottom,
-      Direction.left,
-      Direction.topRight,
-      Direction.bottomRight,
-      Direction.bottomLeft,
-      Direction.leftTop
-    ];
-
-    List<Direction> movesOfQueen = [...movesOfBishop, ...movesOfRook];
-
-    if (isKnightAttacking(toCheckTile, _getCurrentColor(context), context)) {
+    //print("IS ATTACKED THINKS RN");
+    //Check
+    if (isKnightAttacking(toCheckTile, Provider.of<PlayerProvider>(context, listen: false).currentPlayer, context)) {
+      return true;
+    } else if (false) {
+      return true;
+    } else if (false) {
+      return true;
+    } else if (false) {
+      return true;
+    } else if (false) {
+      return true;
+    } else if (false) {
+      return true;
+    } else if (false) {
       return true;
     }
-    movesOfRook.forEach((element) {
-      if (isDirectionAttacking(
-          toCheckTile, element, _getCurrentColor(context), PieceType.Rook, BoardData.sideData[toCheckTile], context)) {
-        return true;
-      }
-    });
-    movesOfBishop.forEach((element) {
-      if (isDirectionAttacking(
-          toCheckTile, element, _getCurrentColor(context), PieceType.Bishop, BoardData.sideData[toCheckTile], context)) {
-        return true;
-      }
-    });
-    movesOfQueen.forEach((element) {
-      if (isDirectionAttacking(
-          toCheckTile, element, _getCurrentColor(context), PieceType.Queen, BoardData.sideData[toCheckTile], context)) {
-        return true;
-      }
-    });
-    movesOfKing.forEach((element) {
-      if (isDirectionAttacking(
-          toCheckTile, element, _getCurrentColor(context), PieceType.King, BoardData.sideData[toCheckTile], context)) {
-        return true;
-      }
-    });
-    movesOfPawn.forEach((element) {
-      if (isStepAttacking(toCheckTile, element, _getCurrentColor(context), PieceType.Pawn, BoardData.sideData[toCheckTile], context)) {
-        return true;
-      }
-    });
+
     return false;
   }
 
   //Validating movabilty of a tile
-  bool _canMoveOn(String tile, List<Piece> pieces, PlayerColor myColor, BuildContext context) {
+  bool _canMoveOn(String tile, Map<String, Piece> pieces, PlayerColor myColor, BuildContext context) {
     bool result = false;
-    Piece piece = pieces.firstWhere((e) => e.position == tile, orElse: () => null);
+    Piece piece = pieces[tile];
     if (piece == null) {
       result = true;
     } else if (piece.playerColor != myColor) {
@@ -378,8 +352,6 @@ class ThinkingBoard with ChangeNotifier {
     possibleDirectionsAbsolut.forEach((element) {
       thinkOneMove(allLegalMoves, element, selectedTile, context, canTake: true, canMoveWithoutTake: true);
     });
-    //IsAttackedCheck
-    //allLegalMoves.removeWhere((element) => isAttacked(element, context)); // DOESNT WORK YET
 
     //Casteling check
     if (!_getPiece(selectedTile, context).didMove) {
@@ -423,6 +395,11 @@ class ThinkingBoard with ChangeNotifier {
         }
       }
     }
+    //IsAttackedCheck
+    allLegalMoves.removeWhere((element) {
+      print("Tile: $element isAttacked: ${isAttacked(element, context)}");
+      return isAttacked(element, context);
+    });
 
     return allLegalMoves;
   }

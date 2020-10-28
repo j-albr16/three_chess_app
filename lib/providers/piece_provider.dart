@@ -7,10 +7,10 @@ import '../models/piece.dart';
 import '../models/enums.dart';
 
 class PieceProvider with ChangeNotifier {
-  List<Piece> _pieces = [];
+  Map<String, Piece> _pieces = {};
 
-  List<Piece> get pieces {
-    return [..._pieces];
+  Map<String, Piece> get pieces {
+    return {..._pieces};
   }
 
   PieceProvider() {
@@ -18,24 +18,28 @@ class PieceProvider with ChangeNotifier {
   }
 
   startGame() {
-    _pieces.addAll(startPos); //Is disabled to see Tile Names
+    startPosList.forEach((e) => _pieces.putIfAbsent(e.position, () => e));
     notifyListeners();
   }
 
-  void switchInvis(Piece piece, bool invis) {
-    _pieces.firstWhere((element) => element == piece, orElse: () => null)?.invis = invis;
-    notifyListeners();
-  }
+  // void switchInvis(Piece piece, bool invis) {
+  //   _pieces.firstWhere((element) => element == piece, orElse: () => null)?.invis = invis;
+  //   notifyListeners();
+  // }
 
   void movePieceTo(String oldPos, String newPos) {
     if (newPos != null && oldPos != null) {
-      if (_pieces.firstWhere((e) => e.position == newPos, orElse: () => null) != null) {
-        _pieces.removeWhere((e) => e.position == newPos);
-        // Maybe notify exactly
+      if (_pieces[newPos] != null) {
+        //_pieces.firstWhere(()) = _pieces[String]
+        _pieces.remove(newPos);
+        // importend rewrite
       }
-      Piece movedPiece = _pieces.firstWhere((e) => e.position == oldPos, orElse: () => null);
+      Piece movedPiece = _pieces[oldPos];
       if (movedPiece != null) {
-        movedPiece.position = newPos; // moves the selectedPieces
+        _pieces.remove(oldPos); // removes entry of old piece with old position
+        movedPiece.position = newPos;
+        _pieces.putIfAbsent(newPos, () => movedPiece); // adds new entry for piece with new pos
+        // moves the selectedPieces
 
         // Following code listens to weather The King is castling and moves the rook accordingly
         //moveCountOnCharAxis calulates the diffrence between oldPos and newPos on the character Axis
@@ -47,14 +51,26 @@ class PieceProvider with ChangeNotifier {
             //Checks in which direction we should castle
             String rookPos =
                 TileProvider.charCoordinatesOf[movedPiece.playerColor][7] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
-            _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
-                BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
+
+            Piece rook = _pieces[rookPos];
+            String newRookPos = BoardData.adjacentTiles[movedPiece.position].left[0];
+            rook.position = newRookPos;
+            _pieces.remove(rookPos);
+            _pieces.putIfAbsent(newRookPos, () => rook);
+            // _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
+            //     BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
+
           } else if (moveCountOnCharAxis > 0) {
             //Checks in which direction we should castle
             String rookPos =
                 TileProvider.charCoordinatesOf[movedPiece.playerColor][0] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
-            _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
-                BoardData.adjacentTiles[movedPiece.position].right[0]; //Places the rook to the right of the King
+
+            Piece rook = _pieces[rookPos];
+            String newRookPos = BoardData.adjacentTiles[movedPiece.position].right[0];
+            rook.position = newRookPos;
+            _pieces.remove(rookPos);
+            _pieces.putIfAbsent(newRookPos, () => rook);
+            //Places the rook to the right of the King
           }
         }
       }
@@ -62,7 +78,7 @@ class PieceProvider with ChangeNotifier {
     }
   }
 
-  List<Piece> startPos = [
+  List<Piece> startPosList = [
     //White
     //#region White
     //#region pawns

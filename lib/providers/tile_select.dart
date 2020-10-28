@@ -26,7 +26,7 @@ class TileSelect with ChangeNotifier {
   }
 
   void set currentHighlight(List<Tile> newHighlight) {
-    _currentHighlight = newHighlight?.isNotEmpty == true ? newHighlight : null;
+    _currentHighlight = newHighlight;
 
     notifyListeners();
   }
@@ -35,82 +35,63 @@ class TileSelect with ChangeNotifier {
     if (newTile != _selectedTile) {
       _selectedTile = newTile;
       print("selected Tile: " + _selectedTile.toString());
+      print("Highights: $currentHighlight");
       notifyListeners();
     }
   }
 
-  void setSelectedTo(String toSelect, context) {
-    if(toSelect != selectedTile){
-      changeMoveState(toSelect, context);
-      selectedTile = toSelect;
+  void goIntoMoveState(String preNotifyTile, BuildContext context) {
+    PieceProvider pieceProv = Provider.of<PieceProvider>(context, listen: false);
+    Map<String, Piece> pieces = pieceProv.pieces;
+    Piece preNotifyPiece = pieces[preNotifyTile];
+    ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
+
+    isMoveState = true;
+
+    if (preNotifyTile != selectedTile) {
+      currentHighlight = thinkingBoard
+          .getLegalMove(preNotifyTile, preNotifyPiece, context)
+          .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
+          .toList();
+      selectedTile = preNotifyTile;
+      if (currentHighlight == null || currentHighlight.isEmpty) {
+        isMoveState = false;
+        selectedTile = null;
+        currentHighlight = null;
+      }
+      notifyListeners();
     }
   }
 
-  void changeMoveState(String preNotifyTile, BuildContext context) {
+  void endMoveState(String preNotifyTile, BuildContext context) {
     String oldSelected = selectedTile; //Just to make the Code more readable
     PieceProvider pieceProv = Provider.of<PieceProvider>(context, listen: false);
-    List<Piece> pieces = pieceProv.pieces;
-    Piece preNotifyPiece = pieces.firstWhere((e) => e.position == preNotifyTile, orElse: () => null);
-    Piece oldSelectedPiece = pieces.firstWhere((e) => e.position == oldSelected, orElse: () => null);
-    PlayerColor currPlayer = Provider.of<PlayerProvider>(context, listen: false).currentPlayer;
+    Map<String, Piece> pieces = pieceProv.pieces;
+    Piece oldSelectedPiece = pieces[oldSelected];
 
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
-    // // THIS VERSION HIGHLIGHTS EVERY NEIGHBOUR OF SELECTED TILE NO MATTER WEATHER THERES A PIECE
-    // // --FOR DEBUGGING
-    // if (!isMoveState) {
-    //   // Nothing select before call
-    //   List<String> adjacentTiles = [];
-    //   List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
-    //       Direction.top, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
-    //   for (String tile in currentDirectionTiles) {
-    //     adjacentTiles.add(tile);
-    //   }
-    //   // for (Direction direction in Direction.values) {
-    //   //   List<String> currentDirectionTiles = BoardData.adjacentTiles[preNotifyTile].getRelativeEnum(
-    //   //       direction, PlayerColor.white, Provider.of<TileProvider>(context, listen: false).tiles[preNotifyTile].side);
-    //   //   for (String tile in currentDirectionTiles) {
-    //   //     adjacentTiles.add(tile);
-    //   //   }
-    //   // }
-    //   currentHighlight = adjacentTiles.map((e) => Provider.of<TileProvider>(context, listen: false).tiles[e]).toList();
-    //   isMoveState = true;
-    // } else {
-    //   //Something selected before call
-    //   currentHighlight = null;
-    //   isMoveState = false;
-    // }
-    if (!isMoveState) {
-      if (preNotifyPiece?.playerColor == currPlayer) {
-        //Set CurrentHighlight
-        currentHighlight = thinkingBoard
-            .getLegalMove(preNotifyTile, preNotifyPiece, context)
-            .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
-            .toList();
-        // Inverting isMoveState.
-        if (currentHighlight?.isNotEmpty == true) {
-          isMoveState = true;
-        }
-      }
-    } else {
+
+    if (preNotifyTile != null) {
       if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {
         pieceProv.movePieceTo(oldSelected, preNotifyTile);
-        thinkingBoard.updateStatus();
       }
-      currentHighlight = null;
-      isMoveState = false;
     }
+    selectedTile = null;
+    currentHighlight = null;
+    isMoveState = false;
+    notifyListeners();
   }
 
-  void setByPosition(BuildContext context, Offset point) {
-    //Dont!
+  String getPieceAtPosition(BuildContext context, Offset point) {
     String hitTile = null;
-    MapEntry hitPath =
-        Provider.of<TileProvider>(context, listen: false).paths.entries.firstWhere((e) => e.value.contains(point), orElse: () => null);
+    MapEntry hitPath = Provider.of<TileProvider>(context, listen: false)
+        .tiles
+        .entries
+        .firstWhere((e) => e.value.path.contains(point), orElse: () => null);
     if (hitPath != null) {
       hitTile = hitPath.key;
     }
-    changeMoveState(hitTile, context);
-    selectedTile = hitTile;
+    return hitTile;
   }
 
   TileSelect();

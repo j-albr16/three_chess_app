@@ -5,6 +5,7 @@ import 'package:three_chess/providers/auth_provider.dart';
 import '../screens/board_screen.dart';
 import '../screens/design-test-screen.dart';
 import '../screens/auth_test_screen.dart';
+import '../screens/lobby_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -24,11 +25,12 @@ class HomeScreen extends StatelessWidget {
                   : menuItem('Auth Test', AuthScreen.routeName, context);
             },
           ),
+          menuItem('Lobby', LobbyScreen.routeName, context),
           Container(
             height: 200,
             width: 200,
             child: Image.asset(
-              'assets/pieces/bishop_black.png',
+              'pieces/bishop_black.png',
               fit: BoxFit.cover,
             ),
           ),

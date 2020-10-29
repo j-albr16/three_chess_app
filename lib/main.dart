@@ -14,6 +14,8 @@ import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
 import './providers/auth_provider.dart';
 import './screens/auth_test_screen.dart';
+import './screens/lobby_screen.dart';
+import './screens/create_game_screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -32,12 +34,17 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider(create: (ctx) => AuthProvider()),
         ],
         child: MaterialApp(
+          theme: ThemeData(
+            primaryColor: Colors.blueAccent
+          ),
           title: 'three chess app',
           home: HomeScreen(),
           routes: {
             BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
             AuthScreen.routeName: (ctx) => AuthScreen(),
+            CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
+            LobbyScreen.routeName: (ctx) => LobbyScreen(),
           },
           builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
               maxWidth: 1200,

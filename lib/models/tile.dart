@@ -1,17 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:three_chess/painter/path_clipper.dart';
 
 import 'enums.dart';
 import '../data/board_data.dart';
 
-class Tile {
+class Tile extends StatelessWidget {
   final List<Point> points;
   final bool isWhite;
   final String id;
   final Directions directions;
   final PlayerColor side;
   final Path path;
+  Color myColor;
 
   Point get middle {
     double sx = 0.0;
@@ -50,5 +52,19 @@ class Tile {
       @required this.id,
       @required this.directions,
       @required this.side,
-      @required this.path});
+      @required this.path}) {
+    myColor = isWhite ? Colors.grey : Colors.deepPurple;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: myColor,
+      ),
+      clipper: PathClipper(path: path),
+    );
+  }
 }

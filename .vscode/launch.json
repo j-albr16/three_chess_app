@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "three_chess_app - TryNoCustomPaint (Flutter)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -12,7 +11,6 @@ import 'package:three_chess/providers/tile_select.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
 
-import '../painter/piece_painter.dart';
 import '../painter/path_clipper.dart';
 import '../models/piece.dart';
 import '../models/tile.dart';
@@ -30,79 +28,34 @@ class BoardScreen extends StatefulWidget {
 }
 
 class _BoardScreenState extends State<BoardScreen> {
-  GlobalKey boardPaintKey = GlobalKey();
+  // GlobalKey boardBoxKey = GlobalKey();
+  bool _isDragging = false;
+  String _pieceOnDrag = null;
+  Offset _startingPosition;
+  Offset _deltaOffset = null;
 
   @override
   void initState() {
     super.initState();
   }
 
-  List<Widget> _buildDraggables(List<Piece> pieces, Map<String, Tile> tiles, context) {
-    List<Draggable> draggables = [];
-    pieces.where((element) => element.playerColor == Provider.of<PlayerProvider>(context, listen: false).currentPlayer,).forEach((element) {
-      draggables.add(Draggable(
-        child: Container(child: ClipPath(child: Container(width: double.infinity, height: double.infinity, color: Colors.transparent,), clipper: PathClipper(path: tiles[element.position].path))),
-        feedback: Container(
-            child: Image.asset(ImageData.assetPaths[element.pieceKey],
-              alignment: Alignment.center,
-             // width: Provider.of<ImageProv>(context, listen: false).size.width,
-             //  height: Provider.of<ImageProv>(context, listen: false).size.height,
-            ),
+  Widget _buildPiece(context, {Piece child}) {
+    return child;
+  }
+
+  List<Widget> _buildHighlights(List<Tile> currentHighlight) {
+    if (currentHighlight != null && currentHighlight.isNotEmpty) {
+      return currentHighlight.map((e) {
+        return IgnorePointer(
+            child: ClipPath(
+          child: Container(
+            color: Color.fromRGBO(30, 60, 140, 0.5),
           ),
-        childWhenDragging: Container(),
-        onDragStarted: () {
-          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, true);
-          Provider.of<TileSelect>(context, listen: false).setSelectedTo(element.position, context);
-        },
-        onDragEnd: (_) {
-          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, false);
-        },
-        onDraggableCanceled: (__, _) {
-          Provider.of<PieceProvider>(context, listen: false).switchInvis(element, false);
-        },
-      ));
-    });
-    return draggables;
-  }
-
-  List<Widget> _buildDragTargets(List<Tile> viableTiles, context, List<Piece> pieces) {
-    return [
-      ...viableTiles.map((e) => DragTarget(
-            builder: (context, List<int> candidateData, rejectedData) {
-              return ClipPath(child: Container(width: double.infinity, height: double.infinity,), clipper: PathClipper(path: e.path));
-            },
-            onWillAccept: (_) {
-              return true;
-            },
-            onAccept: (_) {
-              Provider.of<TileSelect>(context).setSelectedTo(e.id, context);
-            },
-          ))
-    ];
-  }
-
-  Widget _buildPieces() {
-    List<Piece> pieces = Provider.of<PieceProvider>(context).pieces;
-    Map<String, Tile> tiles = Provider.of<TileProvider>(context, listen: false).tiles;
-    return IgnorePointer(
-      child: new CustomPaint(
-        size: Size(1000, 1000),
-        painter: new PiecePainter(
-          imageProvSize: Provider.of<ImageProv>(context, listen: false).size,
-          pieces: pieces,
-          tiles: tiles,
-          images: Provider.of<ImageProv>(context, listen: false).images,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHighlighter(List<Tile> currentHighlight) {
-    return currentHighlight == null
-        ? Container()
-        : CustomPaint(
-            painter: HighlightPainter(currentHighlight),
-          );
+          clipper: PathClipper(path: e.path),
+        ));
+      }).toList();
+    }
+    return [Container()];
   }
 
   @override
@@ -116,41 +69,101 @@ class _BoardScreenState extends State<BoardScreen> {
         },
       ),
       appBar: AppBar(),
-      body: !Provider.of<ImageProv>(context).isImagesLoaded
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Container(
-              //alignment: Alignment.center,
-              child: SizedBox(
+      body: Container(
+        //alignment: Alignment.center,
+        child: Listener(
+            onPointerDown: (details) {
+              TileSelect tileSelect = Provider.of<TileSelect>(context, listen: false);
+              String whatsHit = _getPieceAtPointerDown(details);
+              if (whatsHit != null) {
+                if (!tileSelect.isMoveState) {
+                  if (Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit]?.playerColor ==
+                      Provider.of<PlayerProvider>(context, listen: false).currentPlayer) {
+                    _isDragging = true;
+                    _pieceOnDrag = whatsHit;
+                    _startingPosition = details.localPosition;
+                    tileSelect.goIntoMoveState(whatsHit, context);
+                  }
+                } else {
+                  tileSelect.endMoveState(whatsHit, context);
+                  Piece currentPiece = Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit];
+                  if (currentPiece != null &&
+                      currentPiece.playerColor == Provider.of<PlayerProvider>(context, listen: false).currentPlayer) {
+                    // tileSelect.goIntoMoveState(whatsHit, context);
+                  }
+                }
+              }
+            },
+            onPointerMove: (details) {
+              if (_isDragging) {
+                setState(() {
+                  _deltaOffset =
+                      Offset(details.localPosition.dx - _startingPosition.dx, details.localPosition.dy - _startingPosition.dy);
+                });
+              }
+            },
+            onPointerUp: (details) {
+              TileSelect tileSelect = Provider.of<TileSelect>(context, listen: false);
+              if (_isDragging && tileSelect.isMoveState) {
+                String whatsHit = _getPieceAtPointerUp(details);
+                bool tap = false;
+                if (tileSelect.selectedTile == whatsHit) {
+                  tap = true;
+                }
+                tileSelect.endMoveState(whatsHit, context);
+                if (tap) {
+                  tileSelect.goIntoMoveState(whatsHit, context);
+                }
+              }
+              _pieceOnDrag = null;
+              setState(() {
+                _deltaOffset = null;
+              });
+              _isDragging = false;
+            },
+            child: SizedBox(
+                //key: boardBoxKey,
                 height: 1000,
                 width: 1000,
-                child: GestureDetector(
-                    onTapDown: _handleTap,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CustomPaint(
-                          key: boardPaintKey,
-                          painter: BoardPainter(Provider.of<TileProvider>(context).tiles, context),
-                        ),
-                        _buildHighlighter(currentHighlight),
-                        _buildPieces(),
-                        ..._buildDraggables(
-                            Provider.of<PieceProvider>(context).pieces, Provider.of<TileProvider>(context).tiles, context),
-                        if (Provider.of<TileSelect>(context).currentHighlight != null)
-                          ..._buildDragTargets(
-                              Provider.of<TileSelect>(context).currentHighlight, context, Provider.of<PieceProvider>(context).pieces)
-                      ],
-                    )),
-              ),
-            ),
+                child: Stack(fit: StackFit.expand, children: [
+                  //The Stack of Tiles, Highlighter and Piece
+                  ...Provider.of<TileProvider>(context).tiles.values.toList(),
+                  ..._buildHighlights(currentHighlight),
+                  ...Provider.of<PieceProvider>(context).pieces.values.map((e) {
+                    Offset myOffset = Offset(0, 0);
+                    if (_isDragging && _pieceOnDrag == e.position && _deltaOffset != null) {
+                      myOffset = _deltaOffset;
+                    }
+                    return Positioned(
+                      child: IgnorePointer(child: _buildPiece(context, child: e)),
+                      top:
+                          Provider.of<TileProvider>(context).tiles[e.position].middle.y - ImageData.pieceSize.height / 2 + myOffset.dy,
+                      left:
+                          Provider.of<TileProvider>(context).tiles[e.position].middle.x - ImageData.pieceSize.width / 2 + myOffset.dx,
+                    );
+                  }).toList(),
+                ]))),
+      ),
     );
   }
 
-  void _handleTap(TapDownDetails details) {
-    final RenderBox box = boardPaintKey.currentContext.findRenderObject();
-    final Offset localOffset = box.globalToLocal(details.globalPosition);
-    Provider.of<TileSelect>(context, listen: false).setByPosition(context, localOffset);
+  void _handleTapUp(PointerUpEvent details) {
+    //final RenderBox box = boardBoxKey.currentContext.findRenderObject();
+    final Offset localOffset = details.localPosition; //box.globalToLocal(details.position);
+    String whatsHit = Provider.of<TileSelect>(context, listen: false).getPieceAtPosition(context, localOffset);
+
+    Provider.of<TileSelect>(context, listen: false).endMoveState(whatsHit, context);
+  }
+
+  String _getPieceAtPointerDown(PointerDownEvent details) {
+    //final RenderBox box = boardBoxKey.currentContext.findRenderObject();
+    final Offset localOffset = details.localPosition; //box.globalToLocal(details.position);
+    return Provider.of<TileSelect>(context, listen: false).getPieceAtPosition(context, localOffset);
+  }
+
+  String _getPieceAtPointerUp(PointerUpEvent details) {
+    //final RenderBox box = boardBoxKey.currentContext.findRenderObject();
+    final Offset localOffset = details.localPosition; //box.globalToLocal(details.position);
+    return Provider.of<TileSelect>(context, listen: false).getPieceAtPosition(context, localOffset);
   }
 }

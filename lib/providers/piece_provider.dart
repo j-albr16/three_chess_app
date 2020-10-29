@@ -9,6 +9,8 @@ import '../models/enums.dart';
 class PieceProvider with ChangeNotifier {
   Map<String, Piece> _pieces = {};
 
+  Map<PlayerColor, String> enPassentCanidate = {};
+
   Map<String, Piece> get pieces {
     return {..._pieces};
   }
@@ -36,6 +38,8 @@ class PieceProvider with ChangeNotifier {
       }
       Piece movedPiece = _pieces[oldPos];
       if (movedPiece != null) {
+        enPassentCanidate.removeWhere((key, value) => key == movedPiece.playerColor);
+
         _pieces.remove(oldPos); // removes entry of old piece with old position
         movedPiece.position = newPos;
         _pieces.putIfAbsent(newPos, () => movedPiece); // adds new entry for piece with new pos
@@ -71,6 +75,20 @@ class PieceProvider with ChangeNotifier {
             _pieces.remove(rookPos);
             _pieces.putIfAbsent(newRookPos, () => rook);
             //Places the rook to the right of the King
+          }
+        }
+        //Pawn en passent listener
+        if (movedPiece.pieceType == PieceType.Pawn) {
+          int numIndexOld = TileProvider.numCoordinatesOf[BoardData.sideData[newPos]].indexOf(oldPos.substring(1));
+          int numIndexNew = TileProvider.numCoordinatesOf[BoardData.sideData[newPos]].indexOf(newPos.substring(1));
+          int charIndexOld = TileProvider.charCoordinatesOf[BoardData.sideData[newPos]].indexOf(oldPos[0]);
+          int charIndexNew = TileProvider.charCoordinatesOf[BoardData.sideData[newPos]].indexOf(newPos[0]);
+          if (numIndexOld == 1 && numIndexNew == 3) {
+            enPassentCanidate[movedPiece.playerColor] = newPos;
+          }
+          //If passent occurs delete driven by pawn
+          else if ((charIndexOld - charIndexNew).abs() == 1 && (numIndexOld - numIndexNew).abs() == 1) {
+            _pieces.remove(BoardData.adjacentTiles[newPos].top[0]);
           }
         }
       }

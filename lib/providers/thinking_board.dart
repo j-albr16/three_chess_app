@@ -93,7 +93,7 @@ class ThinkingBoard with ChangeNotifier {
     return [];
   }
 
-  _legalMovesPawn(PlayerColor pieceColor, selectedTile, context) {
+  _legalMovesPawn(PlayerColor pieceColor, String selectedTile, context) {
     List<String> allLegalMoves = [
       ...getPossibleStep(
         context,
@@ -128,6 +128,12 @@ class ThinkingBoard with ChangeNotifier {
           twoStepWorkaroundPlayerColor: pieceColor,
         ),
     ];
+    if (TileProvider.numCoordinatesOf[BoardData.sideData[selectedTile]].indexOf(selectedTile.substring(1)) == 3) {
+      String possPassent = Provider.of<PieceProvider>(context, listen: false).enPassentCanidate[BoardData.sideData[selectedTile]];
+      if ([BoardData.adjacentTiles[selectedTile].left[0], BoardData.adjacentTiles[selectedTile].right[0]].contains(possPassent)) {
+        allLegalMoves.add(BoardData.adjacentTiles[possPassent].bottom[0]);
+      }
+    }
     return allLegalMoves;
   }
 
@@ -277,7 +283,6 @@ class ThinkingBoard with ChangeNotifier {
             direction: direction,
             func: occupiedBy(context, pieceTypes: [PieceType.King], requestingPlayer: requestingPlayer),
             startingTile: toBeCheckedTile,
-            //twoStepWorkaroundPlayerColor: requestingPlayer,
           ).length >
           0) {
         return true;
@@ -299,7 +304,27 @@ class ThinkingBoard with ChangeNotifier {
         return true;
       }
     }
+
     //Pawns
+    for (Direction direction in Direction.values.where((element) => element.index % 2 == 0)) {
+      List<String> possMoves = getPossibleStep(
+        context,
+        direction: direction,
+        func: occupiedBy(context, pieceTypes: [PieceType.Pawn], requestingPlayer: requestingPlayer),
+        startingTile: toBeCheckedTile,
+      );
+
+      for (String move in possMoves) {
+        if (BoardData.adjacentTiles[move]
+                .getRelativeEnum(Direction.leftTop, _getPiece(move, context).playerColor, BoardData.sideData[toBeCheckedTile])
+                .contains(toBeCheckedTile) ||
+            BoardData.adjacentTiles[move]
+                .getRelativeEnum(Direction.topRight, _getPiece(move, context).playerColor, BoardData.sideData[toBeCheckedTile])
+                .contains(toBeCheckedTile)) {
+          return true;
+        }
+      }
+    }
 
     print("I got past Knight in tile covered");
 
@@ -343,7 +368,7 @@ class ThinkingBoard with ChangeNotifier {
       bool canTake = true,
       bool canMoveWithoutTake = true,
       PlayerColor twoStepWorkaroundPlayerColor}) {
-    twoStepWorkaroundPlayerColor ??= BoardData.sideData[startingTile];
+    twoStepWorkaroundPlayerColor ??= _getPiece(startingTile, context).playerColor;
     List<String> nextTiles = BoardData.adjacentTiles[startingTile]
         ?.getRelativeEnum(direction, twoStepWorkaroundPlayerColor, BoardData.sideData[startingTile]);
     List<String> resultList = [];

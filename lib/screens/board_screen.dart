@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -78,10 +77,13 @@ class _BoardScreenState extends State<BoardScreen> {
               String whatsHit = _getPieceAtPointerDown(details);
               if (whatsHit != null) {
                 if (!tileSelect.isMoveState) {
-                  _isDragging = true;
-                  _pieceOnDrag = whatsHit;
-                  _startingPosition = details.localPosition;
-                  tileSelect.goIntoMoveState(whatsHit, context);
+                  if (Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit]?.playerColor ==
+                      Provider.of<PlayerProvider>(context, listen: false).currentPlayer) {
+                    _isDragging = true;
+                    _pieceOnDrag = whatsHit;
+                    _startingPosition = details.localPosition;
+                    tileSelect.goIntoMoveState(whatsHit, context);
+                  }
                 } else {
                   tileSelect.endMoveState(whatsHit, context);
                   Piece currentPiece = Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit];

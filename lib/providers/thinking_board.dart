@@ -75,6 +75,8 @@ class ThinkingBoard with ChangeNotifier {
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
   List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
+    //TODO weather someone is check or checkmate should be determind at currentPlayer switch
+
     switch (piece?.pieceType) {
       //Should not be null, but we dont like errors (talking to my self rn)
       case PieceType.Pawn:
@@ -90,6 +92,8 @@ class ThinkingBoard with ChangeNotifier {
       case PieceType.Queen:
         return _legalMovesQueen(piece.playerColor, selectedTile, context);
     }
+
+    //TODO Check for check and therefor remove
     return [];
   }
 
@@ -211,14 +215,26 @@ class ThinkingBoard with ChangeNotifier {
               _getPieces(context)[BoardData
                       .adjacentTiles[BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]].left[0]] ==
                   null) {
-            //IF WE WANT MORE CASTELING OPTIONS ADD HERE
-            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]);
+            if (!isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[selectedTile].left[0], requestingPlayer: pieceColor) &&
+                !isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0],
+                    requestingPlayer: pieceColor)) {
+              //IF WE WANT MORE CASTELING OPTIONS ADD HERE
+              allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]);
+            }
           }
         } else if (pieceEntry.key == "right") {
           if (_getPieces(context)[BoardData.adjacentTiles[selectedTile].right[0]] == null &&
               _getPieces(context)[BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]] == null) {
-            //IF WE WANT MORE CASTELING OPTIONS ADD HERE
-            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]);
+            if (!isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[selectedTile].right[0], requestingPlayer: pieceColor) &&
+                !isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0],
+                    requestingPlayer: pieceColor)) {
+              //IF WE WANT MORE CASTELING OPTIONS ADD HERE
+              allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]);
+            }
           }
         }
       }
@@ -368,7 +384,8 @@ class ThinkingBoard with ChangeNotifier {
       bool canTake = true,
       bool canMoveWithoutTake = true,
       PlayerColor twoStepWorkaroundPlayerColor}) {
-    twoStepWorkaroundPlayerColor ??= _getPiece(startingTile, context).playerColor;
+    twoStepWorkaroundPlayerColor ??= _getPiece(startingTile, context)?.playerColor;
+    twoStepWorkaroundPlayerColor ??= BoardData.sideData[startingTile];
     List<String> nextTiles = BoardData.adjacentTiles[startingTile]
         ?.getRelativeEnum(direction, twoStepWorkaroundPlayerColor, BoardData.sideData[startingTile]);
     List<String> resultList = [];

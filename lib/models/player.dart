@@ -8,6 +8,5 @@ class Player {
   User user;
   DateTime remainingTime;
 
-
-  Player({this.playerColor, this.user, this.remainingTime, this.id});
+  Player({this.playerColor, this.user, this.remainingTime});
 }

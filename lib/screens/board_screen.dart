@@ -22,9 +22,7 @@ class _BoardScreenState extends State<BoardScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          threeChessBoard.gameProvider;
-          Provider.of<PlayerProvider>(context, listen: false).nextPlayer();
-          Provider.of<TileProvider>(context, listen: false).rotateTilesNext();
+          threeChessBoard.gameProvider.something();
         },
       ),
       appBar: AppBar(),

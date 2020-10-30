@@ -38,13 +38,15 @@ class ThreeChessBoard extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
         ChangeNotifierProvider(create: (ctx) => ThinkingBoard()),
         ChangeNotifierProvider(create: (ctx) => TileSelect()),
-        ChangeNotifierProvider(create: (ctx) => AuthProvider()),
-        ChangeNotifierProvider(create: (ctx) => GameProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, GameProvider>(
+            create: (_) => GameProvider(),
+            update: (_, auth, previousGame) =>
+                previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
       ], child: ThreeChessInnerBoard(key: boardKey));
 }
 
 class ThreeChessInnerBoard extends StatefulWidget {
-  Key key;
+  final Key key;
   ThreeChessInnerBoard({this.key}) : super(key: key);
   @override
   _ThreeChessInnerBoardState createState() => _ThreeChessInnerBoardState();

@@ -25,22 +25,9 @@ class ThreeChessApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (ctx) => AuthProvider()),
-          ChangeNotifierProvider(create: (ctx) => TileProvider()),
-          ChangeNotifierProvider(create: (ctx) => PieceProvider()),
-          ChangeNotifierProvider(create: (ctx) => ImageProv()),
-          ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
-          ChangeNotifierProvider(create: (ctx) => ThinkingBoard()),
-          ChangeNotifierProvider(create: (ctx) => TileSelect()),
-          ChangeNotifierProxyProvider<AuthProvider, GameProvider>(
-            create: (_) => GameProvider(),
-            update: (_, auth, previousGame) => previousGame
-              ..update(auth.userId, auth.token, previousGame.game, previousGame.games)
-          ),
         ],
         child: MaterialApp(
-          theme: ThemeData(
-            primaryColor: Colors.blueAccent
-          ),
+          theme: ThemeData(primaryColor: Colors.blueAccent),
           title: 'three chess app',
           home: HomeScreen(),
           routes: {

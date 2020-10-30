@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_socket_io/socket_io_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -169,6 +168,20 @@ class GameProvider with ChangeNotifier {
   }
 }
 
+  void _connectSocket() {
+    // _socket.connect();
+  }
+  void _disconnectSocket() {
+    // _socket.disconnect();
+  }
+  void _subscribeToChannel(String event) {
+    // _socket.on(event, (data) {
+    //   _socketData.add({
+    //     event: event,
+    //     data: data
+    //   });
+    // });
+  }
 
 PlayerColor _getCurrentPlayer(int stringData){
   if(stringData == 1){

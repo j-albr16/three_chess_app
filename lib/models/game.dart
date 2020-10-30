@@ -14,6 +14,8 @@ class Game {
   @required List<Piece> startingBoard;
   List<Piece> currentBoard;
   List<Piece> recentBoard;  
+  int increment;
+  double time;
 
-  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard, this.didStart, this.id});
+  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard, this.didStart, this.id, this.increment, this.time});
 }

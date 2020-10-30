@@ -13,6 +13,110 @@ class ThinkingBoard with ChangeNotifier {
   List<List<Direction>> _directionListKnight;
   List<List<Direction>> _directionListKnight2;
 
+  bool _isVirtualPiecProv = false;
+
+  bool get isVirtualPiecProv {
+    return _isVirtualPiecProv;
+  }
+
+  Map<PlayerColor, String> virtEnPassent;
+  Map<String, Piece> virtPieces;
+
+  Map<PlayerColor, String> virtEnPassentOld;
+  Map<String, Piece> virtPiecesOld;
+
+  void setIsVirtualPiecProv(bool newIs, context) {
+    if (newIs) {
+      virtEnPassent = {};
+      for (MapEntry potEnPass in Provider.of<PieceProvider>(context, listen: false).enPassentCanidate.entries) {
+        virtEnPassent[potEnPass.key] = potEnPass.value;
+      }
+
+      virtPieces = {};
+      for (Piece piece in Provider.of<PieceProvider>(context, listen: false).pieces.values) {
+        virtPieces[piece.position] = Piece(
+          pieceType: piece.pieceType,
+          playerColor: piece.playerColor,
+          position: piece.position,
+        );
+      }
+    }
+    _isVirtualPiecProv = newIs;
+  }
+
+  void goBackOneStep() {
+    virtPieces = virtPiecesOld;
+    virtEnPassent = virtEnPassentOld;
+  }
+
+  void makeVirtualMove(String oldPos, String newPos) {
+    if (newPos != null && oldPos != null) {
+      if (virtPieces[newPos] != null) {
+        //_pieces.firstWhere(()) = _pieces[String]
+        virtPieces.remove(newPos);
+        // importend rewrite
+      }
+      Piece movedPiece = virtPieces[oldPos];
+      if (movedPiece != null) {
+        virtEnPassent.removeWhere((key, value) => key == movedPiece.playerColor);
+
+        virtPieces.remove(oldPos); // removes entry of old piece with old position
+        movedPiece.position = newPos;
+        virtPieces.putIfAbsent(newPos, () => movedPiece); // adds new entry for piece with new pos
+        // moves the selectedPieces
+
+        // Following code listens to weather The King is castling and moves the rook accordingly
+        //moveCountOnCharAxis calulates the diffrence between oldPos and newPos on the character Axis
+        int moveCountOnCharAxis = TileProvider.charCoordinatesOf[movedPiece.playerColor].indexOf(oldPos[0]) -
+            TileProvider.charCoordinatesOf[movedPiece.playerColor].indexOf(newPos[0]);
+        if (movedPiece.pieceType == PieceType.King && moveCountOnCharAxis.abs() == 2) {
+          //If true: This is a castling move
+          if (moveCountOnCharAxis < 0) {
+            //Checks in which direction we should castle
+            String rookPos =
+                TileProvider.charCoordinatesOf[movedPiece.playerColor][7] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
+
+            Piece rook = virtPieces[rookPos];
+            String newRookPos = BoardData.adjacentTiles[movedPiece.position].left[0];
+            rook.position = newRookPos;
+            virtPieces.remove(rookPos);
+            virtPieces.putIfAbsent(newRookPos, () => rook);
+            // _pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
+            //     BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
+
+          } else if (moveCountOnCharAxis > 0) {
+            //Checks in which direction we should castle
+            String rookPos =
+                TileProvider.charCoordinatesOf[movedPiece.playerColor][0] + TileProvider.numCoordinatesOf[movedPiece.playerColor][0];
+
+            Piece rook = virtPieces[rookPos];
+            String newRookPos = BoardData.adjacentTiles[movedPiece.position].right[0];
+            rook.position = newRookPos;
+            virtPieces.remove(rookPos);
+            virtPieces.putIfAbsent(newRookPos, () => rook);
+            //Places the rook to the right of the King
+          }
+        }
+        //Pawn en passent listener
+        if (movedPiece.pieceType == PieceType.Pawn) {
+          int numIndexOld = TileProvider.numCoordinatesOf[BoardData.sideData[newPos]].indexOf(oldPos.substring(1));
+          int numIndexNew = TileProvider.numCoordinatesOf[BoardData.sideData[newPos]].indexOf(newPos.substring(1));
+          int charIndexOld = TileProvider.charCoordinatesOf[BoardData.sideData[newPos]].indexOf(oldPos[0]);
+          int charIndexNew = TileProvider.charCoordinatesOf[BoardData.sideData[newPos]].indexOf(newPos[0]);
+          if (numIndexOld == 1 && numIndexNew == 3) {
+            virtEnPassent[movedPiece.playerColor] = newPos;
+          }
+          //If passent occurs delete driven by pawn
+          else if ((charIndexOld - charIndexNew).abs() == 1 && (numIndexOld - numIndexNew).abs() == 1) {
+            virtPieces.remove(BoardData.adjacentTiles[newPos].top[0]);
+          }
+        }
+      }
+      virtEnPassentOld = virtEnPassent;
+      virtPiecesOld = virtPieces;
+    }
+  }
+
   List<List<Direction>> get directionListKnight {
     if (_directionListKnight == null) {
       _directionListKnight = [];
@@ -53,16 +157,21 @@ class ThinkingBoard with ChangeNotifier {
 
   //Get methods
   Piece _getPiece(String tile, BuildContext context) {
-    return Provider.of<PieceProvider>(context, listen: false).pieces[tile];
+    return _getPieces(context)[tile];
+  }
+
+  Map<PlayerColor, String> _getEnPassentCandidates(BuildContext context) {
+    if (!isVirtualPiecProv) {
+      return Provider.of<PieceProvider>(context, listen: false).enPassentCanidate;
+    }
+    return virtEnPassent;
   }
 
   Map<String, Piece> _getPieces(BuildContext context) {
-    return Provider.of<PieceProvider>(context, listen: false).pieces;
-  }
-
-  PlayerColor _getPlayerColor(String pieceId, BuildContext context) {
-    Piece piece = _getPiece(pieceId, context);
-    return piece?.playerColor;
+    if (!isVirtualPiecProv) {
+      return Provider.of<PieceProvider>(context, listen: false).pieces;
+    }
+    return virtPieces;
   }
 
   PlayerColor _getCurrentColor(context) {
@@ -75,25 +184,58 @@ class ThinkingBoard with ChangeNotifier {
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
   List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
+    //TODO weather someone is check or checkmate should be determind at currentPlayer switch
+
+    List<String> result = [];
     switch (piece?.pieceType) {
       //Should not be null, but we dont like errors (talking to my self rn)
       case PieceType.Pawn:
-        return _legalMovesPawn(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesPawn(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Rook:
-        return _legalMovesRook(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesRook(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Knight:
-        return _legalMovesKnight(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesKnight(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Bishop:
-        return _legalMovesBishop(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesBishop(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.King:
-        return _legalMovesKing(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesKing(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Queen:
-        return _legalMovesQueen(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesQueen(piece.playerColor, selectedTile, context));
+        break;
     }
-    return [];
+
+    // Check for checks and therefor remove
+    result.removeWhere((element) {
+      bool resultRemove = false;
+      setIsVirtualPiecProv(true, context);
+      makeVirtualMove(selectedTile, element);
+      resultRemove = isTileCovered(context,
+          toBeCheckedTile: _getPieces(context)
+              .values
+              .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == piece.playerColor)
+              .position,
+          requestingPlayer: piece.playerColor);
+      //goBackOneStep();
+      setIsVirtualPiecProv(false, context);
+      return resultRemove;
+    });
+    return result;
   }
 
   _legalMovesPawn(PlayerColor pieceColor, String selectedTile, context) {
+    List<String> stepsInFront = getPossibleStep(
+      context,
+      startingTile: selectedTile,
+      direction: Direction.top,
+      func: canMoveOn(context, _getCurrentColor(context)),
+      canMoveWithoutTake: true,
+      canTake: false,
+    );
     List<String> allLegalMoves = [
       ...getPossibleStep(
         context,
@@ -109,15 +251,8 @@ class ThinkingBoard with ChangeNotifier {
         func: canMoveOn(context, _getCurrentColor(context)),
         canMoveWithoutTake: false,
       ),
-      ...getPossibleStep(
-        context,
-        startingTile: selectedTile,
-        direction: Direction.top,
-        func: canMoveOn(context, _getCurrentColor(context)),
-        canMoveWithoutTake: true,
-        canTake: false,
-      ),
-      if (_getPiece(selectedTile, context)?.didMove == false)
+      ...stepsInFront,
+      if (_getPiece(selectedTile, context)?.didMove == false && stepsInFront?.isNotEmpty == true)
         ...getPossibleStep(
           context,
           startingTile: BoardData.adjacentTiles[selectedTile].top[0],
@@ -129,7 +264,7 @@ class ThinkingBoard with ChangeNotifier {
         ),
     ];
     if (TileProvider.numCoordinatesOf[BoardData.sideData[selectedTile]].indexOf(selectedTile.substring(1)) == 3) {
-      String possPassent = Provider.of<PieceProvider>(context, listen: false).enPassentCanidate[BoardData.sideData[selectedTile]];
+      String possPassent = _getEnPassentCandidates(context)[BoardData.sideData[selectedTile]];
       if ([BoardData.adjacentTiles[selectedTile].left[0], BoardData.adjacentTiles[selectedTile].right[0]].contains(possPassent)) {
         allLegalMoves.add(BoardData.adjacentTiles[possPassent].bottom[0]);
       }
@@ -211,14 +346,26 @@ class ThinkingBoard with ChangeNotifier {
               _getPieces(context)[BoardData
                       .adjacentTiles[BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]].left[0]] ==
                   null) {
-            //IF WE WANT MORE CASTELING OPTIONS ADD HERE
-            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]);
+            if (!isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[selectedTile].left[0], requestingPlayer: pieceColor) &&
+                !isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0],
+                    requestingPlayer: pieceColor)) {
+              //IF WE WANT MORE CASTELING OPTIONS ADD HERE
+              allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].left[0]].left[0]);
+            }
           }
         } else if (pieceEntry.key == "right") {
           if (_getPieces(context)[BoardData.adjacentTiles[selectedTile].right[0]] == null &&
               _getPieces(context)[BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]] == null) {
-            //IF WE WANT MORE CASTELING OPTIONS ADD HERE
-            allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]);
+            if (!isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[selectedTile].right[0], requestingPlayer: pieceColor) &&
+                !isTileCovered(context,
+                    toBeCheckedTile: BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0],
+                    requestingPlayer: pieceColor)) {
+              //IF WE WANT MORE CASTELING OPTIONS ADD HERE
+              allLegalMoves.add(BoardData.adjacentTiles[BoardData.adjacentTiles[selectedTile].right[0]].right[0]);
+            }
           }
         }
       }
@@ -368,7 +515,8 @@ class ThinkingBoard with ChangeNotifier {
       bool canTake = true,
       bool canMoveWithoutTake = true,
       PlayerColor twoStepWorkaroundPlayerColor}) {
-    twoStepWorkaroundPlayerColor ??= _getPiece(startingTile, context).playerColor;
+    twoStepWorkaroundPlayerColor ??= _getPiece(startingTile, context)?.playerColor;
+    twoStepWorkaroundPlayerColor ??= BoardData.sideData[startingTile];
     List<String> nextTiles = BoardData.adjacentTiles[startingTile]
         ?.getRelativeEnum(direction, twoStepWorkaroundPlayerColor, BoardData.sideData[startingTile]);
     List<String> resultList = [];

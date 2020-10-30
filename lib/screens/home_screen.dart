@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
             height: 200,
             width: 200,
             child: Image.asset(
-              'pieces/bishop_black.png',
+              'assets/pieces/bishop_black.png',
               fit: BoxFit.cover,
             ),
           ),

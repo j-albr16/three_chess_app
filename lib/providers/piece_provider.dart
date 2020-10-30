@@ -87,11 +87,14 @@ class PieceProvider with ChangeNotifier {
             enPassentCanidate[movedPiece.playerColor] = newPos;
           }
           //If passent occurs delete driven by pawn
-          else if ((charIndexOld - charIndexNew).abs() == 1 && (numIndexOld - numIndexNew).abs() == 1) {
+          else if ((charIndexOld - charIndexNew).abs() == 1 &&
+              (numIndexOld - numIndexNew).abs() == 1 &&
+              _pieces[BoardData.adjacentTiles[newPos].top[0]] != null) {
             _pieces.remove(BoardData.adjacentTiles[newPos].top[0]);
           }
         }
       }
+
       notifyListeners();
     }
   }

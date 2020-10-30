@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_socket_io/socket_io_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_socket_io/flutter_socket_io.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../models/game.dart';
 import '../models/player.dart';
@@ -19,7 +19,6 @@ const String SERVER_URL = 'http://localhost:3000';
 
 class GameProvider with ChangeNotifier {
   String _userId;
-   SocketIO socketIo;
   String _token;
    String _playerId;
   List<Game> _games;
@@ -120,40 +119,32 @@ class GameProvider with ChangeNotifier {
     }
   }
  
-  void _connectSocket(){
-  socketIo = SocketIOManager().createSocketIO(SERVER_URL, '/game/${_game.id}');
-  socketIo.init();
-  socketIo.subscribe('', (info) => {
-    print(info)
+// websocket...
+List<Map<String, dynamic>> _socketData = [];
+IO.Soket _socket = IO.io(SERVER_URL, <String, dynamic>{
+  'transports': ['websocket'],
+  'autoConnect': false,
+});
+
+void _connectSocket(){
+  _socket.connect();
+}
+void _disconnectSocket(){
+  _socket.disconnect();
+}
+void _subscribeToChannel(String event){
+  _socket.on(event, (data) {
+    _socketData.add({
+      event: event,
+      data: data
+    });
   });
-  socketIo.connect();
 }
 
- _subscribe (String event){
-  if(socketIo != null){
-    socketIo.subscribe(event, (dynamic message){
-      print(message);
-      return message;
-    });
-  }
+void _emitData(String event, dynamic data){
+  final encodedData = json.encode(data);
+  _socket.emit(event, encodedData);
 }
-
-_sendChatMessage(String event, message){
-  if(socketIo != null){
-    String jsonData = json.encode(message);
-    socketIo.sendMessage(event, jsonData, (cbMessage) {
-      print(cbMessage);
-      return cbMessage;
-    });
-  }
-}
-
-void _destroySocket (){
-  if(socketIo != null){
-    SocketIOManager().destroySocket(socketIo);
-  }
-}
-
 
 
 }

@@ -18,6 +18,9 @@ bool isRated = true;
 double _totalTime = 5;
 double _increment = 2;
 
+double _negDeviation = -100;
+double _posDeviation = 100;
+
 class _CreateGameScreenState extends State<CreateGameScreen> {
   @override
   Widget build(BuildContext context) {
@@ -50,12 +53,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
             height: 20,
           ),
           Container(
-            height: size.height * 0.3,
+            // height: size.height * 0.5,
             width: size.width * 0.6,
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(25),
             margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(color: Colors.black45),
-            child: ListView(children: <Widget>[
+            decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(7)),
+            child: Column(children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -71,12 +74,17 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   ),
                 ],
               ),
+              Divider(
+                color: Colors.white,
+                thickness: 0.5,
+              ),
               Text('Time', style: TextStyle(color: Colors.white)),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Icon(Icons.access_time, color: Colors.white),
                   SizedBox(
-                    width: size.width * 0.5,
+                    width: size.width * 0.4,
                     child: Slider(
                       value: _totalTime,
                       min: 0,
@@ -90,20 +98,20 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       },
                     ),
                   ),
+                  Text(_totalTime.toStringAsFixed(1),
+                      style: TextStyle(color: Colors.white)),
                 ],
-              ),
-              Divider(
-                color: Colors.white,
               ),
               Text('Increment', style: TextStyle(color: Colors.white)),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Icon(
                     Icons.add_alarm_outlined,
                     color: Colors.white,
                   ),
                   SizedBox(
-                    width: size.width * 0.5,
+                    width: size.width * 0.4,
                     child: Slider(
                       value: _increment,
                       min: 0,
@@ -117,53 +125,118 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       },
                     ),
                   ),
+                  Text(_increment.toStringAsFixed(1),
+                      style: TextStyle(color: Colors.white)),
                 ],
+              ),
+               Divider(
+                color: Colors.white,
+                thickness: 0.5,
               ),
               ButtonBar(
                 alignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: (){
+                  FlatButton(
+                    padding: EdgeInsets.all(25),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    color: isRated ? Colors.blueAccent : Colors.black45,
+                    onPressed: () {
                       setState(() {
                         isRated = true;
                       });
                     },
-                    child: Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: isRated
-                        ? Colors.blueAccent
-                        : Colors.black45,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      child: Text(
-                        'Rated',
+                    child: Text(
+                        'Public',
                         style: TextStyle(color: Colors.white),
                       ),
+                  ),   
+                  FlatButton(
+                    padding: EdgeInsets.all(25),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
                     ),
-                  ),
-                  GestureDetector(
-                     
-                    onTap: (){
+                    color: !isRated ? Colors.blueAccent : Colors.black45,
+                    onPressed: () {
                       setState(() {
                         isRated = false;
                       });
                     },
-                    child: Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: !isRated
-                        ? Colors.blueAccent
-                        : Colors.black45,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      child: Text(
+                    child: Text(
                         'Casual',
                         style: TextStyle(color: Colors.white),
                       ),
+                  ),
+                ],
+              ),
+               Divider(
+                 thickness: 0.5,
+                color: Colors.white,
+                // indent: 1000,
+              ),
+              Text(
+                'Rating Range',
+                style: TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: size.width * 0.2,
+                    child: Slider(
+                      value: _negDeviation,
+                      min: -500,
+                      max: 0,
+                      divisions: 500,
+                      label: _negDeviation.toStringAsFixed(1),
+                      onChanged: (double value) {
+                        setState(() {
+                          _negDeviation = value;
+                        });
+                      },
+                    ),
+                  ),
+                  Text(
+                    _negDeviation.toStringAsFixed(0) +
+                        '   /   ' +
+                        _posDeviation.toStringAsFixed(0),
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    width: size.width * 0.2,
+                    child: Slider(
+                      value: _posDeviation,
+                      min: 0,
+                      max: 500,
+                      divisions: 500,
+                      label: _posDeviation.toStringAsFixed(1),
+                      onChanged: (double value) {
+                        setState(() {
+                          _posDeviation = value;
+                        });
+                      },
                     ),
                   ),
                 ],
+              ),
+               Divider(
+                color: Colors.white,
+                thickness: 0.5,
+              ),
+              FlatButton(
+                child: Text('Create Game', style: TextStyle(color: Colors.white)),
+                color: Colors.blue,
+                onPressed: (){},
+                minWidth: 100,  
+                padding: EdgeInsets.all(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7),
+                ),
               )
             ]),
           ),

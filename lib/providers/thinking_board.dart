@@ -210,9 +210,9 @@ class ThinkingBoard with ChangeNotifier {
     }
 
     // Check for checks and therefor remove
-    setIsVirtualPiecProv(true, context);
     result.removeWhere((element) {
       bool resultRemove = false;
+      setIsVirtualPiecProv(true, context);
       makeVirtualMove(selectedTile, element);
       resultRemove = isTileCovered(context,
           toBeCheckedTile: _getPieces(context)
@@ -220,14 +220,22 @@ class ThinkingBoard with ChangeNotifier {
               .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == piece.playerColor)
               .position,
           requestingPlayer: piece.playerColor);
-      goBackOneStep();
+      //goBackOneStep();
+      setIsVirtualPiecProv(false, context);
       return resultRemove;
     });
-    setIsVirtualPiecProv(false, context);
     return result;
   }
 
   _legalMovesPawn(PlayerColor pieceColor, String selectedTile, context) {
+    List<String> stepsInFront = getPossibleStep(
+      context,
+      startingTile: selectedTile,
+      direction: Direction.top,
+      func: canMoveOn(context, _getCurrentColor(context)),
+      canMoveWithoutTake: true,
+      canTake: false,
+    );
     List<String> allLegalMoves = [
       ...getPossibleStep(
         context,
@@ -243,15 +251,8 @@ class ThinkingBoard with ChangeNotifier {
         func: canMoveOn(context, _getCurrentColor(context)),
         canMoveWithoutTake: false,
       ),
-      ...getPossibleStep(
-        context,
-        startingTile: selectedTile,
-        direction: Direction.top,
-        func: canMoveOn(context, _getCurrentColor(context)),
-        canMoveWithoutTake: true,
-        canTake: false,
-      ),
-      if (_getPiece(selectedTile, context)?.didMove == false)
+      ...stepsInFront,
+      if (_getPiece(selectedTile, context)?.didMove == false && stepsInFront?.isNotEmpty == true)
         ...getPossibleStep(
           context,
           startingTile: BoardData.adjacentTiles[selectedTile].top[0],

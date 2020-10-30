@@ -9,7 +9,20 @@ import '../models/enums.dart';
 class PieceProvider with ChangeNotifier {
   Map<String, Piece> _pieces = {};
 
-  Map<PlayerColor, String> enPassentCanidate = {};
+  Map<String, Piece> _piecesOld = {};
+
+  Map<PlayerColor, String> _enPassentCanidate = {};
+
+  Map<PlayerColor, String> get enPassentCanidate {
+    return _enPassentCanidate;
+  }
+
+  void set enPassentCanidate(Map<PlayerColor, String> newEnpa) {
+    _enPassentCanidateOld = _enPassentCanidate;
+    _enPassentCanidate = newEnpa;
+  }
+
+  Map<PlayerColor, String> _enPassentCanidateOld = {};
 
   Map<String, Piece> get pieces {
     return {..._pieces};
@@ -17,6 +30,12 @@ class PieceProvider with ChangeNotifier {
 
   PieceProvider() {
     startGame();
+  }
+
+  void goBackOneStep() {
+    _enPassentCanidate = _enPassentCanidateOld;
+    _pieces = _piecesOld;
+    notifyListeners();
   }
 
   startGame() {
@@ -29,7 +48,7 @@ class PieceProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void movePieceTo(String oldPos, String newPos) {
+  void movePieceTo(String oldPos, String newPos, {bool noNotify = false}) {
     if (newPos != null && oldPos != null) {
       if (_pieces[newPos] != null) {
         //_pieces.firstWhere(()) = _pieces[String]
@@ -92,7 +111,10 @@ class PieceProvider with ChangeNotifier {
           }
         }
       }
-      notifyListeners();
+      _piecesOld = _pieces;
+      if (!noNotify) {
+        notifyListeners();
+      }
     }
   }
 

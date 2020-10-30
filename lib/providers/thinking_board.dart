@@ -77,24 +77,43 @@ class ThinkingBoard with ChangeNotifier {
   List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
     //TODO weather someone is check or checkmate should be determind at currentPlayer switch
 
+    List<String> result = [];
     switch (piece?.pieceType) {
       //Should not be null, but we dont like errors (talking to my self rn)
       case PieceType.Pawn:
-        return _legalMovesPawn(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesPawn(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Rook:
-        return _legalMovesRook(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesRook(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Knight:
-        return _legalMovesKnight(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesKnight(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Bishop:
-        return _legalMovesBishop(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesBishop(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.King:
-        return _legalMovesKing(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesKing(piece.playerColor, selectedTile, context));
+        break;
       case PieceType.Queen:
-        return _legalMovesQueen(piece.playerColor, selectedTile, context);
+        result.addAll(_legalMovesQueen(piece.playerColor, selectedTile, context));
+        break;
     }
 
-    //TODO Check for check and therefor remove
-    return [];
+    // Check for checks and therefor remove
+    result.removeWhere((element) {
+      bool resultRemove = false;
+      Provider.of<PieceProvider>(context, listen: false).movePieceTo(selectedTile, element, noNotify: true);
+      resultRemove = isTileCovered(context,
+          toBeCheckedTile: _getPieces(context)
+              .values
+              .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == piece.playerColor)
+              .position,
+          requestingPlayer: piece.playerColor);
+      Provider.of<PieceProvider>(context, listen: false).goBackOneStep();
+      return resultRemove;
+    });
+    return result;
   }
 
   _legalMovesPawn(PlayerColor pieceColor, String selectedTile, context) {

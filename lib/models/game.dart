@@ -8,12 +8,12 @@ import './piece.dart';
 class Game {
   @required String id;
   @required bool didStart;
-  @required List<Player> player;
-  @required int currentPlayer;
+  List<Player> player;
+  PlayerColor currentPlayer;
   List<Map<PlayerColor, ChessMove>> chessMoves;
   @required List<Piece> startingBoard;
   List<Piece> currentBoard;
   List<Piece> recentBoard;  
 
-  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard});
+  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard, this.didStart, this.id});
 }

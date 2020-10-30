@@ -14,75 +14,74 @@ import '../models/user.dart';
 import '../models/chess-move.dart';
 import '../models/enums.dart';
 
-
 const String SERVER_URL = 'http://localhost:3000';
 
 class GameProvider with ChangeNotifier {
+  IO.Socket _socket = IO.io(SERVER_URL);
   String _userId;
   String _token;
-   String _playerId;
+  String _playerId;
   List<Game> _games;
   Game _game = Game(
-  player:  [
-    Player(
-      playerColor: PlayerColor.white,
-      user: User(
-        userName: 'jan',
+    player: [
+      Player(
+        playerColor: PlayerColor.white,
+        user: User(
+          userName: 'jan',
+        ),
       ),
-    ),
-    Player(
-      playerColor: PlayerColor.black,
-      user: User(
-        userName: 'leo',
+      Player(
+        playerColor: PlayerColor.black,
+        user: User(
+          userName: 'leo',
+        ),
       ),
-    ),
-    Player(
-      playerColor: PlayerColor.red,
-      user: User(
-        userName: 'david',
+      Player(
+        playerColor: PlayerColor.red,
+        user: User(
+          userName: 'david',
+        ),
       ),
-    ),
-  ],
-  chessMoves: [
-    {
-      PlayerColor.white: ChessMove(
-        initialTile: 'B2',
-        nextTile: 'B4',
-        piece: PieceType.Pawn,
-      ),
-      PlayerColor.black: ChessMove(
-        initialTile: 'K7',
-        nextTile: 'K5',
-        piece: PieceType.Pawn,
-      ),
-      PlayerColor.red: ChessMove(
-        initialTile: 'I11',
-        nextTile: 'I9',
-        piece: PieceType.Pawn,
-      ),
-    },
-    {
-      PlayerColor.white: ChessMove(
-        initialTile: 'B4',
-        nextTile: 'B5',
-        piece: PieceType.Pawn,
-      ),
-      PlayerColor.black: ChessMove(
-        initialTile: 'K5',
-        nextTile: 'K4',
-        piece: PieceType.Pawn,
-      ),
-      PlayerColor.red: ChessMove(
-        initialTile: 'I9',
-        nextTile: 'I8',
-        piece: PieceType.Pawn,
-      ),
-    }
-  ],
-);
+    ],
+    chessMoves: [
+      {
+        PlayerColor.white: ChessMove(
+          initialTile: 'B2',
+          nextTile: 'B4',
+          piece: PieceType.Pawn,
+        ),
+        PlayerColor.black: ChessMove(
+          initialTile: 'K7',
+          nextTile: 'K5',
+          piece: PieceType.Pawn,
+        ),
+        PlayerColor.red: ChessMove(
+          initialTile: 'I11',
+          nextTile: 'I9',
+          piece: PieceType.Pawn,
+        ),
+      },
+      {
+        PlayerColor.white: ChessMove(
+          initialTile: 'B4',
+          nextTile: 'B5',
+          piece: PieceType.Pawn,
+        ),
+        PlayerColor.black: ChessMove(
+          initialTile: 'K5',
+          nextTile: 'K4',
+          piece: PieceType.Pawn,
+        ),
+        PlayerColor.red: ChessMove(
+          initialTile: 'I9',
+          nextTile: 'I8',
+          piece: PieceType.Pawn,
+        ),
+      }
+    ],
+  );
 
-
-  void update(String userId, String token, Game game, List<Game> games){
+  void update(String userId, String token, Game game, List<Game> games) {
     _userId = userId;
     _token = token;
     _games = games;
@@ -96,56 +95,90 @@ class GameProvider with ChangeNotifier {
     // print(_game.chessMoves.length);
     return _game;
   }
-  get games{
+
+  get games {
     return [..._games];
   }
- 
-  Future<void> createGame() async{
-    try{
-       const url  = SERVER_URL + '/create-game';
-    final response = await http.post(url, body: json.encode({
-      'token': _token,
-      'userId': _userId,
-    }), headers: {'Content-Type': 'application/json'},);
-    final decodedResponse = json.decode(response.body);
-    if(!decodedResponse['valid']){
-      final String errorMessage = decodedResponse['message'].toString();
-      throw(errorMessage);
-    }
-    }catch(error){
-      throw error.toString();
-    }finally{
 
+  Future<void> createGame({bool isPublic, bool isRated, int increment, double time, int negRatingRange, int posRatingRange}) async {
+    dynamic data;
+    try {
+      const url = SERVER_URL + '/create-game';
+      final response = await http.post(
+        url,
+        body: json.encode({
+          'token': _token,
+          'userId': _userId,
+          'isPublic': isPublic,
+          'isRated': isRated,
+          'increment': increment,
+          'time': time,
+          'negRatingRange': negRatingRange,
+          'posRatingRange': posRatingRange,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+      final decodedResponse = json.decode(response.body);
+      if (!decodedResponse['valid']) {
+        final String errorMessage = decodedResponse['message'].toString();
+        throw (errorMessage);
+      }
+      final gameData = decodedResponse['gameData'];
+      final List<Map<String, dynamic>> player = gameData['player'];
+      final List<Player> convPlayer = player.map((e) => Player(
+        playerColor: _getCurrentPlayer(e['playerColor']),
+        remainingTime: e['remainingTime'],
+        user: e['userId'],
+      ));
+      _game = new Game(
+          chessMoves: gameData['chessMoves'],
+          startingBoard: gameData['startingBoard'],
+          currentBoard: gameData['startingBoard'],
+          currentPlayer: PlayerColor.white,
+          didStart: false,
+          id: gameData['id'],
+          player: convPlayer,
+
+        );
+    } catch (error) {
+      throw error.toString();
+    } finally {
+      try {
+        print('successfully created game');
+        _socket.on('/${_game.id}',
+            (encodedData) => {data = json.decode(encodedData)});
+        if (!data['action']) {
+          throw ('Error: No Action Key from Websocket!');
+        }
+        _handleSocketMessage(data);
+      } catch (error) {
+        print(error);
+        throw (error.toString());
+      }
     }
   }
- 
-// websocket...
-List<Map<String, dynamic>> _socketData = [];
-IO.Soket _socket = IO.io(SERVER_URL, <String, dynamic>{
-  'transports': ['websocket'],
-  'autoConnect': false,
-});
 
-void _connectSocket(){
-  _socket.connect();
-}
-void _disconnectSocket(){
-  _socket.disconnect();
-}
-void _subscribeToChannel(String event){
-  _socket.on(event, (data) {
-    _socketData.add({
-      event: event,
-      data: data
-    });
-  });
-}
+  Future<void> joynGame(){
 
-void _emitData(String event, dynamic data){
-  final encodedData = json.encode(data);
-  _socket.emit(event, encodedData);
+  }
+
+  _handleSocketMessage(dynamic data) {
+    if (data['action'] == '') {}
+    if (data['action']) {}
+    if (data['action']) {}
+  }
 }
 
 
+PlayerColor _getCurrentPlayer(int stringData){
+  if(stringData == 1){
+    return PlayerColor.white;
+  }
+  else if(stringData == 2){
+    return PlayerColor.black;
+  }
+  else if(stringData == 3){
+    return PlayerColor.red;
+  }
+  throw ('Error No current Player... data wasnt fetched properly propably xD');
 }
-

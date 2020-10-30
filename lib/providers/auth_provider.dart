@@ -5,7 +5,6 @@ import 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/http_exception.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -14,6 +13,12 @@ class AuthProvider with ChangeNotifier {
 
   bool get isAuth {
     return _token != null;
+  }
+  get token{
+    return _token;
+  }
+  get userId{
+    return _userId;
   }
 
   static const REST_API_URL = 'http://localhost:3000';

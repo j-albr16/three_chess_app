@@ -15,13 +15,14 @@ class PieceProvider with ChangeNotifier {
     return {..._pieces};
   }
 
-  PieceProvider() {
-    startGame();
-  }
+  PieceProvider() {}
 
-  startGame() {
+  startGame({bool noNotify = false}) {
+    _pieces = {};
     startPosList.forEach((e) => _pieces.putIfAbsent(e.position, () => e));
-    notifyListeners();
+    if (!noNotify) {
+      notifyListeners();
+    }
   }
 
   // void switchInvis(Piece piece, bool invis) {
@@ -29,7 +30,7 @@ class PieceProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void movePieceTo(String oldPos, String newPos) {
+  void movePieceTo(String oldPos, String newPos, {bool noNotify = false}) {
     if (newPos != null && oldPos != null) {
       if (_pieces[newPos] != null) {
         //_pieces.firstWhere(()) = _pieces[String]
@@ -95,7 +96,9 @@ class PieceProvider with ChangeNotifier {
         }
       }
 
-      notifyListeners();
+      if (!noNotify) {
+        notifyListeners();
+      }
     }
   }
 

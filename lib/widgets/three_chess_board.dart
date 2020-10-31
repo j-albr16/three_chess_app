@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/models/chess-move.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:three_chess/providers/thinking_board.dart';
 import 'package:three_chess/providers/tile_select.dart';
 
 import 'package:three_chess/providers/tile_provider.dart';
+import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/models/game.dart';
 import 'package:three_chess/providers/image_provider.dart';
 import 'package:three_chess/providers/player_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
@@ -30,6 +33,11 @@ class ThreeChessBoard extends StatelessWidget {
     return Provider.of<GameProvider>(boardKey.currentContext, listen: false);
   }
 
+  //ThreeChessBoard(
+  // @required Game game); //Game has to be loaded, so the chessmoves list must be put into a board state without visual glithcing
+
+  ThreeChessBoard();
+
   @override
   Widget build(context) => MultiProvider(providers: [
         ChangeNotifierProvider(create: (ctx) => TileProvider()),
@@ -49,10 +57,10 @@ class ThreeChessInnerBoard extends StatefulWidget {
   final Key key;
   ThreeChessInnerBoard({this.key}) : super(key: key);
   @override
-  _ThreeChessInnerBoardState createState() => _ThreeChessInnerBoardState();
+  ThreeChessInnerBoardState createState() => ThreeChessInnerBoardState();
 }
 
-class _ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
+class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   // GlobalKey boardBoxKey = GlobalKey();
   bool _isDragging = false;
   String _pieceOnDrag;
@@ -62,6 +70,27 @@ class _ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void setUpChessMoves(context, List<ChessMove> chessMoves) {
+    PlayerColor currentPlayer = PlayerColor.white;
+    Provider.of<PieceProvider>(context, listen: false).startGame(noNotify: true);
+    bool notValid = false;
+    int i = 0;
+    for (ChessMove chessMove in chessMoves) {
+      i++;
+      if (Provider.of<ThinkingBoard>(context, listen: false)
+          .getLegalMove(chessMove.initialTile, MapEntry(chessMove.piece, currentPlayer), context)
+          .contains(chessMove.nextTile)) {
+        Provider.of<PieceProvider>(context, listen: false)
+            .movePieceTo(chessMove.initialTile, chessMove.nextTile, noNotify: i == chessMoves.length ? false : true);
+      } else {
+        notValid = true;
+        break;
+      }
+
+      currentPlayer = PlayerColor.values[(currentPlayer.index + 1) % 3];
+    }
   }
 
   Widget _buildPiece(context, {Piece child}) {

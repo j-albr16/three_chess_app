@@ -50,7 +50,7 @@ class TileSelect with ChangeNotifier {
 
     if (preNotifyTile != selectedTile) {
       currentHighlight = thinkingBoard
-          .getLegalMove(preNotifyTile, preNotifyPiece, context)
+          .getLegalMove(preNotifyTile, MapEntry(preNotifyPiece.pieceType, preNotifyPiece.playerColor), context)
           .map((id) => Provider.of<TileProvider>(context, listen: false).tiles.values.firstWhere((tile) => tile.id == id))
           .toList();
       selectedTile = preNotifyTile;
@@ -72,7 +72,9 @@ class TileSelect with ChangeNotifier {
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
 
     if (preNotifyTile != null) {
-      if (thinkingBoard.getLegalMove(selectedTile, oldSelectedPiece, context).contains(preNotifyTile)) {
+      if (thinkingBoard
+          .getLegalMove(selectedTile, MapEntry(oldSelectedPiece.pieceType, oldSelectedPiece.playerColor), context)
+          .contains(preNotifyTile)) {
         pieceProv.movePieceTo(oldSelected, preNotifyTile);
       }
     }

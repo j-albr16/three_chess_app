@@ -38,7 +38,7 @@ class ThreeChessApp extends StatelessWidget {
             LobbyScreen.routeName: (ctx) => LobbyScreen(),
           },
           builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
-              maxWidth: 1200,
+              maxWidth: 2400,
               minWidth: 300,
               defaultScaleFactor: 0.312,
               defaultScale: true,

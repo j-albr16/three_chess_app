@@ -183,29 +183,29 @@ class ThinkingBoard with ChangeNotifier {
 
   //enum PieceType{Pawn, Rook, Knight, Bishop, King, Queen}
 
-  List<String> getLegalMove(String selectedTile, Piece piece, BuildContext context) {
+  List<String> getLegalMove(String selectedTile, MapEntry<PieceType, PlayerColor> piece, BuildContext context) {
     //TODO weather someone is check or checkmate should be determind at currentPlayer switch
 
     List<String> result = [];
-    switch (piece?.pieceType) {
+    switch (piece?.key) {
       //Should not be null, but we dont like errors (talking to my self rn)
       case PieceType.Pawn:
-        result.addAll(_legalMovesPawn(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesPawn(piece.value, selectedTile, context));
         break;
       case PieceType.Rook:
-        result.addAll(_legalMovesRook(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesRook(piece.value, selectedTile, context));
         break;
       case PieceType.Knight:
-        result.addAll(_legalMovesKnight(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesKnight(piece.value, selectedTile, context));
         break;
       case PieceType.Bishop:
-        result.addAll(_legalMovesBishop(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesBishop(piece.value, selectedTile, context));
         break;
       case PieceType.King:
-        result.addAll(_legalMovesKing(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesKing(piece.value, selectedTile, context));
         break;
       case PieceType.Queen:
-        result.addAll(_legalMovesQueen(piece.playerColor, selectedTile, context));
+        result.addAll(_legalMovesQueen(piece.value, selectedTile, context));
         break;
     }
 
@@ -217,9 +217,9 @@ class ThinkingBoard with ChangeNotifier {
       resultRemove = isTileCovered(context,
           toBeCheckedTile: _getPieces(context)
               .values
-              .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == piece.playerColor)
+              .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == piece.value)
               .position,
-          requestingPlayer: piece.playerColor);
+          requestingPlayer: piece.value);
       //goBackOneStep();
       setIsVirtualPiecProv(false, context);
       return resultRemove;

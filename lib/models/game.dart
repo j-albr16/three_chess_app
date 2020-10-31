@@ -10,13 +10,34 @@ class Game {
   String id;
   @required
   bool didStart;
-  @required
   List<Player> player;
-  int currentPlayer;
+  PlayerColor currentPlayer;
   List<Map<PlayerColor, ChessMove>> chessMoves;
+  @required
   List<Piece> startingBoard;
   List<Piece> currentBoard;
   List<Piece> recentBoard;
+  int increment;
+  double time;
+  bool isPublic;
+  bool isRated;
+  int posRatingRange;
+  int negRatingRange;
 
-  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard});
+  Game({
+    this.player,
+    this.currentPlayer,
+    this.chessMoves,
+    this.currentBoard,
+    this.recentBoard,
+    this.startingBoard,
+    this.didStart,
+    this.id,
+    this.increment,
+    this.time,
+    this.isPublic,
+    this.isRated,
+    this.negRatingRange,
+    this.posRatingRange,
+  });
 }

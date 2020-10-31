@@ -10,6 +10,7 @@ class ChessMove {
   PieceType piece;
   bool check = false;
   bool checkMate = false;
+  int remainingTime; // in secs
 
-  ChessMove({this.initialTile, this.check, this.checkMate, this.nextTile, this.piece});
+  ChessMove({this.initialTile, this.check, this.checkMate, this.nextTile, this.piece, this.remainingTime});
 }

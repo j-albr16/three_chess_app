@@ -6,16 +6,38 @@ import './chess-move.dart';
 import './piece.dart';
 
 class Game {
-  @required String id;
-  @required bool didStart;
+  @required
+  String id;
+  @required
+  bool didStart;
   List<Player> player;
   PlayerColor currentPlayer;
   List<Map<PlayerColor, ChessMove>> chessMoves;
-  @required List<Piece> startingBoard;
+  @required
+  List<Piece> startingBoard;
   List<Piece> currentBoard;
-  List<Piece> recentBoard;  
+  List<Piece> recentBoard;
   int increment;
   double time;
+  bool isPublic;
+  bool isRated;
+  int posRatingRange;
+  int negRatingRange;
 
-  Game({this.player, this.currentPlayer, this.chessMoves, this.currentBoard, this.recentBoard, this.startingBoard, this.didStart, this.id, this.increment, this.time});
+  Game({
+    this.player,
+    this.currentPlayer,
+    this.chessMoves,
+    this.currentBoard,
+    this.recentBoard,
+    this.startingBoard,
+    this.didStart,
+    this.id,
+    this.increment,
+    this.time,
+    this.isPublic,
+    this.isRated,
+    this.negRatingRange,
+    this.posRatingRange,
+  });
 }

@@ -83,7 +83,7 @@ class GameProvider with ChangeNotifier {
   );
 
   GameProvider() {
-    try {
+    // try {
       _socket.on('games', (encodedData) {
         dynamic data = json.decode(encodedData);
         if (!data) {
@@ -91,28 +91,29 @@ class GameProvider with ChangeNotifier {
         }
         _handleSocketMessage(data);
       });
-    } catch (error) {
-      print(error);
-    }
+    // } catch (error) {
+    //   print(error);
+    // }
   }
 
+// updated vlaues from ProxyProvider:
   void update(String userId, String token, Game game, List<Game> games) {
     _userId = userId;
     _token = token;
     _games = games;
     _game = game;
   }
-
+// providing game data for screen
   get game {
     return _game;
   }
-
+// providing games data for lobby
   get games {
     return [..._games];
   }
 
   Future<void> createGame(
-      {bool isPublic,
+    {bool isPublic,
       bool isRated,
       int increment,
       double time,
@@ -152,6 +153,10 @@ class GameProvider with ChangeNotifier {
               )))
           .toList();
       _game = new Game(
+        negRatingRange: gameData['options']['negRatingRange'],
+        posRatingRange: gameData['options']['posRatingRange'],
+        isPublic: gameData['options']['isPublic'],
+        isRated: gameData['options']['isRated'],
         increment: gameData['options']['increment'],
         time: gameData['options']['time'],
         chessMoves: gameData['chessMoves'],
@@ -207,6 +212,10 @@ class GameProvider with ChangeNotifier {
               ))
           .toList();
       _game = new Game(
+        negRatingRange: gameData['options']['negRatingRange'],
+        posRatingRange: gameData['options']['posRatingRange'],
+        isPublic: gameData['options']['isPublic'],
+        isRated: gameData['options']['isRated'],
         increment: gameData['options']['increment'],
         time: gameData['options']['time'],
         chessMoves: gameData['chessMoves'],
@@ -236,6 +245,29 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+
+sendMove(ChessMove chessMove){}
+
+Future<bool> sendTakeBackRequest(){}
+
+Future<bool> sendRemiOffer(){}
+
+surrender(){}
+
+Future<void> fetchGame() async {
+  final url = SERVER_URL + '/fetch-game/$_userId';
+  final encodedResponse = await http.get(url);
+  final data = json.decode(encodedResponse.body);
+  
+}
+
+fetchGames(){}// only with scores 
+
+
+
+
+
+
   _handleSocketMessage(dynamic data) {
     switch (data['action']) {
       case 'new-game':
@@ -256,6 +288,7 @@ class GameProvider with ChangeNotifier {
             ]));
         break;
       case 'player-joyned':
+      // case for all players that player joyned a game in the lobby
         print(data['message']);
         final game = _games.firstWhere((e) => e.id == data['id']);
         game.player.add(
@@ -269,9 +302,12 @@ class GameProvider with ChangeNotifier {
         );
         break;
       case 'player-joyned-Lobby':
+      // case handles the action for a user in a lobby who witnesses a joyn
         print(data['message']);
         socketMessage = 'Player' + data['userName'] + 'joyned the Game';
-        _game.player.add(
+        final game = _games.firstWhere((e) => e.id == data['id']);
+        //add game to games
+        game.player.add(
           new Player(
             remainingTime: data['time'],
             playerColor: _getCurrentPlayer(data['playerColor']),

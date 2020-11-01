@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:three_chess/data/board_data%20copy.dart';
+import 'package:three_chess/models/chess_move.dart';
+import 'package:three_chess/providers/game_provider.dart';
 
 import 'tile_provider.dart';
 import '../models/piece.dart';
@@ -8,6 +11,7 @@ import '../models/enums.dart';
 
 class PieceProvider with ChangeNotifier {
   Map<String, Piece> _pieces = {};
+  List<ChessMove> doneChessMoves = []; //no remaining time, just to be in check with the moves
 
   Map<PlayerColor, String> enPassentCanidate = {};
 
@@ -19,6 +23,7 @@ class PieceProvider with ChangeNotifier {
 
   startGame({bool noNotify = false}) {
     _pieces = {};
+    doneChessMoves = [];
     startPosList.forEach((e) => _pieces.putIfAbsent(e.position, () => e));
     if (!noNotify) {
       notifyListeners();
@@ -99,6 +104,7 @@ class PieceProvider with ChangeNotifier {
       if (!noNotify) {
         notifyListeners();
       }
+      doneChessMoves.add(ChessMove(initialTile: oldPos, nextTile: newPos));
     }
   }
 

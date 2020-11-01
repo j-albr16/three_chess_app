@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/data/board_data.dart';
+import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:three_chess/providers/player_provider.dart';
 import 'package:three_chess/providers/thinking_board.dart';
 import 'tile_provider.dart';
 import '../models/enums.dart';
+import '../models/chess_move.dart';
 import '../models/piece.dart';
 import '../models/tile.dart';
 
@@ -42,6 +44,7 @@ class TileSelect with ChangeNotifier {
 
   void goIntoMoveState(String preNotifyTile, BuildContext context) {
     PieceProvider pieceProv = Provider.of<PieceProvider>(context, listen: false);
+    GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
     Map<String, Piece> pieces = pieceProv.pieces;
     Piece preNotifyPiece = pieces[preNotifyTile];
     ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(context, listen: false);
@@ -76,6 +79,16 @@ class TileSelect with ChangeNotifier {
           .getLegalMove(selectedTile, MapEntry(oldSelectedPiece.pieceType, oldSelectedPiece.playerColor), context)
           .contains(preNotifyTile)) {
         pieceProv.movePieceTo(oldSelected, preNotifyTile);
+        GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
+        PlayerProvider playerProvider = Provider.of<PlayerProvider>(context, listen: false);
+        if (gameProvider.game.chessMoves.length < pieceProv.doneChessMoves.length) {
+          playerProvider.nextPlayer();
+          gameProvider.sendMove(ChessMove(
+            initialTile: oldSelected,
+            nextTile: preNotifyTile,
+            remainingTime: playerProvider.getRemainingTime(gameProvider.game.player.playerColor, context),
+          ));
+        }
       }
     }
     selectedTile = null;

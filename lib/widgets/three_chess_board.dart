@@ -18,6 +18,7 @@ import '../providers/tile_provider.dart';
 import '../painter/path_clipper.dart';
 import '../models/piece.dart';
 import '../models/tile.dart';
+import '../models/game.dart';
 import '../providers/player_provider.dart';
 import '../data/image_data.dart';
 
@@ -57,6 +58,7 @@ class ThreeChessInnerBoard extends StatefulWidget {
 
 class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   // GlobalKey boardBoxKey = GlobalKey();
+  bool _boardIsLoaded = false;
   bool _waitForServerMove = true;
   bool _isDragging = false;
   String _pieceOnDrag;
@@ -90,6 +92,16 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
 
       currentPlayer = PlayerColor.values[(currentPlayer.index + 1) % 3];
     }
+    PlayerProvider playerProvider = Provider.of<PlayerProvider>(context, listen: false);
+    GameProvider gameProvider = Provider.of<GameProvider>(context);
+
+    playerProvider.currentPlayer = currentPlayer;
+    playerProvider.nextPlayer();
+    if (playerProvider.currentPlayer == gameProvider.player.playerColor) {
+      _waitForServerMove = false;
+    } else {
+      _waitForServerMove = true;
+    }
   }
 
   Widget _buildPiece(context, {Piece child}) {
@@ -115,7 +127,26 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   Widget build(BuildContext context) {
     Provider.of<PieceProvider>(context, listen: false).startGame();
     List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHighlight;
+    PlayerProvider playerProvider = Provider.of<PlayerProvider>(context);
+    PieceProvider pieceProvider = Provider.of<PieceProvider>(context);
     GameProvider gameProvider = Provider.of<GameProvider>(context);
+    Game game = gameProvider.game;
+    if (gameProvider.game != null) {
+      if (game.chessMoves.length > pieceProvider.doneChessMoves.length) {
+        playerProvider.nextPlayer();
+        playerProvider.updateGathered(context);
+        if (playerProvider.currentPlayer == gameProvider.player.playerColor) {
+          _waitForServerMove = false;
+        } else {
+          _waitForServerMove = true;
+        }
+      }
+      if (game.chessMoves.isNotEmpty && !_boardIsLoaded) {
+        setUpChessMoves(context, game.chessMoves);
+        _boardIsLoaded = true;
+      }
+    }
+
     return gameProvider.game == null
         ? Center(child: CircularProgressIndicator())
         : Container(
@@ -127,7 +158,7 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
                   if (whatsHit != null) {
                     if (!tileSelect.isMoveState) {
                       if (Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit]?.playerColor ==
-                              Provider.of<PlayerProvider>(context, listen: false).currentPlayer &&
+                              gameProvider.player.playerColor &&
                           !_waitForServerMove) {
                         _isDragging = true;
                         _pieceOnDrag = whatsHit;

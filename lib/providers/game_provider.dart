@@ -49,34 +49,34 @@ class GameProvider with ChangeNotifier {
         PlayerColor.white: ChessMove(
           initialTile: 'B2',
           nextTile: 'B4',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
         PlayerColor.black: ChessMove(
           initialTile: 'K7',
           nextTile: 'K5',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
         PlayerColor.red: ChessMove(
           initialTile: 'I11',
           nextTile: 'I9',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
       },
       {
         PlayerColor.white: ChessMove(
           initialTile: 'B4',
           nextTile: 'B5',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
         PlayerColor.black: ChessMove(
           initialTile: 'K5',
           nextTile: 'K4',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
         PlayerColor.red: ChessMove(
           initialTile: 'I9',
           nextTile: 'I8',
-          piece: PieceType.Pawn,
+          remainingTime: 20,
         ),
       }
     ],

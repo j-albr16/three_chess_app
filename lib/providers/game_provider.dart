@@ -177,7 +177,8 @@ class GameProvider with ChangeNotifier {
                 ),
               ))
           .toList();
-      _playerId = gameData['playerId'];
+      _player.id = gameData['playerId'];
+      _player.playerColor = gameData['playerColor'];
       _game = new Game(
         negRatingRange: gameData['options']['negRatingRange'],
         posRatingRange: gameData['options']['posRatingRange'],

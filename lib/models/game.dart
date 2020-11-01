@@ -18,7 +18,7 @@ class Game {
   List<Piece> currentBoard;
   List<Piece> recentBoard;
   int increment;
-  double time;
+  int time;
   bool isPublic;
   bool isRated;
   int posRatingRange;

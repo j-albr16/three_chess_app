@@ -80,7 +80,10 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
     for (ChessMove chessMove in chessMoves) {
       i++;
       if (Provider.of<ThinkingBoard>(context, listen: false)
-          .getLegalMove(chessMove.initialTile, MapEntry(chessMove.piece, currentPlayer), context)
+          .getLegalMove(
+              chessMove.initialTile,
+              MapEntry(Provider.of<PieceProvider>(context, listen: false).pieces[chessMove.initialTile].pieceType, currentPlayer),
+              context)
           .contains(chessMove.nextTile)) {
         Provider.of<PieceProvider>(context, listen: false)
             .movePieceTo(chessMove.initialTile, chessMove.nextTile, noNotify: i == chessMoves.length ? false : true);
@@ -114,6 +117,7 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<PieceProvider>(context, listen: false).startGame();
     List<Tile> currentHighlight = Provider.of<TileSelect>(context).currentHighlight;
     return Container(
       //alignment: Alignment.center,

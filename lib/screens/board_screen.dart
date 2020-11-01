@@ -42,7 +42,7 @@ class _BoardScreenState extends State<BoardScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          threeChessBoard.gameProvider.something();
+          //threeChessBoard.gameProvider.something();
         },
       ),
       appBar: AppBar(),

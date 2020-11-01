@@ -24,60 +24,7 @@ class GameProvider with ChangeNotifier {
   int _userScore = 1000;
 
   List<Game> _games = [];
-  Game _game = Game(
-    player: [
-      Player(
-        playerColor: PlayerColor.white,
-        user: User(
-          userName: 'jan',
-        ),
-      ),
-      Player(
-        playerColor: PlayerColor.black,
-        user: User(
-          userName: 'leo',
-        ),
-      ),
-      Player(
-        playerColor: PlayerColor.red,
-        user: User(
-          userName: 'david',
-        ),
-      ),
-    ],
-    chessMoves: [
-      ChessMove(
-        initialTile: 'B2',
-        nextTile: 'B4',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'K7',
-        nextTile: 'K5',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'I11',
-        nextTile: 'I9',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'B4',
-        nextTile: 'B5',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'K5',
-        nextTile: 'K4',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'I9',
-        nextTile: 'I8',
-        remainingTime: 20,
-      ),
-    ],
-  );
+  Game _game;
 
   GameProvider() {
     // try {
@@ -114,15 +61,9 @@ class GameProvider with ChangeNotifier {
 
   startGame() {}
 
-  Future<void> createGame(
-      {bool isPublic,
-      bool isRated,
-      int increment,
-      int time,
-      int negDeviation,
-      int posDeviation}) async {
-       final int negRatingRange = _userScore + negDeviation;
-       final int posRatingRange = _userScore + posDeviation;
+  Future<void> createGame({bool isPublic, bool isRated, int increment, int time, int negDeviation, int posDeviation}) async {
+    final int negRatingRange = _userScore + negDeviation;
+    final int posRatingRange = _userScore + posDeviation;
     try {
       const url = SERVER_URL + '/create-game';
       final response = await http.post(
@@ -149,7 +90,7 @@ class GameProvider with ChangeNotifier {
       // final player = gameData['player'];
       // final List<Player> convPlayer = player
       //     .map((e) => Player(
-      //         playerColor: _getCurrentPlayer(e['playerColor']),
+      //         playerColor: PlayerColor.values[data['playerColor']],
       //         remainingTime: e['remainingTime'],
       //         user: User(
       //           userName: e['user']['userName'],
@@ -173,7 +114,7 @@ class GameProvider with ChangeNotifier {
       // );
     } catch (error) {
       print(error.toString());
-    } 
+    }
     // finally {
     //   try {
     //     print('successfully created game');
@@ -188,8 +129,7 @@ class GameProvider with ChangeNotifier {
     //     print(error);
     //     // throw (error.toString());
     //   }
-    }
-  
+  }
 
   Future<void> joynGame(String gameId) async {
     try {
@@ -201,14 +141,13 @@ class GameProvider with ChangeNotifier {
       );
       final data = json.decode(encodedResponse.body);
       if (!data['valid']) {
-        throw ('An error occured while joyning game. response Data wasnt true:' +
-            data['message']);
+        throw ('An error occured while joyning game. response Data wasnt true:' + data['message']);
       }
       final gameData = data['gameData'];
       final player = gameData['player'];
       final List<Player> convPlayer = player
           .map((e) => Player(
-                playerColor: _getCurrentPlayer(e['playerColor']),
+                playerColor: PlayerColor.values[data['playerColor']],
                 remainingTime: e['remainingTime'],
                 user: User(
                   id: e['user']['id'],
@@ -312,7 +251,7 @@ class GameProvider with ChangeNotifier {
       }).toList();
       final List<Player> convPlayer = gameData['player']
           .map((e) => Player(
-              playerColor: _getCurrentPlayer(e['playerColor']),
+              playerColor: PlayerColor.values[data['playerColor']],
               remainingTime: e['remainingTime'],
               user: User(
                 userName: e['user']['userName'],
@@ -356,8 +295,7 @@ class GameProvider with ChangeNotifier {
       }
       if (!data['valid']) {
         print(data['message']);
-        throw ('fetching Games did not work, something went wrong in server validation....' +
-            data['message']);
+        throw ('fetching Games did not work, something went wrong in server validation....' + data['message']);
       }
       final gameData = data['gameData'];
       final convertedGames = gameData.map((el) {
@@ -403,7 +341,7 @@ class GameProvider with ChangeNotifier {
             time: data['time'],
             player: [
               new Player(
-                playerColor: _getCurrentPlayer(data['playerColor']),
+                playerColor: PlayerColor.values[data['playerColor']],
                 remainingTime: data['time'],
                 user: User(
                   id: data['userId'],
@@ -437,7 +375,7 @@ class GameProvider with ChangeNotifier {
         game.player.add(
           new Player(
             remainingTime: data['time'],
-            playerColor: _getCurrentPlayer(data['playerColor']),
+            playerColor: PlayerColor.values[data['playerColor']],
             user: User(
               id: data['userId'],
               score: data['score'],
@@ -459,15 +397,4 @@ class GameProvider with ChangeNotifier {
         ));
     }
   }
-}
-
-PlayerColor _getCurrentPlayer(int intData) {
-  if (intData == 1) {
-    return PlayerColor.white;
-  } else if (intData == 2) {
-    return PlayerColor.black;
-  } else if (intData == 3) {
-    return PlayerColor.red;
-  }
-  throw ('Error No current Player... data wasnt fetched properly propably xD');
 }

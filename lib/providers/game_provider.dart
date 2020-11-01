@@ -245,7 +245,7 @@ class GameProvider with ChangeNotifier {
       final url = SERVER_URL + '/fetch-game/$_userId';
       final encodedResponse = await http.get(url);
       final data = json.decode(encodedResponse.body);
-      if (!data) {
+      if (data != null) {
         throw ('fetch Game... No response from Server');
       }
       if (!data['valid']) {
@@ -271,7 +271,8 @@ class GameProvider with ChangeNotifier {
                 id: e['user']['userId'],
               )))
           .toList();
-      _playerId = gameData['playerId'];
+      _player.id = gameData['playerId'];
+      _player.playerColor = gameData['playerColor'];
       _game = new Game(
         negRatingRange: gameData['options']['negRatingRange'],
         posRatingRange: gameData['options']['posRatingRange'],

@@ -290,10 +290,15 @@ class LobbyTableState extends State<LobbyTable> {
 }
 
 class longPressDataColoum extends DataColumn {
-  longPressDataColoum(
-      // @required this.label,
-      // this.tooltip,
-      // this.numeric = false,
-      // this.onSort,
-      );
+  Widget label;
+  String tooltip;
+  bool numeric;
+  void Function(int, bool) onSort;
+
+  longPressDataColoum({
+    @required this.label,
+    this.tooltip,
+    this.numeric = false,
+    this.onSort,
+  }) : super(label: label, tooltip: tooltip, numeric: numeric, onSort: onSort);
 }

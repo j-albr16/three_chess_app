@@ -14,23 +14,24 @@ class CreateGameScreen extends StatefulWidget {
 }
 
 class _CreateGameScreenState extends State<CreateGameScreen> {
-
   bool isPublic = true;
-bool isRated = true;
+  bool isRated = true;
 
-double _totalTime = 5;
-double _increment = 2;
-double _negDeviation = -100;
-double _posDeviation = 100;
+  double _totalTime = 5;
+  int get totalTime => _totalTime.round();
+  double _increment = 2;
+  int get increment => _increment.round();
 
-int get totalTime => _totalTime.round();
-int get increment =>_increment.round();
-int get negDeviation => _negDeviation.round();
-int get posDeviation => _posDeviation.round();
+  double _negDeviation = -100;
+  int get negDeviation => _negDeviation.round();
+
+  double _posDeviation = 100;
+  int get posDeviation => _posDeviation.round();
+
   @override
   Widget build(BuildContext context) {
-    // print(_negDeviation);
-    // print(negDeviation);
+    print(_negDeviation);
+    print(negDeviation);
     final Size size = MediaQuery.of(context).size;
     // final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -64,14 +65,12 @@ int get posDeviation => _posDeviation.round();
             width: size.width * 0.6,
             padding: EdgeInsets.all(25),
             margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(
-                color: Colors.black45, borderRadius: BorderRadius.circular(7)),
+            decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(7)),
             child: Column(children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(isPublic ? 'Public' : 'Private',
-                      style: TextStyle(color: Colors.white)),
+                  Text(isPublic ? 'Public' : 'Private', style: TextStyle(color: Colors.white)),
                   Switch(
                     onChanged: (value) {
                       setState(() {
@@ -106,8 +105,7 @@ int get posDeviation => _posDeviation.round();
                       },
                     ),
                   ),
-                  Text(_totalTime.toStringAsFixed(1),
-                      style: TextStyle(color: Colors.white)),
+                  Text(_totalTime.toStringAsFixed(1), style: TextStyle(color: Colors.white)),
                 ],
               ),
               Text('Increment', style: TextStyle(color: Colors.white)),
@@ -133,8 +131,7 @@ int get posDeviation => _posDeviation.round();
                       },
                     ),
                   ),
-                  Text(increment.toStringAsFixed(1),
-                      style: TextStyle(color: Colors.white)),
+                  Text(increment.toStringAsFixed(1), style: TextStyle(color: Colors.white)),
                 ],
               ),
               Divider(
@@ -201,15 +198,13 @@ int get posDeviation => _posDeviation.round();
                       label: negDeviation.toStringAsFixed(0),
                       onChanged: (double value) {
                         setState(() {
-                          _negDeviation =  value;
+                          _negDeviation = value;
                         });
                       },
                     ),
                   ),
                   Text(
-                    negDeviation.toStringAsFixed(0) +
-                        '   /   ' +
-                        posDeviation.toStringAsFixed(0),
+                    negDeviation.toStringAsFixed(0) + '   /   ' + posDeviation.toStringAsFixed(0),
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -237,11 +232,10 @@ int get posDeviation => _posDeviation.round();
                 thickness: 0.5,
               ),
               FlatButton(
-                child:
-                    Text('Create Game', style: TextStyle(color: Colors.white)),
+                child: Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
-                  Provider.of<GameProvider>(context, listen: false).createGame(
+                  Provider.of<GameProvider>(context).createGame(
                     increment: increment,
                     isPublic: isPublic,
                     isRated: isRated,
@@ -249,7 +243,7 @@ int get posDeviation => _posDeviation.round();
                     posDeviation: posDeviation,
                     time: totalTime,
                   );
-                  // print('Game was created');
+                  //print('Game was created');
                 },
                 minWidth: 100,
                 padding: EdgeInsets.all(25),

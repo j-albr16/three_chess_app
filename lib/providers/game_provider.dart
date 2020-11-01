@@ -23,68 +23,23 @@ class GameProvider with ChangeNotifier {
   String _playerId;
   int _userScore = 1000;
 
-  List<Game> _games = [];
-  Game _game = Game(
-    player: [
-      Player(
-        playerColor: PlayerColor.white,
-        user: User(
-          userName: 'jan',
-        ),
-      ),
-      Player(
-        playerColor: PlayerColor.black,
-        user: User(
-          userName: 'leo',
-        ),
-      ),
-      Player(
-        playerColor: PlayerColor.red,
-        user: User(
-          userName: 'david',
-        ),
-      ),
-    ],
-    chessMoves: [
-      ChessMove(
-        initialTile: 'B2',
-        nextTile: 'B4',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'K7',
-        nextTile: 'K5',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'I11',
-        nextTile: 'I9',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'B4',
-        nextTile: 'B5',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'K5',
-        nextTile: 'K4',
-        remainingTime: 20,
-      ),
-      ChessMove(
-        initialTile: 'I9',
-        nextTile: 'I8',
-        remainingTime: 20,
-      ),
-    ],
+  Player _player = new Player(
+    user: new User(),
   );
+
+  Player get player {
+    return _player;
+  }
+
+  List<Game> _games = [];
+  Game _game;
 
   GameProvider() {
     // try {
     _socket.on('games', (encodedData) {
       print(encodedData);
-      final data = json.decode(encodedData.toString());
-      if (!data) {
+      final data = json.decode(encodedData);
+      if (data != null) {
         throw ('Couldnt read socket data!');
       }
       _handleSocketMessage(data);
@@ -121,8 +76,8 @@ class GameProvider with ChangeNotifier {
       int time,
       int negDeviation,
       int posDeviation}) async {
-       final int negRatingRange = _userScore + negDeviation;
-       final int posRatingRange = _userScore + posDeviation;
+    final int negRatingRange = _userScore + negDeviation;
+    final int posRatingRange = _userScore + posDeviation;
     try {
       const url = SERVER_URL + '/create-game';
       final response = await http.post(
@@ -141,55 +96,60 @@ class GameProvider with ChangeNotifier {
       );
       final decodedResponse = json.decode(response.body);
       print(decodedResponse);
-      // if (!decodedResponse['valid']) {
-      //   final String errorMessage = decodedResponse['message'].toString();
-      //   throw (errorMessage);
-      // }
-      // final gameData = decodedResponse['gameData'];
-      // final player = gameData['player'];
-      // final List<Player> convPlayer = player
-      //     .map((e) => Player(
-      //         playerColor: _getCurrentPlayer(e['playerColor']),
-      //         remainingTime: e['remainingTime'],
-      //         user: User(
-      //           userName: e['user']['userName'],
-      //           score: e['user']['score'],
-      //           id: e['user']['userId'],
-      //         )))
-      //     .toList();
-      // _playerId = gameData['playerId'];
-      // _game = new Game(
-      //   negRatingRange: gameData['options']['negRatingRange'],
-      //   posRatingRange: gameData['options']['posRatingRange'],
-      //   isPublic: gameData['options']['isPublic'],
-      //   isRated: gameData['options']['isRated'],
-      //   increment: gameData['options']['increment'],
-      //   time: gameData['options']['time'],
-      //   chessMoves: [],
-      //   // startingBoard: gameData['startingBoard'],
-      //   didStart: false,
-      //   id: gameData['id'],
-      //   player: convPlayer,
-      // );
+      if (!decodedResponse['valid']) {
+        final String errorMessage = decodedResponse['message'].toString();
+        throw (errorMessage);
+      }
+      final gameData = decodedResponse['gameData'];
+      final player = gameData['player'];
+
+      final List<Player> convPlayer = player.map((e) {
+        final playerColor = _getCurrentPlayer(e['playerColor']);
+        _player.playerColor = playerColor;
+        final user = new User(
+          userName: e['user']['userName'],
+          score: e['user']['score'],
+          id: e['user']['userId'],
+        );
+        _player.user = user;
+        return Player(
+            playerColor: _player.playerColor,
+            remainingTime: e['remainingTime'],
+            user: user);
+      }).toList();
+      _player.id = gameData['playerId'];
+
+      _game = new Game(
+        negRatingRange: gameData['options']['negRatingRange'],
+        posRatingRange: gameData['options']['posRatingRange'],
+        isPublic: gameData['options']['isPublic'],
+        isRated: gameData['options']['isRated'],
+        increment: gameData['options']['increment'],
+        time: gameData['options']['time'],
+        chessMoves: [],
+        // startingBoard: gameData['startingBoard'],
+        didStart: false,
+        id: gameData['id'],
+        player: convPlayer,
+      );
     } catch (error) {
       print(error.toString());
-    } 
-    // finally {
-    //   try {
-    //     print('successfully created game');
-    //     _socket.on('/${_game.id}', (encodedData) {
-    //       dynamic data = json.decode(encodedData);
-    //       if (!data['action']) {
-    //         throw ('Error: No Action Key from Websocket!');
-    //       }
-    //       _handleSocketMessage(data);
-    //     });
-    //   } catch (error) {
-    //     print(error);
-    //     // throw (error.toString());
-    //   }
+    } finally {
+      try {
+        print('successfully created game');
+        _socket.on('/${_game.id}', (encodedData) {
+          dynamic data = json.decode(encodedData);
+          if (!data['action']) {
+            throw ('Error: No Action Key from Websocket!');
+          }
+          _handleSocketMessage(data);
+        });
+      } catch (error) {
+        print(error);
+        // throw (error.toString());
+      }
     }
-  
+  }
 
   Future<void> joynGame(String gameId) async {
     try {

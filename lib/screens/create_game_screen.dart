@@ -249,7 +249,7 @@ int get posDeviation => _posDeviation.round();
                     posDeviation: posDeviation,
                     time: totalTime,
                   );
-                  print('Game was created');
+                  // print('Game was created');
                 },
                 minWidth: 100,
                 padding: EdgeInsets.all(25),

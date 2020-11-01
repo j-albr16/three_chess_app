@@ -11,7 +11,6 @@ import 'package:three_chess/models/game.dart';
 import 'package:three_chess/providers/image_provider.dart';
 import 'package:three_chess/providers/player_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
-import 'package:three_chess/providers/auth_provider.dart';
 import 'package:flutter/gestures.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
@@ -58,6 +57,7 @@ class ThreeChessInnerBoard extends StatefulWidget {
 
 class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   // GlobalKey boardBoxKey = GlobalKey();
+  bool _waitForServerMove = true;
   bool _isDragging = false;
   String _pieceOnDrag;
   Offset _startingPosition;
@@ -124,7 +124,8 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
             if (whatsHit != null) {
               if (!tileSelect.isMoveState) {
                 if (Provider.of<PieceProvider>(context, listen: false).pieces[whatsHit]?.playerColor ==
-                    Provider.of<PlayerProvider>(context, listen: false).currentPlayer) {
+                        Provider.of<PlayerProvider>(context, listen: false).currentPlayer &&
+                    !_waitForServerMove) {
                   _isDragging = true;
                   _pieceOnDrag = whatsHit;
                   _startingPosition = details.localPosition;

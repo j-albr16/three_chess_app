@@ -24,16 +24,6 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration(milliseconds: 16)).then((value) {
-      List<ChessMove> chessMoves = [];
-      (threeChessBoard.gameProvider.game as Game).chessMoves.map((e) => e.values.forEach((element) {
-            chessMoves.add(element);
-          }));
-      (threeChessBoard.boardKey.currentState as ThreeChessInnerBoardState)
-          .setUpChessMoves(threeChessBoard.boardKey.currentContext, chessMoves);
-      didload = true;
-    });
-
     super.initState();
   }
 
@@ -41,9 +31,7 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //threeChessBoard.gameProvider.something();
-        },
+        onPressed: () {},
       ),
       appBar: AppBar(),
       body: Container(
@@ -54,7 +42,6 @@ class _BoardScreenState extends State<BoardScreen> {
                 child: threeChessBoard,
                 padding: EdgeInsets.only(right: 5),
               ),
-              if (didload) ChessMoveTable(threeChessBoard.gameProvider.game),
             ],
           )),
     );

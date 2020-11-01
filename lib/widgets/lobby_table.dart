@@ -3,10 +3,13 @@ import 'package:collection/collection.dart';
 import 'package:three_chess/models/game.dart';
 import 'dart:core';
 
+typedef void GameSelectCall(Game game);
+
 class LobbyTable extends StatefulWidget {
   List<Game> games;
+  GameSelectCall onGameTap;
 
-  LobbyTable({@required this.games, Key key}) : super(key: key);
+  LobbyTable({@required this.games, @required this.onGameTap, Key key}) : super(key: key);
 
   @override
   LobbyTableState createState() => LobbyTableState();
@@ -18,7 +21,7 @@ class LobbyTableState extends State<LobbyTable> {
   bool isSettingsMode = false;
 
   bool sort = false;
-  List<ColumnType> selectedColoumn = ColumnType.values;
+  List<ColumnType> selectedColoumn;
   Map<ColumnType, String> columnHeader = {
     ColumnType.UserName1: "Player 1",
     ColumnType.UserName2: "Player 2",
@@ -27,6 +30,12 @@ class LobbyTableState extends State<LobbyTable> {
     ColumnType.Mode: "Mode",
     ColumnType.Fullness: "x/3",
   };
+
+  @override
+  void initState() {
+    selectedColoumn = ColumnType.values;
+    super.initState();
+  }
 
   void goIntoSettingsMode() {
     setState(() {
@@ -108,28 +117,6 @@ class LobbyTableState extends State<LobbyTable> {
       }
     }
     return result;
-  }
-
-  void _updateSelected(int oldI, int newI) {
-    if (oldI < newI) {
-      newI -= 1;
-    }
-    setState(() {
-      final ColumnType element = selectedColoumn.removeAt(oldI);
-      selectedColoumn.insert(newI, element);
-    });
-  }
-
-  Widget editSettings() {
-    return ReorderableListView(
-      children: selectedColoumn
-          .map((e) => ListTile(
-                key: ValueKey(columnHeader[e]),
-                title: Text(columnHeader[e]),
-              ))
-          .toList(),
-      onReorder: (oldI, newI) => _updateSelected(oldI, newI),
-    );
   }
 
   List<DataColumn> getColoumnChilds() {
@@ -259,15 +246,42 @@ class LobbyTableState extends State<LobbyTable> {
     return result;
   }
 
+  void _updateSelected(int oldI, int newI) {
+    if (oldI < newI) {
+      newI -= 1;
+    }
+
+    final ColumnType element = selectedColoumn.removeAt(oldI);
+    selectedColoumn.insert(newI, element);
+  }
+
+  Widget editSettings() {
+    return ReorderableListView(
+      children: List.from(selectedColoumn
+          .map((e) => ListTile(
+                key: ValueKey(columnHeader[e]),
+                title: Text(columnHeader[e]),
+              ))
+          .toList()),
+      onReorder: (oldI, newI) => setState(() => _updateSelected(oldI, newI)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("build:" + sort.toString());
     return isSettingsMode
         ? editSettings()
         : DataTable(
+            showCheckboxColumn: false,
             sortAscending: sort,
             columns: getColoumnChilds(),
-            rows: widget.games.map((game) => DataRow(cells: getCellChilds(game).map((info) => DataCell(info)).toList())).toList(),
+            rows: widget.games.map((game) {
+              return DataRow(
+                  onSelectChanged: (_) {
+                    widget.onGameTap(game);
+                  },
+                  cells: getCellChilds(game).map((info) => DataCell(info)).toList());
+            }).toList(),
           );
   }
 }

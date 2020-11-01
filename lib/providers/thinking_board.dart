@@ -478,6 +478,38 @@ class ThinkingBoard with ChangeNotifier {
     return false;
   }
 
+  ///Checks weather given Player is CheckMate the moment
+  bool isCheckMate(PlayerColor playerColor, context) {
+    bool result = false;
+    if (isCheck(playerColor, context)) {
+      result = true;
+      for (Piece piece in Provider.of<PieceProvider>(context, listen: false).pieces.values.toList()) {
+        for (String legalMove in getLegalMove(piece.position, MapEntry(piece.pieceType, piece.playerColor), context)) {
+          setIsVirtualPiecProv(true, context);
+          makeVirtualMove(piece.position, legalMove);
+          if (!isCheck(playerColor, context)) {
+            result = false;
+          }
+          setIsVirtualPiecProv(false, context);
+          if (!result) {
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  ///Checks weather given PlayerColor is Check at the Moment
+  bool isCheck(PlayerColor playerColor, context) {
+    return isTileCovered(context,
+        requestingPlayer: playerColor,
+        toBeCheckedTile: _getPieces(context)
+            .values
+            .firstWhere((currPiece) => currPiece.pieceType == PieceType.King && currPiece.playerColor == playerColor)
+            .position);
+  }
+
   ///Returns all possible tiles in one Direction till Condition is meet.
   ///if Condition returns null algorithm stops but still adds last checked tile to result
   List<String> getPossibleLine(context,

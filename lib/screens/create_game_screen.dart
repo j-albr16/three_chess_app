@@ -21,14 +21,18 @@ int totalTime = _totalTime.round();
 double _increment = 2;
 int increment = _increment.round();
 
-double _negDeviation = 100;
+
+double _negDeviation = -100;
 int negDeviation = _negDeviation.round();
+
 double _posDeviation = 100;
 int posDeviation = _posDeviation.round();
 
 class _CreateGameScreenState extends State<CreateGameScreen> {
   @override
   Widget build(BuildContext context) {
+    print(_negDeviation);
+    print(negDeviation);
     final Size size = MediaQuery.of(context).size;
     // final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -93,7 +97,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     width: size.width * 0.4,
                     child: Slider(
                       value: _totalTime,
-                      min: 0,
+                      min: 1,
                       max: 50,
                       divisions: 100,
                       label: totalTime.toStringAsFixed(1),
@@ -196,10 +200,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: -500,
                       max: 0,
                       divisions: 500,
-                      label: negDeviation.toStringAsFixed(1),
+                      label: negDeviation.toStringAsFixed(0),
                       onChanged: (double value) {
                         setState(() {
-                          _negDeviation = value;
+                          _negDeviation =  value;
                         });
                       },
                     ),
@@ -220,7 +224,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: 0,
                       max: 500,
                       divisions: 500,
-                      label: posDeviation.toStringAsFixed(1),
+                      label: posDeviation.toStringAsFixed(0),
                       onChanged: (double value) {
                         setState(() {
                           _posDeviation = value;

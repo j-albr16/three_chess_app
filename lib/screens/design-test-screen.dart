@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/models/chess-move.dart';
+import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/piece.dart';
 import 'package:three_chess/models/user.dart';
@@ -9,7 +9,7 @@ import '../providers/game_provider.dart';
 import '../models/player.dart';
 import '../models/user.dart';
 import '../models/game.dart';
-import '../models/chess-move.dart';
+import '../models/chess_move.dart';
 
 class DesignTestScreen extends StatelessWidget {
   static const routeName = '/design-test';

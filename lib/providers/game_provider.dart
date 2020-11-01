@@ -39,7 +39,7 @@ class GameProvider with ChangeNotifier {
     _socket.on('games', (encodedData) {
       print(encodedData);
       final data = json.decode(encodedData);
-      if (data != null) {
+      if (data == null) {
         throw ('Couldnt read socket data!');
       }
       _handleSocketMessage(data);
@@ -88,6 +88,7 @@ class GameProvider with ChangeNotifier {
         }),
         headers: {'Content-Type': 'application/json'},
       );
+      print('after post create game methode');
       final decodedResponse = json.decode(response.body);
       print(decodedResponse);
       if (!decodedResponse['valid']) {
@@ -109,7 +110,6 @@ class GameProvider with ChangeNotifier {
         return Player(playerColor: _player.playerColor, remainingTime: e['remainingTime'], user: user);
       }).toList();
       _player.id = gameData['playerId'];
-
       _game = new Game(
         negRatingRange: gameData['options']['negRatingRange'],
         posRatingRange: gameData['options']['posRatingRange'],
@@ -123,11 +123,7 @@ class GameProvider with ChangeNotifier {
         id: gameData['id'],
         player: convPlayer,
       );
-    } catch (error) {
-      print(error.toString());
-    } finally {
-      try {
-        print('successfully created game');
+      print('successfully created game');
         _socket.on('/${_game.id}', (encodedData) {
           dynamic data = json.decode(encodedData);
           if (!data['action']) {
@@ -135,12 +131,12 @@ class GameProvider with ChangeNotifier {
           }
           _handleSocketMessage(data);
         });
-      } catch (error) {
-        print(error);
-        // throw (error.toString());
-      }
+    printEverything(_game, _player);
+    } catch (error) {
+      print(error.toString());
+    }     
     }
-  }
+  
 
   Future<void> joynGame(String gameId) async {
     try {
@@ -343,7 +339,9 @@ class GameProvider with ChangeNotifier {
   _handleSocketMessage(dynamic data) {
     switch (data['action']) {
       case 'new-game':
-        print(data['message']);
+        print('socket: ...' + data['message']);
+        print('socket: ...' + data.toString());
+        print('playerColor:  ' + data['playerColor'].toString());
         _games.add(new Game(
             isRated: data['isRated'],
             negRatingRange: data['negRatingRange'],
@@ -354,7 +352,7 @@ class GameProvider with ChangeNotifier {
             time: data['time'],
             player: [
               new Player(
-                playerColor: PlayerColor.values[data['playerColor']],
+                playerColor: PlayerColor.values[data['playerColor'] + 1],
                 remainingTime: data['time'],
                 user: User(
                   id: data['userId'],
@@ -411,3 +409,47 @@ class GameProvider with ChangeNotifier {
     }
   }
 }
+printEverything(Game game, Player player){
+  print('########################');
+  print('Game: ...');
+  print('========================');
+  print('id:   ' + game.id);
+  print('didStart:   ' + game.didStart.toString());
+  print('------------------------');
+  print('options: ');
+  print('------------------------');
+  print('  --> increment:   ' + game.increment.toString());
+  print('  --> time:   ' + game.time.toString());
+  print('  --> negratingRange:   ' + game.negRatingRange.toString());
+  print('  --> posRatingrange:   ' + game.posRatingRange.toString());
+  print('  --> isPublic:   ' + game.isPublic.toString());
+  print('  --> isRated:   ' + game.isRated.toString());
+  print('-----------------------');
+  print('player:');
+  print('-----------------------');
+  game.player.forEach((e) {
+    print('  --> playerColor:   ' + e.playerColor.toString());
+    print('  --> remainingTime:   ' + e.remainingTime.toString());
+    print('  --> user:');
+    print('       - id:   ' + e.user.id);
+    print('       - userName:   ' + e.user.userName);
+    print('       - score:   ' + e.user.score.toString());
+   });
+   print('========================');
+   print('This Player: ...');
+   print('========================');
+  print('id:   ' + player.id.toString());
+  print('playerColor:   ' + player.playerColor.toString());
+  print('remainingTime:   ' + player.remainingTime.toString());
+  print('-----------------------');
+  print('user:');
+  print('-----------------------');
+  print('  --> id:   ' + player.user.id);
+  print('  --> userName:   ' + player.user.userName);
+  print('  --> score' + player.user.score.toString());
+  print('  --> email' + player.user.email.toString());
+  print('========================');
+  print('########################');
+}
+
+

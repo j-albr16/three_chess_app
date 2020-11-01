@@ -30,8 +30,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(_negDeviation);
-    print(negDeviation);
+    // print(_negDeviation);
+    // print(negDeviation);
     final Size size = MediaQuery.of(context).size;
     // final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -235,7 +235,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 child: Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
-                  Provider.of<GameProvider>(context).createGame(
+                  Provider.of<GameProvider>(context, listen: false).createGame(
                     increment: increment,
                     isPublic: isPublic,
                     isRated: isRated,

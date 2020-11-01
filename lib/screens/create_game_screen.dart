@@ -13,26 +13,24 @@ class CreateGameScreen extends StatefulWidget {
   _CreateGameScreenState createState() => _CreateGameScreenState();
 }
 
-bool isPublic = true;
+class _CreateGameScreenState extends State<CreateGameScreen> {
+
+  bool isPublic = true;
 bool isRated = true;
 
 double _totalTime = 5;
-int totalTime = _totalTime.round();
 double _increment = 2;
-int increment = _increment.round();
-
-
 double _negDeviation = -100;
-int negDeviation = _negDeviation.round();
-
 double _posDeviation = 100;
-int posDeviation = _posDeviation.round();
 
-class _CreateGameScreenState extends State<CreateGameScreen> {
+int get totalTime => _totalTime.round();
+int get increment =>_increment.round();
+int get negDeviation => _negDeviation.round();
+int get posDeviation => _posDeviation.round();
   @override
   Widget build(BuildContext context) {
-    print(_negDeviation);
-    print(negDeviation);
+    // print(_negDeviation);
+    // print(negDeviation);
     final Size size = MediaQuery.of(context).size;
     // final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -243,7 +241,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
-                  Provider.of<GameProvider>(context).createGame(
+                  Provider.of<GameProvider>(context, listen: false).createGame(
                     increment: increment,
                     isPublic: isPublic,
                     isRated: isRated,

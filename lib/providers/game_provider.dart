@@ -18,8 +18,8 @@ const String SERVER_URL = 'http://localhost:3000';
 class GameProvider with ChangeNotifier {
   String socketMessage;
   IO.Socket _socket = IO.io(SERVER_URL);
-  String _userId;
-  String _token;
+  String _userId = '5f997e32b5b10b72f88f33a1';
+  String _token = '97nz4l9kq83rz907tyff6ara8';
   String _playerId;
   int _userScore = 1000;
 
@@ -82,7 +82,8 @@ class GameProvider with ChangeNotifier {
   GameProvider() {
     // try {
     _socket.on('games', (encodedData) {
-      dynamic data = json.decode(encodedData);
+      print(encodedData);
+      final data = json.decode(encodedData.toString());
       if (!data) {
         throw ('Couldnt read socket data!');
       }
@@ -120,7 +121,7 @@ class GameProvider with ChangeNotifier {
       int time,
       int negDeviation,
       int posDeviation}) async {
-       final int negRatingRange = _userScore - negDeviation;
+       final int negRatingRange = _userScore + negDeviation;
        final int posRatingRange = _userScore + posDeviation;
     try {
       const url = SERVER_URL + '/create-game';

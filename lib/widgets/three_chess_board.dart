@@ -46,10 +46,6 @@ class ThreeChessBoard extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
         ChangeNotifierProvider(create: (ctx) => ThinkingBoard()),
         ChangeNotifierProvider(create: (ctx) => TileSelect()),
-        ChangeNotifierProxyProvider<AuthProvider, GameProvider>(
-            create: (_) => GameProvider(),
-            update: (_, auth, previousGame) =>
-                previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
       ], child: ThreeChessInnerBoard(key: boardKey));
 }
 

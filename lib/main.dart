@@ -25,6 +25,10 @@ class ThreeChessApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (ctx) => AuthProvider()),
+          ChangeNotifierProxyProvider<AuthProvider, GameProvider>(
+              create: (_) => GameProvider(),
+              update: (_, auth, previousGame) =>
+                  previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
         ],
         child: MaterialApp(
           theme: ThemeData(primaryColor: Colors.blueAccent),

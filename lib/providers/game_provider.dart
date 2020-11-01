@@ -188,7 +188,7 @@ class GameProvider with ChangeNotifier {
     //     // throw (error.toString());
     //   }
     }
-  }
+  
 
   Future<void> joynGame(String gameId) async {
     try {
@@ -232,7 +232,7 @@ class GameProvider with ChangeNotifier {
         player: convPlayer,
       );
       if (gameData['didStart']) {
-        startGame();
+        // startGame();
       }
     } catch (error) {
       throw ('An error occured while joyning game:' + error);

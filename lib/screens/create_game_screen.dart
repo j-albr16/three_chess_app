@@ -16,7 +16,7 @@ class CreateGameScreen extends StatefulWidget {
 bool isPublic = true;
 bool isRated = true;
 
-int _totalTime = 5;
+double _totalTime = 5;
 int totalTime = _totalTime.round();
 double _increment = 2;
 int increment = _increment.round();

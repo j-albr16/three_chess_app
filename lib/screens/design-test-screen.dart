@@ -116,9 +116,9 @@ Widget tableContent(Game game) {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               singleMove('$index'),
-              singleMove(e[PlayerColor.white].initialTile),
-              singleMove(e[PlayerColor.black].initialTile),
-              singleMove(e[PlayerColor.red].initialTile),
+              // singleMove(e[PlayerColor.white].initialTile),
+              // singleMove(e[PlayerColor.black].initialTile),
+              // singleMove(e[PlayerColor.red].initialTile),
             ],
           );
         }),

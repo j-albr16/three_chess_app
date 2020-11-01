@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/game_provider.dart';
 
@@ -61,7 +62,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
             width: size.width * 0.6,
             padding: EdgeInsets.all(25),
             margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(7)),
+            decoration: BoxDecoration(
+                color: Colors.black45, borderRadius: BorderRadius.circular(7)),
             child: Column(children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -133,7 +135,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       style: TextStyle(color: Colors.white)),
                 ],
               ),
-               Divider(
+              Divider(
                 color: Colors.white,
                 thickness: 0.5,
               ),
@@ -152,10 +154,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       });
                     },
                     child: Text(
-                        'Public',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                  ),   
+                      'Public',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                   FlatButton(
                     padding: EdgeInsets.all(25),
                     shape: RoundedRectangleBorder(
@@ -168,14 +170,14 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       });
                     },
                     child: Text(
-                        'Casual',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      'Casual',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
-               Divider(
-                 thickness: 0.5,
+              Divider(
+                thickness: 0.5,
                 color: Colors.white,
                 // indent: 1000,
               ),
@@ -228,15 +230,26 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   ),
                 ],
               ),
-               Divider(
+              Divider(
                 color: Colors.white,
                 thickness: 0.5,
               ),
               FlatButton(
-                child: Text('Create Game', style: TextStyle(color: Colors.white)),
+                child:
+                    Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
-                onPressed: (){},
-                minWidth: 100,  
+                onPressed: () {
+                  Provider.of<GameProvider>(context).createGame(
+                    increment: increment,
+                    isPublic: isPublic,
+                    isRated: isRated,
+                    negDeviation: negDeviation,
+                    posDeviation: posDeviation,
+                    time: totalTime,
+                  );
+                  print('Game was created');
+                },
+                minWidth: 100,
                 padding: EdgeInsets.all(25),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(7),

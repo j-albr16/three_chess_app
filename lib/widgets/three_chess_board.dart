@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/models/chess-move.dart';
+import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/providers/piece_provider.dart';
 import 'package:three_chess/providers/thinking_board.dart';
 import 'package:three_chess/providers/tile_select.dart';

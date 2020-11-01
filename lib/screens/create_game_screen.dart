@@ -16,10 +16,14 @@ bool isPublic = true;
 bool isRated = true;
 
 double _totalTime = 5;
+int totalTime = _totalTime.round();
 double _increment = 2;
+int increment = _increment.round();
 
-double _negDeviation = -100;
+double _negDeviation = 100;
+int negDeviation = _negDeviation.round();
 double _posDeviation = 100;
+int posDeviation = _posDeviation.round();
 
 class _CreateGameScreenState extends State<CreateGameScreen> {
   @override
@@ -90,7 +94,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: 0,
                       max: 50,
                       divisions: 100,
-                      label: _totalTime.toStringAsFixed(1),
+                      label: totalTime.toStringAsFixed(1),
                       onChanged: (double value) {
                         setState(() {
                           _totalTime = value;
@@ -117,7 +121,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: 0,
                       max: 25,
                       divisions: 50,
-                      label: _increment.toStringAsFixed(1),
+                      label: increment.toStringAsFixed(1),
                       onChanged: (double value) {
                         setState(() {
                           _increment = value;
@@ -125,7 +129,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       },
                     ),
                   ),
-                  Text(_increment.toStringAsFixed(1),
+                  Text(increment.toStringAsFixed(1),
                       style: TextStyle(color: Colors.white)),
                 ],
               ),
@@ -190,7 +194,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: -500,
                       max: 0,
                       divisions: 500,
-                      label: _negDeviation.toStringAsFixed(1),
+                      label: negDeviation.toStringAsFixed(1),
                       onChanged: (double value) {
                         setState(() {
                           _negDeviation = value;
@@ -199,9 +203,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     ),
                   ),
                   Text(
-                    _negDeviation.toStringAsFixed(0) +
+                    negDeviation.toStringAsFixed(0) +
                         '   /   ' +
-                        _posDeviation.toStringAsFixed(0),
+                        posDeviation.toStringAsFixed(0),
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -214,7 +218,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       min: 0,
                       max: 500,
                       divisions: 500,
-                      label: _posDeviation.toStringAsFixed(1),
+                      label: posDeviation.toStringAsFixed(1),
                       onChanged: (double value) {
                         setState(() {
                           _posDeviation = value;

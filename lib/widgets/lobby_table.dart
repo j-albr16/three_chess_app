@@ -22,6 +22,16 @@ class LobbyTableState extends State<LobbyTable> {
 
   bool sort = false;
   List<ColumnType> selectedColoumn;
+  List<Widget> get selectedColoumnWidgets {
+    print("im looking it up again");
+    return selectedColoumn
+        .map((e) => ListTile(
+              key: ValueKey(columnHeader[e]),
+              title: Text(columnHeader[e]),
+            ))
+        .toList();
+  }
+
   Map<ColumnType, String> columnHeader = {
     ColumnType.UserName1: "Player 1",
     ColumnType.UserName2: "Player 2",
@@ -246,42 +256,44 @@ class LobbyTableState extends State<LobbyTable> {
     return result;
   }
 
-  void _updateSelected(int oldI, int newI) {
-    if (oldI < newI) {
-      newI -= 1;
-    }
+  // void _updateSelected(int oldI, int newI) {
+  //   if (oldI < newI) {
+  //     newI -= 1;
+  //   }
 
-    final ColumnType element = selectedColoumn.removeAt(oldI);
-    selectedColoumn.insert(newI, element);
-  }
+  //   final ColumnType element = selectedColoumn.removeAt(oldI);
+  //   selectedColoumn.insert(newI, element);
+  // }
 
-  Widget editSettings() {
-    return ReorderableListView(
-      children: List.from(selectedColoumn
-          .map((e) => ListTile(
-                key: ValueKey(columnHeader[e]),
-                title: Text(columnHeader[e]),
-              ))
-          .toList()),
-      onReorder: (oldI, newI) => setState(() => _updateSelected(oldI, newI)),
-    );
-  }
+  // Widget editSettings() {
+  //   return ReorderableListView(
+  //     children: selectedColoumnWidgets,
+  //     onReorder: (oldI, newI) => setState(() => _updateSelected(oldI, newI)),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return isSettingsMode
-        ? editSettings()
-        : DataTable(
-            showCheckboxColumn: false,
-            sortAscending: sort,
-            columns: getColoumnChilds(),
-            rows: widget.games.map((game) {
-              return DataRow(
-                  onSelectChanged: (_) {
-                    widget.onGameTap(game);
-                  },
-                  cells: getCellChilds(game).map((info) => DataCell(info)).toList());
-            }).toList(),
-          );
+    return DataTable(
+      showCheckboxColumn: false,
+      sortAscending: sort,
+      columns: getColoumnChilds(),
+      rows: widget.games.map((game) {
+        return DataRow(
+            onSelectChanged: (_) {
+              widget.onGameTap(game);
+            },
+            cells: getCellChilds(game).map((info) => DataCell(info)).toList());
+      }).toList(),
+    );
   }
+}
+
+class longPressDataColoum extends DataColumn {
+  longPressDataColoum(
+      // @required this.label,
+      // this.tooltip,
+      // this.numeric = false,
+      // this.onSort,
+      );
 }

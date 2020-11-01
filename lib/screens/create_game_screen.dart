@@ -250,6 +250,19 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(7),
                 ),
+              ),
+              FlatButton(
+                child: Text('Joyn Game', style: TextStyle(color: Colors.white)),
+                color: Colors.blue,
+                onPressed: () {
+                  Provider.of<GameProvider>(context, listen: false).joynGame('5f9f25887e5d1c558775f159');//this is the gameId of the created Game
+                  //print('Game was created');
+                },
+                minWidth: 100,
+                padding: EdgeInsets.all(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7),
+                ),
               )
             ]),
           ),

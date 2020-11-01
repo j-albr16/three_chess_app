@@ -21,6 +21,7 @@ class GameProvider with ChangeNotifier {
   String _userId;
   String _token;
   String _playerId;
+  int _userScore = 1000;
 
   List<Game> _games = [];
   Game _game = Game(
@@ -45,40 +46,36 @@ class GameProvider with ChangeNotifier {
       ),
     ],
     chessMoves: [
-      {
-        PlayerColor.white: ChessMove(
-          initialTile: 'B2',
-          nextTile: 'B4',
-          remainingTime: 20,
-        ),
-        PlayerColor.black: ChessMove(
-          initialTile: 'K7',
-          nextTile: 'K5',
-          remainingTime: 20,
-        ),
-        PlayerColor.red: ChessMove(
-          initialTile: 'I11',
-          nextTile: 'I9',
-          remainingTime: 20,
-        ),
-      },
-      {
-        PlayerColor.white: ChessMove(
-          initialTile: 'B4',
-          nextTile: 'B5',
-          remainingTime: 20,
-        ),
-        PlayerColor.black: ChessMove(
-          initialTile: 'K5',
-          nextTile: 'K4',
-          remainingTime: 20,
-        ),
-        PlayerColor.red: ChessMove(
-          initialTile: 'I9',
-          nextTile: 'I8',
-          remainingTime: 20,
-        ),
-      }
+      ChessMove(
+        initialTile: 'B2',
+        nextTile: 'B4',
+        remainingTime: 20,
+      ),
+      ChessMove(
+        initialTile: 'K7',
+        nextTile: 'K5',
+        remainingTime: 20,
+      ),
+      ChessMove(
+        initialTile: 'I11',
+        nextTile: 'I9',
+        remainingTime: 20,
+      ),
+      ChessMove(
+        initialTile: 'B4',
+        nextTile: 'B5',
+        remainingTime: 20,
+      ),
+      ChessMove(
+        initialTile: 'K5',
+        nextTile: 'K4',
+        remainingTime: 20,
+      ),
+      ChessMove(
+        initialTile: 'I9',
+        nextTile: 'I8',
+        remainingTime: 20,
+      ),
     ],
   );
 
@@ -120,9 +117,11 @@ class GameProvider with ChangeNotifier {
       {bool isPublic,
       bool isRated,
       int increment,
-      double time,
-      int negRatingRange,
-      int posRatingRange}) async {
+      int time,
+      int negDeviation,
+      int posDeviation}) async {
+       final int negRatingRange = _userScore - negDeviation;
+       final int posRatingRange = _userScore + posDeviation;
     try {
       const url = SERVER_URL + '/create-game';
       final response = await http.post(
@@ -140,52 +139,54 @@ class GameProvider with ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
       );
       final decodedResponse = json.decode(response.body);
-      if (!decodedResponse['valid']) {
-        final String errorMessage = decodedResponse['message'].toString();
-        throw (errorMessage);
-      }
-      final gameData = decodedResponse['gameData'];
-      final player = gameData['player'];
-      final List<Player> convPlayer = player
-          .map((e) => Player(
-              playerColor: _getCurrentPlayer(e['playerColor']),
-              remainingTime: e['remainingTime'],
-              user: User(
-                userName: e['user']['userName'],
-                score: e['user']['score'],
-                id: e['user']['userId'],
-              )))
-          .toList();
-      _playerId = gameData['playerId'];
-      _game = new Game(
-        negRatingRange: gameData['options']['negRatingRange'],
-        posRatingRange: gameData['options']['posRatingRange'],
-        isPublic: gameData['options']['isPublic'],
-        isRated: gameData['options']['isRated'],
-        increment: gameData['options']['increment'],
-        time: gameData['options']['time'],
-        chessMoves: [],
-        // startingBoard: gameData['startingBoard'],
-        didStart: false,
-        id: gameData['id'],
-        player: convPlayer,
-      );
+      print(decodedResponse);
+      // if (!decodedResponse['valid']) {
+      //   final String errorMessage = decodedResponse['message'].toString();
+      //   throw (errorMessage);
+      // }
+      // final gameData = decodedResponse['gameData'];
+      // final player = gameData['player'];
+      // final List<Player> convPlayer = player
+      //     .map((e) => Player(
+      //         playerColor: _getCurrentPlayer(e['playerColor']),
+      //         remainingTime: e['remainingTime'],
+      //         user: User(
+      //           userName: e['user']['userName'],
+      //           score: e['user']['score'],
+      //           id: e['user']['userId'],
+      //         )))
+      //     .toList();
+      // _playerId = gameData['playerId'];
+      // _game = new Game(
+      //   negRatingRange: gameData['options']['negRatingRange'],
+      //   posRatingRange: gameData['options']['posRatingRange'],
+      //   isPublic: gameData['options']['isPublic'],
+      //   isRated: gameData['options']['isRated'],
+      //   increment: gameData['options']['increment'],
+      //   time: gameData['options']['time'],
+      //   chessMoves: [],
+      //   // startingBoard: gameData['startingBoard'],
+      //   didStart: false,
+      //   id: gameData['id'],
+      //   player: convPlayer,
+      // );
     } catch (error) {
-      throw error.toString();
-    } finally {
-      try {
-        print('successfully created game');
-        _socket.on('/${_game.id}', (encodedData) {
-          dynamic data = json.decode(encodedData);
-          if (!data['action']) {
-            throw ('Error: No Action Key from Websocket!');
-          }
-          _handleSocketMessage(data);
-        });
-      } catch (error) {
-        print(error);
-        // throw (error.toString());
-      }
+      print(error.toString());
+    } 
+    // finally {
+    //   try {
+    //     print('successfully created game');
+    //     _socket.on('/${_game.id}', (encodedData) {
+    //       dynamic data = json.decode(encodedData);
+    //       if (!data['action']) {
+    //         throw ('Error: No Action Key from Websocket!');
+    //       }
+    //       _handleSocketMessage(data);
+    //     });
+    //   } catch (error) {
+    //     print(error);
+    //     // throw (error.toString());
+    //   }
     }
   }
 
@@ -332,6 +333,13 @@ class GameProvider with ChangeNotifier {
         id: gameData['id'],
         player: convPlayer,
       );
+      _socket.on('/${_game.id}', (encodedData) {
+        dynamic data = json.decode(encodedData);
+        if (!data['action']) {
+          throw ('Error: No Action Key from Websocket!');
+        }
+        _handleSocketMessage(data);
+      });
     } catch (error) {
       print(error);
     }
@@ -441,6 +449,13 @@ class GameProvider with ChangeNotifier {
           startGame();
         }
         break;
+      case 'move-made':
+        print(data['message']);
+        _game.chessMoves.add(new ChessMove(
+          initialTile: data['initialTile'],
+          nextTile: data['nextTile'],
+          remainingTime: data['remainingTime'],
+        ));
     }
   }
 }

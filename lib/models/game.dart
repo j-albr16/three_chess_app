@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:three_chess/models/enums.dart';
 
 import './player.dart';
-import './chess-move.dart';
+import 'chess_move.dart';
 import './piece.dart';
 
 class Game {
@@ -12,13 +12,13 @@ class Game {
   bool didStart;
   List<Player> player;
   PlayerColor currentPlayer;
-  List<Map<PlayerColor, ChessMove>> chessMoves;
+  List<ChessMove> chessMoves;
   @required
   List<Piece> startingBoard;
   List<Piece> currentBoard;
   List<Piece> recentBoard;
   int increment;
-  int time;
+  double time;
   bool isPublic;
   bool isRated;
   int posRatingRange;

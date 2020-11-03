@@ -15,13 +15,13 @@ class LobbyScreen extends StatefulWidget {
 }
 
 class _LobbyScreenState extends State<LobbyScreen> {
+  GlobalKey<LobbyTableState> lobbyTableKey = GlobalKey();
   LobbyTable lobbyTable;
 
   @override
   void initState() {
     lobbyTable = LobbyTable(
-      size: Size(1000, 1000),
-      onGameTap: (Game game) => print(game.isRated.toString() + "sagen alle die grad ein game angeklickt haben"),
+      key: lobbyTableKey,
       games: [
         Game(
             chessMoves: [],
@@ -46,6 +46,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (!lobbyTableKey.currentState.isSettingsMode) {
+            lobbyTableKey.currentState.goIntoSettingsMode();
+          } else {
+            lobbyTableKey.currentState.goIntoLobbyMode();
+          }
+        },
+      ),
       appBar: AppBar(
         actions: [
           IconButton(

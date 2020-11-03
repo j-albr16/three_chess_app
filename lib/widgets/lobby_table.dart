@@ -1,304 +1,353 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:three_chess/models/game.dart';
-import 'dart:core';
+import 'package:reorderables/reorderables.dart';
+
+import '../models/game.dart';
 
 typedef void GameSelectCall(Game game);
 
 class LobbyTable extends StatefulWidget {
   List<Game> games;
+  ValueNotifier<List<Game>> updatedGames;
   GameSelectCall onGameTap;
 
-  LobbyTable({@required this.games, @required this.onGameTap, Key key}) : super(key: key);
+  Size size;
+
+  LobbyTable({@required this.games, @required this.onGameTap, this.updatedGames, this.size = const Size(1000, 1000)});
 
   @override
-  LobbyTableState createState() => LobbyTableState();
+  _LobbyTableState createState() => _LobbyTableState();
 }
 
 enum ColumnType { UserName1, UserName2, AverageScore, Time, Mode, Fullness }
+typedef Widget ColumnCell(Game game);
+typedef int GameCompare(Game game, Game game2);
 
-class LobbyTableState extends State<LobbyTable> {
-  bool isSettingsMode = false;
+class _LobbyTableState extends State<LobbyTable> {
+  List<Game> games;
+  List<Widget> _columns;
 
-  bool sort = false;
-  List<ColumnType> selectedColoumn;
-  List<Widget> get selectedColoumnWidgets {
-    print("im looking it up again");
-    return selectedColoumn
-        .map((e) => ListTile(
-              key: ValueKey(columnHeader[e]),
-              title: Text(columnHeader[e]),
-            ))
-        .toList();
+  BorderSide borderSide = BorderSide(width: 1, color: Colors.grey);
+  List<ColumnType> _selectedColoumn;
+  List<ColumnType> get selectedColoumn => _selectedColoumn;
+
+  ColumnType _sortSelectedColumn;
+  bool ascending = false;
+
+  double rowHeigth = 60;
+  double rowHeaderHeigth = 60;
+
+  @override
+  void initState() {
+    loadWidgets();
+    _loadComparisons();
+    games = List.from(widget.games, growable: true);
+    _selectedColoumn = List.from(ColumnType.values, growable: true);
+    _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
+
+    super.initState();
   }
+
+  Map<ColumnType, GameCompare> gameComparison;
+
+  GameCompare switchCompare(bool doSwitch, GameCompare) {
+    if (doSwitch) {
+      return GameCompare * -1;
+    } else {
+      return GameCompare;
+    }
+  }
+
+  void _loadComparisons() {
+    gameComparison = {
+      ColumnType.UserName1: (Game game, Game game2) {
+        return game.player[0].user.userName.compareTo(game2.player[0].user.userName);
+      },
+      ColumnType.UserName2: (Game game, Game game2) {
+        String username1 = game.player.length > 1 ? game.player[1]?.user.userName ?? "" : "";
+        String username2 = game2.player.length > 1 ? game2.player[1]?.user.userName ?? "" : "";
+        return username1.compareTo(username2);
+      },
+      ColumnType.AverageScore: (Game game, Game game2) {
+        return _avgScore(game).compareTo(_avgScore(game2));
+      },
+      ColumnType.Time: (Game game, Game game2) {
+        return (game.time + game.increment * 38).compareTo(game2.time + game2.increment * 38);
+      },
+      ColumnType.Mode: (Game game, Game game2) {
+        if (game.isRated && !game2.isRated) {
+          return 1;
+        } else if (game.isRated == game2.isRated) {
+          return 0;
+        } else if (!game.isRated && game2.isRated) {
+          return -1;
+        }
+      },
+      ColumnType.Fullness: (Game game, Game game2) {
+        return (game.player.length).compareTo(game2.player.length);
+      },
+    };
+  }
+
+  String _user(int i, Game game) {
+    if (i < game.player.length) {
+      return game.player[i]?.user.userName ?? "";
+    }
+    return "";
+  }
+
+  String _score(int i, Game game) {
+    if (i < game.player.length) {
+      return game.player[i]?.user.score.toString() ?? "";
+    }
+    return "";
+  }
+
+  int _avgScore(Game game) {
+    int averageScore = 0;
+    for (int i = 0; i < game.player.length; i++) {
+      averageScore += game.player[i].user.score;
+    }
+    return averageScore ~/ game.player.length;
+  }
+
+  _sortGames(ColumnType ctype, bool ascending) {
+    setState(() {
+      if (!ascending) {
+        mergeSort(games, end: games.length, compare: gameComparison[ctype]);
+      } else {
+        mergeSort(games, end: games.length, compare: (Game game, Game game2) => gameComparison[ctype](game2, game));
+      }
+      _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
+    });
+  }
+
+  void _onHeaderTap(ColumnType ctype) {
+    if (_sortSelectedColumn != ctype) {
+      ascending = true;
+      _sortSelectedColumn = ctype;
+      _sortGames(ctype, ascending);
+    } else {
+      ascending = !ascending;
+      _sortGames(ctype, ascending);
+    }
+  }
+
+  //########################################################################
+  // v Code for Design
 
   Map<ColumnType, String> columnHeader = {
     ColumnType.UserName1: "Player 1",
     ColumnType.UserName2: "Player 2",
-    ColumnType.AverageScore: "Average Score",
+    ColumnType.AverageScore: "Avg. Score",
     ColumnType.Time: "Time",
     ColumnType.Mode: "Mode",
     ColumnType.Fullness: "x/3",
   };
 
-  @override
-  void initState() {
-    selectedColoumn = ColumnType.values;
-    super.initState();
+  Map<ColumnType, double> columnFlex = {
+    ColumnType.UserName1: 1,
+    ColumnType.UserName2: 1,
+    ColumnType.AverageScore: 1,
+    ColumnType.Time: 1,
+    ColumnType.Mode: 1,
+    ColumnType.Fullness: 1,
+  };
+
+  Widget getHeader(ColumnType type) {
+    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16))); // TODO GestureDetector for sorting
   }
 
-  void goIntoSettingsMode() {
-    setState(() {
-      isSettingsMode = true;
-    });
+  Widget orderColumn(ColumnType e) {
+    return Container(
+        //decoration: BoxDecoration(border: Border(left: borderSide, right: borderSide)),
+        key: ValueKey(0),
+        child: Column(children: getColumnChilds(e)));
   }
 
-  void goIntoLobbyMode() {
-    setState(() {
-      isSettingsMode = false;
-    });
-  }
-
-  List<Widget> getCellChilds(Game game) {
-    String user(int i) {
-      if (i < game.player.length) {
-        return game.player[i]?.user.userName ?? "";
-      }
-      return "";
-    }
-
-    String score(int i) {
-      if (i < game.player.length) {
-        return game.player[i]?.user.score.toString() ?? "";
-      }
-      return "";
-    }
-
-    List<Widget> result = [];
-    for (ColumnType type in selectedColoumn) {
-      switch (type) {
-        case ColumnType.UserName1:
-          result.add(Row(children: [
-            Text(user(0)),
-            Expanded(child: Container()),
+  Map<ColumnType, ColumnCell> columnWidget;
+  void loadWidgets() {
+    columnWidget = {
+      ColumnType.UserName1: (Game game) => Row(children: [
+            Spacer(),
+            Text(_user(0, game)),
+            Spacer(),
             Align(
-              child: Text(score(0)),
+              child: Text(_score(0, game)),
               alignment: Alignment.centerRight,
-            )
-          ]));
-          break;
-        case ColumnType.UserName2:
-          result.add(Row(children: [
-            Text(user(1)),
-            Expanded(child: Container()),
+            ),
+            Spacer()
+          ]),
+      ColumnType.UserName2: (Game game) => Row(children: [
+            Spacer(),
+            Text(_user(1, game)),
+            Spacer(),
             Align(
-              child: Text(score(1)),
+              child: Text(_score(1, game)),
               alignment: Alignment.centerRight,
-            )
-          ]));
-          break;
-        case ColumnType.AverageScore:
-          int averageScore = 0;
-          for (int i = 0; i < game.player.length; i++) {
-            averageScore += game.player[i].user.score;
-          }
-          averageScore = averageScore ~/ game.player.length;
-          result.add(Container(
+            ),
+            Spacer()
+          ]),
+      ColumnType.AverageScore: (Game game) => Container(
             width: double.infinity,
             height: double.infinity,
             child: Center(
-              child: Text("~" + averageScore.toString()),
+              child: Text("~" + _avgScore(game).toString()),
             ),
-          ));
-          break;
-        case ColumnType.Time:
-          result.add(Text(((game.time - (game.time % 60)) / 60).toString() +
+          ),
+      ColumnType.Time: (Game game) => Center(
+          child: Text(((game.time - (game.time % 60)) / 60).toString() +
               ":" +
               (game.time % 60).toString() +
               " + " +
-              game.increment.toString()));
-          break;
-        case ColumnType.Mode:
-          result.add(Text(game.isRated ? "Rated" : "Unrated"));
-          break;
-        case ColumnType.Fullness:
-          result.add(Text(game.player.length.toString() + "/3"));
-          break;
-      }
+              game.increment.toString())),
+      ColumnType.Mode: (Game game) => Center(child: Text(game.isRated ? "Rated" : "Unrated")),
+      ColumnType.Fullness: (Game game) => Center(child: Text(game.player.length.toString() + "/3")),
+    };
+  }
+
+  double getWidth(ColumnType type) {
+    return ((widget.size.width /
+            columnFlex.entries
+                .where((element) => selectedColoumn.contains(element.key))
+                .toList()
+                .map((e) => e.value)
+                .toList()
+                .fold(0, (previousValue, element) => previousValue + element)) *
+        columnFlex[type]);
+  }
+
+  Widget wrapCell({ColumnType type, Widget child}) {
+    return Container(
+        decoration: BoxDecoration(border: Border(top: borderSide, bottom: borderSide)),
+        child: SizedBox(
+            height: rowHeigth, width: getWidth(type), child: Padding(padding: EdgeInsets.only(left: 17, right: 17), child: child)));
+  }
+
+  Widget wrapHeaderCell({ColumnType type, Widget child}) {
+    return Container(
+      decoration: BoxDecoration(border: Border(top: borderSide, bottom: borderSide)),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _onHeaderTap(type),
+        child: SizedBox(
+          height: rowHeigth,
+          width: getWidth(type),
+          child: Padding(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              child: _sortSelectedColumn != type
+                  ? child
+                  : Stack(
+                      children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(!ascending ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.lightBlue, size: 10)),
+                        Center(child: child)
+                      ],
+                    )),
+        ),
+      ),
+    );
+  }
+
+  //########################################################################
+  //Putting it together
+
+  List<Widget> getColumnChilds(ColumnType type) {
+    List<Widget> result = [];
+    result.add(wrapHeaderCell(
+      type: type,
+      child: getHeader(type),
+    ));
+    for (Game game in games) {
+      result.add(wrapCell(
+        type: type,
+        child: columnWidget[type](game),
+      ));
     }
     return result;
   }
 
-  List<DataColumn> getColoumnChilds() {
-    List<DataColumn> result = [];
-    for (ColumnType type in selectedColoumn) {
-      switch (type) {
-        case ColumnType.UserName1:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.UserName1]),
-              numeric: false,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  if (ascending) {
-                    return game.player[0].user.userName.compareTo(game2.player[0].user.userName);
-                  }
-                  return game2.player[0].user.userName.compareTo(game.player[0].user.userName);
-                });
-              }));
-          break;
-        case ColumnType.UserName2:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.UserName2]),
-              numeric: false,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  String username1 = game.player.length > 1 ? game.player[1]?.user.userName ?? "" : "";
-                  String username2 = game2.player.length > 1 ? game2.player[1]?.user.userName ?? "" : "";
-                  if (ascending) {
-                    return username1.compareTo(username2);
-                  }
-                  return username2.compareTo(username1);
-                });
-              }));
-          break;
-        case ColumnType.AverageScore:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.AverageScore]),
-              numeric: true,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  int averageScore1 = 0;
-                  for (int i = 0; i < game.player.length; i++) {
-                    averageScore1 += game.player[i].user.score;
-                  }
-                  averageScore1 = averageScore1 ~/ game.player.length;
-                  int averageScore2 = 0;
-                  for (int i = 0; i < game2.player.length; i++) {
-                    averageScore2 += game2.player[i].user.score;
-                  }
-                  averageScore2 = averageScore2 ~/ game2.player.length;
-                  if (ascending) {
-                    return averageScore1.compareTo(averageScore2);
-                  }
-                  return averageScore2.compareTo(averageScore1);
-                });
-              }));
-          break;
-        case ColumnType.Time:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.Time]),
-              numeric: true,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  if (ascending) {
-                    return (game.time + game.increment * 38).compareTo(game2.time + game2.increment * 38);
-                  }
-                  return (game2.time + game2.increment * 38).compareTo(game.time + game.increment * 38);
-                });
-              }));
-          break;
-        case ColumnType.Mode:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.Mode]),
-              numeric: false,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  if (game.isRated && !game2.isRated) {
-                    return ascending ? 1 : -1;
-                  } else if (game.isRated == game2.isRated) {
-                    return 0;
-                  } else if (!game.isRated && game2.isRated) {
-                    return ascending ? -1 : 1;
-                  }
-                });
-              }));
-          break;
-        case ColumnType.Fullness:
-          result.add(DataColumn(
-              label: Text(columnHeader[ColumnType.Fullness]),
-              numeric: true,
-              onSort: (columnIndex, ascending) {
-                setState(() {
-                  sort = !sort;
-                });
-                ascending = !sort;
-                mergeSort(widget.games, end: widget.games.length, compare: (Game game, Game game2) {
-                  if (ascending) {
-                    return (game.player.length).compareTo(game2.player.length);
-                  }
-                  return (game2.player.length).compareTo(game.player.length);
-                });
-              }));
-          break;
-      }
+  Widget backgroundTable() {
+    List<Widget> rowColumns = [];
+    for (ColumnType ctype in selectedColoumn) {
+      rowColumns.add(Column(
+        children: List.generate(
+            games.length,
+            (index) => (rowColumns.isEmpty && index == 0)
+                ? IgnorePointer(
+                    child: wrapHeaderCell(type: ctype, child: Container()),
+                  )
+                : wrapCell(type: ctype, child: Container())),
+      ));
     }
-    return result;
+    return Row(
+      children: rowColumns,
+    );
   }
 
-  // void _updateSelected(int oldI, int newI) {
-  //   if (oldI < newI) {
-  //     newI -= 1;
-  //   }
-
-  //   final ColumnType element = selectedColoumn.removeAt(oldI);
-  //   selectedColoumn.insert(newI, element);
-  // }
-
-  // Widget editSettings() {
-  //   return ReorderableListView(
-  //     children: selectedColoumnWidgets,
-  //     onReorder: (oldI, newI) => setState(() => _updateSelected(oldI, newI)),
-  //   );
-  // }
+  Widget foregroundTable() {
+    List<Widget> columnRows = [];
+    columnRows.add(IgnorePointer(
+        child: Container(
+      width: widget.size.width,
+      height: rowHeaderHeigth,
+      color: Colors.transparent,
+    )));
+    for (int i = 0; i < games.length; i++) {
+      columnRows.add(InkWell(
+          onTap: () => widget.onGameTap(games[i]),
+          child: Container(
+            width: widget.size.width,
+            height: rowHeigth,
+            color: Colors.transparent,
+          )));
+    }
+    return Column(
+      children: columnRows,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DataTable(
-      showCheckboxColumn: false,
-      sortAscending: sort,
-      columns: getColoumnChilds(),
-      rows: widget.games.map((game) {
-        return DataRow(
-            onSelectChanged: (_) {
-              widget.onGameTap(game);
-            },
-            cells: getCellChilds(game).map((info) => DataCell(info)).toList());
-      }).toList(),
+    void _onReorder(int oldIndex, int newIndex) {
+      setState(() {
+        ColumnType type = _selectedColoumn.removeAt(oldIndex);
+
+        Widget child = _columns.removeAt(oldIndex);
+
+        _selectedColoumn.insert(newIndex, type);
+        _columns.insert(newIndex, child);
+      });
+    }
+
+    return SizedBox(
+      width: widget.size.width,
+      height: widget.size.height,
+      child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Stack(children: [
+            backgroundTable(),
+            ReorderableRow(
+              buildDraggableFeedback: (context, constraints, child) {
+                return Material(
+                  child: ConstrainedBox(constraints: constraints, child: child),
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.zero,
+                );
+              },
+              draggingWidgetOpacity: 0.1,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _columns,
+              onReorder: _onReorder,
+            ),
+            foregroundTable(),
+          ]),
+        ),
+      ),
     );
   }
-}
-
-class longPressDataColoum extends DataColumn {
-  Widget label;
-  String tooltip;
-  bool numeric;
-  void Function(int, bool) onSort;
-
-  longPressDataColoum({
-    @required this.label,
-    this.tooltip,
-    this.numeric = false,
-    this.onSort,
-  }) : super(label: label, tooltip: tooltip, numeric: numeric, onSort: onSort);
 }

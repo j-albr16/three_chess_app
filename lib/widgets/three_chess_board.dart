@@ -133,6 +133,8 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
     Game game = gameProvider.game;
     if (gameProvider.game != null) {
       if (game.chessMoves.length > pieceProvider.doneChessMoves.length) {
+        ChessMove chessMove = game.chessMoves.last; //JUST ONE AT THE TIME IS POSSIBLE
+        Provider.of<PieceProvider>(context, listen: false).movePieceTo(chessMove.initialTile, chessMove.nextTile);
         playerProvider.nextPlayer();
         playerProvider.updateGathered(context);
         if (playerProvider.currentPlayer == gameProvider.player.playerColor) {

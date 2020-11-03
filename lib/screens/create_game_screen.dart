@@ -30,8 +30,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(_negDeviation);
-    print(negDeviation);
+    // print(_negDeviation);
+    // print(negDeviation);
     final Size size = MediaQuery.of(context).size;
     // final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -235,7 +235,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 child: Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
-                  Provider.of<GameProvider>(context).createGame(
+                  Provider.of<GameProvider>(context, listen: false).createGame(
                     increment: increment,
                     isPublic: isPublic,
                     isRated: isRated,
@@ -243,6 +243,19 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     posDeviation: posDeviation,
                     time: totalTime,
                   );
+                  //print('Game was created');
+                },
+                minWidth: 100,
+                padding: EdgeInsets.all(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7),
+                ),
+              ),
+              FlatButton(
+                child: Text('Joyn Game', style: TextStyle(color: Colors.white)),
+                color: Colors.blue,
+                onPressed: () {
+                  Provider.of<GameProvider>(context, listen: false).joynGame('5f9f25887e5d1c558775f159');//this is the gameId of the created Game
                   //print('Game was created');
                 },
                 minWidth: 100,

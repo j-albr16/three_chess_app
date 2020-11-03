@@ -24,7 +24,9 @@ class GameProvider with ChangeNotifier {
   int _userScore = 1000;
 
   Player _player = new Player(
-    user: new User(),
+    user: new User(
+      email: 'jan.albrecht2000@gmail.com',
+    ),
   );
 
   Player get player {
@@ -39,7 +41,7 @@ class GameProvider with ChangeNotifier {
     _socket.on('games', (encodedData) {
       print(encodedData);
       final data = json.decode(encodedData);
-      if (data != null) {
+      if (data == null) {
         throw ('Couldnt read socket data!');
       }
       _handleSocketMessage(data);
@@ -73,11 +75,10 @@ class GameProvider with ChangeNotifier {
     final int negRatingRange = _userScore + negDeviation;
     final int posRatingRange = _userScore + posDeviation;
     try {
-      const url = SERVER_URL + '/create-game';
+      final url = SERVER_URL + '/create-game?auth=$_token&id=$_userId';
       final response = await http.post(
         url,
         body: json.encode({
-          'token': _token,
           'userId': _userId,
           'isPublic': isPublic,
           'isRated': isRated,
@@ -88,8 +89,12 @@ class GameProvider with ChangeNotifier {
         }),
         headers: {'Content-Type': 'application/json'},
       );
+      print('--------------------');
+      print('after post create game methode');
+      print('--------------------');
       final decodedResponse = json.decode(response.body);
       print(decodedResponse);
+      print('--------------------');
       if (!decodedResponse['valid']) {
         final String errorMessage = decodedResponse['message'].toString();
         throw (errorMessage);
@@ -97,8 +102,10 @@ class GameProvider with ChangeNotifier {
       final gameData = decodedResponse['gameData'];
       final player = gameData['player'];
 
-      final List<Player> convPlayer = player.map((e) {
-        final playerColor = PlayerColor.values[e['playerColor']];
+      
+      final  List<Player> convPlayer = [];
+      player.forEach((e) {
+        final playerColor = PlayerColor.values[e['playerColor'] - 1];
         _player.playerColor = playerColor;
         final user = new User(
           userName: e['user']['userName'],
@@ -106,10 +113,11 @@ class GameProvider with ChangeNotifier {
           id: e['user']['userId'],
         );
         _player.user = user;
-        return Player(playerColor: _player.playerColor, remainingTime: e['remainingTime'], user: user);
-      }).toList();
+        convPlayer.add(Player(playerColor: _player.playerColor, remainingTime: e['remainingTime'], user: user));
+      });
+      print('List of converted player:  ' + convPlayer.toString());
+      print('-------------------------');
       _player.id = gameData['playerId'];
-
       _game = new Game(
         negRatingRange: gameData['options']['negRatingRange'],
         posRatingRange: gameData['options']['posRatingRange'],
@@ -123,11 +131,7 @@ class GameProvider with ChangeNotifier {
         id: gameData['id'],
         player: convPlayer,
       );
-    } catch (error) {
-      print(error.toString());
-    } finally {
-      try {
-        print('successfully created game');
+      print('successfully created game');
         _socket.on('/${_game.id}', (encodedData) {
           dynamic data = json.decode(encodedData);
           if (!data['action']) {
@@ -135,19 +139,19 @@ class GameProvider with ChangeNotifier {
           }
           _handleSocketMessage(data);
         });
-      } catch (error) {
-        print(error);
-        // throw (error.toString());
-      }
+    printEverything(_game, _player);
+    } catch (error) {
+      print(error.toString());
+    }     
     }
-  }
+  
 
   Future<void> joynGame(String gameId) async {
     try {
-      const url = SERVER_URL + '/joyn-game';
+      final url = SERVER_URL + '/joyn-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.post(
         url,
-        body: json.encode({'userId': _userId, 'gameId': gameId}),
+        body: json.encode({'userId': _userId, 'gameId': gameId,}),
         headers: {'Content-Type': 'application/json'},
       );
       final data = json.decode(encodedResponse.body);
@@ -207,7 +211,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> sendMove(ChessMove chessMove) async {
     try {
-      const url = SERVER_URL + '/chess-move';
+      final url = SERVER_URL + '/chess-move?auth=$_token&id=$_userId';
       final encodedResponse = await http.post(
         url,
         body: json.encode({
@@ -242,7 +246,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> fetchGame() async {
     try {
-      final url = SERVER_URL + '/fetch-game/$_userId';
+      final url = SERVER_URL + '/fetch-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.get(url);
       final data = json.decode(encodedResponse.body);
       if (data != null) {
@@ -300,7 +304,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> fetchGames() async {
     try {
-      final url = SERVER_URL + '/fetch-games/$_userId';
+      final url = SERVER_URL + '/fetch-games?$_token&id=$_userId';
       final encodedResponse = await http.get(url);
       final data = json.decode(encodedResponse.body);
       if (!data) {
@@ -340,10 +344,13 @@ class GameProvider with ChangeNotifier {
   }
   // only with scores
 
-  _handleSocketMessage(dynamic data) {
-    switch (data['action']) {
+  _handleSocketMessage(dynamic rawData) {
+    final data = rawData['gameData'];
+    switch (rawData['action']) {
       case 'new-game':
-        print(data['message']);
+        print('socket: ...' + rawData['message']);
+        print('socket: ...' + data.toString());
+        print('playerColor:  ' + PlayerColor.values[data['playerColor'] - 1].toString());
         _games.add(new Game(
             isRated: data['isRated'],
             negRatingRange: data['negRatingRange'],
@@ -354,7 +361,7 @@ class GameProvider with ChangeNotifier {
             time: data['time'],
             player: [
               new Player(
-                playerColor: PlayerColor.values[data['playerColor']],
+                playerColor: PlayerColor.values[data['playerColor'] - 1],
                 remainingTime: data['time'],
                 user: User(
                   id: data['userId'],
@@ -366,8 +373,8 @@ class GameProvider with ChangeNotifier {
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby
-        print(data['message']);
-        final game = _games.firstWhere((e) => e.id == data['id']);
+        print(rawData['message']);
+        final game = _games.firstWhere((e) => e.id == data['id']); //ERROR ERROR ERROR ERROR BAD ELEMENT
         game.player.add(
           new Player(
             remainingTime: data['time'],
@@ -381,14 +388,14 @@ class GameProvider with ChangeNotifier {
         break;
       case 'player-joyned-Lobby':
         // case handles the action for a user in a lobby who witnesses a joyn
-        print(data['message']);
+        print(rawData['message']);
         socketMessage = 'Player' + data['userName'] + 'joyned the Game';
         final game = _games.firstWhere((e) => e.id == data['id']);
         //add game to games
         game.player.add(
           new Player(
             remainingTime: data['time'],
-            playerColor: PlayerColor.values[data['playerColor']],
+            playerColor: PlayerColor.values[data['playerColor'] - 1],
             user: User(
               id: data['userId'],
               score: data['score'],
@@ -402,7 +409,7 @@ class GameProvider with ChangeNotifier {
         }
         break;
       case 'move-made':
-        print(data['message']);
+        print(rawData['message']);
         _game.chessMoves.add(new ChessMove(
           initialTile: data['initialTile'],
           nextTile: data['nextTile'],
@@ -411,3 +418,53 @@ class GameProvider with ChangeNotifier {
     }
   }
 }
+printEverything(Game game, Player player, List<Game> games){
+  print('########################');
+  print('Game: ...');
+  print('========================');
+  print('id:   ' + game.id);
+  print('didStart:   ' + game.didStart.toString());
+  print('------------------------');
+  print('options: ');
+  print('------------------------');
+  print('  --> increment:   ' + game.increment.toString());
+  print('  --> time:   ' + game.time.toString());
+  print('  --> negratingRange:   ' + game.negRatingRange.toString());
+  print('  --> posRatingrange:   ' + game.posRatingRange.toString());
+  print('  --> isPublic:   ' + game.isPublic.toString());
+  print('  --> isRated:   ' + game.isRated.toString());
+  print('-----------------------');
+  print('player:');
+  print('-----------------------');
+  game.player.forEach((e) {
+    print('  --> playerColor:   ' + e.playerColor.toString());
+    print('  --> remainingTime:   ' + e.remainingTime.toString());
+    print('  --> user:');
+    print('       - id:   ' + e.user.id);
+    print('       - userName:   ' + e.user.userName);
+    print('       - score:   ' + e.user.score.toString());
+   });
+   print('========================');
+   print('This Player: ...');
+   print('========================');
+  print('id:   ' + player.id.toString());
+  print('playerColor:   ' + player.playerColor.toString());
+  print('remainingTime:   ' + player.remainingTime.toString());
+  print('-----------------------');
+  print('user:');
+  print('-----------------------');
+  print('  --> id:   ' + player.user.id);
+  print('  --> userName:   ' + player.user.userName);
+  print('  --> score:   ' + player.user.score.toString());
+  print('  --> email:   ' + player.user.email.toString());
+  print('========================');
+  print('games: ...');
+   print('========================');
+   for (game in games){
+     print('a game: ');
+     print('  --> id' + game.id);
+   }
+  print('########################');
+}
+
+

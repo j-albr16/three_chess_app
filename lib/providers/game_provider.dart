@@ -69,15 +69,21 @@ class GameProvider with ChangeNotifier {
     return [..._games];
   }
 
-Future<void> fetchAll() async {
-  await fetchGame();
-  await fetchGames();
-  notifyListeners();
-}
+  Future<void> fetchAll() async {
+    await fetchGame();
+    await fetchGames();
+    notifyListeners();
+  }
 
   startGame() {}
 
-  Future<void> createGame({bool isPublic, bool isRated, int increment, int time, int negDeviation, int posDeviation}) async {
+  Future<void> createGame(
+      {bool isPublic,
+      bool isRated,
+      int increment,
+      int time,
+      int negDeviation,
+      int posDeviation}) async {
     final int negRatingRange = _userScore + negDeviation;
     final int posRatingRange = _userScore + posDeviation;
     try {
@@ -98,7 +104,8 @@ Future<void> fetchAll() async {
       print('--------------------');
       print('after post create game methode');
       print('--------------------');
-      final decodedResponse = json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> decodedResponse =
+          json.decode(response.body);
       print(decodedResponse);
       print('--------------------');
       if (!decodedResponse['valid']) {
@@ -108,17 +115,15 @@ Future<void> fetchAll() async {
       final gameData = decodedResponse['gameData'];
       print(gameData);
       final player = gameData['player'];
-      final  List<Player> convPlayer = [];
+      List<Player> convPlayer = [];
       player.forEach((e) {
-        final playerColor = PlayerColor.values[e['playerColor'] - 1];
-        _player.playerColor = playerColor;
         final user = new User(
           userName: e['user']['userName'],
           score: e['user']['score'],
           id: e['user']['userId'],
         );
         _player.user = user;
-        convPlayer.add(Player( remainingTime: e['remainingTime'], user: user));
+        convPlayer.add(Player(remainingTime: e['remainingTime'], user: user, playerColor: PlayerColor.values[e['playerColor'] - 1]));
       });
       print('List of converted player:  ' + convPlayer.toString());
       print('-------------------------');
@@ -136,46 +141,48 @@ Future<void> fetchAll() async {
         player: convPlayer,
       );
       print('successfully created game');
-        _socket.on('/${_game.id}', (encodedData) {
-          dynamic data = json.decode(encodedData) as Map<String, dynamic>;
-          if (!data['action']) {
-            throw ('Error: No Action Key from Websocket!');
-          }
-          _handleSocketMessage(data);
-        });
-    printEverything(_game, _player, _games);
+      _socket.on('/${_game.id}', (encodedData) {
+       final Map<String, dynamic> data = json.decode(encodedData);
+        if (!data['action']) {
+          throw ('Error: No Action Key from Websocket!');
+        }
+        _handleSocketMessage(data);
+      });
+      printEverything(_game, _player, _games);
     } catch (error) {
       print(error.toString());
-    }     
     }
-  
+  }
 
   Future<void> joynGame(String gameId) async {
     try {
       final url = SERVER_URL + '/joyn-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.post(
         url,
-        body: json.encode({'userId': _userId, 'gameId': gameId,}),
+        body: json.encode({
+          'userId': _userId,
+          'gameId': gameId,
+        }),
         headers: {'Content-Type': 'application/json'},
       );
-      final data = json.decode(encodedResponse.body) as Map<String, dynamic>;
+      final Map<String, dynamic> data = json.decode(encodedResponse.body);
       if (!data['valid']) {
-        throw ('An error occured while joyning game. response Data wasnt true:' + data['message']);
+        throw ('An error occured while joyning game. response Data wasnt true:' +
+            data['message']);
       }
       final gameData = data['gameData'];
       final player = gameData['player'];
-      final List<Player> convPlayer = player
-          .map((e) => Player(
-                playerColor: PlayerColor.values[data['playerColor']],
-                remainingTime: e['remainingTime'],
-                user: User(
-                  id: e['user']['id'],
-                  score: e['user']['score'],
-                  userName: e['user']['userName'],
-                ),
-              ))
-          .toList();
-         final gameOptions = gameData['options'];
+      List<Player> convPlayer = [];
+      player.forEach((e) => convPlayer.add(Player(
+            playerColor: PlayerColor.values[data['playerColor']],
+            remainingTime: e['remainingTime'],
+            user: User(
+              id: e['user']['id'],
+              score: e['user']['score'],
+              userName: e['user']['userName'],
+            ),
+          )));
+      final gameOptions = gameData['options'];
       _game = new Game(
         negRatingRange: gameOptions['negRatingRange'],
         posRatingRange: gameOptions['posRatingRange'],
@@ -254,7 +261,8 @@ Future<void> fetchAll() async {
       final url = SERVER_URL + '/fetch-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.get(url);
       print(encodedResponse.body);
-      Map<String, dynamic> data = jsonDecode(encodedResponse.body) as Map<String, dynamic>;
+      Map<String, dynamic> data =
+          jsonDecode(encodedResponse.body) as Map<String, dynamic>;
       if (data == null) {
         throw ('fetch Game... No response from Server');
       }
@@ -272,7 +280,7 @@ Future<void> fetchAll() async {
       print('1');
       print('gameData:   ' + gameData.toString());
       print('2');
-      final List<ChessMove> chessMoves = [];
+      List<ChessMove> chessMoves = [];
       gameData['chessMoves'].forEach((e) {
         print('3');
         chessMoves.add(ChessMove(
@@ -283,17 +291,17 @@ Future<void> fetchAll() async {
       });
       print('4');
       print(gameData['player'].toString());
-      final List<Player> convPlayer = [];
-      gameData['player']
-          .map((e) => convPlayer.add(Player(
-              playerColor: PlayerColor.values[e['playerColor'] - 1],
-              remainingTime: e['remainingTime'],
-              user: User(
-                userName: e['user']['userName'],
-                score: e['user']['score'],
-                id: e['user']['id'],
-              ))));
-          print('5');
+      List<Player> convPlayer = [];
+      gameData['player'].forEach((e) => convPlayer.add(Player(
+          playerColor: PlayerColor.values[e['playerColor'] - 1],
+          remainingTime: e['remainingTime'],
+          user: User(
+            userName: e['user']['userName'],
+            score: e['user']['score'],
+            id: e['user']['id'],
+          ))));
+      print('5');
+      print('convPlayer:   ' + convPlayer.toString());
       _game = new Game(
         negRatingRange: gameData['options']['negRatingRange'],
         posRatingRange: gameData['options']['posRatingRange'],
@@ -335,7 +343,8 @@ Future<void> fetchAll() async {
       }
       if (!data['valid']) {
         print(data['message']);
-        throw ('fetching Games did not work, something went wrong in server validation....' + data['message']);
+        throw ('fetching Games did not work, something went wrong in server validation....' +
+            data['message']);
       }
       final gameData = data['gameData'];
       final convertedGames = gameData.map((el) {
@@ -374,7 +383,8 @@ Future<void> fetchAll() async {
       case 'new-game':
         print('socket: message...:  ' + rawData['message']);
         print('socket: data...:  ' + data.toString());
-        print('playerColor:  ' + PlayerColor.values[data['playerColor'] - 1].toString());
+        print('playerColor:  ' +
+            PlayerColor.values[data['playerColor'] - 1].toString());
         print('spcket: ...:  start adding game to _games');
         _games.add(new Game(
             isRated: data['isRated'] as bool,
@@ -395,16 +405,17 @@ Future<void> fetchAll() async {
                 ),
               ),
             ]));
-            print('socket:....   ');
-            print('Did create game and saved it into games');
-           printEverything(_game, player, _games);
+        print('socket:....   ');
+        print('Did create game and saved it into games');
+        printEverything(_game, player, _games);
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby
         print(rawData['message']);
         print(data.toString());
         printEverything(_game, player, _games);
-        final game = _games.firstWhere((e) => e.id == data['id']); //ERROR ERROR ERROR ERROR BAD ELEMENT
+        final game = _games.firstWhere(
+            (e) => e.id == data['id']); //ERROR ERROR ERROR ERROR BAD ELEMENT
         game.player.add(
           new Player(
             remainingTime: data['time'] as int,
@@ -449,60 +460,61 @@ Future<void> fetchAll() async {
     }
   }
 }
-printEverything(Game game, Player player, List<Game> games){
+
+printEverything(Game game, Player player, List<Game> games) {
   print(game.toString());
   print(player.toString());
   print(games.toString());
   print('########################');
-  if(game != null){
-print('Game: ...');
-  print('========================');
-  print('id:   ' + game.id.toString());
-  print('didStart:   ' + game.didStart.toString());
-  print('------------------------');
-  print('options: ');
-  print('------------------------');
-  print('  --> increment:   ' + game.increment.toString());
-  print('  --> time:   ' + game.time.toString());
-  print('  --> negratingRange:   ' + game.negRatingRange.toString());
-  print('  --> posRatingrange:   ' + game.posRatingRange.toString());
-  print('  --> isPublic:   ' + game.isPublic.toString());
-  print('  --> isRated:   ' + game.isRated.toString());
-  print('-----------------------');
-  print('player:');
-  print('-----------------------');
-  game.player.forEach((e) {
-    print('  --> playerColor:   ' + e.playerColor.toString());
-    print('  --> remainingTime:   ' + e.remainingTime.toString());
-    print('  --> user:');
-    print('       - id:   ' + e.user.id.toString());
-    print('       - userName:   ' + e.user.userName.toString());
-    print('       - score:   ' + e.user.score.toString());
-   });
-   print('========================');
-   print('This Player: ...');
-   print('========================');
-  print('id:   ' + player.id.toString());
-  print('playerColor:   ' + player.playerColor.toString());
-  print('remainingTime:   ' + player.remainingTime.toString());
-  print('-----------------------');
-  print('user:');
-  print('-----------------------');
-  print('  --> id:   ' + player.user.id.toString());
-  print('  --> userName:   ' + player.user.userName.toString());
-  print('  --> score:   ' + player.user.score.toString());
-  print('  --> email:   ' + player.user.email.toString());
-  print('========================');
-  if(games.isEmpty){
-    print('games: ...');
-   print('========================');
-   for (game in games){
-     print('a game: ');
-     print('  --> id:   ' + game.id.toString());
-     print('  --> isRated:   ' + game.isRated.toString());
-      print('-----------------------');
-     }
+  if (game != null) {
+    print('Game: ...');
+    print('========================');
+    print('id:   ' + game.id.toString());
+    print('didStart:   ' + game.didStart.toString());
+    print('------------------------');
+    print('options: ');
+    print('------------------------');
+    print('  --> increment:   ' + game.increment.toString());
+    print('  --> time:   ' + game.time.toString());
+    print('  --> negratingRange:   ' + game.negRatingRange.toString());
+    print('  --> posRatingrange:   ' + game.posRatingRange.toString());
+    print('  --> isPublic:   ' + game.isPublic.toString());
+    print('  --> isRated:   ' + game.isRated.toString());
+    print('-----------------------');
+    print('player:');
+    print('-----------------------');
+    game.player.forEach((e) {
+      print('  --> playerColor:   ' + e.playerColor.toString());
+      print('  --> remainingTime:   ' + e.remainingTime.toString());
+      print('  --> user:');
+      print('       - id:   ' + e.user.id.toString());
+      print('       - userName:   ' + e.user.userName.toString());
+      print('       - score:   ' + e.user.score.toString());
+    });
+    print('========================');
+    print('This Player: ...');
+    print('========================');
+    print('id:   ' + player.id.toString());
+    print('playerColor:   ' + player.playerColor.toString());
+    print('remainingTime:   ' + player.remainingTime.toString());
+    print('-----------------------');
+    print('user:');
+    print('-----------------------');
+    print('  --> id:   ' + player.user.id.toString());
+    print('  --> userName:   ' + player.user.userName.toString());
+    print('  --> score:   ' + player.user.score.toString());
+    print('  --> email:   ' + player.user.email.toString());
+    print('========================');
+    if (games.isEmpty) {
+      print('games: ...');
+      print('========================');
+      for (game in games) {
+        print('a game: ');
+        print('  --> id:   ' + game.id.toString());
+        print('  --> isRated:   ' + game.isRated.toString());
+        print('-----------------------');
+      }
+    }
+    print('########################');
   }
-  print('########################');
-}
 }

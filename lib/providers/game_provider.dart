@@ -101,48 +101,10 @@ class GameProvider with ChangeNotifier {
         }),
         headers: {'Content-Type': 'application/json'},
       );
-      print('--------------------');
-      print('after post create game methode');
-      print('--------------------');
-      final Map<String, dynamic> decodedResponse =
-          json.decode(response.body);
-      print(decodedResponse);
-      print('--------------------');
-      if (!decodedResponse['valid']) {
-        final String errorMessage = decodedResponse['message'].toString();
-        throw (errorMessage);
-      }
-      final gameData = decodedResponse['gameData'];
-      print(gameData);
-      final player = gameData['player'];
-      List<Player> convPlayer = [];
-      player.forEach((e) {
-        final user = new User(
-          userName: e['user']['userName'],
-          score: e['user']['score'],
-          id: e['user']['userId'],
-        );
-        _player.user = user;
-        convPlayer.add(Player(remainingTime: e['remainingTime'], user: user, playerColor: PlayerColor.values[e['playerColor'] - 1]));
-      });
-      print('List of converted player:  ' + convPlayer.toString());
-      print('-------------------------');
-      _game = new Game(
-        negRatingRange: gameData['options']['negRatingRange'],
-        posRatingRange: gameData['options']['posRatingRange'],
-        isPublic: gameData['options']['isPublic'],
-        isRated: gameData['options']['isRated'],
-        increment: gameData['options']['increment'],
-        time: gameData['options']['time'],
-        chessMoves: [],
-        // startingBoard: gameData['startingBoard'],
-        didStart: false,
-        id: gameData['id'],
-        player: convPlayer,
-      );
+      _game = rebaseWholeGame(response);
       print('successfully created game');
       _socket.on('/${_game.id}', (encodedData) {
-       final Map<String, dynamic> data = json.decode(encodedData);
+        final Map<String, dynamic> data = json.decode(encodedData);
         if (!data['action']) {
           throw ('Error: No Action Key from Websocket!');
         }
@@ -165,40 +127,10 @@ class GameProvider with ChangeNotifier {
         }),
         headers: {'Content-Type': 'application/json'},
       );
-      final Map<String, dynamic> data = json.decode(encodedResponse.body);
-      if (!data['valid']) {
-        throw ('An error occured while joyning game. response Data wasnt true:' +
-            data['message']);
+      _game = rebaseWholeGame(encodedResponse);
+      if (_game.didStart) {
+        startGame();
       }
-      final gameData = data['gameData'];
-      final player = gameData['player'];
-      List<Player> convPlayer = [];
-      player.forEach((e) => convPlayer.add(Player(
-            playerColor: PlayerColor.values[data['playerColor']],
-            remainingTime: e['remainingTime'],
-            user: User(
-              id: e['user']['id'],
-              score: e['user']['score'],
-              userName: e['user']['userName'],
-            ),
-          )));
-      final gameOptions = gameData['options'];
-      _game = new Game(
-        negRatingRange: gameOptions['negRatingRange'],
-        posRatingRange: gameOptions['posRatingRange'],
-        isPublic: gameOptions['isPublic'],
-        isRated: gameOptions['isRated'],
-        increment: gameOptions['increment'],
-        time: gameOptions['time'],
-        chessMoves: [],
-        didStart: gameData['didStart'],
-        id: gameData['id'],
-        player: convPlayer,
-      );
-      if (gameData['didStart']) {
-        // startGame();
-      }
-      print('Here ------>');
       printEverything(_game, player, _games);
     } catch (error) {
       throw ('An error occured while joyning game:' + error);
@@ -206,7 +138,7 @@ class GameProvider with ChangeNotifier {
       try {
         print('successfully created game');
         _socket.on('/${_game.id}', (encodedData) {
-          dynamic data = json.decode(encodedData) as Map<String, dynamic>;
+          Map<String, dynamic> data = json.decode(encodedData);
           if (!data['action']) {
             throw ('Error: No Action Key from Websocket!');
           }
@@ -240,8 +172,9 @@ class GameProvider with ChangeNotifier {
         throw ('Data send from server while making a Chess Move is not Valid');
       }
       print(data['message']);
-      print(data['chessMove']);
-      _game.chessMoves.add(data['chessMove']);
+      print(data['chessMove'].toString());
+      _game.chessMoves.add(rebaseOneMove(data['chessMove']));
+      printEverything(_game, player, _games);
     } catch (error) {
       print(error);
     }
@@ -254,90 +187,29 @@ class GameProvider with ChangeNotifier {
   surrender() {}
 
   Future<void> fetchGame() async {
-    print('----------------------------------------------');
-    print('Start fetching Game');
-    print('----------------------------------------------');
     try {
       final url = SERVER_URL + '/fetch-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.get(url);
       print(encodedResponse.body);
-      Map<String, dynamic> data =
-          jsonDecode(encodedResponse.body) as Map<String, dynamic>;
-      if (data == null) {
-        throw ('fetch Game... No response from Server');
-      }
-      if (!data['valid']) {
-        print(data['message']);
-        throw ('send Data. Data wasnt valid');
-      }
-      print('----------------------------------------------');
-      print('message');
-      print(data);
-      print(data['valid']);
-      print(data['message']);
-      print('----------------------------------------------');
-      final gameData = data['gameData'];
-      print('1');
-      print('gameData:   ' + gameData.toString());
-      print('2');
-      List<ChessMove> chessMoves = [];
-      gameData['chessMoves'].forEach((e) {
-        print('3');
-        chessMoves.add(ChessMove(
-          initialTile: e['initialTile'],
-          nextTile: e['nextTile'],
-          remainingTime: e['remainingTime'],
-        ));
-      });
-      print('4');
-      print(gameData['player'].toString());
-      List<Player> convPlayer = [];
-      gameData['player'].forEach((e) => convPlayer.add(Player(
-          playerColor: PlayerColor.values[e['playerColor'] - 1],
-          remainingTime: e['remainingTime'],
-          user: User(
-            userName: e['user']['userName'],
-            score: e['user']['score'],
-            id: e['user']['id'],
-          ))));
-      print('5');
-      print('convPlayer:   ' + convPlayer.toString());
-      _game = new Game(
-        negRatingRange: gameData['options']['negRatingRange'],
-        posRatingRange: gameData['options']['posRatingRange'],
-        isPublic: gameData['options']['isPublic'],
-        isRated: gameData['options']['isRated'],
-        increment: gameData['options']['increment'],
-        time: gameData['options']['time'],
-        chessMoves: chessMoves,
-        didStart: gameData['didStart'],
-        id: gameData['id'],
-        player: convPlayer,
-      );
-      print('6');
+      _game = rebaseWholeGame(encodedResponse);
       _socket.on('/${_game.id}', (encodedData) {
-        dynamic data = json.decode(encodedData) as Map<String, dynamic>;
+        Map<String, dynamic> data = json.decode(encodedData);
         if (!data['action']) {
           throw ('Error: No Action Key from Websocket!');
         }
-        print('7');
         _handleSocketMessage(data);
       });
       printEverything(_game, player, _games);
-      print('8');
     } catch (error) {
       print(error);
     }
   }
 
   Future<void> fetchGames() async {
-    print('----------------------------------------------');
-    print('Start fetching Games');
-    print('----------------------------------------------');
     try {
       final url = SERVER_URL + '/fetch-games?auth=$_token&id=$_userId';
       final encodedResponse = await http.get(url);
-      final data = json.decode(encodedResponse.body) as Map<String, dynamic>;
+      final data = json.decode(encodedResponse.body);
       if (data == null) {
         throw ('Fetching Games from Server did not work');
       }
@@ -346,30 +218,7 @@ class GameProvider with ChangeNotifier {
         throw ('fetching Games did not work, something went wrong in server validation....' +
             data['message']);
       }
-      final gameData = data['gameData'];
-      final convertedGames = gameData.map((el) {
-        final convertedPlayer = el['player'].map((e) {
-          return Player(
-            playerColor: e['playerColor'],
-            remainingTime: e['remainingTime'],
-            user: User(
-              id: e['user']['userId'],
-              score: e['user']['score'],
-              userName: e['user']['userName'],
-            ),
-          );
-        }).toList();
-        return new Game(
-          id: el['id'],
-          increment: el['increment'],
-          time: el['time'],
-          isRated: el['isRated'],
-          negRatingRange: el['negRatingRange'],
-          posRatingRange: el['posRatingRange'],
-          player: convertedPlayer,
-        );
-      }).toList();
-      _games = convertedGames;
+      data['gameData'].forEach((e) => _games.add(rebaseLobbyGame(e)));
       printEverything(_game, player, _games);
     } catch (error) {
       print(error.toString());
@@ -377,86 +226,44 @@ class GameProvider with ChangeNotifier {
   }
   // only with scores
 
-  _handleSocketMessage(dynamic rawData) {
-    final data = rawData['gameData'];
-    switch (rawData['action']) {
+  _handleSocketMessage(dynamic data) {
+    switch (data['action']) {
       case 'new-game':
-        print('socket: message...:  ' + rawData['message']);
+        print('socket: message...:  ' + data['message']);
         print('socket: data...:  ' + data.toString());
-        print('playerColor:  ' +
-            PlayerColor.values[data['playerColor'] - 1].toString());
-        print('spcket: ...:  start adding game to _games');
-        _games.add(new Game(
-            isRated: data['isRated'] as bool,
-            negRatingRange: data['negRatingRange'] as int,
-            posRatingRange: data['posRatingRange'] as int,
-            didStart: false,
-            id: data['id'] as String,
-            increment: data['increment'],
-            time: data['time'] as int,
-            player: [
-              new Player(
-                playerColor: PlayerColor.values[data['playerColor'] - 1],
-                remainingTime: data['time'] as int,
-                user: User(
-                  id: data['userId'] as String,
-                  score: data['score'] as int,
-                  userName: data['userName'] as String,
-                ),
-              ),
-            ]));
-        print('socket:....   ');
-        print('Did create game and saved it into games');
+        _games.add(rebaseLobbyGame(data['gameData']));
         printEverything(_game, player, _games);
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby
-        print(rawData['message']);
         print(data.toString());
+        final game = _games.firstWhere((e) =>
+            e.id ==
+            data['gameData']['id']); //ERROR ERROR ERROR ERROR BAD ELEMENT
+        game.player.add(rebaseOnePlayer(data['gameData']['player']));
         printEverything(_game, player, _games);
-        final game = _games.firstWhere(
-            (e) => e.id == data['id']); //ERROR ERROR ERROR ERROR BAD ELEMENT
-        game.player.add(
-          new Player(
-            remainingTime: data['time'] as int,
-            user: User(
-              id: data['userId'] as String,
-              score: data['score'] as int,
-              userName: data['userName'] as String,
-            ),
-          ),
-        );
         break;
-      case 'player-joyned-Lobby':
+      case 'player-joyned-lobby':
         // case handles the action for a user in a lobby who witnesses a joyn
-        print(rawData['message']);
-        socketMessage = 'Player' + data['userName'] + 'joyned the Game';
+        print(data['message']);
+        socketMessage = 'Player  ' +
+            data['gameData']['player']['user']['userName'] +
+            '    joyned the Game';
         print(socketMessage);
-        final game = _games.firstWhere((e) => e.id == data['id']);
+        final game = _games.firstWhere((e) => e.id == data['gameData']['id']);
         //add game to games
-        game.player.add(
-          new Player(
-            remainingTime: data['time'] as int,
-            playerColor: PlayerColor.values[data['playerColor'] - 1],
-            user: User(
-              id: data['userId'] as String,
-              score: data['score'] as int,
-              userName: data['userName'] as String,
-            ),
-          ),
-        );
-        if (data['didStart']) {
+        game.player.add(rebaseOnePlayer(data['gameData']['player']));
+        if (data['gameData']['didStart']) {
           _game.didStart = true;
           startGame();
         }
+        printEverything(_game, player, _games);
         break;
       case 'move-made':
-        print(rawData['message']);
-        _game.chessMoves.add(new ChessMove(
-          initialTile: data['initialTile'] as String,
-          nextTile: data['nextTile'] as String,
-          remainingTime: data['remainingTime'] as int,
-        ));
+        print(data['message']);
+        _game.chessMoves.add(rebaseOneMove(data['chessMove']));
+        printEverything(_game, player, _games);
+        break;
     }
   }
 }
@@ -494,7 +301,6 @@ printEverything(Game game, Player player, List<Game> games) {
     print('========================');
     print('This Player: ...');
     print('========================');
-    print('id:   ' + player.id.toString());
     print('playerColor:   ' + player.playerColor.toString());
     print('remainingTime:   ' + player.remainingTime.toString());
     print('-----------------------');
@@ -517,4 +323,94 @@ printEverything(Game game, Player player, List<Game> games) {
     }
     print('########################');
   }
+}
+
+Game rebaseWholeGame(encodedResponse) {
+  final data = json.decode(encodedResponse.body);
+  if (data == null) {
+    throw ('fetch Game... No response from Server');
+  }
+  if (!data['valid']) {
+    print(data['message']);
+    throw ('send Data. Data was not valid');
+  }
+  final gameData = data['gameData'];
+  // convert Chess moves and add them to exisitng Chess Move Class
+  List<ChessMove> chessMoves = [];
+  gameData['chessMoves'].forEach((e) => chessMoves.add(new ChessMove(
+        initialTile: gameData['initialTile'],
+        nextTile: gameData['nextTile'],
+        remainingTime: gameData['remainingTime'],
+      )));
+  // convert player List and add them to existing player class
+  List<Player> convPlayer = [];
+  gameData['player'].forEach((e) => convPlayer.add(new Player(
+        playerColor: PlayerColor.values[e['playerColor'] - 1],
+        remainingTime: e['remainingTime'],
+        user: new User(
+          id: e['user']['id'],
+          score: e['user']['score'],
+          userName: e['user']['userName'],
+        ),
+      )));
+  return new Game(
+    chessMoves: chessMoves,
+    didStart: gameData['didStart'],
+    id: gameData['id'],
+    player: convPlayer,
+    increment: gameData['options']['increment'],
+    isPublic: gameData['options']['isPublic'],
+    isRated: gameData['options']['isRated'],
+    negRatingRange: gameData['options']['negRatingRange'],
+    posRatingRange: gameData['options']['posRatingRange'],
+    time: gameData['options']['time'],
+  );
+}
+
+Game rebaseLobbyGame(gameData) {
+  //No Chess Moves made in Lobby Games
+  List<ChessMove> chessMoves = [];
+  // convert player List and add them to existing player class
+  List<Player> convPlayer = [];
+  gameData['player'].forEach((e) => convPlayer.add(new Player(
+        playerColor: PlayerColor.values[e['playerColor'] - 1],
+        remainingTime: e['remainingTime'],
+        user: new User(
+          id: e['user']['id'],
+          score: e['user']['score'],
+          userName: e['user']['userName'],
+        ),
+      )));
+  return new Game(
+    isRated: gameData['options']['isRated'],
+    didStart: gameData['options']['didStart'],
+    id: gameData['id'],
+    increment: gameData['options']['increment'],
+    isPublic: gameData['options']['isPublic'],
+    negRatingRange: gameData['options']['negRatingRange'],
+    posRatingRange: gameData['options']['posRatingRange'],
+    chessMoves: chessMoves,
+    player: convPlayer,
+    time: gameData['options']['time'],
+  );
+}
+
+Player rebaseOnePlayer(playerData) {
+  return new Player(
+    playerColor: PlayerColor.values[playerData['playerColor'] - 1],
+    remainingTime: playerData['remainingTime'],
+    user: new User(
+      id: playerData['id'],
+      score: playerData['score'],
+      userName: playerData['userName'],
+    ),
+  );
+}
+
+ChessMove rebaseOneMove(moveData) {
+  return ChessMove(
+    initialTile: moveData['initialTile'],
+    nextTile: moveData['nextTile'],
+    remainingTime: moveData['remainingTime'],
+  );
 }

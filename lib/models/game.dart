@@ -11,12 +11,9 @@ class Game {
   @required
   bool didStart;
   List<Player> player;
-  PlayerColor currentPlayer;
   List<ChessMove> chessMoves;
   @required
   List<Piece> startingBoard;
-  List<Piece> currentBoard;
-  List<Piece> recentBoard;
   int increment;
   int time;
   bool isPublic;
@@ -26,10 +23,7 @@ class Game {
 
   Game({
     this.player,
-    this.currentPlayer,
     this.chessMoves,
-    this.currentBoard,
-    this.recentBoard,
     this.startingBoard,
     this.didStart,
     this.id,

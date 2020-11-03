@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/game_provider.dart';
+import './game_provider_test_screen.dart';
 
 class CreateGameScreen extends StatefulWidget {
   static const routeName = '/create-screen';
@@ -243,6 +244,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     posDeviation: posDeviation,
                     time: totalTime,
                   );
+                  // return Navigator.of(context).pushNamed(GameTestScreen.routeName);
                   //print('Game was created');
                 },
                 minWidth: 100,
@@ -252,10 +254,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 ),
               ),
               FlatButton(
-                child: Text('Joyn Game', style: TextStyle(color: Colors.white)),
+                child: Text('Fetch Game and Fetch Games', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
-                  Provider.of<GameProvider>(context, listen: false).joynGame('5f9f25887e5d1c558775f159');//this is the gameId of the created Game
+                  print('clicked Button');
+                  Provider.of<GameProvider>(context, listen: false).fetchAll();
                   //print('Game was created');
                 },
                 minWidth: 100,
@@ -263,7 +266,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(7),
                 ),
-              )
+              ),
             ]),
           ),
         ]),

@@ -33,7 +33,7 @@ class AuthProvider with ChangeNotifier {
       print(body);
       final response = await http
           .post(url, body: body, headers: {'Content-Type': 'application/json'});
-      final decodedResponse = json.decode(response.body);
+      final decodedResponse = json.decode(response.body) as Map<String, dynamic>;
       print(decodedResponse);
       if (!decodedResponse['valid']) {
         print(decodedResponse);
@@ -71,7 +71,7 @@ class AuthProvider with ChangeNotifier {
     try {
       final response = await http
           .post(url, body: body, headers: {'Content-Type': 'application/json'});
-      final decodedResponse = json.decode(response.body);
+      final decodedResponse = json.decode(response.body) as Map<String, dynamic>;
       print(decodedResponse['message']);
     } catch (error) {
       // final newError = HttpExeption(error);

@@ -6,6 +6,7 @@ import '../screens/board_screen.dart';
 import '../screens/design-test-screen.dart';
 import '../screens/auth_test_screen.dart';
 import '../screens/lobby_screen.dart';
+import '../screens/game_provider_test_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -26,6 +27,7 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           menuItem('Lobby', LobbyScreen.routeName, context),
+          menuItem('Game Test Screen', GameTestScreen.routeName, context),
           Container(
             height: 200,
             width: 200,

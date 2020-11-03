@@ -16,6 +16,7 @@ import './providers/auth_provider.dart';
 import './screens/auth_test_screen.dart';
 import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';
+import './screens/game_provider_test_screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -40,6 +41,7 @@ class ThreeChessApp extends StatelessWidget {
             AuthScreen.routeName: (ctx) => AuthScreen(),
             CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
             LobbyScreen.routeName: (ctx) => LobbyScreen(),
+            GameTestScreen.routeName: (ctx) => GameTestScreen(),
           },
           builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
               maxWidth: 2400,

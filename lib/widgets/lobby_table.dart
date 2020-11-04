@@ -10,12 +10,17 @@ typedef void GameSelectCall(Game game);
 
 class LobbyTable extends StatefulWidget {
   List<Game> games;
-  ValueNotifier<List<Game>> updatedGames;
+  ValueNotifier<List<Game>> _updatedGames;
+  void set updatedGames(List<Game> newGames) {
+    _updatedGames.value = newGames;
+  }
+
   GameSelectCall onGameTap;
 
-  Size size;
+  double height;
+  double width;
 
-  LobbyTable({@required this.games, @required this.onGameTap, this.updatedGames, this.size = const Size(1000, 1000)});
+  LobbyTable({@required this.games, @required this.onGameTap, this.width = 1000, this.height = 1000});
 
   @override
   _LobbyTableState createState() => _LobbyTableState();
@@ -28,13 +33,35 @@ typedef int GameCompare(Game game, Game game2);
 class _LobbyTableState extends State<LobbyTable> {
   List<Game> games;
   List<Widget> _columns;
+  ScrollController _scrollController;
 
   BorderSide borderSide = BorderSide(width: 1, color: Colors.grey);
   List<ColumnType> _selectedColoumn;
   List<ColumnType> get selectedColoumn => _selectedColoumn;
 
   ColumnType _sortSelectedColumn;
-  bool ascending = false;
+  bool _ascending = false;
+
+  ColumnType get sortSelectedColumn {
+    return _sortSelectedColumn;
+  }
+
+  bool get ascending {
+    return _ascending;
+  }
+
+  void set sortSelectedColumn(ColumnType type) {
+    sortSelectedColumnOld = _sortSelectedColumn;
+    _sortSelectedColumn = type;
+  }
+
+  void set ascending(bool newAsc) {
+    ascendingOld = _ascending;
+    _ascending = newAsc;
+  }
+
+  ColumnType sortSelectedColumnOld;
+  bool ascendingOld;
 
   double rowHeigth = 60;
   double rowHeaderHeigth = 60;
@@ -46,8 +73,26 @@ class _LobbyTableState extends State<LobbyTable> {
     games = List.from(widget.games, growable: true);
     _selectedColoumn = List.from(ColumnType.values, growable: true);
     _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
+    _scrollController = ScrollController()..addListener(() => _scrollListener());
+    widget._updatedGames = ValueNotifier(games)..addListener(() => _resortAndUpdate());
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    widget._updatedGames.dispose();
+    super.dispose();
+  }
+
+  _resortAndUpdate() {
+    games = List.from(widget._updatedGames.value, growable: true);
+
+    if (sortSelectedColumnOld != null && ascendingOld != null) {
+      _sortGames(sortSelectedColumnOld, ascendingOld);
+    }
+    _sortGames(sortSelectedColumn, ascending);
   }
 
   Map<ColumnType, GameCompare> gameComparison;
@@ -125,9 +170,9 @@ class _LobbyTableState extends State<LobbyTable> {
   }
 
   void _onHeaderTap(ColumnType ctype) {
-    if (_sortSelectedColumn != ctype) {
+    if (sortSelectedColumn != ctype) {
       ascending = true;
-      _sortSelectedColumn = ctype;
+      sortSelectedColumn = ctype;
       _sortGames(ctype, ascending);
     } else {
       ascending = !ascending;
@@ -190,12 +235,8 @@ class _LobbyTableState extends State<LobbyTable> {
             ),
             Spacer()
           ]),
-      ColumnType.AverageScore: (Game game) => Container(
-            width: double.infinity,
-            height: double.infinity,
-            child: Center(
-              child: Text("~" + _avgScore(game).toString()),
-            ),
+      ColumnType.AverageScore: (Game game) => Center(
+            child: Text("~" + _avgScore(game).toString()),
           ),
       ColumnType.Time: (Game game) => Center(
           child: Text(((game.time - (game.time % 60)) / 60).toString() +
@@ -209,7 +250,7 @@ class _LobbyTableState extends State<LobbyTable> {
   }
 
   double getWidth(ColumnType type) {
-    return ((widget.size.width /
+    return ((widget.width /
             columnFlex.entries
                 .where((element) => selectedColoumn.contains(element.key))
                 .toList()
@@ -237,7 +278,7 @@ class _LobbyTableState extends State<LobbyTable> {
           width: getWidth(type),
           child: Padding(
               padding: EdgeInsets.only(left: 15, right: 15),
-              child: _sortSelectedColumn != type
+              child: sortSelectedColumn != type
                   ? child
                   : Stack(
                       children: [
@@ -255,12 +296,14 @@ class _LobbyTableState extends State<LobbyTable> {
   //########################################################################
   //Putting it together
 
-  List<Widget> getColumnChilds(ColumnType type) {
+  List<Widget> getColumnChilds(ColumnType type, {bool noHeader = false}) {
     List<Widget> result = [];
-    result.add(wrapHeaderCell(
-      type: type,
-      child: getHeader(type),
-    ));
+    if (!noHeader) {
+      result.add(wrapHeaderCell(
+        type: type,
+        child: getHeader(type),
+      ));
+    }
     for (Game game in games) {
       result.add(wrapCell(
         type: type,
@@ -292,7 +335,7 @@ class _LobbyTableState extends State<LobbyTable> {
     List<Widget> columnRows = [];
     columnRows.add(IgnorePointer(
         child: Container(
-      width: widget.size.width,
+      width: widget.width,
       height: rowHeaderHeigth,
       color: Colors.transparent,
     )));
@@ -300,7 +343,7 @@ class _LobbyTableState extends State<LobbyTable> {
       columnRows.add(InkWell(
           onTap: () => widget.onGameTap(games[i]),
           child: Container(
-            width: widget.size.width,
+            width: widget.width,
             height: rowHeigth,
             color: Colors.transparent,
           )));
@@ -310,9 +353,27 @@ class _LobbyTableState extends State<LobbyTable> {
     );
   }
 
+  bool _canReorder = true;
+  bool _isDragging = false;
+
+  _scrollListener() {
+    if (_scrollController.offset <= _scrollController.position.minScrollExtent && !_scrollController.position.outOfRange) {
+      _canReorder = true;
+    } else if (_isDragging) {
+      _scrollController.jumpTo(0.0);
+    } else {
+      _canReorder = false;
+    }
+  }
+
+  Widget whenScrollingTable() {
+    return Row(children: selectedColoumn.map((e) => Column(children: getColumnChilds(e, noHeader: true))).toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     void _onReorder(int oldIndex, int newIndex) {
+      _isDragging = false;
       setState(() {
         ColumnType type = _selectedColoumn.removeAt(oldIndex);
 
@@ -324,15 +385,19 @@ class _LobbyTableState extends State<LobbyTable> {
     }
 
     return SizedBox(
-      width: widget.size.width,
-      height: widget.size.height,
+      width: widget.width,
+      height: widget.height,
       child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+          scrollDirection: Axis.vertical,
+          controller: _scrollController,
           child: Stack(children: [
             backgroundTable(),
+            //!_canReorder ? whenScrollingTable() : ReorderableRow(
             ReorderableRow(
               buildDraggableFeedback: (context, constraints, child) {
+                _isDragging = true;
                 return Material(
                   child: ConstrainedBox(constraints: constraints, child: child),
                   color: Colors.transparent,
@@ -343,11 +408,25 @@ class _LobbyTableState extends State<LobbyTable> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: _columns,
               onReorder: _onReorder,
+              onNoReorder: (_) => _isDragging = false,
+              scrollController: _scrollController,
             ),
             foregroundTable(),
           ]),
         ),
       ),
+      /* if(!_canReorder) IgnorePointer(
+            child: Stack(
+              children: [
+                Container(color: Colors.red, height: rowHeaderHeigth, width: widget.width,),
+                Align(alignment: AlignmentDirectional.topCenter ,child: Row(children: selectedColoumn.map((e) => wrapHeaderCell(
+                  type: e,
+                  child: getHeader(e))).toList(),
+              ),
+              )],
+            ),
+          ),
+      ]),*/
     );
   }
 }

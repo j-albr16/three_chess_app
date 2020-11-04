@@ -20,7 +20,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   void initState() {
     lobbyTable = LobbyTable(
-      size: Size(1000, 1000),
+      width: 1000,
+      height: 1000,
       onGameTap: (Game game) => print(game.isRated.toString() + "sagen alle die grad ein game angeklickt haben"),
       games: [
         Game(

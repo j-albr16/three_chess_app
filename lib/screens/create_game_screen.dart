@@ -267,6 +267,20 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   borderRadius: BorderRadius.circular(7),
                 ),
               ),
+              FlatButton(
+                child: Text('Joyn Jans Game', style: TextStyle(color: Colors.white)),
+                color: Colors.blue,
+                onPressed: () {
+                  print('clicked Button');
+                  Provider.of<GameProvider>(context, listen: false).joynGame('5fa27c3ceef24445347a5505');
+                  //print('Game was created');
+                },
+                minWidth: 100,
+                padding: EdgeInsets.all(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7),
+                ),
+              ),
             ]),
           ),
         ]),

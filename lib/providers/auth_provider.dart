@@ -21,7 +21,7 @@ class AuthProvider with ChangeNotifier {
     return _userId;
   }
 
-  static const REST_API_URL = 'http://localhost:3000';
+  static const REST_API_URL = 'http://192.168.0.38:3000';
 
   Future<void> logIn({String email, String password}) async {
     try {

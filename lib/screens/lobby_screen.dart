@@ -19,26 +19,32 @@ class LobbyScreen extends StatefulWidget {
 class _LobbyScreenState extends State<LobbyScreen> {
   LobbyTable lobbyTable;
 
+
+
   @override
   void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
-    GameProvider gameProviderListner = Provider.of<GameProvider>(context);
-
-    if(lobbyTable == null) {
-      lobbyTable = LobbyTable(
+    Future.delayed(Duration.zero).then((_){
+      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
+       lobbyTable = LobbyTable(
         onGameTap: (game) => gameProvider.joynGame(game.id),
     games: [],
     width: 1000,
     height: 1000,
       );
       gameProvider.fetchGames();
-    }
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(lobbyTable != null){
+          GameProvider gameProviderListner = Provider.of<GameProvider>(context);
+    
     lobbyTable.updatedGames = gameProviderListner.games;
+    }
+    
     return Scaffold(
       appBar: AppBar(
         actions: [

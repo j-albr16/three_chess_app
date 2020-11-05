@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../data/server.dart';
+import '../models/message.dart';
 
 typedef void RecieveMessage(String message);
 
@@ -21,16 +22,16 @@ class ChatListener{
     listener.remove(function);
   }
 
-  notifyListener(String myMessage){
+  notifyListener(myMessage){
     listener.forEach((element) {
       element(myMessage);
     });
   }
 
-  listenForMessages(String id){
+ void listenForMessages(String id){
     _socket.on('message/$id', (encodedResponse) {
       final data = json.decode(encodedResponse.body);
-      return data.toString();
+      notifyListener(data.toString());
     });
   }
 }

@@ -64,9 +64,13 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
   String _pieceOnDrag;
   Offset _startingPosition;
   Offset _deltaOffset;
+  bool didstart = false;
 
   @override
   void initState() {
+    Future.delayed(Duration.zero).then((_) => 
+      Provider.of<GameProvider>(context, listen: false).fetchGame()
+    );
     super.initState();
   }
 
@@ -131,6 +135,11 @@ class ThreeChessInnerBoardState extends State<ThreeChessInnerBoard> {
     PieceProvider pieceProvider = Provider.of<PieceProvider>(context);
     GameProvider gameProvider = Provider.of<GameProvider>(context);
     Game game = gameProvider.game;
+    if(didstart){
+      gameProvider.fetchGame();
+      didstart = true;
+    }
+    
     if (gameProvider.game != null) {
       if (game.chessMoves.length > pieceProvider.doneChessMoves.length) {
         ChessMove chessMove = game.chessMoves.last; //JUST ONE AT THE TIME IS POSSIBLE

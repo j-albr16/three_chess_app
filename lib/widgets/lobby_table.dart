@@ -10,7 +10,7 @@ typedef void GameSelectCall(Game game);
 
 class LobbyTable extends StatefulWidget {
   List<Game> games;
-  ValueNotifier<List<Game>> _updatedGames;
+  ValueNotifier<List<Game>> _updatedGames = ValueNotifier([]);
   void set updatedGames(List<Game> newGames) {
     _updatedGames.value = newGames;
   }
@@ -74,7 +74,7 @@ class _LobbyTableState extends State<LobbyTable> {
     _selectedColoumn = List.from(ColumnType.values, growable: true);
     _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
     _scrollController = ScrollController()..addListener(() => _scrollListener());
-    widget._updatedGames = ValueNotifier(games)..addListener(() => _resortAndUpdate());
+    widget._updatedGames.addListener(() => _resortAndUpdate());
 
     super.initState();
   }

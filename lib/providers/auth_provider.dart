@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../helpers/http_exception.dart';
+import '../data/server.dart';
 
 class AuthProvider with ChangeNotifier {
   String _token;
@@ -21,7 +22,7 @@ class AuthProvider with ChangeNotifier {
     return _userId;
   }
 
-  static const REST_API_URL = 'http://192.168.0.38:3000';
+  static const REST_API_URL = SERVER_ADRESS;
 
   Future<void> logIn({String email, String password}) async {
     try {

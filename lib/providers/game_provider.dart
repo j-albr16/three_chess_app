@@ -13,8 +13,9 @@ import '../models/player.dart';
 import '../models/user.dart';
 import '../models/chess_move.dart';
 import '../models/enums.dart';
+import '../data/server.dart';
 
-const String SERVER_URL = 'http://192.168.0.38:3000';
+const String SERVER_URL = SERVER_ADRESS;
 
 class GameProvider with ChangeNotifier {
   String socketMessage;
@@ -76,7 +77,6 @@ class GameProvider with ChangeNotifier {
     await fetchGame();
     await fetchGames();
     printEverything(_game, player, _games);
-    notifyListeners();
   }
 
   startGame() {
@@ -120,6 +120,7 @@ class GameProvider with ChangeNotifier {
         _handleSocketMessage(data);
       });
       printEverything(_game, _player, _games);
+      notifyListeners();
     } catch (error) {
       print(error.toString());
     }
@@ -149,6 +150,7 @@ class GameProvider with ChangeNotifier {
             throw ('Error: No Action Key from Websocket!');
           }
           _handleSocketMessage(data);
+          notifyListeners();
         });
     } catch (error) {
       throw ('An error occured while joyning game:' + error);
@@ -203,7 +205,7 @@ class GameProvider with ChangeNotifier {
         }
         _handleSocketMessage(data);
       });
-      // printEverything(_game, player, _games);
+      notifyListeners();
     } catch (error) {
       print(error);
     }
@@ -226,7 +228,7 @@ class GameProvider with ChangeNotifier {
             data['message']);
       }
       data['gameData'].forEach((e) => _games.add(rebaseLobbyGame(e)));
-      // printEverything(_game, player, _games);
+      notifyListeners();
     } catch (error) {
       print(error.toString());
     }
@@ -253,6 +255,7 @@ class GameProvider with ChangeNotifier {
         print('found game socket:   ' + _games[gameIndex].player.toString());
         print('player joyned A game... socket');
         printEverything(_game, player, _games);
+        notifyListeners();
         break;
       case 'player-joyned-lobby':
         // case handles the action for a user in a lobby who witnesses a joyn
@@ -268,11 +271,13 @@ class GameProvider with ChangeNotifier {
           startGame();
         }
         printEverything(_game, player, _games);
+        notifyListeners();
         break;
       case 'move-made':
         print(data['message']);
         _game.chessMoves.add(rebaseOneMove(data['chessMove']));
         printEverything(_game, player, _games);
+        notifyListeners();
         break;
     }
   }

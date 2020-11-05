@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/widgets/lobby_table.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
@@ -46,6 +48,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (lobbyTable.onGameTap == null) {
+      lobbyTable.onGameTap = (game) => Provider.of<GameProvider>(context, listen: false).joynGame(game.id);
+    }
     return Scaffold(
       appBar: AppBar(
         actions: [

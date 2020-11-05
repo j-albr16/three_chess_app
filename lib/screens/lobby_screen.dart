@@ -21,36 +21,24 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   void initState() {
-    lobbyTable = LobbyTable(
-      width: 1000,
-      height: 1000,
-      onGameTap: (Game game) => print(game.isRated.toString() + "sagen alle die grad ein game angeklickt haben"),
-      games: [
-        Game(
-            chessMoves: [],
-            time: 300,
-            increment: 5,
-            isRated: true,
-            player: [Player(playerColor: PlayerColor.white, user: User(userName: "Felix", score: 1500))]),
-        Game(
-            chessMoves: [],
-            time: 200,
-            increment: 4,
-            isRated: false,
-            player: [
-              Player(playerColor: PlayerColor.white, user: User(userName: "Jan", score: 2890)),
-              Player(playerColor: PlayerColor.white, user: User(userName: "Leo", score: 2200)),
-            ])
-      ],
-    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (lobbyTable.onGameTap == null) {
-      lobbyTable.onGameTap = (game) => Provider.of<GameProvider>(context, listen: false).joynGame(game.id);
+    GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
+    GameProvider gameProviderListner = Provider.of<GameProvider>(context);
+
+    if(lobbyTable == null) {
+      lobbyTable = LobbyTable(
+        onGameTap: (game) => gameProvider.joynGame(game.id),
+    games: [],
+    width: 1000,
+    height: 1000,
+      );
+      gameProvider.fetchGames();
     }
+    lobbyTable.updatedGames = gameProviderListner.games;
     return Scaffold(
       appBar: AppBar(
         actions: [

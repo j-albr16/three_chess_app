@@ -80,6 +80,7 @@ class GameProvider with ChangeNotifier {
   }
 
   startGame() {
+    _games.remove(_game);
     print('=================================');
     print('3 players are i the Game');
     print('Game can start');

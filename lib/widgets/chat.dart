@@ -1,57 +1,107 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-// import '../providers/chat_listener.dart';
-// import '../models/message.dart';
+import '../providers/chat_listener.dart';
+import '../models/message.dart';
 
-
-// class Chat extends StatefulWidget {
-
-//   final double height;
-//   final double width;
-
-//   Chat({this.height, this.width});
-
-//   @override
-//   _ChatState createState() => _ChatState();
-// }
+class Chat extends StatefulWidget {
 
 
-// class _ChatState extends State<Chat> {
+  @override
+  _ChatState createState() => _ChatState();
+}
 
-// ChatListener chatListener;
-// List<Message> messages = [];
+class _ChatState extends State<Chat> {
+  ChatListener chatListener;
+  List<Message> messages = [];
 
-// @override
-// void initState(){
-//   chatListener = ChatListener()
-//   ..addListener((message) => newChatMessage(message));
-//   super.initState();
-// }
+  bool lobbyChat;
+   String id;
 
-// newChatMessage(message){
-//   messages.add(message);
-// }
+  @override
+  void initState() {
+    chatListener = ChatListener()
+      ..addMessageListener((message) => newChatMessage(message))
+      ..addListener(() => getMessages());
+    super.initState();
+  }
+
+  newChatMessage(message) {
+    setState(() {
+      messages.add(message);
+    });
+  }
+  getMessages() {
+    setState(() {
+      messages = chatListener.messages;
+    });
+  }
 
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid,),
-//         borderRadius: BorderRadius.circular(6),
-//       ),
-//       child: ListView.builder(
-//         itemCount: messages.length,
-//         itemBuilder: (context, index) => ,
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+          style: BorderStyle.solid,
+        ),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: ListView.builder(
+        itemCount: messages.length,
+        itemBuilder: (context, index) => chatObject(messages[index].timeStamp,
+            messages[index].text, messages[index].userName, messages[index].yourMessage, widget.width),
+      ),
+    );
+  }
+  Widget chatObject(DateTime time, String text, String userName, bool yourMessage, double width) {
+  return Row(
+      children: <Widget>[
+        if(yourMessage)
+        Spacer(),
+        Container(
+         constraints: BoxConstraints(maxWidth: width * 0.7),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: yourMessage ? Colors.cyan : Colors.lightGreen[100],
+      ),
+      child: Column(
+        children: [
+          if (widget.lobbyChat || !yourMessage)
+            Text(
+              userName,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.start,
+            ),
+             Text(text, style: TextStyle(
+               fontSize: 10,
+               color: Colors.white,
+             ),
+             textAlign: TextAlign.justify,
+             ),
+          Text(
+            DateFormat.Hm().format(time),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 7,
+              fontWeight: FontWeight.w300
+            ),
+            textAlign: TextAlign.end,
+          ),
+        ],
+      ),
+    ),
+    if(!yourMessage)
+        Spacer(),
+        ]
+  );
+}
+}
 
-// Widget chatObject(DateTime time, String message, String userName){
-//   return Row(
-//     children: [
-//       Text(time.),
-//     ],
-//   );
-// }
+

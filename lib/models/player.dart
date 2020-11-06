@@ -7,7 +7,8 @@ class Player {
   PlayerColor playerColor;
   User user;
   int remainingTime; // secs
+  bool isConnected;
   
 
-  Player({this.playerColor, this.user, this.remainingTime});
+  Player({this.playerColor, this.user, this.remainingTime, this.isConnected});
 }

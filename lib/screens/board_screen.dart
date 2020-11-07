@@ -6,7 +6,6 @@ import 'package:three_chess/models/game.dart';
 
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/widgets/three_chess_board.dart';
-import 'package:three_chess/widgets/chess_move_table.dart';
 
 
 class BoardScreen extends StatefulWidget {

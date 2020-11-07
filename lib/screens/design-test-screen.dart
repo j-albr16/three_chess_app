@@ -23,9 +23,46 @@ class DesignTestScreen extends StatefulWidget {
 class _DesignTestScreenState extends State<DesignTestScreen> {
   bool showChat = false;
 
+  Game _game = new Game(
+    chessMoves: [
+      new ChessMove(
+        initialTile: 'H6',
+        nextTile: 'B4',
+        remainingTime: 6,
+      )
+    ],
+    player: [
+      new Player(
+        isConnected: true,
+        user: new User(
+          userName: 'Jan'
+        ),
+      ),
+      new Player(
+         isConnected: true,
+         user: new User(
+           userName: 'Leo',
+         ),
+      ),
+      new Player(
+        isConnected: true,
+        user: new User(
+          userName: 'Jan'
+        ),
+      ),
+    ]
+  );
+
+  get game {
+    for(int i = 0;  i == 14; i ++){
+      _game.chessMoves.add(_game.chessMoves[0]);
+    }
+    return _game;
+  }
+
   @override
   Widget build(BuildContext context) {
-    Game game = Provider.of<GameProvider>(context).game;
+    // Game game = Provider.of<GameProvider>(context).game;
     return Scaffold(
       appBar: AppBar(
         title: Text('Test Design'),

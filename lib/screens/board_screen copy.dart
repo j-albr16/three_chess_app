@@ -7,7 +7,7 @@ import 'package:three_chess/providers/image_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/providers/tile_select.dart';
+import '../providers/tile_select.dart';
 import '../providers/piece_provider.dart';
 import '../providers/tile_provider.dart';
 

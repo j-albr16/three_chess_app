@@ -52,24 +52,23 @@ class _ChatState extends State<Chat> {
       child: ListView.builder(
         itemCount: messages.length,
         itemBuilder: (context, index) => chatObject(messages[index].timeStamp,
-            messages[index].text, messages[index].userName, messages[index].yourMessage, widget.width),
+            messages[index].text, messages[index].userName, messages[index].yourMessage),
       ),
     );
   }
-  Widget chatObject(DateTime time, String text, String userName, bool yourMessage, double width) {
+  Widget chatObject(DateTime time, String text, String userName, bool yourMessage) {
   return Row(
       children: <Widget>[
         if(yourMessage)
         Spacer(),
         Container(
-         constraints: BoxConstraints(maxWidth: width * 0.7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: yourMessage ? Colors.cyan : Colors.lightGreen[100],
       ),
       child: Column(
         children: [
-          if (widget.lobbyChat || !yourMessage)
+          if (lobbyChat || !yourMessage)
             Text(
               userName,
               style: TextStyle(

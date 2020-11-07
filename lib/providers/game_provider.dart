@@ -14,6 +14,7 @@ import '../models/user.dart';
 import '../models/chess_move.dart';
 import '../models/enums.dart';
 import '../data/server.dart';
+import '../helpers/user_acc.dart';
 
 const String SERVER_URL = SERVER_ADRESS;
 
@@ -22,8 +23,8 @@ class GameProvider with ChangeNotifier {
   IO.Socket _socket = IO.io(SERVER_URL);
   // String _userId = '5fa2acde10f740ca2bc1265f';
   // String _token = '079f9zqnodyq2iw43r2nl8x82';
-   String _userId = '5fa2c83cbd3915ec925b2fe8';
-  String _token = '414x2ntokslku3ztpgab7smb1';
+   String _userId = constUserId;
+  String _token = constToken;
   int _userScore = 1000;
 
   Player _player = new Player(

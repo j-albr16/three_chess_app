@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/providers/piece_provider.dart';
-import 'package:three_chess/providers/thinking_board.dart';
-import 'package:three_chess/providers/tile_select.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import './screens/home_screen.dart';
 import './screens/board_screen.dart';
-import './providers/tile_provider.dart';
-import './providers/image_provider.dart';
-import './providers/player_provider.dart';
 import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
 import './providers/auth_provider.dart';
@@ -36,7 +30,7 @@ class ThreeChessApp extends StatelessWidget {
           title: 'three chess app',
           home: HomeScreen(),
           routes: {
-            BoardScreen.routeName: (ctx) => BoardScreen(),
+            //BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
             AuthScreen.routeName: (ctx) => AuthScreen(),
             CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
@@ -46,7 +40,7 @@ class ThreeChessApp extends StatelessWidget {
           builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
               maxWidth: 2400,
               minWidth: 300,
-              defaultScaleFactor: 0.312,
+              defaultScaleFactor: 0.212,
               defaultScale: true,
               breakpoints: [],
               background: Container(color: Color(0xFFF5F5F5))),

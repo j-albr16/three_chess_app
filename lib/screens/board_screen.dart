@@ -2,14 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/tile_provider.dart';
 import 'package:three_chess/models/game.dart';
 
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/widgets/three_chess_board.dart';
 import 'package:three_chess/widgets/chess_move_table.dart';
 
-import '../providers/player_provider.dart';
 
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
@@ -31,7 +29,14 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          // PieceProvider pieceProvider = Provider.of<PieceProvider>(threeChessBoard.boardKey.currentContext, listen: false);
+          // PlayerProvider playerProvider = Provider.of<PlayerProvider>(threeChessBoard.boardKey.currentContext, listen:false);
+          // ThinkingBoard thinkingBoard = Provider.of<ThinkingBoard>(threeChessBoard.boardKey.currentContext, listen: false);
+          // String selectedPiece = pieceProvider.pieces.values.firstWhere((element) => element.playerColor == playerProvider.currentPlayer).position;
+          // threeChessBoard.gameProvider.game.chessMoves.add(ChessMove(initialTile: selectedPiece, nextTile: thinkingBoard.getLegalMove(selectedPiece, MapEntry(pieceProvider.pieces[selectedPiece].pieceType, pieceProvider.pieces[selectedPiece].playerColor), context).first));
+          // threeChessBoard.gameProvider.notifyListeners();
+          },
       ),
       appBar: AppBar(),
       body: Container(

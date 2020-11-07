@@ -39,11 +39,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(lobbyTable != null){
-          GameProvider gameProviderListner = Provider.of<GameProvider>(context);
-    
-    lobbyTable.updatedGames = gameProviderListner.games;
-    }
+
+    Provider.of<GameProvider>(context, listen: false).addListener(() { lobbyTable.updatedGames = Provider.of<GameProvider>(context, listen: false).games;});
+
     
     return Scaffold(
       appBar: AppBar(

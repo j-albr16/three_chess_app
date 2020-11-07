@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:three_chess/painter/path_clipper.dart';
+import '../helpers/path_clipper.dart';
 
 import 'enums.dart';
 import '../data/board_data.dart';

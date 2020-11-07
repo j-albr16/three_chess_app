@@ -10,6 +10,9 @@ class Piece extends StatelessWidget {
   PlayerColor playerColor;
   bool didMove = false;
 
+
+  static Size pieceSize = Size(55, 55);
+
   PieceKey get pieceKey {
     return PieceKeyGen.genKey(pieceType, playerColor);
   }

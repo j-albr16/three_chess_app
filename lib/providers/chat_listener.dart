@@ -26,7 +26,6 @@ class ChatListener {
   List<RecieveMessage> messageListener = [];
   List<Function> listener = [];
 
-
   IO.Socket _socket = IO.io(SERVER_ADRESS);
 
 void addListener(Function function){
@@ -38,10 +37,6 @@ void removeListener(Function function){
 void notifyListener(){
   listener.forEach((e) => e());
 }
-
-
-
-
 
 //listener for one new message
 void addMessageListener(RecieveMessage function) {
@@ -55,16 +50,6 @@ void addMessageListener(RecieveMessage function) {
       element(myMessage);
     });
   }
-
-// //listener for fetching all messages
-//   addMessagesListener(FetchMessages function){
-//     messagesListener.add(function);
-//   }
-// removeMessagesListener(FetchMessages function){
-//   messagesListener.remove(function);
-// }
-
- 
 
   void listenForMessages(String id) {
     _socket.on('message/$id', (encodedResponse) {

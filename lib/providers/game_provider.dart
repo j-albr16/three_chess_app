@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:html';
 import 'dart:core';
 
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -21,8 +19,7 @@ const String SERVER_URL = SERVER_ADRESS;
 class GameProvider with ChangeNotifier {
   String socketMessage;
   IO.Socket _socket = IO.io(SERVER_URL);
-  // String _userId = '5fa2acde10f740ca2bc1265f';
-  // String _token = '079f9zqnodyq2iw43r2nl8x82';
+
    String _userId = constUserId;
   String _token = constToken;
   int _userScore = 1000;
@@ -34,8 +31,13 @@ class GameProvider with ChangeNotifier {
   );
 
   Player get player {
-    return _player;
+   PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
+    return new Player(
+      playerColor: yourPlayerColor,
+      user: _player.user,
+    );
   }
+
 
   List<Game> _games = [];
   Game _game;

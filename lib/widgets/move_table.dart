@@ -26,11 +26,7 @@ GameTable({this.game, this.size});
       child: Column(
         children: <Widget>[
           playerBar(game.player),
-          Divider(color: Colors.white,),
           moveTable(game),
-          Divider(
-                  color: Colors.white,
-                ),
           iconBar(),
         ],
       ),
@@ -115,6 +111,11 @@ GameTable({this.game, this.size});
     // return Padding(
     //   padding: EdgeInsets.all(10),
          return Container(
+       decoration: BoxDecoration(
+         border: Border(
+           bottom: BorderSide(color: Colors.white),
+         ),
+       ),
       width: size.width,
       height: size.height * 0.1,
       child: Row(

@@ -5,6 +5,7 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:three_chess/providers/game_provider%20safe.dart';
 
 import '../models/game.dart';
 import '../models/player.dart';
@@ -16,11 +17,18 @@ import '../helpers/user_acc.dart';
 
 const String SERVER_URL = SERVER_ADRESS;
 
+const printCreateGame = true;
+const printJoynGame = true;
+const printFetchGame = true;
+const printFetchGames = true;
+const printGameSocket = true;
+const printGameMove = true;
+
 class GameProvider with ChangeNotifier {
   String socketMessage;
   IO.Socket _socket = IO.io(SERVER_URL);
 
-   String _userId = constUserId;
+  String _userId = constUserId;
   String _token = constToken;
   int _userScore = 1000;
 
@@ -30,14 +38,17 @@ class GameProvider with ChangeNotifier {
     ),
   );
 
-  Player get player {
-  //  PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
+  Player get player {PlayerColor yourPlayerColor ;
+    if (_game != null) {
+     yourPlayerColor = _game?.player
+          ?.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)
+          ?.playerColor;
+    }
     return new Player(
-      // playerColor: yourPlayerColor,
+      playerColor: yourPlayerColor,
       user: _player.user,
     );
   }
-
 
   List<Game> _games = [];
   Game _game;
@@ -121,6 +132,9 @@ class GameProvider with ChangeNotifier {
         if (!data['action']) {
           throw ('Error: No Action Key from Websocket!');
         }
+        if (printCreateGame) {
+          printEverything(_game, player, _games);
+        }
         _handleSocketMessage(data);
       });
       printEverything(_game, _player, _games);
@@ -148,17 +162,19 @@ class GameProvider with ChangeNotifier {
       print('joyn Game user--- not soket');
       printEverything(_game, player, _games);
       print('successfully created game');
-        _socket.on('/${_game.id}', (encodedData) {
-          Map<String, dynamic> data = json.decode(encodedData);
-          if (!data['action']) {
-            throw ('Error: No Action Key from Websocket!');
-          }
+      _socket.on('/${_game.id}', (encodedData) {
+        Map<String, dynamic> data = json.decode(encodedData);
+        if (!data['action']) {
+          throw ('Error: No Action Key from Websocket!');
+        }
+        if (printJoynGame) {
           _handleSocketMessage(data);
-          notifyListeners();
-        });
+        }
+        notifyListeners();
+      });
     } catch (error) {
       throw ('An error occured while joyning game:' + error);
-    } 
+    }
   }
 
   Future<void> sendMove(ChessMove chessMove) async {
@@ -184,7 +200,9 @@ class GameProvider with ChangeNotifier {
       print(data['message']);
       print(data['chessMove'].toString());
       _game.chessMoves.add(rebaseOneMove(data['chessMove']));
-      printEverything(_game, player, _games);
+      if (printGameMove) {
+        printEverything(_game, player, _games);
+      }
     } catch (error) {
       print(error);
     }
@@ -209,6 +227,9 @@ class GameProvider with ChangeNotifier {
         }
         _handleSocketMessage(data);
       });
+      if (printFetchGame) {
+        printEverything(_game, player, _games);
+      }
       notifyListeners();
     } catch (error) {
       print(error);
@@ -216,7 +237,7 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> fetchGames() async {
-    _games = []; 
+    _games = [];
     print('start fetching games');
     try {
       final url = SERVER_URL + '/fetch-games?auth=$_token&id=$_userId';
@@ -233,6 +254,9 @@ class GameProvider with ChangeNotifier {
       }
       data['gameData'].forEach((e) => _games.add(rebaseLobbyGame(e)));
       notifyListeners();
+      if (printFetchGames) {
+        printEverything(_game, player, _games);
+      }
     } catch (error) {
       print(error.toString());
     }
@@ -245,21 +269,26 @@ class GameProvider with ChangeNotifier {
         print('socket: message...:  ' + data['message']);
         print('socket: data...:  ' + data.toString());
         _games.add(rebaseLobbyGame(data['gameData']));
-        printEverything(_game, player, _games);
+        if (printGameSocket) {
+          printEverything(_game, player, _games);
+        }
         print('Finished adding new Lobby game to games');
         notifyListeners();
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby
         print(data.toString());
-        final gameIndex = _games.indexWhere((e) =>
-            e.id ==
-            data['gameData']['id']);
-            print('index:   ' + gameIndex.toString());
-        _games[gameIndex].player.add(rebaseOnePlayer(data['gameData']['player']));
+        final gameIndex =
+            _games.indexWhere((e) => e.id == data['gameData']['id']);
+        print('index:   ' + gameIndex.toString());
+        _games[gameIndex]
+            .player
+            .add(rebaseOnePlayer(data['gameData']['player']));
         print('found game socket:   ' + _games[gameIndex].player.toString());
         print('player joyned A game... socket');
-        printEverything(_game, player, _games);
+        if (printGameSocket) {
+          printEverything(_game, player, _games);
+        }
         notifyListeners();
         break;
       case 'player-joyned-lobby':
@@ -275,13 +304,17 @@ class GameProvider with ChangeNotifier {
           _game.didStart = true;
           startGame();
         }
-        printEverything(_game, player, _games);
+        if (printGameSocket) {
+          printEverything(_game, player, _games);
+        }
         notifyListeners();
         break;
       case 'move-made':
         print(data['message']);
         _game.chessMoves.add(rebaseOneMove(data['chessMove']));
-        printEverything(_game, player, _games);
+        if (printGameSocket) {
+          printEverything(_game, player, _games);
+        }
         notifyListeners();
         break;
     }
@@ -317,32 +350,32 @@ printEverything(Game game, Player player, List<Game> games) {
       print('     - id:               ' + e.user.id.toString());
       print('     - userName:         ' + e.user.userName.toString());
       print('     - score:            ' + e.user.score.toString());
-    });}
+    });
+  }
+  print('==================================');
+  print('This Player:----------------------');
+  print('==================================');
+  print('playerColor:     ' + player.playerColor.toString());
+  print('remainingTime:   ' + player.remainingTime.toString());
+  print('----------------------------------');
+  print('user:------------------------------');
+  print('-----------------------------------');
+  print(' -> id:          ' + player.user.id.toString());
+  print(' -> userName:    ' + player.user.userName.toString());
+  print(' -> score:       ' + player.user.score.toString());
+  print(' -> email:       ' + player.user.email.toString());
+  print('===================================');
+  if (games.isNotEmpty) {
+    print('games:----------------------------');
     print('==================================');
-    print('This Player:----------------------');
-    print('==================================');
-    print('playerColor:     ' + player.playerColor.toString());
-    print('remainingTime:   ' + player.remainingTime.toString());
-    print('----------------------------------');
-    print('user:------------------------------');
-    print('-----------------------------------');
-    print(' -> id:          ' + player.user.id.toString());
-    print(' -> userName:    ' + player.user.userName.toString());
-    print(' -> score:       ' + player.user.score.toString());
-    print(' -> email:       ' + player.user.email.toString());
-    print('===================================');
-    if (games.isNotEmpty) {
-      print('games:----------------------------');
-      print('==================================');
-      for (game in games) {
-        print('a game:-------------------------');
-        print(' -> id:        ' + game.id.toString());
-        print(' -> isRated:   ' + game.isRated.toString());
-        print('--------------------------------');
-      }
+    for (game in games) {
+      print('a game:-------------------------');
+      print(' -> id:        ' + game.id.toString());
+      print(' -> isRated:   ' + game.isRated.toString());
+      print('--------------------------------');
     }
-    print('#####################################');
-  
+  }
+  print('#####################################');
 }
 
 Game rebaseWholeGame(encodedResponse) {
@@ -392,18 +425,18 @@ Game rebaseLobbyGame(gameData) {
   List<ChessMove> chessMoves = [];
   // convert player List and add them to existing player class
   List<Player> convPlayer = [];
-  gameData['player'].forEach((e){
+  gameData['player'].forEach((e) {
     print(e.toString());
     convPlayer.add(new Player(
-        playerColor: PlayerColor.values[(e['playerColor'] + 2) % 3],
-        remainingTime: e['remainingTime'],
-        user: new User(
-          id: e['user']['id'],
-          score: e['user']['score'],
-          userName: e['user']['userName'],
-        ),
-      ));
-        });
+      playerColor: PlayerColor.values[(e['playerColor'] + 2) % 3],
+      remainingTime: e['remainingTime'],
+      user: new User(
+        id: e['user']['id'],
+        score: e['user']['score'],
+        userName: e['user']['userName'],
+      ),
+    ));
+  });
 
   return new Game(
     isRated: gameData['options']['isRated'],

@@ -1,6 +1,7 @@
 
 
 class Message{
+  
   final String text;
   final String userName;
   final String userId;

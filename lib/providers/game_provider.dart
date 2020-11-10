@@ -31,9 +31,9 @@ class GameProvider with ChangeNotifier {
   );
 
   Player get player {
-   PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
+  //  PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
     return new Player(
-      playerColor: yourPlayerColor,
+      // playerColor: yourPlayerColor,
       user: _player.user,
     );
   }
@@ -247,6 +247,7 @@ class GameProvider with ChangeNotifier {
         _games.add(rebaseLobbyGame(data['gameData']));
         printEverything(_game, player, _games);
         print('Finished adding new Lobby game to games');
+        notifyListeners();
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby

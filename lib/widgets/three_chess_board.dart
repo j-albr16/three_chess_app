@@ -49,10 +49,12 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context ,listen: false);
       playingPlayer =
-          gameProvider.player?.playerColor ?? PlayerColor.white;
+          gameProvider.player?.playerColor ?? PlayerColor.red;
       if(playingPlayer != null){
         for (int i = 0; i < playingPlayer.index; i++) {
-          widget.tileKeeper.rotateTilesNext();
+          setState(() {
+            widget.tileKeeper.rotateTilesNext();
+          });
         }
       }}
       );
@@ -83,7 +85,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Widget build(BuildContext context) {
     GameProvider gameProvider = Provider.of<GameProvider>(context);
     updateGame(gameProvider.game);
-    didStart = gameProvider.game.didStart?? false;
+    didStart = gameProvider.game?.didStart?? false;
     return Provider.of<GameProvider>(context).game == null ?
     Center(child: Column(
       children: [
@@ -138,24 +140,26 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
           print(whatsHit);
             if (highlighted != null) {
-              if(highlighted.value.contains(whatsHit)&& myTurn){
-                  setState(() {
-                    PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
-                    _moveWasMade(context);
-                    highlighted = null;
-                    draggedPiece = null;
-                    dragOffset = null;
-                  });
-              }
-              else if(whatsHit == draggedPiece){
-                    draggedPiece = null;
-                    dragOffset = null;
-              }
-              else{
-                highlighted = null;
-                draggedPiece = null;
-                dragOffset = null;
-              }
+              setState(() {
+                if(highlighted.value.contains(whatsHit)&& myTurn){
+                    setState(() {
+                      PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
+                      _moveWasMade(context);
+                      highlighted = null;
+                      draggedPiece = null;
+                      dragOffset = null;
+                    });
+                }
+                else if(whatsHit == draggedPiece){
+                      draggedPiece = null;
+                      dragOffset = null;
+                }
+                else{
+                  highlighted = null;
+                  draggedPiece = null;
+                  dragOffset = null;
+                }
+              });
             }
         },
         child: BoardPainter(

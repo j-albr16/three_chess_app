@@ -388,7 +388,7 @@ class _LobbyTableState extends State<LobbyTable> {
   @override
   Widget build(BuildContext context) {
 
-      games = Provider.of<GameProvider>(context).games;
+      games = Provider.of<GameProvider>(context).games.where((element) => element.player.length < 3).toList();
 
       _resort();
 

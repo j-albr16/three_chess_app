@@ -21,9 +21,9 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  FocusNode _passwordNode = FocusNode();
-  FocusNode _emailNode = FocusNode();
-  FocusNode _confirmPasswordNode = FocusNode();
+  FocusNode _passwordNode;
+  FocusNode _emailNode;
+  FocusNode _confirmPasswordNode;
 
   AuthMode authMode = AuthMode.signUp;
 
@@ -31,6 +31,23 @@ class _AuthScreenState extends State<AuthScreen> {
   String _email = '';
   String _confirmPassword = '';
   String _userName = '';
+
+  @override
+  void initState() {
+    _passwordNode = FocusNode();
+    _emailNode = FocusNode();
+    _confirmPasswordNode = FocusNode();
+    super.initState();
+  }
+
+   @override
+  void dispose() {
+    _passwordNode.dispose();
+    _emailNode.dispose();
+    _confirmPasswordNode.dispose();
+    super.dispose();
+  }
+
 
   Future<void> _saveForm(BuildContext context) async {
     try {
@@ -112,7 +129,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (authMode == AuthMode.signUp)
                         TextFormField(
                           initialValue: 'scrutycs',
-                          decoration: _decoration('Username'),
+                          decoration: decoration('Username'),
                           cursorColor: Colors.white70,
                           style: TextStyle(color: Colors.white70),
                           textInputAction: TextInputAction.next,
@@ -135,7 +152,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         initialValue: 'jan.albrecht2000@gmail.com',
                         focusNode: _emailNode,
-                        decoration: _decoration('Email'),
+                        decoration: decoration('Email'),
                         cursorColor: Colors.white70,
                           style: TextStyle(color: Colors.white70),
                         textInputAction: TextInputAction.next,
@@ -157,7 +174,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         initialValue: 'dont4getme',
                         focusNode: _passwordNode,
-                        decoration: _decoration('Password'),
+                        decoration: decoration('Password'),
                         cursorColor: Colors.white70,
                           style: TextStyle(color: Colors.white70),
                         textInputAction: TextInputAction.next,
@@ -184,7 +201,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           initialValue: 'dont4getme',
                           focusNode: _confirmPasswordNode,
-                          decoration: _decoration('Confirm Password'),
+                          decoration: decoration('Confirm Password'),
                           textInputAction: TextInputAction.done,
                           cursorColor: Colors.white70,
                           style: TextStyle(color: Colors.white70),
@@ -259,7 +276,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-InputDecoration _decoration(String text) {
+InputDecoration decoration(String text) {
   return InputDecoration(
     hoverColor: Colors.white54,
     focusColor: Colors.white54,

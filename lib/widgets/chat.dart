@@ -1,106 +1,261 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/chat_listener.dart';
 import '../models/message.dart';
+import '../models/user.dart';
+import '../models/chat_model.dart' as mod;
+import '../screens/auth_test_screen.dart' as DEC;
 
 class Chat extends StatefulWidget {
+  Size size;
 
-
+  Chat(this.size);
   @override
   _ChatState createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
+  ScrollController _scrollController;
+  TextEditingController _chatController;
   ChatListener chatListener;
-  List<Message> messages = [];
+  mod.Chat currentChat = mod.Chat(
+    messages: [
+      Message(
+          isYours: true,
+          text: 'Hi this is a dummy Text',
+          timeStamp: DateTime.now(),
+          userName: 'Jan'),
+      Message(
+        isYours: false,
+        text:
+            'Hi Jan whats up sdhjfgbsdf asdjaisdh andasiodh andjaosd asdhaspdh ashduaosd ashduaosd',
+        timeStamp: DateTime.now(),
+        userName: 'Leo',
+      ),
+      Message(
+        isYours: false,
+        text: 'Hi Jan whats up ',
+        timeStamp: DateTime.now(),
+        userName: 'Leo',
+      )
+    ],
+    id: 'asbdaukofgtZSCDBASHJCGV',
+    you: User(userName: 'Jan'),
+    chatPartner: [
+      User(userName: 'Leo'),
+    ],
+  );
 
-  bool lobbyChat;
-   String id;
+  List<mod.Chat> availableChats;
+
+  bool lobbyChat = true;
+  String id;
 
   @override
   void initState() {
+    _chatController = TextEditingController();
     chatListener = ChatListener()
+      ..listenForMessages()
       ..addMessageListener((message) => newChatMessage(message))
-      ..addListener(() => getMessages());
+      ..addListener(() => getChat());
+    _scrollController = ScrollController();
     super.initState();
   }
 
+  
+
   newChatMessage(message) {
     setState(() {
-      messages.add(message);
-    });
-  }
-  getMessages() {
-    setState(() {
-      messages = chatListener.messages;
+      print('received Socket via Message');
+      currentChat.messages.add(message);
     });
   }
 
+  getChat() {
+    setState(() {
+      currentChat = chatListener.chat;
+      WidgetsBinding.instance
+          .addPostFrameCallback((_){
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _chatController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    
+    // print('the size:   ' + widget.size.toString());
     return Container(
+      width: widget.size.width,
+      height: widget.size.height,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.black,
+          color: Colors.white,
           width: 1,
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: ListView.builder(
-        itemCount: messages.length,
-        itemBuilder: (context, index) => chatObject(messages[index].timeStamp,
-            messages[index].text, messages[index].userName, messages[index].yourMessage),
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                physics: BouncingScrollPhysics(),
+                itemCount: currentChat.messages.length,
+                itemBuilder: (context, index) => chatObject(
+                    currentChat.messages[index].timeStamp,
+                    currentChat.messages[index].text,
+                    currentChat.messages[index].userName,
+                    currentChat.messages[index].isYours),
+              ),
+            ),
+            textField(),
+            FlatButton(
+              child: Text('Fetch Chat'),
+              onPressed: (){
+                chatListener.fetchChat();
+              },
+            ),
+          ]),
+    );
+  }
+
+  Widget selectChat() {
+    return PopupMenuButton(
+      padding: EdgeInsets.all(13),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.white)),
+        ),
+        child: Text(
+          currentChat.chatName,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      onSelected: (value) {
+        setState(() {
+          currentChat = value;
+        });
+      },
+      itemBuilder: (context) => [
+        ...availableChats
+            .map((e) => PopupMenuItem(
+                  value: e.id,
+                  child: Text(e.chatName),
+                ))
+            .toList()
+      ],
+    );
+  }
+
+  Widget textField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.all(13),
+            child: TextField(
+              controller: _chatController,
+              decoration: DEC.decoration('your Message'),
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.done,
+              cursorColor: Colors.white70,
+              style: TextStyle(color: Colors.white70),
+              onSubmitted: (_) {
+                submit();
+              },
+            ),
+          ),
+        ),
+        IconButton(
+          padding: EdgeInsets.all(6),
+          onPressed: submit,
+          icon: Icon(
+            Icons.subdirectory_arrow_right_sharp,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  submit() {
+    if (_chatController.text.isNotEmpty) {
+      setState(() {
+        chatListener.sendTextMessage(_chatController.text);
+        _chatController.clear();
+      });
+    }
+    // print(currentChat.messages);
+  }
+
+  Widget chatObject(DateTime time, String text, String userName, bool isYours) {
+    return Align(
+      alignment: isYours ? Alignment.bottomRight : Alignment.bottomLeft,
+      child: Container(
+        margin: EdgeInsets.all(8),
+        padding: EdgeInsets.all(13),
+        constraints: BoxConstraints(maxWidth: widget.size.width * 0.7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white12,
+        ),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                if (lobbyChat && !isYours)
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                SizedBox(
+                  height: 4,
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: text,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                    children: [],
+                  ),
+                  // text,
+                ),
+              ]),
+              SizedBox(
+                height: 4,
+              ),
+              Text(
+                DateFormat.Hm().format(time),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w300),
+              ),
+            ]),
       ),
     );
   }
-  Widget chatObject(DateTime time, String text, String userName, bool yourMessage) {
-  return Row(
-      children: <Widget>[
-        if(yourMessage)
-        Spacer(),
-        Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: yourMessage ? Colors.cyan : Colors.lightGreen[100],
-      ),
-      child: Column(
-        children: [
-          if (lobbyChat || !yourMessage)
-            Text(
-              userName,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.start,
-            ),
-             Text(text, style: TextStyle(
-               fontSize: 10,
-               color: Colors.white,
-             ),
-             textAlign: TextAlign.justify,
-             ),
-          Text(
-            DateFormat.Hm().format(time),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 7,
-              fontWeight: FontWeight.w300
-            ),
-            textAlign: TextAlign.end,
-          ),
-        ],
-      ),
-    ),
-    if(!yourMessage)
-        Spacer(),
-        ]
-  );
 }
-}
-
-

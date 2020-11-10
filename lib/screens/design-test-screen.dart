@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
@@ -24,40 +23,39 @@ class DesignTestScreen extends StatefulWidget {
 class _DesignTestScreenState extends State<DesignTestScreen> {
   bool showChat = false;
 
-  Game _game = new Game(
-    chessMoves: [
-      new ChessMove(
-        initialTile: 'H6',
-        nextTile: 'B4',
-        remainingTime: 6,
-      )
-    ],
-    player: [
-      new Player(
-        isConnected: true,
-        user: new User(
-          userName: 'Jan'
-        ),
+  Game _game = new Game(chessMoves: [
+    new ChessMove(
+      initialTile: 'H6',
+      nextTile: 'B4',
+      remainingTime: 6,
+    )
+  ], player: [
+    new Player(
+      isConnected: true,
+      user: new User(
+        userName: 'Jan',
       ),
-      new Player(
-         isConnected: true,
-         user: new User(
-           userName: 'Leo',
-         ),
+    ),
+    new Player(
+      isConnected: true,
+      user: new User(
+        userName: 'Leo',
       ),
-      new Player(
-        isConnected: true,
-        user: new User(
-          userName: 'Jan'
-        ),
-      ),
-    ]
-  );
-
+    ),
+    new Player(
+      isConnected: true,
+      user: new User(userName: 'Jan'),
+    ),
+  ]);
+  bool didIncrement = false;
   get game {
-    for(int i = 0;  i <= 14; i ++){
-      _game.chessMoves.add(_game.chessMoves[0]);
+    if (!didIncrement) {
+      for (int i = 0; i <= 14; i++) {
+        _game.chessMoves.add(_game.chessMoves[0]);
+      }
+      didIncrement = true;
     }
+
     return _game;
   }
 
@@ -69,47 +67,56 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
       appBar: AppBar(
         title: Text('Test Design'),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: AssetImage('auth-image.jpg'),
-              ),
-        ),
-              child: Center(
-          child: Container(
-            // width: size.height * 0.4,
-            // height: size.height * 0.8,
-            decoration: BoxDecoration(
-              color: Colors.black38,
-              borderRadius: BorderRadius.circular(13),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage('auth-image.jpg'),
             ),
-            child: Column(
-              children: <Widget>[
-                // if (showChat) Chat(),
-                if (!showChat) GameTable(game: game, size: Size(size.height * 0.4, size.height * 0.8)),
-                Divider(
-                  color: Colors.white,
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Text(
-                      'showChat',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Switch(
-                      value: showChat,
-                      onChanged: (bool newValue) {
-                        setState(() {
-                          showChat = newValue;
-                        });
-                      },
-                    ),
-                  ],
-                )
-              ],
+          ),
+          child: Center(
+            child: Container(
+              // width: size.height * 0.4,
+              // height: size.height * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.black38,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Column(
+                children: <Widget>[
+                  if (showChat)
+                    Chat(Size(size.height * 0.4, size.height * 0.6)),
+                  if (!showChat)
+                    GameTable(
+                        game: game,
+                        size: Size(size.height * 0.4, size.height * 0.6)),
+                  Divider(
+                    color: Colors.white,
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Text(
+                        'showChat',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Switch(
+                        value: showChat,
+                        onChanged: (bool newValue) {
+                          setState(() {
+                            showChat = newValue;
+                          });
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

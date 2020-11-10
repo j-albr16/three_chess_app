@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:html';
 import 'dart:core';
 
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -21,8 +19,7 @@ const String SERVER_URL = SERVER_ADRESS;
 class GameProvider with ChangeNotifier {
   String socketMessage;
   IO.Socket _socket = IO.io(SERVER_URL);
-  // String _userId = '5fa2acde10f740ca2bc1265f';
-  // String _token = '079f9zqnodyq2iw43r2nl8x82';
+
    String _userId = constUserId;
   String _token = constToken;
   int _userScore = 1000;
@@ -34,8 +31,13 @@ class GameProvider with ChangeNotifier {
   );
 
   Player get player {
-    return _player;
+  //  PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
+    return new Player(
+      // playerColor: yourPlayerColor,
+      user: _player.user,
+    );
   }
+
 
   List<Game> _games = [];
   Game _game;
@@ -245,6 +247,7 @@ class GameProvider with ChangeNotifier {
         _games.add(rebaseLobbyGame(data['gameData']));
         printEverything(_game, player, _games);
         print('Finished adding new Lobby game to games');
+        notifyListeners();
         break;
       case 'player-joyned':
         // case for all players that player joyned a game in the lobby
@@ -289,56 +292,56 @@ printEverything(Game game, Player player, List<Game> games) {
   print(game.toString());
   print(player.toString());
   print(games.toString());
-  print('########################');
+  print('###################################');
   if (game != null) {
-    print('Game: ...');
-    print('========================');
-    print('id:   ' + game.id.toString());
+    print('Game:----------------------------');
+    print('=================================');
+    print('id:         ' + game.id.toString());
     print('didStart:   ' + game.didStart.toString());
-    print('------------------------');
-    print('options: ');
-    print('------------------------');
-    print('  --> increment:   ' + game.increment.toString());
-    print('  --> time:   ' + game.time.toString());
-    print('  --> negratingRange:   ' + game.negRatingRange.toString());
-    print('  --> posRatingrange:   ' + game.posRatingRange.toString());
-    print('  --> isPublic:   ' + game.isPublic.toString());
-    print('  --> isRated:   ' + game.isRated.toString());
-    print('-----------------------');
-    print('player:');
-    print('-----------------------');
+    print('----------------------------------');
+    print('options:    ');
+    print('---------------------------------');
+    print(' -> increment:       ' + game.increment.toString());
+    print(' -> time:            ' + game.time.toString());
+    print(' -> negratingRange:  ' + game.negRatingRange.toString());
+    print(' -> posRatingrange:  ' + game.posRatingRange.toString());
+    print(' -> isPublic:        ' + game.isPublic.toString());
+    print(' -> isRated:         ' + game.isRated.toString());
+    print('---------------------------------');
+    print('player:--------------------------');
+    print('---------------------------------');
     game.player.forEach((e) {
-      print('  --> playerColor:   ' + e.playerColor.toString());
-      print('  --> remainingTime:   ' + e.remainingTime.toString());
-      print('  --> user:');
-      print('       - id:   ' + e.user.id.toString());
-      print('       - userName:   ' + e.user.userName.toString());
-      print('       - score:   ' + e.user.score.toString());
+      print(' -> playerColor:     ' + e.playerColor.toString());
+      print(' -> remainingTime:   ' + e.remainingTime.toString());
+      print(' -> user:');
+      print('     - id:               ' + e.user.id.toString());
+      print('     - userName:         ' + e.user.userName.toString());
+      print('     - score:            ' + e.user.score.toString());
     });}
-    print('========================');
-    print('This Player: ...');
-    print('========================');
-    print('playerColor:   ' + player.playerColor.toString());
+    print('==================================');
+    print('This Player:----------------------');
+    print('==================================');
+    print('playerColor:     ' + player.playerColor.toString());
     print('remainingTime:   ' + player.remainingTime.toString());
-    print('-----------------------');
-    print('user:');
-    print('-----------------------');
-    print('  --> id:   ' + player.user.id.toString());
-    print('  --> userName:   ' + player.user.userName.toString());
-    print('  --> score:   ' + player.user.score.toString());
-    print('  --> email:   ' + player.user.email.toString());
-    print('========================');
+    print('----------------------------------');
+    print('user:------------------------------');
+    print('-----------------------------------');
+    print(' -> id:          ' + player.user.id.toString());
+    print(' -> userName:    ' + player.user.userName.toString());
+    print(' -> score:       ' + player.user.score.toString());
+    print(' -> email:       ' + player.user.email.toString());
+    print('===================================');
     if (games.isNotEmpty) {
-      print('games: ...');
-      print('========================');
+      print('games:----------------------------');
+      print('==================================');
       for (game in games) {
-        print('a game: ');
-        print('  --> id:   ' + game.id.toString());
-        print('  --> isRated:   ' + game.isRated.toString());
-        print('-----------------------');
+        print('a game:-------------------------');
+        print(' -> id:        ' + game.id.toString());
+        print(' -> isRated:   ' + game.isRated.toString());
+        print('--------------------------------');
       }
     }
-    print('########################');
+    print('#####################################');
   
 }
 

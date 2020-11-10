@@ -38,10 +38,14 @@ class GameProvider with ChangeNotifier {
     ),
   );
 
-  Player get player {
-    //  PlayerColor yourPlayerColor = _game.player.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)?.playerColor;
+  Player get player {PlayerColor yourPlayerColor ;
+    if (_game != null) {
+     yourPlayerColor = _game?.player
+          ?.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)
+          ?.playerColor;
+    }
     return new Player(
-      // playerColor: yourPlayerColor,
+      playerColor: yourPlayerColor,
       user: _player.user,
     );
   }
@@ -129,8 +133,9 @@ class GameProvider with ChangeNotifier {
           throw ('Error: No Action Key from Websocket!');
         }
         if (printCreateGame) {
-          _handleSocketMessage(data);
+          printEverything(_game, player, _games);
         }
+        _handleSocketMessage(data);
       });
       printEverything(_game, _player, _games);
       notifyListeners();

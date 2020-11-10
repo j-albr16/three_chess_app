@@ -9,6 +9,7 @@ import 'package:three_chess/models/user.dart';
 import 'package:three_chess/models/enums.dart';
 
 import './create_game_screen.dart';
+import 'board_screen.dart';
 
 class LobbyScreen extends StatefulWidget {
   static const routeName = '/lobby-screen';
@@ -20,57 +21,52 @@ class LobbyScreen extends StatefulWidget {
 class _LobbyScreenState extends State<LobbyScreen> {
   LobbyTable lobbyTable;
 
-
-
   @override
   void initState() {
-    Future.delayed(Duration.zero).then((_){
-      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
-       lobbyTable = LobbyTable(
-    width: 1000,
-    height: 1000,
-         games: [Game(
-           isPublic: true,
-           didStart: false,
-           isRated: true,
-           id: "boom",
-           increment: 2,
-           time: 500,
-       chessMoves: [
-       new ChessMove(
-       initialTile: 'H6',
-         nextTile: 'B4',
-         remainingTime: 6,
-       )
-      ],
-      player: [
-      new Player(
-        playerColor: PlayerColor.white,
-      isConnected: true,
-      user: new User(
-          score: 1000,
-          userName: 'bro'
-      ),
-      ),
-      new Player(
-        playerColor: PlayerColor.black,
-        isConnected: true,
-      user: new User(
-        score: 1000,
-        userName: 'Leo',
-      ),
-      ),
-      new Player(
-        playerColor: PlayerColor.red,
-        isConnected: true,
-      user: new User(
-        score: 1000,
-      userName: 'Jan'
-      ),
-      ),
-      ]
-      )],
-         onGameTap: (game) => Provider.of<GameProvider>(context, listen: false).joynGame(game.id),
+    Future.delayed(Duration.zero).then((_) {
+      GameProvider gameProvider =
+          Provider.of<GameProvider>(context, listen: false);
+      lobbyTable = LobbyTable(
+        width: 1000,
+        height: 1000,
+        games: [
+          Game(
+              isPublic: true,
+              didStart: false,
+              isRated: true,
+              id: "boom",
+              increment: 2,
+              time: 500,
+              chessMoves: [
+                new ChessMove(
+                  initialTile: 'H6',
+                  nextTile: 'B4',
+                  remainingTime: 6,
+                )
+              ],
+              player: [
+                new Player(
+                  playerColor: PlayerColor.white,
+                  isConnected: true,
+                  user: new User(score: 1000, userName: 'bro'),
+                ),
+                new Player(
+                  playerColor: PlayerColor.black,
+                  isConnected: true,
+                  user: new User(
+                    score: 1000,
+                    userName: 'Leo',
+                  ),
+                ),
+                new Player(
+                  playerColor: PlayerColor.red,
+                  isConnected: true,
+                  user: new User(score: 1000, userName: 'Jan'),
+                ),
+              ])
+        ],
+        onGameTap: (game) =>
+            Provider.of<GameProvider>(context, listen: false).joynGame(game.id),
       );
       gameProvider.fetchGames();
     });
@@ -80,8 +76,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -89,7 +83,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
             color: Colors.white,
             icon: Icon(Icons.add),
             onPressed: () {
-              return Navigator.of(context).pushNamed(CreateGameScreen.routeName);
+              return Navigator.of(context)
+                  .pushNamed(CreateGameScreen.routeName);
             },
           ),
           SizedBox(width: 20)
@@ -100,7 +95,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
         width: 1000,
         height: 1000,
         games: Provider.of<GameProvider>(context).games ?? [],
-        onGameTap: (game) => Provider.of<GameProvider>(context, listen: false).joynGame(game.id),
+        onGameTap: (game) {
+
+          Provider.of<GameProvider>(context, listen: false).joynGame(game.id).then((_){
+            if (Provider.of<GameProvider>(context, listen: false).game !=
+                null) {
+              Navigator.of(context).pushNamed(BoardScreen.routeName);
+            }
+          });
+        },
       ),
     );
   }

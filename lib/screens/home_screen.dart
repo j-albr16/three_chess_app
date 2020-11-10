@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/auth_provider.dart';
+import 'package:three_chess/providers/game_provider.dart';
 
 import '../screens/board_screen.dart';
 import '../screens/design-test-screen.dart';
@@ -11,13 +12,14 @@ import '../screens/game_provider_test_screen.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    bool boardClickable = Provider.of<GameProvider>(context).game != null;
     return Scaffold(
       appBar: AppBar(
         title: Text('Main Menu'),
       ),
       body: Column(
         children: <Widget>[
-          menuItem('Chess Board Test', BoardScreen.routeName, context),
+          menuItem('Chess Board Test', BoardScreen.routeName, context, clickable: boardClickable),
           menuItem('Design Test', DesignTestScreen.routeName, context),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
@@ -31,9 +33,12 @@ class HomeScreen extends StatelessWidget {
           Container(
             height: 200,
             width: 200,
-            child: Image.asset(
-              'assets/pieces/bishop_black.png',
-              fit: BoxFit.cover,
+            child: GestureDetector(
+              onTap: () => Provider.of<GameProvider>(context, listen: false).fetchGame(),
+              child: Image.asset(
+                'assets/pieces/bishop_black.png',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ],
@@ -42,9 +47,9 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-Widget menuItem(String title, String routeName, BuildContext context) {
+Widget menuItem(String title, String routeName, BuildContext context,{bool clickable = true}) {
   return GestureDetector(
-    onTap: () => Navigator.of(context).pushNamed(routeName),
+    onTap: () { if(clickable){Navigator.of(context).pushNamed(routeName);}},
     child: Container(
       child: Text(
         title,
@@ -56,7 +61,7 @@ Widget menuItem(String title, String routeName, BuildContext context) {
       ),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.blue,
+        color: clickable ? Colors.blue : Colors.grey,
         border: Border.all(color: Colors.black87),
         borderRadius: BorderRadius.circular(5),
         boxShadow: [

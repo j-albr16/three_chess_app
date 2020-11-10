@@ -36,9 +36,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Offset dragOffset;
   Offset startingOffset;
   PlayerColor playingPlayer;
+  bool didStart = false;
 
   bool get myTurn{
-    return playingPlayer != null ? playingPlayer == PlayerColor.values[widget.boardState.chessMoves.length%3] : false;
+    return playingPlayer != null ? (playingPlayer == PlayerColor.values[widget.boardState.chessMoves.length%3] && didStart) : false;
   }
 
   // TODO Implement timeCounter
@@ -48,7 +49,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context ,listen: false);
       playingPlayer =
-          gameProvider.player?.playerColor;
+          gameProvider.player?.playerColor ?? PlayerColor.white;
       if(playingPlayer != null){
         for (int i = 0; i < playingPlayer.index; i++) {
           widget.tileKeeper.rotateTilesNext();
@@ -82,6 +83,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Widget build(BuildContext context) {
     GameProvider gameProvider = Provider.of<GameProvider>(context);
     updateGame(gameProvider.game);
+    didStart = gameProvider.game.didStart?? false;
     return Provider.of<GameProvider>(context).game == null ?
     Center(child: Column(
       children: [
@@ -100,7 +102,6 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
             startingOffset = details.localPosition;
           }
           PlayerColor pieceColor = widget.boardState.pieces[whatsHit]?.playerColor;
-          PlayerColor playingPlayer = Provider.of<GameProvider>(context, listen: false).player.playerColor;
           //PlayerColor playingPlayer = PlayerColor.white;
 
           setState(() {
@@ -152,6 +153,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
               }
               else{
                 highlighted = null;
+                draggedPiece = null;
+                dragOffset = null;
               }
             }
         },

@@ -44,7 +44,7 @@ class Tiles{
         side: BoardData.sideData[prevId],
         path: tile.path);
   }
-  tiles = newTiles;} // TODO
+  tiles = newTiles;}
 
   void rotateTilesNext() {
     Map<String, Tile> newTiles = {};
@@ -59,7 +59,7 @@ class Tiles{
         path: tile.path);
   }
   tiles = newTiles;
-  }  //TODO
+  }
 
   static Map<PlayerColor, List<String>> charCoordinatesOf = {
     PlayerColor.white: ["A", "B", "C", "D", "E", "F", "G", "H"],
@@ -106,13 +106,13 @@ class Tiles{
   getTilePositionOf(Offset localPosition,){
     return tiles
         .entries
-        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null);
+        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null).key;
   }
 
   static getTilePositionOfInTiles(Offset localPosition,  Map<String, Tile> tiles){
     return tiles
         .entries
-        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null);
+        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null).key;
   }
 
 }

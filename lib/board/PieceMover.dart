@@ -1,6 +1,6 @@
 import '../models/chess_move.dart';
 import '../models/piece.dart';
-import '../Board/BoardState.dart';
+import 'package:three_chess/board/BoardState.dart';
 import '../Board/Tiles.dart';
 import '../data/board_data.dart';
 import '../models/enums.dart';

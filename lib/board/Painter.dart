@@ -10,12 +10,13 @@ class BoardPainter extends StatelessWidget {
   final double width;
   final Map<String, Piece> pieces;
   final Map<String, Tile> tiles;
-  final MapEntry<String, Offset> pieceOffset;
+  final Offset pieceOffset;
+  final String pieceOffsetKey;
   final List<String> highlighted;
 
   final Color highlightColor = Color.fromRGBO(20, 70, 150, 0.2);
 
-  BoardPainter({@required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.highlighted});
+  BoardPainter({@required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.pieceOffsetKey, this.highlighted});
 
   List<Widget> _buildHighlighted(){
     List<Widget> result = [];
@@ -29,7 +30,7 @@ class BoardPainter extends StatelessWidget {
           clipper: PathClipper(path: tiles[highlight].path),
         ));
     }
-
+    return result;
   }
 
 
@@ -42,11 +43,11 @@ class BoardPainter extends StatelessWidget {
         child: Stack(fit: StackFit.expand, children: [
           //The Stack of Tiles, Highlighter and Piece
           ...tiles.values,
-          ..._buildHighlighted(),
+          if(highlighted != null)..._buildHighlighted(),
           ...pieces.values.map((e) {
             Offset myOffset = Offset(0, 0);
-            if (pieceOffset != null) {
-              myOffset = pieceOffset.value;
+            if (pieceOffset != null && pieceOffsetKey == e.position) {
+              myOffset = pieceOffset;
             }
             return Positioned(
               child: IgnorePointer(child: e),

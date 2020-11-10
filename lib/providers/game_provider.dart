@@ -64,12 +64,12 @@ class GameProvider with ChangeNotifier {
   }
 
 // providing game data for screen
-  get game {
+  Game get game {
     return _game;
   }
 
 // providing games data for lobby
-  get games {
+  List<Game> get games {
     return [..._games];
   }
 

@@ -49,5 +49,5 @@ class TimeCounter{
     //     gatheredTime[player] = serverChessMoves[serverChessMoves.length-1 - (player.index + currentPlayer.index)%3].remainingTime;
     //   }
     // }
-  } //TODO
+  } //TODO need difference
 }

@@ -71,7 +71,9 @@ class _LobbyTableState extends State<LobbyTable> {
   void initState() {
     loadWidgets();
     _loadComparisons();
+    games = List.from(widget.games, growable: true);
     _selectedColoumn = List.from(ColumnType.values, growable: true);
+    _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
     _scrollController = ScrollController()..addListener(() => _scrollListener());
     onGameTap = widget.onGameTap;
     super.initState();
@@ -81,13 +83,6 @@ class _LobbyTableState extends State<LobbyTable> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-
-  _resort() {
-    if (sortSelectedColumnOld != null && ascendingOld != null) {
-      _sortGames(sortSelectedColumnOld, ascendingOld);
-    }
-    _sortGames(sortSelectedColumn, ascending);
   }
 
   _resortAndUpdate(List<Game> newGames) {
@@ -158,7 +153,7 @@ class _LobbyTableState extends State<LobbyTable> {
   int _avgScore(Game game) {
     int averageScore = 0;
     for (int i = 0; i < game.player.length; i++) {
-      averageScore += game.player[i]?.user?.score ?? 1; //TODO Shouldnt need null aware
+      averageScore += game.player[i].user.score;
     }
     return averageScore ~/ game.player.length;
   }
@@ -167,18 +162,18 @@ class _LobbyTableState extends State<LobbyTable> {
     if(ctype != null)
     {
 
-      if (!ascending) {
-        mergeSort(games, end: games.length, compare: gameComparison[ctype]);
-      } else {
-        mergeSort(games,
-            end: games.length,
-            compare: (Game game, Game game2) =>
-                gameComparison[ctype](game2, game));
-      }
+        if (!ascending) {
+          mergeSort(games, end: games.length, compare: gameComparison[ctype]);
+        } else {
+          mergeSort(games,
+              end: games.length,
+              compare: (Game game, Game game2) =>
+                  gameComparison[ctype](game2, game));
+        }
+        setState(() {
+        _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
+      });
     }
-    setState(() {
-      _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
-    });
   }
 
   void _onHeaderTap(ColumnType ctype) {
@@ -219,7 +214,7 @@ class _LobbyTableState extends State<LobbyTable> {
 
   Widget orderColumn(ColumnType e) {
     return Container(
-      //decoration: BoxDecoration(border: Border(left: borderSide, right: borderSide)),
+        //decoration: BoxDecoration(border: Border(left: borderSide, right: borderSide)),
         key: ValueKey(0),
         child: Column(children: getColumnChilds(e)));
   }
@@ -228,28 +223,28 @@ class _LobbyTableState extends State<LobbyTable> {
   void loadWidgets() {
     columnWidget = {
       ColumnType.UserName1: (Game game) => Row(children: [
-        Spacer(),
-        Text(_user(0, game)),
-        Spacer(),
-        Align(
-          child: Text(_score(0, game)),
-          alignment: Alignment.centerRight,
-        ),
-        Spacer()
-      ]),
+            Spacer(),
+            Text(_user(0, game)),
+            Spacer(),
+            Align(
+              child: Text(_score(0, game)),
+              alignment: Alignment.centerRight,
+            ),
+            Spacer()
+          ]),
       ColumnType.UserName2: (Game game) => Row(children: [
-        Spacer(),
-        Text(_user(1, game)),
-        Spacer(),
-        Align(
-          child: Text(_score(1, game)),
-          alignment: Alignment.centerRight,
-        ),
-        Spacer()
-      ]),
+            Spacer(),
+            Text(_user(1, game)),
+            Spacer(),
+            Align(
+              child: Text(_score(1, game)),
+              alignment: Alignment.centerRight,
+            ),
+            Spacer()
+          ]),
       ColumnType.AverageScore: (Game game) => Center(
-        child: Text("~" + _avgScore(game).toString()),
-      ),
+            child: Text("~" + _avgScore(game).toString()),
+          ),
       ColumnType.Time: (Game game) => Center(
           child: Text(((game.time - (game.time % 60)) / 60).toString() +
               ":" +
@@ -263,12 +258,12 @@ class _LobbyTableState extends State<LobbyTable> {
 
   double getWidth(ColumnType type) {
     return ((widget.width /
-        columnFlex.entries
-            .where((element) => selectedColoumn.contains(element.key))
-            .toList()
-            .map((e) => e.value)
-            .toList()
-            .fold(0, (previousValue, element) => previousValue + element)) *
+            columnFlex.entries
+                .where((element) => selectedColoumn.contains(element.key))
+                .toList()
+                .map((e) => e.value)
+                .toList()
+                .fold(0, (previousValue, element) => previousValue + element)) *
         columnFlex[type]);
   }
 
@@ -293,13 +288,13 @@ class _LobbyTableState extends State<LobbyTable> {
               child: sortSelectedColumn != type
                   ? child
                   : Stack(
-                children: [
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(!ascending ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.lightBlue, size: 10)),
-                  Center(child: child)
-                ],
-              )),
+                      children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(!ascending ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.lightBlue, size: 10)),
+                        Center(child: child)
+                      ],
+                    )),
         ),
       ),
     );
@@ -331,10 +326,10 @@ class _LobbyTableState extends State<LobbyTable> {
       rowColumns.add(Column(
         children: List.generate(
             games.length,
-                (index) => (rowColumns.isEmpty && index == 0)
+            (index) => (rowColumns.isEmpty && index == 0)
                 ? IgnorePointer(
-              child: wrapHeaderCell(type: ctype, child: Container()),
-            )
+                    child: wrapHeaderCell(type: ctype, child: Container()),
+                  )
                 : wrapCell(type: ctype, child: Container())),
       ));
     }
@@ -347,16 +342,13 @@ class _LobbyTableState extends State<LobbyTable> {
     List<Widget> columnRows = [];
     columnRows.add(IgnorePointer(
         child: Container(
-          width: widget.width,
-          height: rowHeaderHeigth,
-          color: Colors.transparent,
-        )));
+      width: widget.width,
+      height: rowHeaderHeigth,
+      color: Colors.transparent,
+    )));
     for (int i = 0; i < games.length; i++) {
       columnRows.add(InkWell(
-          onTap: () {
-            print(games[i].id);
-            onGameTap(games[i]);
-          },
+          onTap: () => onGameTap(games[i]),
           child: Container(
             width: widget.width,
             height: rowHeigth,
@@ -388,10 +380,7 @@ class _LobbyTableState extends State<LobbyTable> {
   @override
   Widget build(BuildContext context) {
 
-      games = Provider.of<GameProvider>(context).games;
-
-      _resort();
-
+    _resortAndUpdate(Provider.of<GameProvider>(context).games);
 
     void _onReorder(int oldIndex, int newIndex) {
       _isDragging = false;
@@ -400,7 +389,7 @@ class _LobbyTableState extends State<LobbyTable> {
 
         Widget child = _columns.removeAt(oldIndex);
 
-       _selectedColoumn.insert(newIndex, type);
+        _selectedColoumn.insert(newIndex, type);
         _columns.insert(newIndex, child);
       });
     }

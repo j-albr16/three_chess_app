@@ -30,7 +30,7 @@ class ThreeChessApp extends StatelessWidget {
           title: 'three chess app',
           home: HomeScreen(),
           routes: {
-            //BoardScreen.routeName: (ctx) => BoardScreen(),
+            BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
             AuthScreen.routeName: (ctx) => AuthScreen(),
             CreateGameScreen.routeName: (ctx) => CreateGameScreen(),

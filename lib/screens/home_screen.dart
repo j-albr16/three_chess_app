@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/friends_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/auth_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
@@ -41,6 +42,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+          menuItem('Friends Screen', FriendsScreen.routeName, context),
         ],
       ),
     );

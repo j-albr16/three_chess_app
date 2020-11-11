@@ -5,7 +5,6 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:three_chess/providers/game_provider%20safe.dart';
 
 import '../models/game.dart';
 import '../models/player.dart';

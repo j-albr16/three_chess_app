@@ -11,6 +11,7 @@ import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/providers/game_provider.dart';
+import '../helpers/higlightList.dart';
 
 
 
@@ -31,7 +32,7 @@ class ThreeChessBoard extends StatefulWidget {
 }
 
 class _ThreeChessBoardState extends State<ThreeChessBoard> {
-  MapEntry<String, List<String>> highlighted;
+  MapEntry<String, HighlightList> highlighted;
   String draggedPiece;
   Offset dragOffset;
   Offset startingOffset;
@@ -99,7 +100,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
           print(whatsHit);
           _startAMove(){
-            highlighted = MapEntry(whatsHit,ThinkingBoard.getLegalMove(whatsHit, widget.boardState));
+            setState(() {
+              highlighted = MapEntry(whatsHit, HighlightList([]));
+            });
+            highlighted = MapEntry(whatsHit, HighlightList(ThinkingBoard.getLegalMove(whatsHit, widget.boardState)));
             draggedPiece = whatsHit;
             startingOffset = details.localPosition;
           }
@@ -115,7 +119,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
               }
             }
             else{
-              if(highlighted.value.contains(whatsHit) && myTurn){
+              if(highlighted.value.highlights.contains(whatsHit) && myTurn){
                   PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
                   _moveWasMade(context);
                 highlighted = null;
@@ -141,7 +145,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           print(whatsHit);
             if (highlighted != null) {
               setState(() {
-                if(highlighted.value.contains(whatsHit)&& myTurn){
+                if(highlighted.value.highlights.contains(whatsHit)&& myTurn){
                     setState(() {
                       PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
                       _moveWasMade(context);

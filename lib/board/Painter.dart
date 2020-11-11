@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/helpers/higlightList.dart';
 import '../models/piece.dart';
 import '../models/tile.dart';
 import '../helpers/path_clipper.dart';
@@ -12,7 +13,7 @@ class BoardPainter extends StatelessWidget {
   final Map<String, Tile> tiles;
   final Offset pieceOffset;
   final String pieceOffsetKey;
-  final List<String> highlighted;
+  final HighlightList highlighted;
 
   final Color highlightColor = Color.fromRGBO(20, 70, 150, 0.2);
 
@@ -20,7 +21,7 @@ class BoardPainter extends StatelessWidget {
 
   List<Widget> _buildHighlighted(){
     List<Widget> result = [];
-    for(String highlight in highlighted){
+    for(String highlight in highlighted.highlights){
       result.add(ClipPath(
           child: Container(
             width: double.infinity,

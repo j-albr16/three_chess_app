@@ -66,7 +66,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   void updateGame(Game game){
     //TODO maybe catch chessmove diffrence the other way around
-    if(game != null){
+    if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
       List<ChessMove> newChessMoves = game.chessMoves.sublist(
           game.chessMoves.length - widget.boardState.chessMoves.length);
       for (ChessMove chessMove in newChessMoves) {

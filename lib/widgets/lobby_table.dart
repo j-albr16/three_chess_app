@@ -160,6 +160,9 @@ class _LobbyTableState extends State<LobbyTable> {
     for (int i = 0; i < game.player.length; i++) {
       averageScore += game.player[i]?.user?.score ?? 1; //TODO Shouldnt need null aware
     }
+    if(game.player.length == 0){
+      return 0;
+    }
     return averageScore ~/ game.player.length;
   }
 

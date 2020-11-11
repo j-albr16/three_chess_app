@@ -37,9 +37,10 @@ class GameProvider with ChangeNotifier {
     ),
   );
 
-  Player get player {PlayerColor yourPlayerColor ;
+  Player get player {
+    PlayerColor yourPlayerColor;
     if (_game != null) {
-     yourPlayerColor = _game?.player
+      yourPlayerColor = _game?.player
           ?.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)
           ?.playerColor;
     }
@@ -184,7 +185,6 @@ class GameProvider with ChangeNotifier {
         body: json.encode({
           'initialTile': chessMove.initialTile,
           'nextTile': chessMove.nextTile,
-          'gameId': _game.id,
           'remainingTime': chessMove.remainingTime,
         }),
         headers: {'Content-Type': 'application/json'},
@@ -195,7 +195,8 @@ class GameProvider with ChangeNotifier {
       }
       if (!data['valid']) {
         print(data['message']);
-        throw ('Data send from server while making a Chess Move is not Valid' + data['message']);
+        throw ('Data send from server while making a Chess Move is not Valid' +
+            data['message']);
       }
       print(data['message']);
       print(data['chessMove'].toString());

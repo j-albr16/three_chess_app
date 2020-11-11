@@ -194,7 +194,8 @@ class GameProvider with ChangeNotifier {
         throw ('No data Send from Server while making a chess move');
       }
       if (!data['valid']) {
-        throw ('Data send from server while making a Chess Move is not Valid');
+        print(data['message']);
+        throw ('Data send from server while making a Chess Move is not Valid' + data['message']);
       }
       print(data['message']);
       print(data['chessMove'].toString());

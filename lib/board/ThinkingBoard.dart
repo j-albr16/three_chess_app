@@ -278,7 +278,7 @@ class ThinkingBoard {
     }
 
    // Check for checks and therefor remove
-    print(result.toString());
+    //print(result.toString());
     result.removeWhere((element) {
       bool resultRemove = false;
       BoardState virtualState = copyBoardState(boardState);
@@ -348,7 +348,7 @@ class ThinkingBoard {
       }
     }
 
-    print("I got past Bishop in tile covered");
+    //print("I got past Bishop in tile covered");
 
     //Rook, 2/2 Queen
     for (Direction direction in Direction.values.where((element) => element.index % 2 == 1)) {
@@ -365,7 +365,7 @@ class ThinkingBoard {
       }
     }
 
-    print("I got past rook in tile covered");
+   // print("I got past rook in tile covered");
 
     //King
     for (Direction direction in Direction.values) {
@@ -380,7 +380,7 @@ class ThinkingBoard {
       }
     }
 
-    print("I got past King in tile covered");
+   // print("I got past King in tile covered");
 
     //Knight
     for (List<Direction> directions in (_directionListKnight + _directionListKnight2)) {
@@ -417,7 +417,7 @@ class ThinkingBoard {
       }
     }
 
-    print("I got past Knight in tile covered");
+   // print("I got past Knight in tile covered");
 
     return false;
   }

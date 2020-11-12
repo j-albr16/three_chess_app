@@ -7,6 +7,7 @@ import 'enums.dart';
 import '../data/board_data.dart';
 
 class Tile extends StatelessWidget {
+  final bool isHighlighted;
   final List<Point> points;
   final bool isWhite;
   final String id;
@@ -14,6 +15,8 @@ class Tile extends StatelessWidget {
   final PlayerColor side;
   final Path path;
   Color myColor;
+
+  final Color highlightColor = Color.fromRGBO(20, 70, 150, 0.2);
 
   Point get middle {
     double sx = 0.0;
@@ -52,19 +55,32 @@ class Tile extends StatelessWidget {
       @required this.id,
       @required this.directions,
       @required this.side,
-      @required this.path}) {
+      @required this.path,
+      this.isHighlighted = false}) {
     myColor = isWhite ? Colors.grey : Colors.deepPurple;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: myColor,
-      ),
-      clipper: PathClipper(path: path),
+    return Stack(
+      children: [
+        ClipPath(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: myColor,
+          ),
+          clipper: PathClipper(path: path),
+        ),
+        if(isHighlighted)ClipPath(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: highlightColor,
+          ),
+          clipper: PathClipper(path: path),
+        )
+      ],
     );
   }
 }

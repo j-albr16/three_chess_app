@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:three_chess/models/user.dart';
@@ -14,7 +15,7 @@ typedef void RecieveMessage(Message message);
 
 // typedef void FetchMessages(List<Message> messages);
 
-class ChatListener {
+class ChatProvider with ChangeNotifier{
   IO.Socket _socket = IO.io(SERVER_ADRESS);
   String _token = constToken;
   String _userId = constUserId;
@@ -22,14 +23,14 @@ class ChatListener {
 
   Chat _chat;
 
-  ChatListener() {}
+  ChatProvider() {}  
 
-  get chat {
+  Chat get chat {   
     return _chat;
   }
 
   // List<FetchMessages> messagesListener = [];
-  List<RecieveMessage> messageListener = [];
+  List<RecieveMessage> messageListener = []; 
   List<Function> listener = [];
 
   void addListener(Function function) {

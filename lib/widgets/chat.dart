@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/chat_listener.dart';
+import '../providers/chat_provider.dart';
 import '../models/message.dart';
 import '../models/user.dart';
 import '../models/chat_model.dart' as mod;
@@ -19,7 +19,6 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   ScrollController _scrollController;
   TextEditingController _chatController;
-  ChatListener chatListener;
   mod.Chat currentChat = mod.Chat(
     messages: [
       Message(
@@ -52,38 +51,16 @@ class _ChatState extends State<Chat> {
 
   bool lobbyChat = true;
   String id;
-
+  mod.Chat chat;
+ChatProvider chatProvider;
   @override
   void initState() {
+     Future.delayed(Duration.zero).then((result) => chatProvider =  Provider.of<ChatProvider>(context)); 
     _chatController = TextEditingController();
-    chatListener = ChatListener()
-      ..listenForMessages()
-      ..addMessageListener((message) => newChatMessage(message))
-      ..addListener(() => getChat());
     _scrollController = ScrollController();
     super.initState();
   }
 
-  
-
-  newChatMessage(message) {
-    setState(() {
-      print('received Socket via Message');
-      currentChat.messages.add(message);
-    });
-  }
-
-  getChat() {
-    setState(() {
-      currentChat = chatListener.chat;
-      WidgetsBinding.instance
-          .addPostFrameCallback((_){
-        if (_scrollController.hasClients) {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        }
-      });
-    });
-  }
 
   @override
   void dispose() {
@@ -94,8 +71,8 @@ class _ChatState extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
-    
-    // print('the size:   ' + widget.size.toString());
+     chat = chatProvider.chat;
+    // print('the size:  U
     return Container(
       width: widget.size.width,
       height: widget.size.height,
@@ -126,7 +103,7 @@ class _ChatState extends State<Chat> {
             FlatButton(
               child: Text('Fetch Chat'),
               onPressed: (){
-                chatListener.fetchChat();
+                chatProvider.fetchChat();
               },
             ),
           ]),
@@ -196,7 +173,7 @@ class _ChatState extends State<Chat> {
   submit() {
     if (_chatController.text.isNotEmpty) {
       setState(() {
-        chatListener.sendTextMessage(_chatController.text);
+        chatProvider.sendTextMessage(_chatController.text);
         _chatController.clear();
       });
     }

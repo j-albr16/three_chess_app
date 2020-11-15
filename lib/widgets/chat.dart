@@ -69,6 +69,15 @@ ChatProvider chatProvider;
     super.dispose();
   }
 
+listenForMessage(String id){
+    StreamController chatStream = StreamController();
+}
+  newChatMessage(Message message){
+    setState(() {
+    chat.messages.add(message);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
      chat = chatProvider.chat;

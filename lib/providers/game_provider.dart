@@ -20,7 +20,7 @@ const String SERVER_URL = SERVER_ADRESS;
 const printCreateGame = true;
 const printJoynGame = true;
 const printFetchGame = true;
-const printFetchGames = true;
+const printFetchGames = false;
 const printGameSocket = true;
 const printGameMove = true;
 
@@ -235,6 +235,7 @@ class GameProvider with ChangeNotifier {
   Future<void> fetchGame() async {
     // input: VOID
     // output: sends a fetch Game request to Server. Will Receive a JSON Game. return a Game Model
+    print('Start fetching Game');
     try {
       // defining url for Server: fetch-game ->  Server Keyword. userId and token for authentification on Serveer
       final url = SERVER_URL + '/fetch-game?auth=$_token&id=$_userId';
@@ -268,18 +269,22 @@ class GameProvider with ChangeNotifier {
     print('start fetching games');
     try {
       // defining url for Server req: fetch-games -> Server Keyword. token and userId for Server authentification
-      final url = SERVER_URL + '/fetch-games?auth=$_token&id=$_userId';
+      final url = SERVER_URL+ '/fetch-games?auth=$_token&id=$_userId';
       // sending async get request with given url to Server
       final encodedResponse = await http.get(url);
       // decodes received Data
-      final data = jsonDecode(encodedResponse.body);
+      final data =json.decode(encodedResponse.body);
       // TODO : Delete Printout
-      print(data);
+      // print(data);
       // validates Data
       _validation(data);
       // for each element in Lobby games Array rebase this Lobby Game:
       // Convert JSON Game Data toexisting Game Model
-      data['gameData'].forEach((e, k) => _games.add(_rebaseLobbyGame(e)));
+      data['gameData']['games'].forEach((e) => _games.add(_rebaseLobbyGame(
+        gameData: e,
+        playerData: data['gameData']['player'],
+        userData: data['gameData']['user'],
+      )));
       notifyListeners();
       // printsa all game Provider Data if option is set on true
       if (printFetchGames) {
@@ -300,7 +305,11 @@ class GameProvider with ChangeNotifier {
       // output: Adds a LObby Games ot _games Array
         print('socket: message...:  ' + data['message']);
         // rebaseing whole Lobby Game... Convertng JSON Data to exisitng Gaem Model
-        _games.add(_rebaseLobbyGame(data['gameData']));
+        _games.add(_rebaseLobbyGame(
+          gameData: data['gameData'],
+          playerData: data['player'],
+          userData: data['user'],
+        ));
         // print all Game Data if option is set on true
         if (printGameSocket) {
           printEverything(_game, player, _games);
@@ -315,13 +324,17 @@ class GameProvider with ChangeNotifier {
         // case for all players that player joyned a game in the lobby
         print(data.toString());
         // retrieves the Index of the Game with the given gameId
-        final gameIndex =
-            _games.indexWhere((e) => e.id == data['gameData']['id']);
+        final int gameIndex =
+            _games.indexWhere((e) => e.id == data['gameData']['_id']);
         print('index:   ' + gameIndex.toString());
+        print(gameIndex);
         // adds the converted Player to the Game with the given gameId in _games
         _games[gameIndex]
             .player
-            .add(_rebaseOnePlayer(data['gameData']['player'], data['gameData']['user']));
+            .add(_rebaseOnePlayer(
+              playerData: data['gameData']['player'],
+              userData: data['gameData']['user'],
+            ));
         print('found game socket:   ' + _games[gameIndex].player.toString());
         print('player joyned A game... socket');
         // if option is set on true print all gameProvider data
@@ -335,12 +348,12 @@ class GameProvider with ChangeNotifier {
       // output: receives a JSON Player Model and adds this as Player Model to exsting Game
         print('socket: message...:  ' + data['message']);
         // case handles the action for a user in a lobby who witnesses a joyn
-        socketMessage = 'Player  ' +
-            data['gameData']['player']['user']['userName'] +
-            '    joyned the Game';
         print(socketMessage);
         //add game to games
-        _game.player.add(_rebaseOnePlayer(data['gameData']['player'], data['gameData']['user']));
+        _game.player.add(_rebaseOnePlayer(
+          playerData: data['gameData']['player'],
+          userData: data['gameData']['user'],
+        ));
         // if did Start is true start game
         if (data['gameData']['didStart']) {
           _game.didStart = true;
@@ -369,9 +382,6 @@ class GameProvider with ChangeNotifier {
 }
 
 _printEverything(Game game, Player player, List<Game> games) {
-  print(game.toString());
-  print(player.toString());
-  print(games.toString());
   print('###################################');
   if (game != null) {
     print('Game:----------------------------');
@@ -425,7 +435,7 @@ Game _rebaseWholeGame(encodedResponse) {
   // output: Returns a game Model
   // here received Response is decoded
   final data = json.decode(encodedResponse.body);
-  // TODO :remove data print
+  // TODO :remove data prin t
   print(data);
   // validation of the received Data. Look Methode below
   _validation(data);
@@ -433,41 +443,47 @@ Game _rebaseWholeGame(encodedResponse) {
   final gameData = data['gameData'];
   // convert Chess moves and add them to exisitng Chess Move Class
   List<ChessMove> chessMoves = [];
-  gameData['chessMoves'].forEach((e) => chessMoves.add(_rebaseOneMove(e)));
+  gameData['chessMoves'].forEach(( e) => chessMoves.add(_rebaseOneMove(e)));
   // convert player List and add them to existing player class
   List<Player> convPlayer =
-      _connectUserPlayerData(gameData['user'], gameData['player']);
+      _connectUserPlayerData(
+        player: gameData['player'],
+        users: gameData['user'],
+      );
   // creates a game and sets Game options in it
   Game game = _createGameWithOptions(gameData['options']);
   // set remaining Game parameters
   game.didStart = gameData['didStart'];
-  game.id = gameData['id'];
+  game.id = gameData['_id'];
   game.player = convPlayer;
   game.chessMoves = chessMoves;
   // returns the converted Game
   return game;
 }
 
-Game _rebaseLobbyGame(gameData) {
+Game _rebaseLobbyGame({gameData, userData, playerData}) {
   // input: takes the decoded GameData of an JSON Response as Input
   // output: returns a converted Game that includes Lobby Game Data
   //No Chess Moves made in Lobby Games
   List<ChessMove> chessMoves = [];
   // convert player List and add them to existing player class
   List<Player> convPlayer =
-      _connectUserPlayerData(gameData['user'], gameData['player']);
+      _connectUserPlayerData(
+        player: playerData,
+        users: userData,
+      );
   // creates a game and sets gameOptions
   Game game = _createGameWithOptions(gameData['options']);
   // set remaining Game parameters
   game.didStart = gameData['didStart'];
-  game.id = gameData['id'];
+  game.id = gameData['_id'];
   game.player = convPlayer;
   game.chessMoves = chessMoves;
   // returns the converted Game
   return game;
 }
 
-Player _rebaseOnePlayer(playerData, userData) {
+Player _rebaseOnePlayer({playerData, userData}) {
   // input: takes player Converted Data of One Player as Input
   // output: returns a Player Model with the Given Data
   return new Player(
@@ -506,7 +522,7 @@ void _validation(data) {
   print('message');
 }
 
-List<Player> _connectUserPlayerData( users, player) {
+List<Player> _connectUserPlayerData({ users, player}) {
   // input: get a Player JSON Object and a User JSON Object
   // output: return a Player model where User and Player are asigned
   List<Player> convPlayer = [];
@@ -514,7 +530,10 @@ List<Player> _connectUserPlayerData( users, player) {
     print(p);
     final user = users?.firstWhere((user) =>p['userId'] == user['userId'], orElse: () => null);
     // returns user object where player-userId and user.id are qual
-    convPlayer.add(_rebaseOnePlayer(p, user));
+    convPlayer.add(_rebaseOnePlayer(
+      playerData: p,
+      userData: user,
+    ));
   });
   // return List of Player.
   return convPlayer;
@@ -522,7 +541,7 @@ List<Player> _connectUserPlayerData( users, player) {
 
 Game _createGameWithOptions(gameOptions) {
   // input: takes JSOON Game Options as Input
-  // output: returns a game Model where Game options are set alreadyreturn new Game(
+  // output: returns a game Model where Game options are set already
   return new Game(
     increment: gameOptions['increment'],
     isPublic: gameOptions['isPublic'],

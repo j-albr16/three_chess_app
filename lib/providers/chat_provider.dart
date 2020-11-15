@@ -9,13 +9,11 @@ import 'package:three_chess/models/user.dart';
 import '../data/server.dart';
 import '../models/message.dart';
 import '../helpers/user_acc.dart';
+import '../widgets/chat.dart' as w;
 import '../models/chat_model.dart';
 
-typedef void RecieveMessage(Message message);
 
-// typedef void FetchMessages(List<Message> messages);
-
-class ChatProvider with ChangeNotifier{
+class ChatProvider{
   IO.Socket _socket = IO.io(SERVER_ADRESS);
   String _token = constToken;
   String _userId = constUserId;
@@ -29,36 +27,17 @@ class ChatProvider with ChangeNotifier{
     return _chat;
   }
 
-  // List<FetchMessages> messagesListener = [];
-  List<RecieveMessage> messageListener = []; 
-  List<Function> listener = [];
+List<Function> chatListener = [];
+void addChatListener(Function function){
+  chatListener.add(function);
+}
+natifyChatListener(Message messsage){
+  chatListener.forEach((f) { 
+    f(message);
+  });
+}
 
-  void addListener(Function function) {
-    listener.add(function);
-  }
 
-  void removeListener(Function function) {
-    listener.remove(function);
-  }
-
-  void notifyListener() {
-    listener.forEach((e) => e());
-  }
-
-//listener for one new message
-  void addMessageListener(RecieveMessage function) {
-    messageListener.add(function);
-  }
-
-  void removeMessageListener(RecieveMessage function) {
-    messageListener.remove(function);
-  }
-
-  void notifyMessageListener(myMessage) {
-    messageListener.forEach((element) {
-      element(myMessage);
-    });
-  }
 
   listenForMessages() async {
     print('Connected to Socket');
@@ -76,8 +55,6 @@ class ChatProvider with ChangeNotifier{
         isYours: data['userId'] == _userId,
       );
       _chat.messages.add(message);
-      notifyMessageListener(message);
-      _printWholeChat(_chat);
     });
   }
 

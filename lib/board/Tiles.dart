@@ -7,6 +7,7 @@ import '../data/board_data.dart';
 class Tiles{
 
   Map<String, Tile> tiles;
+  List<String> lastHighlighted;
 
   Tiles({PlayerColor perspectiveOf = PlayerColor.white}){
     tiles = {};
@@ -29,6 +30,34 @@ class Tiles{
     for(int i = 0; i < perspectiveOf.index; i++){
       rotateTilesNext();
     }
+  }
+
+  void highlightTiles(List<String> highlighted){
+    if(lastHighlighted != null){
+      for(String high in lastHighlighted){
+        tiles[high] = Tile(
+            isHighlighted: false,
+            id: tiles[high].id,
+            points: tiles[high].points,
+            isWhite: BoardData.tileWhiteData[high],
+            directions: BoardData.adjacentTiles[high],
+            side: BoardData.sideData[high],
+            path: tiles[high].path);
+      }
+    }
+    if (highlighted != null) {
+      for(String high in highlighted){
+        tiles[high] = Tile(
+            isHighlighted: true,
+            id: tiles[high].id,
+            points: tiles[high].points,
+            isWhite: BoardData.tileWhiteData[high],
+            directions: BoardData.adjacentTiles[high],
+            side: BoardData.sideData[high],
+            path: tiles[high].path);
+      }
+    }
+    lastHighlighted = highlighted;
   }
 
 

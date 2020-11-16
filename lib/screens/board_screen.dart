@@ -40,6 +40,9 @@ class _BoardScreenState extends State<BoardScreen> {
           // String selectedPiece = pieceProvider.pieces.values.firstWhere((element) => element.playerColor == playerProvider.currentPlayer).position;
           // threeChessBoard.gameProvider.game.chessMoves.add(ChessMove(initialTile: selectedPiece, nextTile: thinkingBoard.getLegalMove(selectedPiece, MapEntry(pieceProvider.pieces[selectedPiece].pieceType, pieceProvider.pieces[selectedPiece].playerColor), context).first));
           // threeChessBoard.gameProvider.notifyListeners();
+          setState(() {
+            print("setState button pressed");
+          });
           },
       ),
       appBar: AppBar(),

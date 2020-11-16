@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:three_chess/screens/waiting_screen.dart';
 
 import './screens/home_screen.dart';
 import './screens/board_screen.dart';
@@ -31,6 +32,7 @@ class ThreeChessApp extends StatelessWidget {
           title: 'three chess app',
           home: HomeScreen(),
           routes: {
+            WaitingScreen.routeName: (ctx) => WaitingScreen(),
             BoardScreen.routeName: (ctx) => BoardScreen(),
             DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
             AuthScreen.routeName: (ctx) => AuthScreen(),

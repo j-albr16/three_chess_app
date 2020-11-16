@@ -1,0 +1,77 @@
+class AddFriendArea extends StatefulWidget {
+  final AddFriend addFriend;
+
+  AddFriendArea({this.addFriend});
+
+  @override
+  _AddFriendAreaState createState() => _AddFriendAreaState();
+}
+
+class _AddFriendAreaState extends State<AddFriendArea> {
+  bool isTyping = false;
+
+  @override
+  initState() {
+    super.initState();
+  }
+
+  Widget textField() {
+    return Container(
+      padding: EdgeInsets.only(left: 10),
+      child: TextField(
+        autofocus: true,
+        style: TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          hintText: '... add a Friend',
+        ),
+        maxLines: 1,
+        onSubmitted: (submitted) {
+          setState(() {
+            isTyping = false;
+          });
+          widget.addFriend(submitted);
+        },
+      ),
+    );
+  }
+
+  Widget button() {
+    return Container(
+        color: Colors.purple,
+        height: 47,
+        child: InkWell(
+          onTap: () => setState(() {
+            isTyping = true;
+          }),
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Add a Friend",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Container(width: 10, color: Colors.transparent),
+                  Icon(Icons.search, color: Colors.white,),
+                ],
+              ),
+            ),
+          ),
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.only(left: 7),
+        width: double.infinity,
+        decoration:
+        BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
+        child: isTyping ? textField() : button());
+  }
+}

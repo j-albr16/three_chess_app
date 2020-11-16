@@ -5,10 +5,18 @@ enum FriendAction{
   Watch,
   Battle,
   Profile,
+  Delete
 }
 
-class FriendsScreen extends StatelessWidget {
+class FriendsScreen extends StatefulWidget {
    static const routeName = 'friends-screen';
+
+  @override
+  _FriendsScreenState createState() => _FriendsScreenState();
+}
+
+class _FriendsScreenState extends State<FriendsScreen> {
+  bool isTyping = false;
     final List<FriendTileModel> sampleFriends = [
       FriendTileModel(
         isOnline: false,
@@ -32,6 +40,7 @@ class FriendsScreen extends StatelessWidget {
          context: context,
          builder: (BuildContext context) {
            return SimpleDialog(
+             
              title: const Text('What you wanna do with him?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
              children: <Widget>[
                SimpleDialogOption(
@@ -46,6 +55,10 @@ class FriendsScreen extends StatelessWidget {
                  onPressed: () { Navigator.pop(context, model.isPlaying ? FriendAction.Watch : null); },
                  child:  Center(child: Text(model.isPlaying ? 'Watch him Play!' : "He ain't Playing right now!", style: TextStyle(color: model.isPlaying ? Colors.green : Colors.grey, fontSize: 17, fontWeight: FontWeight.bold),)),
                ),
+               SimpleDialogOption(
+                 onPressed: () { Navigator.pop(context, FriendAction.Delete); },
+                 child: const Center(child: Text('Delete that guy!', style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),)),
+               ),
              ],
            );
          }
@@ -59,28 +72,47 @@ class FriendsScreen extends StatelessWidget {
        case FriendAction.Watch:
        //TODO
          break;
-     }
+
+     case FriendAction.Delete:
+     //TODO
+     break;
    }
-   
-   
+   }
+
+
+   switchTyping(){
+     setState(() {
+       isTyping = !isTyping;
+     });
+   }
+
    @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('Friends'),
         ),
-      body: Align(
-        alignment: Alignment.bottomRight,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 15),
-          child:  FriendList(
-            tileHeight: 40,
-              addFriend: (toBeAddedUsername) => print("request to add: " + toBeAddedUsername),
-              popUp: (username) => _friendPopUp(context, username),
-              friendTiles: sampleFriends,
-              width: 300,),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          if(isTyping) {switchTyping();}
+        } ,
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 15),
+            child:  FriendList(
+              isTyping: isTyping,
+              switchTyping: switchTyping,
+              tileHeight: 40,
+                addFriend: (toBeAddedUsername) => print("request to add: " + toBeAddedUsername),
+                popUp: (username) => _friendPopUp(context, username),
+                friendTiles: sampleFriends,
+                width: 300,),
+            ),
           ),
-        ),
+      ),
       );
   }
 }

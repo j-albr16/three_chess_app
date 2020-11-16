@@ -69,9 +69,14 @@ class FriendList extends StatelessWidget {
   final double tileHeight;
   final FriendDialog popUp;
   final AddFriend addFriend;
+  final bool isTyping;
+  final Function switchTyping;
 
   FriendList(
-      {this.addFriend,
+      {
+        this.switchTyping,
+        this.isTyping,
+        this.addFriend,
       this.popUp,
       this.tileHeight,
       this.width = double.infinity,
@@ -105,6 +110,8 @@ class FriendList extends StatelessWidget {
                 ),
                 Container(height: 20, color: Colors.transparent),
                 AddFriendArea(
+                  isTyping: isTyping,
+                  switchTyping: switchTyping,
                   addFriend: addFriend,
                 )
               ],
@@ -115,27 +122,15 @@ class FriendList extends StatelessWidget {
 
 typedef void AddFriend(String friendToAdd);
 
-class AddFriendArea extends StatefulWidget {
+class AddFriendArea extends StatelessWidget {
   final AddFriend addFriend;
+  final bool isTyping;
+  final Function switchTyping;
 
-  AddFriendArea({this.addFriend});
+  AddFriendArea({this.addFriend, this.isTyping = false, this.switchTyping});
 
-  @override
-  _AddFriendAreaState createState() => _AddFriendAreaState();
-}
-
-class _AddFriendAreaState extends State<AddFriendArea> {
-  bool isTyping = false;
-  TextEditingController _controller;
-
-  @override
-  initState() {
-    _controller = TextEditingController();
-    super.initState();
-  }
 
   Widget textField() {
-    //_controller.text = "...add a Friend";
     return Container(
       padding: EdgeInsets.only(left: 10),
       child: TextField(
@@ -145,12 +140,9 @@ class _AddFriendAreaState extends State<AddFriendArea> {
           hintText: '... add a Friend',
         ),
         maxLines: 1,
-        controller: _controller,
         onSubmitted: (submitted) {
-          setState(() {
-            isTyping = false;
-          });
-          widget.addFriend(submitted);
+          switchTyping();
+          addFriend(submitted);
         },
       ),
     );
@@ -161,9 +153,10 @@ class _AddFriendAreaState extends State<AddFriendArea> {
         color: Colors.purple,
         height: 47,
         child: InkWell(
-          onTap: () => setState(() {
-            isTyping = true;
-          }),
+          onTap: () =>
+            switchTyping()
+          ,
+
           child: Center(
             child: Padding(
               padding: EdgeInsets.only(top: 3, bottom: 3),

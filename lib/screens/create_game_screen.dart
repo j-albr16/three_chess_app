@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/game_provider.dart';
+import '../models/chess_move.dart';
 import './game_provider_test_screen.dart';
 
 class CreateGameScreen extends StatefulWidget {
@@ -66,12 +67,14 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
             width: size.width * 0.6,
             padding: EdgeInsets.all(25),
             margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(7)),
+            decoration: BoxDecoration(
+                color: Colors.black45, borderRadius: BorderRadius.circular(7)),
             child: Column(children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(isPublic ? 'Public' : 'Private', style: TextStyle(color: Colors.white)),
+                  Text(isPublic ? 'Public' : 'Private',
+                      style: TextStyle(color: Colors.white)),
                   Switch(
                     onChanged: (value) {
                       setState(() {
@@ -106,7 +109,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       },
                     ),
                   ),
-                  Text(_totalTime.toStringAsFixed(1), style: TextStyle(color: Colors.white)),
+                  Text(_totalTime.toStringAsFixed(1),
+                      style: TextStyle(color: Colors.white)),
                 ],
               ),
               Text('Increment', style: TextStyle(color: Colors.white)),
@@ -132,7 +136,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       },
                     ),
                   ),
-                  Text(increment.toStringAsFixed(1), style: TextStyle(color: Colors.white)),
+                  Text(increment.toStringAsFixed(1),
+                      style: TextStyle(color: Colors.white)),
                 ],
               ),
               Divider(
@@ -205,7 +210,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     ),
                   ),
                   Text(
-                    negDeviation.toStringAsFixed(0) + '   /   ' + posDeviation.toStringAsFixed(0),
+                    negDeviation.toStringAsFixed(0) +
+                        '   /   ' +
+                        posDeviation.toStringAsFixed(0),
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -233,7 +240,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 thickness: 0.5,
               ),
               FlatButton(
-                child: Text('Create Game', style: TextStyle(color: Colors.white)),
+                child:
+                    Text('Create Game', style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
                   Provider.of<GameProvider>(context, listen: false).createGame(
@@ -253,8 +261,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   borderRadius: BorderRadius.circular(7),
                 ),
               ),
+              // TODO: remove Test Button
               FlatButton(
-                child: Text('Fetch Game and Fetch Games', style: TextStyle(color: Colors.white)),
+                child: Text('Fetch Game and Fetch Games',
+                    style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
                   print('clicked Button');
@@ -267,12 +277,36 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   borderRadius: BorderRadius.circular(7),
                 ),
               ),
+              // TODO: remove Test Button
               FlatButton(
-                child: Text('Joyn Jans Game', style: TextStyle(color: Colors.white)),
+                child: Text('Joyn Jans Game',
+                    style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
                   print('clicked Button');
-                  Provider.of<GameProvider>(context, listen: false).joynGame('5fa27c3ceef24445347a5505');
+                  Provider.of<GameProvider>(context, listen: false)
+                      .joynGame('5fa27c3ceef24445347a5505');
+                  //print('Game was created');
+                },
+                minWidth: 100,
+                padding: EdgeInsets.all(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7),
+                ),
+              ),
+              // TODO: remove Test Button
+              FlatButton(
+                child: Text('Make chess Move',
+                    style: TextStyle(color: Colors.white)),
+                color: Colors.blue,
+                onPressed: () {
+                  print('clicked Button');
+                  Provider.of<GameProvider>(context, listen: false)
+                      .sendMove(new ChessMove(
+                    initialTile: 'A2',
+                    nextTile: 'A4',
+                    remainingTime: 30,
+                  ));
                   //print('Game was created');
                 },
                 minWidth: 100,

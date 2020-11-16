@@ -4,6 +4,8 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:three_chess/screens/waiting_screen.dart';
 
 import './screens/home_screen.dart';
+import './providers/chat_provider.dart';
+
 import './screens/board_screen.dart';
 import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
@@ -26,6 +28,7 @@ class ThreeChessApp extends StatelessWidget {
               create: (_) => GameProvider(),
               update: (_, auth, previousGame) =>
                   previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
+          ChangeNotifierProvider(create: (ctx) => ChatProvider()),
         ],
         child: MaterialApp(
           theme: ThemeData(primaryColor: Colors.blueAccent),
@@ -41,7 +44,8 @@ class ThreeChessApp extends StatelessWidget {
             GameTestScreen.routeName: (ctx) => GameTestScreen(),
             FriendsScreen.routeName: (ctx) => FriendsScreen(),
           },
-          builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget),
+          builder: (context, widget) => ResponsiveWrapper.builder(
+              BouncingScrollWrapper.builder(context, widget),
               maxWidth: 2400,
               minWidth: 300,
               defaultScaleFactor: 0.212,

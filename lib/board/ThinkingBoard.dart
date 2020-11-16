@@ -2,10 +2,10 @@ import '../models/tile.dart';
 
 import '../models/enums.dart';
 import '../models/piece.dart';
-import '../Board/Tiles.dart';
-import 'package:three_chess/board/BoardState.dart';
+import '../board/Tiles.dart';
+import '../board/BoardState.dart';
 import '../data/board_data.dart';
-import '../Board/PieceMover.dart';
+import '../board/PieceMover.dart';
 
 class ThinkingBoard {
 

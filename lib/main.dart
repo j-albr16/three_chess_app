@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:three_chess/screens/waiting_screen.dart';
+import './screens/waiting_screen.dart';
 
 import './screens/home_screen.dart';
 import 'providers/chat_listener.dart';
@@ -28,7 +28,6 @@ class ThreeChessApp extends StatelessWidget {
               create: (_) => GameProvider(),
               update: (_, auth, previousGame) =>
                   previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
-          ChangeNotifierProvider(create: (ctx) => ChatProvider()),
         ],
         child: MaterialApp(
           theme: ThemeData(primaryColor: Colors.blueAccent),

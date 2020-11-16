@@ -4,7 +4,6 @@ import 'dart:html';
 import 'dart:core';
 
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 

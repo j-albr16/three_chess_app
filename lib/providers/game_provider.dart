@@ -205,7 +205,7 @@ class GameProvider with ChangeNotifier {
       final url = SERVER_URL + '/chess-move?auth=$_token&id=$_userId';
       // sends Chess Move as encoded Map and as post Request to server
       // game Id will received by Server automatically cause gameId of auth User is saved in DB
-      final encodedResponse = await http.post(
+     final encodedResponse = await http.post(
         url,
         body: json.encode({
           'initialTile': chessMove.initialTile,
@@ -215,12 +215,12 @@ class GameProvider with ChangeNotifier {
         // set applicaton/json header so server expects JSON DATA
         headers: {'Content-Type': 'application/json'},
       );
-      // not using encoded Reponse cause all Response Data will be received via Websocket Message to All Player in the Lobby
+      //using encodedResponse just for validation purposes
+      final data = json.decode(encodedResponse.body);
+      // Now Validation
+      _validation(data);
       // You are also lstening becuause you created Or Joyned a Game
       // print everything depending on abogh set Options
-      if (printGameMove) {
-        printEverything(_game, player, _games);
-      }
     } catch (error) {
       print(error);
     }
@@ -307,8 +307,8 @@ class GameProvider with ChangeNotifier {
         // rebaseing whole Lobby Game... Convertng JSON Data to exisitng Gaem Model
         _games.add(_rebaseLobbyGame(
           gameData: data['gameData'],
-          playerData: data['player'],
-          userData: data['user'],
+          playerData: data['gameData']['player'],
+          userData: data['gameData']['user'],
         ));
         // print all Game Data if option is set on true
         if (printGameSocket) {
@@ -368,67 +368,22 @@ class GameProvider with ChangeNotifier {
       case 'move-made':
       // input: Message on Player who Made Chess Move in Game Lobby
       // output: receives JSON Move Data. Adds ChessMove Model to existing Game
-        print('socket: message...:  ' + data['message']);
+        // print('socket: message...:  ' + data['message']);
         // rebases JSON Chess Move and adds it to existing game
+        //TODO : remove Printout
+        print(data['chessMove']);
         _game.chessMoves.add(_rebaseOneMove(data['chessMove']));
         // print all Game Provider Data if optin was set to true
-        if (printGameSocket) {
+        // if (printGameSocket) {
           printEverything(_game, player, _games);
-        }
+        // }
         notifyListeners();
         break;
     }
   }
 }
 
-_printEverything(Game game, Player player, List<Game> games) {
-  print('###################################');
-  if (game != null) {
-    print('Game:----------------------------');
-    print('=================================');
-    print('id:         ' + game.id.toString());
-    print('didStart:   ' + game.didStart.toString());
-    print('----------------------------------');
-    print('options: --------------------------   ');
-    print(' -> increment:       ' + game.increment.toString());
-    print(' -> time:            ' + game.time.toString());
-    print(' -> negratingRange:  ' + game.negRatingRange.toString());
-    print(' -> posRatingrange:  ' + game.posRatingRange.toString());
-    print(' -> isPublic:        ' + game.isPublic.toString());
-    print(' -> isRated:         ' + game.isRated.toString());
-    print('---------------------------------');
-    print('player:--------------------------');
-    game.player.forEach((e) {
-      print(' -> playerColor:     ' + e.playerColor.toString());
-      print(' -> remainingTime:   ' + e.remainingTime.toString());
-      print(' -> user:-----------------------');
-      print('     - id:               ' + e.user.id.toString());
-      print('     - userName:         ' + e.user.userName.toString());
-      print('     - score:            ' + e.user.score.toString());
-    });
-  }
-  print('==================================');
-  print('This Player:----------------------');
-  print('playerColor:     ' + player.playerColor.toString());
-  print('remainingTime:   ' + player.remainingTime.toString());
-  print('----------------------------------');
-  print('user:------------------------------');
-  print(' -> id:          ' + player.user.id.toString());
-  print(' -> userName:    ' + player.user.userName.toString());
-  print(' -> score:       ' + player.user.score.toString());
-  print(' -> email:       ' + player.user.email.toString());
-  print('===================================');
-  if (games.isNotEmpty) {
-    print('games:----------------------------');
-    for (game in games) {
-      print('a game:-------------------------');
-      print(' -> id:        ' + game.id.toString());
-      print(' -> isRated:   ' + game.isRated.toString());
-      print('--------------------------------');
-    }
-  }
-  print('#####################################');
-}
+
 
 Game _rebaseWholeGame(encodedResponse) {
   // input: takes a encoded response from Server , where GameData in JSON is encoeded
@@ -450,6 +405,8 @@ Game _rebaseWholeGame(encodedResponse) {
         player: gameData['player'],
         users: gameData['user'],
       );
+  // TODO : Delete Printout
+  print('Finished converting Player and User');
   // creates a game and sets Game options in it
   Game game = _createGameWithOptions(gameData['options']);
   // set remaining Game parameters
@@ -490,7 +447,7 @@ Player _rebaseOnePlayer({playerData, userData}) {
     playerColor: PlayerColor.values[playerData['playerColor']],
     remainingTime: playerData['remainingTime'],
     user: new User(
-      id: userData['userId'],
+      id: userData['_id'],
       score: userData['score'],
       userName: userData['userName'],
     ),
@@ -519,7 +476,7 @@ void _validation(data) {
     throw ('validation did not succeed ... thsi is the Error Message: ...' +
         data['message']);
   }
-  print('message');
+  print('validation finished , was succesfull');
 }
 
 List<Player> _connectUserPlayerData({ users, player}) {
@@ -528,7 +485,7 @@ List<Player> _connectUserPlayerData({ users, player}) {
   List<Player> convPlayer = [];
   player.forEach((p) {
     print(p);
-    final user = users?.firstWhere((user) =>p['userId'] == user['userId'], orElse: () => null);
+    final user = users?.firstWhere((u) =>p['userId'] == u['_id'], orElse: () => null);
     // returns user object where player-userId and user.id are qual
     convPlayer.add(_rebaseOnePlayer(
       playerData: p,
@@ -550,4 +507,60 @@ Game _createGameWithOptions(gameOptions) {
     posRatingRange: gameOptions['posRatingRange'],
     time: gameOptions['time'],
   );
+}
+_printEverything(Game game, Player player, List<Game> games) {
+  print('###################################');
+  if (game != null) {
+    print('Game:----------------------------');
+    print('=================================');
+    print('id:         ' + game.id.toString());
+    print('didStart:   ' + game.didStart.toString());
+    print('----------------------------------');
+    print('options: --------------------------   ');
+    print(' -> increment:       ' + game.increment.toString());
+    print(' -> time:            ' + game.time.toString());
+    print(' -> negratingRange:  ' + game.negRatingRange.toString());
+    print(' -> posRatingrange:  ' + game.posRatingRange.toString());
+    print(' -> isPublic:        ' + game.isPublic.toString());
+    print(' -> isRated:         ' + game.isRated.toString());
+    print('---------------------------------');
+    print('player:--------------------------');
+    game.player.forEach((e) {
+      print(' -> playerColor:     ' + e.playerColor.toString());
+      print(' -> remainingTime:   ' + e.remainingTime.toString());
+      print(' -> user:-----------------------');
+      print('     - id:               ' + e.user.id.toString());
+      print('     - userName:         ' + e.user.userName.toString());
+      print('     - score:            ' + e.user.score.toString());
+    });
+    print('Chess Moves:-----------------------');
+    game.chessMoves.forEach((m) {
+      print('one move:-------------------------');
+      print(' -> initialTile:     ' + m.initialTile);
+      print(' -> nextTile:        ' + m.nextTile);
+      print(' -> remainingTime:   ' + m.remainingTime.toString());
+
+     });
+  }
+  print('==================================');
+  print('This Player:----------------------');
+  print('playerColor:     ' + player.playerColor.toString());
+  print('remainingTime:   ' + player.remainingTime.toString());
+  print('----------------------------------');
+  print('user:------------------------------');
+  print(' -> id:          ' + player.user.id.toString());
+  print(' -> userName:    ' + player.user.userName.toString());
+  print(' -> score:       ' + player.user.score.toString());
+  print(' -> email:       ' + player.user.email.toString());
+  print('===================================');
+  if (games.isNotEmpty) {
+    print('games:----------------------------');
+    for (game in games) {
+      print('a game:-------------------------');
+      print(' -> id:        ' + game.id.toString());
+      print(' -> isRated:   ' + game.isRated.toString());
+      print('--------------------------------');
+    }
+  }
+  print('#####################################');
 }

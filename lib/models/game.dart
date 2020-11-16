@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/models/enums.dart';
+import '../models/enums.dart';
 
 import './player.dart';
 import './chess_move.dart';

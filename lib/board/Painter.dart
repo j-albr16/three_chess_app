@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/helpers/higlightList.dart';
 import '../models/piece.dart';
 import '../models/tile.dart';
 import '../helpers/path_clipper.dart';

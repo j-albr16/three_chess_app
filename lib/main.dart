@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import './screens/home_screen.dart';
-import './providers/chat_provider.dart';
+import 'providers/chat_listener.dart';
 
 import './screens/board_screen.dart';
 import './screens/design-test-screen.dart';

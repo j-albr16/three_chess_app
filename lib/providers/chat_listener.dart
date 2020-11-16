@@ -12,7 +12,7 @@ import '../helpers/user_acc.dart';
 import '../widgets/chat.dart' as w;
 import '../models/chat_model.dart';
 
-
+typedef void MessageReceiver(Message message);
 class ChatProvider{
   IO.Socket _socket = IO.io(SERVER_ADRESS);
   String _token = constToken;
@@ -27,18 +27,15 @@ class ChatProvider{
     return _chat;
   }
 
-List<Function> chatListener = [];
-void addChatListener(Function function){
-  chatListener.add(function);
+List<Function> messageListener = [];
+addListener(MessageReceiver messageReceiver){
+   messageListener.add(messageReceiver);
 }
-natifyChatListener(Message messsage){
-  chatListener.forEach((f) { 
-    f(message);
+notifyListener(Message message){
+  messageListener.forEach((func) { 
+    func(message);
   });
 }
-
-
-
   listenForMessages() async {
     print('Connected to Socket');
     // print(_chatId);
@@ -63,14 +60,6 @@ natifyChatListener(Message messsage){
     await http.post(url,
         body: json.encode({'message': text, 'chatId': _chatId}),
         headers: {'Content-Type': 'application/json'});
-    // _chat.messages.add(new Message(
-    //   text: text,
-    //   timeStamp: DateTime.now(),
-    //   userName: _chat.you.userName,
-    //   isYours: true,
-    // ));
-    // notifyListener();
-    // _printWholeChat(_chat);
   }
 
   Future<void> fetchChat() async {
@@ -93,7 +82,6 @@ natifyChatListener(Message messsage){
     _chat = _convertChat(data);
     print("next up fetch print:");
     _printWholeChat(_chat);
-    notifyListener();
   }
 
   void switchChatroom(String rId) {

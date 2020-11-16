@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/chat_provider.dart';
+import '../providers/chat_listener.dart';
 import '../models/message.dart';
 import '../models/user.dart';
 import '../models/chat_model.dart' as mod;
@@ -52,10 +52,8 @@ class _ChatState extends State<Chat> {
   bool lobbyChat = true;
   String id;
   mod.Chat chat;
-ChatProvider chatProvider;
   @override
   void initState() {
-     Future.delayed(Duration.zero).then((result) => chatProvider =  Provider.of<ChatProvider>(context)); 
     _chatController = TextEditingController();
     _scrollController = ScrollController();
     super.initState();
@@ -70,7 +68,6 @@ ChatProvider chatProvider;
   }
 
 listenForMessage(String id){
-    StreamController chatStream = StreamController();
 }
   newChatMessage(Message message){
     setState(() {
@@ -80,7 +77,6 @@ listenForMessage(String id){
 
   @override
   Widget build(BuildContext context) {
-     chat = chatProvider.chat;
     // print('the size:  U
     return Container(
       width: widget.size.width,
@@ -112,7 +108,6 @@ listenForMessage(String id){
             FlatButton(
               child: Text('Fetch Chat'),
               onPressed: (){
-                chatProvider.fetchChat();
               },
             ),
           ]),
@@ -182,7 +177,6 @@ listenForMessage(String id){
   submit() {
     if (_chatController.text.isNotEmpty) {
       setState(() {
-        chatProvider.sendTextMessage(_chatController.text);
         _chatController.clear();
       });
     }

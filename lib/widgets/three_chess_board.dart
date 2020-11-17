@@ -11,7 +11,6 @@ import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/providers/game_provider.dart';
-import '../helpers/higlightList.dart';
 
 
 

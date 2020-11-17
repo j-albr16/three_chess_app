@@ -67,10 +67,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   void updateGame(Game game){
     //TODO maybe catch chessmove diffrence the other way around
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
-    int difference =
-        game.chessMoves.length - widget.boardState.chessMoves.length;
-    print("difference " + difference.toString());
-    if(game != null && difference > 0){
+    if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
       int difference =
           game.chessMoves.length - widget.boardState.chessMoves.length;
       List<ChessMove> reversedServer = game.chessMoves.reversed.toList();

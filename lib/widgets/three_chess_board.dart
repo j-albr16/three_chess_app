@@ -86,6 +86,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   @override
   Widget build(BuildContext context) {
 
+// TODO : DELTE
+print('PRINT');
     GameProvider gameProvider = Provider.of<GameProvider>(context);
     updateGame(gameProvider.game);
     didStart = gameProvider.game?.didStart?? false;

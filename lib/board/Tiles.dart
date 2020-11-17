@@ -135,7 +135,7 @@ class Tiles{
   getTilePositionOf(Offset localPosition,){
     return tiles
         .entries
-        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null).key;
+        .firstWhere((e) => e.value.path.contains(localPosition), orElse: () => null)?.key;
   }
 
   static getTilePositionOfInTiles(Offset localPosition,  Map<String, Tile> tiles){

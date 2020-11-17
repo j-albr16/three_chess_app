@@ -124,9 +124,9 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  Future<void> joynGame(String gameId) async {
+  Future<void> joinGame(String gameId) async {
     try {
-      final url = SERVER_URL + '/joyn-game?auth=$_token&id=$_userId';
+      final url = SERVER_URL + '/join-game?auth=$_token&id=$_userId';
       final encodedResponse = await http.post(
         url,
         body: json.encode({
@@ -139,7 +139,7 @@ class GameProvider with ChangeNotifier {
       if (_game.didStart) {
         startGame();
       }
-      print('joyn Game user--- not soket');
+      print('join Game user--- not soket');
       printEverything(_game, player, _games);
       print('successfully created game');
         _socket.on('/${_game.id}', (encodedData) {
@@ -151,7 +151,7 @@ class GameProvider with ChangeNotifier {
           notifyListeners();
         });
     } catch (error) {
-      throw ('An error occured while joyning game:' + error);
+      throw ('An error occured while joining game:' + error);
     } 
   }
 
@@ -242,8 +242,8 @@ class GameProvider with ChangeNotifier {
         printEverything(_game, player, _games);
         print('Finished adding new Lobby game to games');
         break;
-      case 'player-joyned':
-        // case for all players that player joyned a game in the lobby
+      case 'player-joined':
+        // case for all players that player joined a game in the lobby
         print(data.toString());
         final gameIndex = _games.indexWhere((e) =>
             e.id ==
@@ -251,16 +251,16 @@ class GameProvider with ChangeNotifier {
             print('index:   ' + gameIndex.toString());
         _games[gameIndex].player.add(rebaseOnePlayer(data['gameData']['player']));
         print('found game socket:   ' + _games[gameIndex].player.toString());
-        print('player joyned A game... socket');
+        print('player joined A game... socket');
         printEverything(_game, player, _games);
         notifyListeners();
         break;
-      case 'player-joyned-lobby':
-        // case handles the action for a user in a lobby who witnesses a joyn
+      case 'player-joined-lobby':
+        // case handles the action for a user in a lobby who witnesses a join
         print(data['message']);
         socketMessage = 'Player  ' +
             data['gameData']['player']['user']['userName'] +
-            '    joyned the Game';
+            '    joined the Game';
         print(socketMessage);
         //add game to games
         _game.player.add(rebaseOnePlayer(data['gameData']['player']));

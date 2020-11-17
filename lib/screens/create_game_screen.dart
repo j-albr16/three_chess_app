@@ -278,13 +278,13 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
               ),
               // TODO: remove Test Button
               FlatButton(
-                child: Text('Joyn Jans Game',
+                child: Text('join Jans Game',
                     style: TextStyle(color: Colors.white)),
                 color: Colors.blue,
                 onPressed: () {
                   print('clicked Button');
                   Provider.of<GameProvider>(context, listen: false)
-                      .joynGame('5fa27c3ceef24445347a5505');
+                      .joinGame('5fa27c3ceef24445347a5505');
                   //print('Game was created');
                 },
                 minWidth: 100,

@@ -31,8 +31,8 @@ class GameTestScreen extends StatelessWidget {
             itemCount: value.games.length,
             itemBuilder: (context, index) => GestureDetector(
               onTap: (){
-                print('Pressed Button... try joyning the Game');
-                Provider.of<GameProvider>(context, listen: false).joynGame(value.games[index].id);
+                print('Pressed Button... try joining the Game');
+                Provider.of<GameProvider>(context, listen: false).joinGame(value.games[index].id);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

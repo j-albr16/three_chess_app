@@ -66,7 +66,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               ])
         ],
         onGameTap: (game) =>
-            Provider.of<GameProvider>(context, listen: false).joynGame(game.id),
+            Provider.of<GameProvider>(context, listen: false).joinGame(game.id),
       );
       gameProvider.fetchGames();
     });
@@ -97,7 +97,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
         games: Provider.of<GameProvider>(context).games ?? [],
         onGameTap: (game) {
 
-          Provider.of<GameProvider>(context, listen: false).joynGame(game.id).then((_){
+          Provider.of<GameProvider>(context, listen: false).joinGame(game.id).then((_){
             if (Provider.of<GameProvider>(context, listen: false).game !=
                 null) {
               Navigator.of(context).pushNamed(BoardScreen.routeName);

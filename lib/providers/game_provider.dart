@@ -18,7 +18,7 @@ import '../helpers/user_acc.dart';
 const String SERVER_URL = SERVER_ADRESS;
 
 const printCreateGame = true;
-const printJoynGame = true;
+const printjoinGame = true;
 const printFetchGame = true;
 const printFetchGames = false;
 const printGameSocket = true;
@@ -134,7 +134,7 @@ class GameProvider with ChangeNotifier {
       // rebasing the whole Game. COnverting JSON to Game Model Data. See Methode below
       _game = _rebaseWholeGame(response);
       print('successfully created game');
-      // listening to now created Game lobby... Receives Lobby Data if another player joynes
+      // listening to now created Game lobby... Receives Lobby Data if another player joines
       _socket.on(_game.id, (encodedData) {
         final  data = json.decode(encodedData);
         if (!data['action']) {
@@ -147,19 +147,22 @@ class GameProvider with ChangeNotifier {
       if (printCreateGame) {
         _printEverything(_game, player, _games);
       }
+      // ToDO : Remove line below
+      if(_game != null){
       notifyListeners();
+      }
     } catch (error) {
       print(error.toString());
     }
   }
 
-  Future<void> joynGame(String gameId) async {
-    // input: takes a gameId as Inout the Auth User Wants to Joyn
+  Future<void> joinGame(String gameId) async {
+    // input: takes a gameId as Inout the Auth User Wants to ioyn
     // output: Sends a Req to Server with the gven gameId. Then returns a whole Game
     try {
-      // defining url : joyn-game -> Server Keyword, token and userId queries for authentificaton on Server
-      final url = SERVER_URL + '/joyn-game?auth=$_token&id=$_userId';
-      // sends the joyn game post req to Server
+      // defining url : ioyn-game -> Server Keyword, token and userId queries for authentificaton on Server
+      final url = SERVER_URL + '/join-game?auth=$_token&id=$_userId';
+      // sends the join game post req to Server
       // gameId is encoded in the req. body
       final encodedResponse = await http.post(
         url,
@@ -175,24 +178,26 @@ class GameProvider with ChangeNotifier {
         _startGame();
       }
       // print whole game Provider Data if option is set on true
-        if (printJoynGame) {
+        if (printjoinGame) {
       printEverything(_game, player, _games);
         }
+        if(_game != null){
         notifyListeners();
-      print('joyn Game user--- not soket');
+        }
+      print('join Game user--- not soket');
       print('successfully created game');
       // listening to socket Game Lobby room
-      // Potential Data that will be received via soket is id a player joyned or a chess Move was made etc....
+      // Potential Data that will be received via soket is id a player joined or a chess Move was made etc....
       _socket.on(_game.id, (encodedData) {
         final data = json.decode(encodedData);
-        if (!data['action']) {
+        if (data['action'] == null) {
           throw ('Error: No Action Key from Websocket!');
         }
         // handling socket Data Depending on the Action Keyword
           _handleSocketMessage(data);
       });
     } catch (error) {
-      throw ('An error occured while joyning game:' + error);
+      throw ('An error occured while joining game:' + error);
     }
   }
 
@@ -219,7 +224,7 @@ class GameProvider with ChangeNotifier {
       final data = json.decode(encodedResponse.body);
       // Now Validation
       _validation(data);
-      // You are also lstening becuause you created Or Joyned a Game
+      // You are also lstening becuause you created Or joined a Game
       // print everything depending on abogh set Options
     } catch (error) {
       print(error);
@@ -244,7 +249,7 @@ class GameProvider with ChangeNotifier {
       print(encodedResponse.body);
       // convertes encoded Response from JSON to exisitng Game Model
       _game = _rebaseWholeGame(encodedResponse);
-      // starts listening to Game Lobby Websoket (Message on player who joyned Game or made a Chess move etc....)
+      // starts listening to Game Lobby Websoket (Message on player who joined Game or made a Chess move etc....)
       _socket.on(_game.id, (encodedData) {
         final data = json.decode(encodedData);
         if (data['valid'] == false) {
@@ -317,11 +322,11 @@ class GameProvider with ChangeNotifier {
         print('Finished adding new Lobby game to games');
         notifyListeners();
         break;
-      case 'player-joyned':
+      case 'player-joined':
       // input: after listening to  player Lobby
       // output: receives a JSON Player and Adds a Player Model to existing Game in _games
         print('socket: message...:  ' + data['message']);
-        // case for all players that player joyned a game in the lobby
+        // case for all players that player joined a game in the lobby
         print(data.toString());
         // retrieves the Index of the Game with the given gameId
         final int gameIndex =
@@ -336,18 +341,18 @@ class GameProvider with ChangeNotifier {
               userData: data['gameData']['user'],
             ));
         print('found game socket:   ' + _games[gameIndex].player.toString());
-        print('player joyned A game... socket');
+        print('player joined A game... socket');
         // if option is set on true print all gameProvider data
         if (printGameSocket) {
           printEverything(_game, player, _games);
         }
         notifyListeners();
         break;
-      case 'player-joyned-lobby':
+      case 'player-joined-lobby':
       // input: Message on Game Lobby Socket Message
       // output: receives a JSON Player Model and adds this as Player Model to exsting Game
         print('socket: message...:  ' + data['message']);
-        // case handles the action for a user in a lobby who witnesses a joyn
+        // case handles the action for a user in a lobby who witnesses a join
         print(socketMessage);
         //add game to games
         _game.player.add(_rebaseOnePlayer(

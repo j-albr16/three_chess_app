@@ -280,7 +280,7 @@ class GameProvider with ChangeNotifier {
       // decodes received Data
       final data =json.decode(encodedResponse.body);
       // TODO : Delete Printout
-      // print(data);
+      print(data);
       // validates Data
       _validation(data);
       // for each element in Lobby games Array rebase this Lobby Game:

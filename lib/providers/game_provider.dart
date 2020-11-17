@@ -94,6 +94,7 @@ class GameProvider with ChangeNotifier {
     _printEverything(_game, player, _games);
   }
 
+// TODO
   _startGame() {
     _games.remove(_game);
     print('=================================');

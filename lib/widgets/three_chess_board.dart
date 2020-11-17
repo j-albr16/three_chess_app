@@ -79,7 +79,21 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     }
   }
 
-
+  // void updateGame(Game game){
+  //   //TODO maybe catch chessmove diffrence the other way around
+  //   //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
+  //   if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
+  //     int difference =
+  //         game.chessMoves.length - widget.boardState.chessMoves.length;
+  //     List<ChessMove> reversedServer = game.chessMoves.reversed.toList();
+  //     for (int i = reversedServer.length -1; i > reversedServer.length -1 - difference; i --) {
+  //       print("what do i do: " + i.toString() + " with: " + reversedServer[i].nextTile.toString());
+  //       PieceMover.movePieceTo(
+  //           reversedServer[i].initialTile, reversedServer[i].nextTile, widget.boardState);
+  //     }
+  //
+  //   }
+  // }
 
   _moveWasMade(context){
     GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);

@@ -18,7 +18,7 @@ import '../helpers/higlightList.dart';
 class ThreeChessBoard extends StatefulWidget {
   final Tiles tileKeeper = Tiles();
   final BoardState boardState;
-  final TimeCounter timeCounter = TimeCounter();
+  final TimeCounter timeCounter = TimeCounter(); //Not used yet
   final TileSelect tileSelect = TileSelect();
   final double height;
   final double width;
@@ -51,7 +51,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context ,listen: false);
       playingPlayer =
-          gameProvider.player?.playerColor ?? PlayerColor.red;
+          gameProvider.player?.playerColor ?? PlayerColor.red; // TODO alternative red call will be removed
       if(playingPlayer != null){
         for (int i = 0; i < playingPlayer.index; i++) {
           setState(() {
@@ -67,14 +67,15 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   void updateGame(Game game){
     //TODO maybe catch chessmove diffrence the other way around
+    //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
     if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
       List<ChessMove> newChessMoves = game.chessMoves.sublist(
-          game.chessMoves.length - widget.boardState.chessMoves.length);
+          game.chessMoves.length - widget.boardState.chessMoves.length -1);
       for (ChessMove chessMove in newChessMoves) {
         PieceMover.movePieceTo(
             chessMove.initialTile, chessMove.nextTile, widget.boardState);
       }
-      setState(() {});
+
     }
   }
 
@@ -87,13 +88,19 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Widget build(BuildContext context) {
 
     GameProvider gameProvider = Provider.of<GameProvider>(context);
-    updateGame(gameProvider.game);
+    setState(() {
+      updateGame(gameProvider.game);
+    });
+
     didStart = gameProvider.game?.didStart?? false;
+    playingPlayer =
+        gameProvider.player?.playerColor ?? PlayerColor.red;
 
     setState(() { // TODO MOVE TO POSITION WHERE HIGHLIGHT CHANGES MAYBE
       widget.tileKeeper.highlightTiles(highlighted?.value);
     });
 
+    //print("im a print " + widget.boardState.pieces.toString());
     return Provider.of<GameProvider>(context).game == null ?
     Center(child: Column(
       children: [
@@ -173,6 +180,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
               });
             }
         },
+
         child: BoardPainter(
           pieces: widget.boardState.pieces,
           tiles: widget.tileKeeper.tiles,

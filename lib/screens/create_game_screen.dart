@@ -44,7 +44,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('auth-image.jpg'),
+            image: AssetImage('assets/auth-image.jpg'),
             fit: BoxFit.cover,
           ),
         ),

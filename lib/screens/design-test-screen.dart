@@ -75,7 +75,7 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
-              image: AssetImage('auth-image.jpg'),
+              image: AssetImage('assets/auth-image.jpg'),
             ),
           ),
           child: Center(

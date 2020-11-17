@@ -69,13 +69,15 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
     int difference =
         game.chessMoves.length - widget.boardState.chessMoves.length;
+    print("difference " + difference.toString());
     if(game != null && difference > 0){
       int difference =
           game.chessMoves.length - widget.boardState.chessMoves.length;
       List<ChessMove> reversedServer = game.chessMoves.reversed.toList();
       for (int i = 0; i < difference; i ++) {
+        print("what do i do: " + i.toString() + " with: " + reversedServer[i].nextTile.toString());
         PieceMover.movePieceTo(
-            reversedServer[0].initialTile, reversedServer[0].nextTile, widget.boardState);
+            reversedServer[i].initialTile, reversedServer[i].nextTile, widget.boardState);
       }
 
     }

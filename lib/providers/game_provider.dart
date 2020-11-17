@@ -179,7 +179,7 @@ class GameProvider with ChangeNotifier {
       }
       // print whole game Provider Data if option is set on true
         if (printjoinGame) {
-      printEverything(_game, player, _games);
+      _printEverything(_game, player, _games);
         }
         if(_game != null){
         notifyListeners();
@@ -259,7 +259,7 @@ class GameProvider with ChangeNotifier {
       });
       // prints all Data if option is set on true
       if (printFetchGame) {
-        printEverything(_game, player, _games);
+        _printEverything(_game, player, _games);
       }
       notifyListeners();
     } catch (error) {
@@ -317,7 +317,7 @@ class GameProvider with ChangeNotifier {
         ));
         // print all Game Data if option is set on true
         if (printGameSocket) {
-          printEverything(_game, player, _games);
+          _printEverything(_game, player, _games);
         }
         print('Finished adding new Lobby game to games');
         notifyListeners();
@@ -344,7 +344,7 @@ class GameProvider with ChangeNotifier {
         print('player joined A game... socket');
         // if option is set on true print all gameProvider data
         if (printGameSocket) {
-          printEverything(_game, player, _games);
+          _printEverything(_game, player, _games);
         }
         notifyListeners();
         break;
@@ -366,21 +366,22 @@ class GameProvider with ChangeNotifier {
         }
         // print all game provider Data if option is set ot true
         if (printGameSocket) {
-          printEverything(_game, player, _games);
+          _printEverything(_game, player, _games);
         }
         notifyListeners();
         break;
       case 'move-made':
       // input: Message on Player who Made Chess Move in Game Lobby
       // output: receives JSON Move Data. Adds ChessMove Model to existing Game
-        // print('socket: message...:  ' + data['message']);
+        print('socket: message...:  ' + data['message']);
         // rebases JSON Chess Move and adds it to existing game
+        print('Received a Chess Move');
         //TODO : remove Printout
         print(data['chessMove']);
         _game.chessMoves.add(_rebaseOneMove(data['chessMove']));
         // print all Game Provider Data if optin was set to true
         // if (printGameSocket) {
-          printEverything(_game, player, _games);
+          _printEverything(_game, player, _games);
         // }
         notifyListeners();
         break;
@@ -403,6 +404,9 @@ Game _rebaseWholeGame(encodedResponse) {
   final gameData = data['gameData'];
   // convert Chess moves and add them to exisitng Chess Move Class
   List<ChessMove> chessMoves = [];
+  // TODO : Delete
+  print('Move Data');
+  print(gameData['chessMoves']);
   gameData['chessMoves'].forEach(( e) => chessMoves.add(_rebaseOneMove(e)));
   // convert player List and add them to existing player class
   List<Player> convPlayer =
@@ -544,7 +548,6 @@ _printEverything(Game game, Player player, List<Game> games) {
       print(' -> initialTile:     ' + m.initialTile);
       print(' -> nextTile:        ' + m.nextTile);
       print(' -> remainingTime:   ' + m.remainingTime.toString());
-
      });
   }
   print('==================================');

@@ -4,16 +4,16 @@ import '../models/message.dart';
 
 class Chat {
   String id;
-  User you;
-  List<User> chatPartner;
+  List<User> user;
   List<Message> messages;
+  int newMessages;
 
-get chatName{
-  if(chatPartner.length == 2){
-    return chatPartner.firstWhere((e) => e.id != you.id).userName;
+  Chat({this.user,this.newMessages, this.messages, this.id});
+
+  getChatName(String yourId){
+  if(user.length == 2){
+    return user.firstWhere((e) => e.id != yourId).userName;
   }
-  return chatPartner[0].userName + 's Game chat';
+  return user[0].userName + 's Game chat';
 }
-
-  Chat({this.chatPartner, this.messages, this.you, this.id});
-}
+  }

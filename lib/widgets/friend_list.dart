@@ -6,17 +6,20 @@ class FriendTileModel {
   final bool isOnline;
   final String username;
   final bool isPlaying;
+  final String userId;
+  final String chatId;
 
-  FriendTileModel({this.isPlaying, this.isOnline, this.username});
+  FriendTileModel({this.chatId, this.isPlaying, this.isOnline, @required this.username, @required this.userId});
 }
 
 class FriendTile extends StatelessWidget {
   final double height;
   final FriendTileModel model;
-  final FriendDialog popUp;
+  final FriendDialog onLongTap;
+  final FriendDialog onTap;
 
   FriendTile(
-      {this.popUp,this.height,  this.model});
+      {this.onLongTap, this.onTap, this.height,  this.model});
 
   Widget onlineIcon(bool isOnline) {
     return Icon(
@@ -56,7 +59,58 @@ class FriendTile extends StatelessWidget {
           ),
         ),
         title: usernameText(model.username),
-        onTap: () => popUp(model),
+        onTap: () => onTap(model),
+        onLongPress: () => onLongTap(model),
+        hoverColor: Colors.grey,
+      ),
+    );
+  }
+}
+
+class PendingFriendTile extends StatelessWidget {
+  final double height;
+  final FriendTileModel model;
+  final FriendDialog onAccept;
+  final FriendDialog onReject;
+
+  PendingFriendTile(
+      {this.onAccept, this.onReject, this.height,  this.model});
+
+  Widget usernameText(String username) {
+    return Text(
+      username,
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      margin: EdgeInsets.only(top: 5, bottom: 5),
+      child: ListTile(
+        title: usernameText(model.username),
+        subtitle: FittedBox(
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [InkWell(
+                    child: Card(
+                      child: Icon(Icons.check, color: Colors.green,),
+                    ),
+                    onTap: () => onAccept(model),
+                  ),
+                Container(width: 50, color: Colors.transparent,),
+                InkWell(
+                    child: Card(
+                     child: Text("X", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                ),
+                  onTap: () => onReject(model),
+                )
+              ],
+            ),
+          ),
+        ),
         hoverColor: Colors.grey,
       ),
     );
@@ -66,21 +120,33 @@ class FriendTile extends StatelessWidget {
 class FriendList extends StatelessWidget {
   final double width;
   final List<FriendTileModel> friendTiles;
+  final List<FriendTileModel> pendingFriendTiles;
   final double tileHeight;
-  final FriendDialog popUp;
+  final FriendDialog onLongTap;
+  final FriendDialog onTap;
   final AddFriend addFriend;
   final bool isTyping;
   final Function switchTyping;
+  final Function switchShowPending;
+  final bool isPendingFriendsOpen;
+  final FriendDialog onPendingAccept;
+  final FriendDialog onPendingReject;
 
   FriendList(
       {
+        this.switchShowPending,
+        this.onPendingAccept,
+        this.onPendingReject,
+        this.isPendingFriendsOpen,
         this.switchTyping,
         this.isTyping,
         this.addFriend,
-      this.popUp,
+      this.onLongTap,
+        this.onTap,
       this.tileHeight,
       this.width = double.infinity,
-      this.friendTiles = const []});
+      this.friendTiles = const [],
+      this.pendingFriendTiles = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -101,13 +167,37 @@ class FriendList extends StatelessWidget {
                               child: FriendTile(
                                 model: model,
                                 height: tileHeight,
-                                popUp: popUp,
+                                onTap: onTap,
+                                onLongTap: onLongTap,
                               ),
                               constraints: BoxConstraints(maxWidth: width),
                             ))
                         .toList(),
                   ),
                 ),
+                Container(
+                  height: 100,
+                  child: ElevatedButton(
+                    child: Text("FriendRequest"),
+                    onPressed: switchShowPending,
+                  ),
+                ),isPendingFriendsOpen ?
+                Expanded(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+
+                      ...pendingFriendTiles
+                        .map((model) => Container(
+                      child: PendingFriendTile(
+                        model: model,
+                        height: tileHeight,
+                      ),
+                      constraints: BoxConstraints(maxWidth: width),
+                    ))
+                        ].toList(),
+                  ),
+                ) : Container(),
                 Container(height: 20, color: Colors.transparent),
                 AddFriendArea(
                   isTyping: isTyping,
@@ -121,6 +211,7 @@ class FriendList extends StatelessWidget {
 }
 
 typedef void AddFriend(String friendToAdd);
+
 
 class AddFriendArea extends StatelessWidget {
   final AddFriend addFriend;

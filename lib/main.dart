@@ -4,7 +4,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import './screens/waiting_screen.dart';
 
 import './screens/home_screen.dart';
-import 'providers/chat_listener.dart';
+import 'providers/chat_provider.dart';
 
 import './screens/board_screen.dart';
 import './screens/design-test-screen.dart';
@@ -15,6 +15,9 @@ import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';
 import './screens/game_provider_test_screen.dart';
 import './screens/friends_screen.dart';
+import './providers/friends_provider.dart';
+import './providers/server_provider.dart';
+import './providers/user_provider.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -24,10 +27,48 @@ class ThreeChessApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (ctx) => AuthProvider()),
-          ChangeNotifierProxyProvider<AuthProvider, GameProvider>(
-              create: (_) => GameProvider(),
-              update: (_, auth, previousGame) =>
-                  previousGame /*..update(auth.userId, auth.token, previousGame.game, previousGame.games)*/),
+          ChangeNotifierProxyProvider<AuthProvider, ServerProvider>(
+            create: (_) => ServerProvider(),
+            update: (_, auth, previousServer) => previousServer
+              // ..update(
+              //   token: auth.token,
+              //   userId: auth.userId,
+              // )
+          ),
+          ChangeNotifierProxyProvider<ServerProvider, GameProvider>(
+            create: (_) => GameProvider(),
+            update: (_, server, previousGame) => previousGame
+              ..update(
+                serverProvider: server,
+                game: previousGame.game,
+                games: previousGame.games,
+              ),
+          ),
+          ChangeNotifierProxyProvider<ServerProvider, ChatProvider>(
+            create: (_) => ChatProvider(),
+            update: (_, server, previousChat) => previousChat
+              ..update(
+                serverProvider: server,
+                chats: previousChat.chats,
+                chatIndex: previousChat.currentChatIndex,
+              ),
+          ),
+          ChangeNotifierProxyProvider2<ServerProvider,ChatProvider ,  FriendsProvider>(
+            create: (_) => FriendsProvider(),
+            update: (_, server,chat, previousFriends) => previousFriends
+              ..update(
+                chatProvider: chat,
+                serverProvider: server,
+                friends: previousFriends.friends,
+              ),
+          ),
+          ChangeNotifierProxyProvider<ServerProvider, UserProvider>(
+            create: (_) => UserProvider(),
+            update: (_, server, previousUser) => previousUser
+              ..update(
+                user: previousUser.user,
+              ),
+          ),
         ],
         child: MaterialApp(
           theme: ThemeData(primaryColor: Colors.blueAccent),

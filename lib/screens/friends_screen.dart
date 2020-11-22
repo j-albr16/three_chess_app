@@ -1,118 +1,221 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:three_chess/widgets/friend_list.dart';
 
-enum FriendAction{
-  Watch,
-  Battle,
-  Profile,
-  Delete
-}
+import '../providers/chat_provider.dart';
+import '../screens/design-test-screen.dart';
+import '../models/friend.dart';
+import '../providers/friends_provider.dart';
+
+enum FriendAction { Watch, Battle, Profile, Delete }
 
 class FriendsScreen extends StatefulWidget {
-   static const routeName = 'friends-screen';
+  static const routeName = 'friends-screen';
 
   @override
   _FriendsScreenState createState() => _FriendsScreenState();
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
+  FriendsProvider _friendsProvider;
+  ChatProvider _chatProvider;
+  bool _didFetch = false;
+  List<FriendTileModel> friends = [];
+  List<FriendTileModel> pendingFriends = [];
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero)
+        .then((_) => _chatProvider = Provider.of<ChatProvider>(context))
+        .then((_) => _friendsProvider = Provider.of<FriendsProvider>(context))
+        .then((_) => Provider.of<FriendsProvider>(context).fetchFriends())
+        .then((_) => _didFetch = true);
+    super.initState();
+  }
+
   bool isTyping = false;
-    final List<FriendTileModel> sampleFriends = [
-      FriendTileModel(
-        isOnline: false,
-        isPlaying: false,
-        username: "Halbrechts",
-      ),
-      FriendTileModel(
-        isOnline: true,
-        isPlaying: true,
-        username: "LeosLeo",
-      ),
-      FriendTileModel(
-        isOnline: true,
-        isPlaying: false,
-        username: "winkt",
-      )
-    ];
+  bool _isPendingOpen = false;
+  final List<FriendTileModel> sampleFriends = [
+    FriendTileModel(
+      isOnline: false,
+      isPlaying: false,
+      username: "Halbrechts",
+    ),
+    FriendTileModel(
+      isOnline: true,
+      isPlaying: true,
+      username: "LeosLeo",
+    ),
+    FriendTileModel(
+      isOnline: true,
+      isPlaying: false,
+      username: "winkt",
+    )
+  ];
 
-   Future<void> _friendPopUp(context, FriendTileModel model) async {
-     switch (await showDialog<FriendAction>(
-         context: context,
-         builder: (BuildContext context) {
-           return SimpleDialog(
-             
-             title: const Text('What you wanna do with him?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-             children: <Widget>[
-               SimpleDialogOption(
-                 onPressed: () { Navigator.pop(context, FriendAction.Battle); },
-                 child: Center(child: const Text('Battle him!', style: TextStyle(color: Colors.red, fontSize: 17, fontWeight: FontWeight.bold),)),
-               ),
-               SimpleDialogOption(
-                 onPressed: () { Navigator.pop(context, FriendAction.Profile); },
-                 child: const Center(child: Text('His Profile!', style: TextStyle(color: Colors.blue, fontSize: 17, fontWeight: FontWeight.bold),)),
-               ),
-               SimpleDialogOption(
-                 onPressed: () { Navigator.pop(context, model.isPlaying ? FriendAction.Watch : null); },
-                 child:  Center(child: Text(model.isPlaying ? 'Watch him Play!' : "He ain't Playing right now!", style: TextStyle(color: model.isPlaying ? Colors.green : Colors.grey, fontSize: 17, fontWeight: FontWeight.bold),)),
-               ),
-               SimpleDialogOption(
-                 onPressed: () { Navigator.pop(context, FriendAction.Delete); },
-                 child: const Center(child: Text('Delete that guy!', style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold),)),
-               ),
-             ],
-           );
-         }
-     )) {
-       case FriendAction.Battle:
-       //TODO
-         break;
-       case FriendAction.Profile:
-       //TODO
-         break;
-       case FriendAction.Watch:
-       //TODO
-         break;
+  Future<void> _friendPopUp(context, FriendTileModel model) async {
+    switch (await showDialog<FriendAction>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text('What you wanna do with him?',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            children: <Widget>[
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context, FriendAction.Battle);
+                },
+                child: Center(
+                    child: const Text(
+                  'Battle him!',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                )),
+              ),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context, FriendAction.Profile);
+                },
+                child: const Center(
+                    child: Text(
+                  'His Profile!',
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                )),
+              ),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(
+                      context, model.isPlaying ? FriendAction.Watch : null);
+                },
+                child: Center(
+                    child: Text(
+                  model.isPlaying
+                      ? 'Watch him Play!'
+                      : "He ain't Playing right now!",
+                  style: TextStyle(
+                      color: model.isPlaying ? Colors.green : Colors.grey,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                )),
+              ),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context, FriendAction.Delete);
+                },
+                child: const Center(
+                    child: Text(
+                  'Delete that guy!',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                )),
+              ),
+            ],
+          );
+        })) {
+      case FriendAction.Battle:
+        //TODO
+        break;
+      case FriendAction.Profile:
+        //TODO
+        break;
+      case FriendAction.Watch:
+        //TODO
+        break;
 
-     case FriendAction.Delete:
-     //TODO
-     break;
-   }
-   }
+      case FriendAction.Delete:
+        //TODO
+        break;
+    }
+  }
 
+  switchTyping() {
+    setState(() {
+      isTyping = !isTyping;
+    });
+  }
 
-   switchTyping(){
-     setState(() {
-       isTyping = !isTyping;
-     });
-   }
+  switchPending() {
+    setState(() {
+      _isPendingOpen = !_isPendingOpen;
+    });
+  }
 
-   @override
+  void provideFriends() {
+    // TODO
+    friends = _friendsProvider.friends.map((friend) => new FriendTileModel(
+          username: friend.user.userName,
+          userId: friend.user.id,
+          chatId: friend.chatId,
+        ));
+    pendingFriends = _friendsProvider.pendingFriends.map((pendingFriend) =>
+        new FriendTileModel(
+            username: pendingFriend.user.userName,
+            userId: pendingFriend.user.id,
+            chatId: pendingFriend.chatId));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    provideFriends();
+    //mobile thing
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Friends'),
-        ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-          if(isTyping) {switchTyping();}
-        } ,
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 15),
-            child:  FriendList(
-              isTyping: isTyping,
-              switchTyping: switchTyping,
-              tileHeight: 40,
-                addFriend: (toBeAddedUsername) => print("request to add: " + toBeAddedUsername),
-                popUp: (username) => _friendPopUp(context, username),
-                friendTiles: sampleFriends,
-                width: 300,),
-            ),
-          ),
+      appBar: AppBar(
+        title: Text('Friends'),
       ),
-      );
+      body: !_didFetch
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                if (isTyping) {
+                  switchTyping();
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                    child: FriendList(
+                      isTyping: isTyping,
+                      switchTyping: switchTyping,
+                      tileHeight: 50,
+                      switchShowPending: switchPending,
+                      addFriend: (toBeAddedUsername) =>
+                          _friendsProvider.makeFriendRequest(toBeAddedUsername),
+                      onLongTap: (username) => _friendPopUp(context, username),
+                      onTap: (friend) {
+                        _chatProvider.selectChatRoom(friend.chatId, isGameChat: false);
+                        // TODO Open Chat where chat is supposed to be and not design Test Screen
+                        Navigator.of(context)
+                            .pushNamed(DesignTestScreen.routeName);
+                      },
+                      // friendTiles: sampleFriends,
+                      friendTiles: friends,
+                      // pendingFriendTiles: sampleFriends,
+                      pendingFriendTiles: pendingFriends,
+                      isPendingFriendsOpen: _isPendingOpen,
+                      onPendingAccept: (model) =>
+                      _friendsProvider.acceptFriend(model.userId),
+                      onPendingReject: (model) =>
+                      _friendsProvider.declineFriend(model.userId),
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
   }
 }

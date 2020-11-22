@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/chat_listener.dart';
+import '../providers/chat_provider.dart';
 import '../models/message.dart';
 import '../models/user.dart';
 import '../models/chat_model.dart' as mod;
@@ -19,46 +19,47 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   ScrollController _scrollController;
   TextEditingController _chatController;
-  mod.Chat currentChat = mod.Chat(
-    messages: [
-      Message(
-          isYours: true,
-          text: 'Hi this is a dummy Text',
-          timeStamp: DateTime.now(),
-          userName: 'Jan'),
-      Message(
-        isYours: false,
-        text:
-            'Hi Jan whats up sdhjfgbsdf asdjaisdh andasiodh andjaosd asdhaspdh ashduaosd ashduaosd',
-        timeStamp: DateTime.now(),
-        userName: 'Leo',
-      ),
-      Message(
-        isYours: false,
-        text: 'Hi Jan whats up ',
-        timeStamp: DateTime.now(),
-        userName: 'Leo',
-      )
-    ],
-    id: 'asbdaukofgtZSCDBASHJCGV',
-    you: User(userName: 'Jan'),
-    chatPartner: [
-      User(userName: 'Leo'),
-    ],
-  );
+  // mod.Chat currentChat = mod.Chat(
+  //   messages: [
+  //     Message(
+  //         isYours: true,
+  //         text: 'Hi this is a dummy Text',
+  //         timeStamp: DateTime.now(),
+  //         userName: 'Jan'),
+  //     Message(
+  //       isYours: false,
+  //       text:
+  //           'Hi Jan whats up sdhjfgbsdf asdjaisdh andasiodh andjaosd asdhaspdh ashduaosd ashduaosd',
+  //       timeStamp: DateTime.now(),
+  //       userName: 'Leo',
+  //     ),
+  //     Message(
+  //       isYours: false,
+  //       text: 'Hi Jan whats up ',
+  //       timeStamp: DateTime.now(),
+  //       userName: 'Leo',
+  //     )
+  //   ],
+  //   id: 'asbdaukofgtZSCDBASHJCGV',
+  //   user: [
+  //     User(userName: 'Jan'),
+  //     User(userName: 'Leo'),
+  //   ],
+  // );
 
   List<mod.Chat> availableChats;
 
   bool lobbyChat = true;
   String id;
   mod.Chat chat;
+  ChatProvider chatProvider;
   @override
   void initState() {
+    Future.delayed(Duration.zero).then((_) => chatProvider = Provider.of<ChatProvider>(context));
     _chatController = TextEditingController();
     _scrollController = ScrollController();
     super.initState();
   }
-
 
   @override
   void dispose() {
@@ -67,17 +68,16 @@ class _ChatState extends State<Chat> {
     super.dispose();
   }
 
-listenForMessage(String id){
-}
-  newChatMessage(Message message){
+  listenForMessage(String id) {}
+  newChatMessage(Message message) {
     setState(() {
-    chat.messages.add(message);
+      chat.messages.add(message);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // print('the size:  U
+    chat = chatProvider.chat;
     return Container(
       width: widget.size.width,
       height: widget.size.height,
@@ -96,19 +96,18 @@ listenForMessage(String id){
               child: ListView.builder(
                 controller: _scrollController,
                 physics: BouncingScrollPhysics(),
-                itemCount: currentChat.messages.length,
+                itemCount: chat.messages.length,
                 itemBuilder: (context, index) => chatObject(
-                    currentChat.messages[index].timeStamp,
-                    currentChat.messages[index].text,
-                    currentChat.messages[index].userName,
-                    currentChat.messages[index].isYours),
+                    chat.messages[index].timeStamp,
+                    chat.messages[index].text,
+                    chat.messages[index].userName,
+                    chat.messages[index].isYours),
               ),
             ),
             textField(),
             FlatButton(
               child: Text('Fetch Chat'),
-              onPressed: (){
-              },
+              onPressed: () {},
             ),
           ]),
     );
@@ -122,20 +121,20 @@ listenForMessage(String id){
           border: Border(bottom: BorderSide(color: Colors.white)),
         ),
         child: Text(
-          currentChat.chatName,
+          'Dummy Chat Name',
           style: TextStyle(color: Colors.white),
         ),
       ),
       onSelected: (value) {
         setState(() {
-          currentChat = value;
+          chat = value;
         });
       },
       itemBuilder: (context) => [
         ...availableChats
             .map((e) => PopupMenuItem(
                   value: e.id,
-                  child: Text(e.chatName),
+                  child: Text('Dummy Chat Name'),
                 ))
             .toList()
       ],
@@ -176,9 +175,11 @@ listenForMessage(String id){
 
   submit() {
     if (_chatController.text.isNotEmpty) {
-      setState(() {
+      // setState(() {
+        chatProvider.sendTextMessage(_chatController.text);
         _chatController.clear();
-      });
+        
+      // });
     }
     // print(currentChat.messages);
   }

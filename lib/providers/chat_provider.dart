@@ -36,15 +36,24 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
+    if(_chats[_currentChatIndex] == null){
+      // TODO
+     return new Chat(); 
+    }
     return _chats[_currentChatIndex];
   }
 
-  void subsribeToAuthUserChannel({friendRequestCallback, friendAcceptedCallback, friendDeclinedCallback}) {
+  void subsribeToAuthUserChannel(
+      {friendRequestCallback,
+      friendAcceptedCallback,
+      friendDeclinedCallback,
+      increaseNewMessageCounterCallback}) {
     _serverProvider.subscribeToAuthUserChannel(
       friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
       friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
       friendRequestCallback: (friendData) => friendRequestCallback(friendData),
-      messageCallback: (messageData) => _handleMessageData(messageData),
+      messageCallback: (messageData) =>
+          _handleMessageData(messageData, increaseNewMessageCounterCallback),
     );
   }
 
@@ -69,32 +78,37 @@ class ChatProvider with ChangeNotifier {
       // convert chat
       _chats.add(_convertChat(data));
       // make shure current chat is the new Chat that was fetched
-      _currentChatIndex = _chats.length;
+      _currentChatIndex = _chats.length - 1;
       print("next up fetch print:");
+      notifyListeners();
       _printWholeChat(chat);
     } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
     }
   }
 
-  Future<void> selectChatRoom(String id, {bool isGameChat}) async {
-    int _currentGameIndex = _chats.indexWhere((e) => e.id == id);
-    if (_currentGameIndex == -1) {
-      await fetchChat(
+  Future<void> selectChatRoom(String id, {bool isGameChat = false}) async {
+    int index = _chats.indexWhere((e) => e.id == id);
+    if (index == -1) {
+      return await fetchChat(
         id: id,
         isGameChat: isGameChat,
         wasInit: false,
       );
+    } else {
+      _currentChatIndex = index;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  void _handleMessageData(Map<String, dynamic> messageData) {
+  void _handleMessageData(Map<String, dynamic> messageData,
+      Function increaseNewMessageCounterCallback) {
     int chatIndex =
         _chats.indexWhere((chat) => chat.id = messageData['chatId']);
     _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     if (chatIndex != _currentChatIndex) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
+      increaseNewMessageCounterCallback(messageData['userId']);
     }
     notifyListeners();
   }
@@ -106,20 +120,22 @@ class ChatProvider with ChangeNotifier {
     List<User> users = [];
     chatData['user'].forEach((userData) {
       users.add(_rebaseOneUser(userData));
-      chatData['messages'].forEach((messageData) {
+      chatData['chat']['messages'].forEach((messageData) {
         if (messageData['userId'] == userData['_id']) {
-          messages.add(_rebaseOneMessage(messageData, userName: userData['userName']));
+          messages.add(
+              _rebaseOneMessage(messageData, userName: userData['userName']));
         }
       });
     });
     return new Chat(
       user: users,
-      id: chatData['_id'],
+      id: chatData['chat']['_id'],
       messages: messages,
     );
   }
 
-  Message _rebaseOneMessage(Map<String, dynamic> messageData, {String userName}) {
+  Message _rebaseOneMessage(Map<String, dynamic> messageData,
+      {String userName}) {
     final isYours = messageData['userId'] == _userId;
     return new Message(
       isYours: isYours,
@@ -145,20 +161,22 @@ void _printWholeChat(Chat _chat) {
     int messagesIndex = 0;
     print('===============================================');
     print('PRINT CHAT ------------------------------------');
-    print('id:         ' + _chat.id ?? 'null');
+    print('id:         ' + _chat?.id ?? 'null');
     print('user:------------------------------------');
-    _chat.user.forEach((e) {
+    _chat?.user?.forEach((e) {
       print('player ${playerIndex + 1}-----------------------');
       print('-> id:         ' + e?.id ?? 'null');
       print('-> userName:   ' + e?.userName ?? 'null');
       print('-> score:      ' + e?.score?.toString() ?? 'null');
+      playerIndex ++;
     });
     print('messages----------------------------------------');
-    _chat.messages.forEach((el) {
+    _chat?.messages?.forEach((el) {
       print('message ${messagesIndex + 1}--------------------');
       print('-> text:       ' + el?.text ?? 'null');
       print('-> userName:   ' + el?.userName ?? 'null');
-      print('-> timeStamp:  ' + el.timeStamp.toIso8601String() ?? 'null');
+      print('-> timeStamp:  ' + el?.timeStamp?.toIso8601String() ?? 'null');
+      messagesIndex ++;
     });
     print('===============================================');
   }

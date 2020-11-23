@@ -136,11 +136,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
           username: friend.user.userName,
           userId: friend.user.id,
           chatId: friend.chatId,
+          newMessages: friend.newMessages,
         )).toList();
     pendingFriends = _friendsProvider.pendingFriends.map((pendingFriend) =>
         new FriendTileModel(
             username: pendingFriend.user.userName,
             userId: pendingFriend.user.id,
+            newMessages: pendingFriend.newMessages,
             chatId: pendingFriend.chatId)).toList();
   }
 
@@ -177,11 +179,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       tileHeight: 50,
                       switchShowPending: switchPending,
                       addFriend: (toBeAddedUsername) =>
-                          _friendsProvider.makeFriendRequest(toBeAddedUsername),
+                          Provider.of<FriendsProvider>(context, listen: false).makeFriendRequest(toBeAddedUsername),
                       onLongTap: (username) => _friendPopUp(context, username),
                       onTap: (friend) {
-                        return _chatProvider
-                            .selectChatRoom(friend.chatId, isGameChat: false)
+                        print('Select Chat and Navigate to new Chat after Selection');
+                        return Provider.of<ChatProvider>(context, listen: false)
+                            .selectChatRoom(friend.userId, isGameChat: false)
                             .then((_) => Navigator.of(context)
                                 .pushNamed(DesignTestScreen.routeName));
                         // TODO Open Chat where chat is supposed to be and not design Test Screen
@@ -192,9 +195,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       pendingFriendTiles: pendingFriends,
                       isPendingFriendsOpen: _isPendingOpen,
                       onPendingAccept: (model) =>
-                          _friendsProvider.acceptFriend(model.userId),
+                          Provider.of<FriendsProvider>(context, listen: false).acceptFriend(model.userId),
                       onPendingReject: (model) =>
-                          _friendsProvider.declineFriend(model.userId),
+                          Provider.of<FriendsProvider>(context, listen: false).declineFriend(model.userId),
                       width: double.infinity,
                     ),
                   ),

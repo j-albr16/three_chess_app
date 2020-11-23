@@ -38,6 +38,7 @@ class FriendsProvider with ChangeNotifier {
       friendAcceptedCallback: (userId) => _handleFriendAccepted(userId),
       friendRequestCallback: (friendData, chatId) =>
           _handleFriendRequest(friendData, chatId),
+      increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
     );
   }
 
@@ -76,7 +77,7 @@ class FriendsProvider with ChangeNotifier {
             _pendingFriends.indexWhere((friend) => friend.user.id == userId);
         _friends.add(_pendingFriends[friendIndex]);
         _pendingFriends.removeAt(friendIndex);
-       return notifyListeners();
+        return notifyListeners();
       }
       throw ('Accept Request was not successfull');
     } catch (error) {
@@ -111,6 +112,14 @@ class FriendsProvider with ChangeNotifier {
   void _handleFriendDeclined(String userId) {
     _pendingFriends.removeWhere((friend) => friend.user.id == userId);
     notifyListeners();
+  }
+
+  void _handleNewMessage(String userId) {
+    _friends.forEach((friend) {
+      if (friend.user.id == userId) {
+        friend.newMessages++;
+      }
+    });
   }
 
   Friend _matchChatIdAndFriend(Map<String, dynamic> friendData, chatData) {

@@ -222,7 +222,7 @@ class ServerProvider with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
-    final url = SERVER_ADRESS + 'fetch-chat' + _authString + '&id=$id';
+    final url = SERVER_ADRESS + 'fetch-chat' + _authString + '&id=$id&isGameChat=$isGameChat';
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);

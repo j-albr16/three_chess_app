@@ -6,8 +6,10 @@ class Friend{
   bool isAfk;
   User user; 
   String chatId;
+  int newMessages;
 
   Friend({
+    this.newMessages,
     this.chatId,
     this.isPlaying,
     this.isAfk,

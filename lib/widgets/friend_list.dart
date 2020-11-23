@@ -9,9 +9,11 @@ class FriendTileModel {
   final bool isPlaying;
   final String chatId;
   final String userId;
+  final int newMessages;
 
   FriendTileModel(
       {this.chatId,
+      this.newMessages,
       this.isPlaying,
       this.isOnline,
       @required this.username,
@@ -21,12 +23,14 @@ class FriendTileModel {
 class FriendTile extends StatelessWidget {
   final double height;
   final FriendTileModel model;
+  final int newMessages;
   final FriendDialog onLongTap;
   final FriendDialog onTap;
 
-  FriendTile({this.onLongTap, this.onTap, this.height, this.model});
+  FriendTile({this.onLongTap,this.newMessages, this.onTap, this.height, this.model});
 
   Widget onlineIcon(bool isOnline) {
+    isOnline = false;
     return Icon(
       isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
       color: Colors.green,
@@ -34,6 +38,7 @@ class FriendTile extends StatelessWidget {
   }
 
   Widget playingIcon(bool isPlaying) {
+    isPlaying = false;
     return Icon(isPlaying ? Icons.live_tv : Icons.tv_off,
         color: isPlaying ? Colors.red : Colors.black);
   }
@@ -58,7 +63,9 @@ class FriendTile extends StatelessWidget {
               children: [
                 onlineIcon(model.isOnline),
                 Container(width: 10, color: Colors.transparent),
-                playingIcon(model.isPlaying)
+                playingIcon(model.isPlaying),
+                // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
+                Text(newMessages?.toString() ?? 0.toString())
               ],
             ),
           ),

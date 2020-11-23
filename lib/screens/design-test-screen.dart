@@ -31,19 +31,19 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
     )
   ], player: [
     new Player(
-      isConnected: true,
+      isOnline: true,
       user: new User(
         userName: 'Jan',
       ),
     ),
     new Player(
-      isConnected: true,
+      isOnline: true,
       user: new User(
         userName: 'Leo',
       ),
     ),
     new Player(
-      isConnected: true,
+      isOnline: true,
       user: new User(userName: 'Jan'),
     ),
   ]);

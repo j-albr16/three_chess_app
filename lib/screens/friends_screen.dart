@@ -17,6 +17,8 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreenState extends State<FriendsScreen> {
   bool isTyping = false;
+  bool _isPendingOpen = false;
+  FriendTileModel _selectedPending;
     final List<FriendTileModel> sampleFriends = [
       FriendTileModel(
         isOnline: false,
@@ -86,8 +88,22 @@ class _FriendsScreenState extends State<FriendsScreen> {
      });
    }
 
+  selectPending(FriendTileModel selected){
+    setState(() {
+      _selectedPending = selected;
+      print("i want to select: ${selected.username}");
+    });
+  }
+
+  switchPending(){
+    setState(() {
+      _isPendingOpen = !_isPendingOpen;
+    });
+  }
+
    @override
   Widget build(BuildContext context) {
+      //mobile thing
     return Scaffold(
         appBar: AppBar(
           title: Text('Friends'),
@@ -98,20 +114,31 @@ class _FriendsScreenState extends State<FriendsScreen> {
           FocusScope.of(context).unfocus();
           if(isTyping) {switchTyping();}
         } ,
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 15),
-            child:  FriendList(
-              isTyping: isTyping,
-              switchTyping: switchTyping,
-              tileHeight: 40,
-                addFriend: (toBeAddedUsername) => print("request to add: " + toBeAddedUsername),
-                popUp: (username) => _friendPopUp(context, username),
-                friendTiles: sampleFriends,
-                width: 300,),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 15),
+              child:  FriendList(
+                isTyping: isTyping,
+                switchTyping: switchTyping,
+                tileHeight: 50,
+                  switchShowPending: switchPending,
+                  addFriend: (toBeAddedUsername) => print("request to add: " + toBeAddedUsername),
+                  onLongTap: (username) => _friendPopUp(context, username),
+                  onTap: (friend) => print("should be opening the chat for ${friend.username}"),
+                  friendTiles: sampleFriends,
+                  pendingFriendTiles: sampleFriends,
+                  isPendingFriendsOpen: _isPendingOpen,
+                  onPendingAccept: (model) => print("add ${model.username}"),
+                  onPendingReject: (model) => print("reject (rude) ${model.username}"),
+                  onPendingSelect: selectPending,
+                  selectedFriend: _selectedPending,
+                  width: double.infinity,),
+              ),
             ),
-          ),
+        ),
       ),
       );
   }

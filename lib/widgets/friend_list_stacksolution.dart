@@ -215,70 +215,59 @@ class FriendList extends StatelessWidget {
           width: width,
             child: Stack(
               children: [
+                if(isPendingFriendsOpen) friendList,
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: isPendingFriendsOpen ?
-                pendingFriendTiles
-                .map((model) => Container(
-        child: PendingFriendTile(
-        isSelected: selectedFriend == model ? true : false,
-          onSelected: onPendingSelect,
-          model: model,
-          height: tileHeight,
-        ),
-      constraints: BoxConstraints(maxWidth: width),
-    )).toList() :
-                        friendTiles
-                            .map((model) => Container(
-                          child: FriendTile(
-                            model: model,
-                            height: tileHeight,
-                            onTap: onTap,
-                            onLongTap: onLongTap,
-                          ),
-                          constraints: BoxConstraints(maxWidth: width),
-                        ))
-                            .toList(),
+                    if(!isPendingFriendsOpen) friendList,
 
+                    Flexible(
+                      fit: FlexFit.tight,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            Container(
+                              height: tileHeight,
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                child: Text("FriendRequest"),
+                                onPressed: switchShowPending,
+                              ),
+                            ),
+                            if(isPendingFriendsOpen)...pendingFriendTiles
+                              .map((model) => Container(
+                            child: PendingFriendTile(
+                              isSelected: selectedFriend == model ? true : false,
+                              onSelected: onPendingSelect,
+                              model: model,
+                              height: tileHeight,
+                            ),
+                            constraints: BoxConstraints(maxWidth: width),
+                          )).toList(),
+                            Container(
+                              height: 47,
+                              color: Colors.transparent,
+                            ),
+                          ],
+
+                        ),
                       ),
                     ),
+                    if(!isPendingFriendsOpen) Container(height: 20, color: Colors.transparent),
+
+
                   ],
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(left: 7),
-                        height: tileHeight,
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          child: Text("FriendRequest", style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold),
-                        ),
-                          onPressed: switchShowPending,
-                        ),
-                      ),
-                      Container(
-                        height: 10,
-                      ),
-                      AddFriendArea(
-                        isTyping: isTyping,
-                        switchTyping: switchTyping,
-                        addFriend: addFriend,
-                      ),
-                    ],
+                  child: AddFriendArea(
+                    isTyping: isTyping,
+                    switchTyping: switchTyping,
+                    addFriend: addFriend,
                   ),
-                )
-              ]
-              ,
+                )],
             ),
         ));
   }

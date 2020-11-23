@@ -120,13 +120,13 @@ GameTable({this.game, this.size});
       height: size.height * 0.1,
       child: Row(
         children:
-            player.map((e) => playerItem(e.user.userName, e.isConnected)).toList(),
+            player.map((e) => playerItem(e.user.userName, e.isOnline)).toList(),
       ),
     );
   }
 }
 
-Widget playerItem(String userName, bool isConnected) {
+Widget playerItem(String userName, bool isOnline) {
   // return Padding(
   //   padding: EdgeInsets.all(3),
        return Flexible(
@@ -135,7 +135,7 @@ Widget playerItem(String userName, bool isConnected) {
       children: <Widget>[
         Container(
           decoration: BoxDecoration(
-            color: isConnected ? Colors.green : Colors.red,
+            color: isOnline ? Colors.green : Colors.red,
             shape: BoxShape.circle,
           ),
         ),

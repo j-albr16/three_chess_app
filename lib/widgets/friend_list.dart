@@ -266,7 +266,7 @@ class FriendList extends StatelessWidget {
                           ? pendingFriendTiles
                               .map((model) => Container(
                                     child: PendingFriendTile(
-                                      isSelected: selectedFriend == model
+                                      isSelected: selectedFriend?.userId == (model?.userId ?? "")
                                           ? true
                                           : false,
                                       onSelected: onPendingSelect,

@@ -22,6 +22,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   bool _didFetch = false;
   List<FriendTileModel> friends;
   List<FriendTileModel> pendingFriends;
+  FriendTileModel selectedPending;
 
   @override
   void initState() {
@@ -115,6 +116,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
         break;
     }
   }
+switchSelectedPending(model){
+    setState(() {
+      selectedPending = model;
+    });
+}
 
   switchTyping() {
     setState(() {
@@ -193,6 +199,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       friendTiles: friends,
                       // pendingFriendTiles: sampleFriends,
                       pendingFriendTiles: pendingFriends,
+                      onPendingSelect: switchSelectedPending,
+                      selectedFriend: selectedPending,
                       isPendingFriendsOpen: _isPendingOpen,
                       onPendingAccept: (model) =>
                           Provider.of<FriendsProvider>(context, listen: false).acceptFriend(model.userId),

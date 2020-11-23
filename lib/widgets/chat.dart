@@ -19,33 +19,6 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   ScrollController _scrollController;
   TextEditingController _chatController;
-  // mod.Chat currentChat = mod.Chat(
-  //   messages: [
-  //     Message(
-  //         isYours: true,
-  //         text: 'Hi this is a dummy Text',
-  //         timeStamp: DateTime.now(),
-  //         userName: 'Jan'),
-  //     Message(
-  //       isYours: false,
-  //       text:
-  //           'Hi Jan whats up sdhjfgbsdf asdjaisdh andasiodh andjaosd asdhaspdh ashduaosd ashduaosd',
-  //       timeStamp: DateTime.now(),
-  //       userName: 'Leo',
-  //     ),
-  //     Message(
-  //       isYours: false,
-  //       text: 'Hi Jan whats up ',
-  //       timeStamp: DateTime.now(),
-  //       userName: 'Leo',
-  //     )
-  //   ],
-  //   id: 'asbdaukofgtZSCDBASHJCGV',
-  //   user: [
-  //     User(userName: 'Jan'),
-  //     User(userName: 'Leo'),
-  //   ],
-  // );
 
   List<mod.Chat> availableChats;
 

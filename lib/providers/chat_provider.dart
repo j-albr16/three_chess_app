@@ -77,10 +77,10 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  void selectChatRoom(String id, {bool isGameChat}) {
+  Future<void> selectChatRoom(String id, {bool isGameChat}) async {
     int _currentGameIndex = _chats.indexWhere((e) => e.id == id);
     if (_currentGameIndex == -1) {
-      fetchChat(
+      await fetchChat(
         id: id,
         isGameChat: isGameChat,
         wasInit: false,

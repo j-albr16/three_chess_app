@@ -21,7 +21,7 @@ class DesignTestScreen extends StatefulWidget {
 }
 
 class _DesignTestScreenState extends State<DesignTestScreen> {
-  bool showChat = false;
+  bool showChat = true;
 
   Game _game = new Game(chessMoves: [
     new ChessMove(

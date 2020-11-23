@@ -20,15 +20,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
   FriendsProvider _friendsProvider;
   ChatProvider _chatProvider;
   bool _didFetch = false;
-  List<FriendTileModel> friends = [];
-  List<FriendTileModel> pendingFriends = [];
+  List<FriendTileModel> friends;
+  List<FriendTileModel> pendingFriends;
 
   @override
   void initState() {
     Future.delayed(Duration.zero)
-        .then((_) => _chatProvider = Provider.of<ChatProvider>(context))
-        .then((_) => _friendsProvider = Provider.of<FriendsProvider>(context))
-        .then((_) => Provider.of<FriendsProvider>(context).fetchFriends())
+        .then((_) => Provider.of<FriendsProvider>(context, listen: false).fetchFriends())
         .then((_) => _didFetch = true);
     super.initState();
   }
@@ -149,22 +147,25 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   void provideFriends() {
     // TODO
+    _friendsProvider = Provider.of<FriendsProvider>(context);
+    _chatProvider = Provider.of<ChatProvider>(context);
     friends = _friendsProvider.friends.map((friend) => new FriendTileModel(
           username: friend.user.userName,
           userId: friend.user.id,
           chatId: friend.chatId,
-        ));
+        )).toList();
     pendingFriends = _friendsProvider.pendingFriends.map((pendingFriend) =>
         new FriendTileModel(
             username: pendingFriend.user.userName,
             userId: pendingFriend.user.id,
-            chatId: pendingFriend.chatId));
+            chatId: pendingFriend.chatId)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     provideFriends();
     //mobile thing
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Friends'),
@@ -196,10 +197,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           _friendsProvider.makeFriendRequest(toBeAddedUsername),
                       onLongTap: (username) => _friendPopUp(context, username),
                       onTap: (friend) {
-                        _chatProvider.selectChatRoom(friend.chatId, isGameChat: false);
+                        return _chatProvider
+                            .selectChatRoom(friend.chatId, isGameChat: false)
+                            .then((_) => Navigator.of(context)
+                                .pushNamed(DesignTestScreen.routeName));
                         // TODO Open Chat where chat is supposed to be and not design Test Screen
-                        Navigator.of(context)
-                            .pushNamed(DesignTestScreen.routeName);
                       },
                       // friendTiles: sampleFriends,
                       friendTiles: friends,
@@ -207,9 +209,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       pendingFriendTiles: pendingFriends,
                       isPendingFriendsOpen: _isPendingOpen,
                       onPendingAccept: (model) =>
-                      _friendsProvider.acceptFriend(model.userId),
+                          _friendsProvider.acceptFriend(model.userId),
                       onPendingReject: (model) =>
-                      _friendsProvider.declineFriend(model.userId),
+                          _friendsProvider.declineFriend(model.userId),
                       width: double.infinity,
                     ),
                   ),

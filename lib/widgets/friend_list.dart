@@ -190,6 +190,8 @@ class FriendList extends StatelessWidget {
                       ...pendingFriendTiles
                         .map((model) => Container(
                       child: PendingFriendTile(
+                        onAccept: onPendingAccept,
+                        onReject: onPendingReject,
                         model: model,
                         height: tileHeight,
                       ),

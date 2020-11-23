@@ -21,9 +21,10 @@ class ServerProvider with ChangeNotifier {
   String _token = constToken;
   String _userId = constUserId;
 
-String get _authString{
-  return '?auth=$_token&userId=$_userId';
-}
+  String get _authString {
+    return '?auth=$_token&userId=$_userId';
+  }
+
   String get token {
     return _token;
   }
@@ -46,21 +47,31 @@ String get _authString{
     notifyListeners();
   }
 
- //#########################################################################################################
+  //#########################################################################################################
 // Subscribe to Socket Channels ---------------------------------------------------------------------------
-  void subscribeToAuthUserChannel({messageCallback, friendRequestCallback, friendAcceptedCallback, friendDeclinedCallback}) {
+  void subscribeToAuthUserChannel(
+      {messageCallback,
+      friendRequestCallback,
+      friendAcceptedCallback,
+      friendDeclinedCallback}) {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleAuthUserChannelSocketData(
-          data, messageCallback, friendRequestCallback, friendAcceptedCallback, friendDeclinedCallback);
+          data,
+          messageCallback,
+          friendRequestCallback,
+          friendAcceptedCallback,
+          friendDeclinedCallback);
     });
   }
+
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     _socket.on('lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
     });
   }
+
   void subscribeToGameLobbyChannel(
       {String gameId, moveMadeCallback, playerJoinedLobbyCallback}) {
     _socket.on(gameId, (jsonData) {
@@ -69,25 +80,31 @@ String get _authString{
           data, moveMadeCallback, playerJoinedLobbyCallback);
     });
   }
- //#########################################################################################################
+  //#########################################################################################################
 
- //#########################################################################################################
+  //#########################################################################################################
 // unSubscribe to Socket Channel --------------------------------------------------------------------------
   void unSubscribeToAuthUserChannel() {
     _socket.off(_userId);
   }
+
   void unSubscribeToLobbyChannel() {
     _socket.off('lobby');
   }
+
   void unSubscribeToGameLobbyChannel(String gameId) {
     _socket.off(gameId);
   }
- //#########################################################################################################
+  //#########################################################################################################
 
- //#########################################################################################################
+  //#########################################################################################################
 // Handle Socket Messages of different Channels -----------------------------------------------------------
-  void _handleAuthUserChannelSocketData(Map<String, dynamic> data,
-      Function messageCallback, Function friendRequestCallback, Function friendAcceptedCallback, Function friendDeclinedCallback) {
+  void _handleAuthUserChannelSocketData(
+      Map<String, dynamic> data,
+      Function messageCallback,
+      Function friendRequestCallback,
+      Function friendAcceptedCallback,
+      Function friendDeclinedCallback) {
     switch (data['action']) {
       case 'message':
         _handleSocketServerMessage(data['action'], data['message']);
@@ -100,13 +117,14 @@ String get _authString{
       case 'friend-accepted':
         _handleSocketServerMessage(data['action'], data['message']);
         friendAcceptedCallback(data['userId']);
-      break;
+        break;
       case 'friend-declined':
         _handleSocketServerMessage(data['action'], data['message']);
         friendDeclinedCallback(data['userId']);
-      break;
+        break;
     }
   }
+
   void _handleLobbyChannelData(Map<String, dynamic> data,
       Function newGameCallback, Function playerJoinedCallback) {
     switch (data['action']) {
@@ -120,6 +138,7 @@ String get _authString{
         break;
     }
   }
+
   void _handleGameLobbyChannelData(Map<String, dynamic> data,
       Function moveMadeCallback, Function playerJoinedLobbyCallback) {
     switch (data['action']) {
@@ -138,16 +157,11 @@ String get _authString{
   //#########################################################################################################
   // Friend Provider ---------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> sendFriendRequest(String userName) async {
-    final String url =
-        SERVER_ADRESS + 'friend-request' + _authString;
+    final String url = SERVER_ADRESS + 'friend-request' + _authString;
     // making http request
-    final encodedResponse = await http.post(
-      url,
-      body: {
-        'userName': userName,
-      },
-      headers: {'Content-Type': 'application/json'},
-    );
+    final encodedResponse = await http.post(url,
+        body: json.encode({'userName': userName}),
+        headers: {'Content-Type': 'application/json'});
 // decode Data
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);
@@ -155,10 +169,12 @@ String get _authString{
     _validation(data);
     return data;
   }
+
   Future<Map<String, dynamic>> fetchFriends() async {
-    final String url = SERVER_ADRESS + 'fetch-friends'  + _authString;
+    final String url = SERVER_ADRESS + 'fetch-friends' + _authString;
     // http get request
     final encodedResponse = await http.get(url);
+    print(encodedResponse.body);
     // decoding
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);
@@ -166,10 +182,13 @@ String get _authString{
     _validation(data);
     return data;
   }
+
   Future<Map<String, dynamic>> acceptFriend(String userId) async {
     final String url = SERVER_ADRESS + 'accept-friend' + _authString;
     // http requets
-    final encodedResponse = await http.post(url, body: {'userId':userId}, headers: {'Content-Type': 'application/json'});
+    final encodedResponse = await http.post(url,
+        body: json.encode({'userId': userId}),
+        headers: {'Content-Type': 'application/json'});
     // decoding
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);
@@ -177,10 +196,13 @@ String get _authString{
     _validation(data);
     return data;
   }
+
   Future<Map<String, dynamic>> friendDecline(String userId) async {
     final String url = SERVER_ADRESS + 'decline-friend' + _authString;
     // Make post http request
-    final encodedData = await http.post(url, body: {'userId':userId}, headers: {'Content-Type': 'application/json'});
+    final encodedData = await http.post(url,
+        body: json.encode({'userId': userId}),
+        headers: {'Content-Type': 'application/json'});
     // decode
     final Map<String, dynamic> data = json.decode(encodedData.body);
     _printRawData(data);
@@ -193,17 +215,14 @@ String get _authString{
   //#########################################################################################################
   // Chat Provider -----------------------------------------------------------------------------------------
   Future<void> sendMessage(String text, String chatId) async {
-    final url =
-        SERVER_ADRESS + 'send-message' + _authString;
+    final url = SERVER_ADRESS + 'send-message' + _authString;
     await http.post(url,
         body: json.encode({'text': text, 'chatId': chatId}),
         headers: {'Content-Type': 'application/json'});
   }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
-    final url = SERVER_ADRESS +
-        'fetch-chat' +
-        _authString + '&id=$id';
+    final url = SERVER_ADRESS + 'fetch-chat' + _authString + '&id=$id';
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);
@@ -255,7 +274,7 @@ String get _authString{
     // input: takes a gameId as Inout the Auth User Wants to ioyn
     // output: Sends a Req to Server with the gven gameId. Then returns a whole Game
     // defining url : ioyn-game -> Server Keyword, token and userId queries for authentificaton on Server
-    final url = SERVER_URL + 'join-game' + _authString; 
+    final url = SERVER_URL + 'join-game' + _authString;
     // sends the join game post req to Server
     // gameId is encoded in the req. body
     final encodedResponse = await http.post(
@@ -344,6 +363,7 @@ String get _authString{
           data['message']);
     }
   }
+
 //############################################################################################################
 // Helper Functions -----------------------------------------------------------------------------------------
   void handleError(String errorText, dynamic error) {
@@ -359,6 +379,7 @@ String get _authString{
         '------------------------------------------------------------------------------------------------');
   }
 }
+
 void _handleSocketServerMessage(String action, String message) {
   print(
       '-------------------------------------------------------------------------------------------------');
@@ -373,9 +394,13 @@ void _handleSocketServerMessage(String action, String message) {
   print(
       '-------------------------------------------------------------------------------------------------');
 }
-void _printRawData(dynamic data){
-  print('-------------------------------------------------------------------------------------------------');
-  print('RAW DATA     ------------------------------------------------------------------------------------');
+
+void _printRawData(dynamic data) {
+  print(
+      '-------------------------------------------------------------------------------------------------');
+  print(
+      'RAW DATA     ------------------------------------------------------------------------------------');
   print(data);
-  print('-------------------------------------------------------------------------------------------------');
+  print(
+      '-------------------------------------------------------------------------------------------------');
 }

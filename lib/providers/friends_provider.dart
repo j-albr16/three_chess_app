@@ -33,6 +33,7 @@ class FriendsProvider with ChangeNotifier {
   }
 
   void subscribeToAuthUserChannel() {
+    print('Did Subscribe to Auth User Channel');
     _chatProvider.subsribeToAuthUserChannel(
       friendDeclinedCallback: (userId) => _handleFriendDeclined(userId),
       friendAcceptedCallback: (userId) => _handleFriendAccepted(userId),
@@ -44,6 +45,8 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> fetchFriends() async {
     try {
+      _friends = [];
+      _pendingFriends = [];
       final Map<String, dynamic> data = await _serverProvider.fetchFriends();
       // destinguish between friends whoare accepted and those who are not
       data['friends'].forEach((friend) =>

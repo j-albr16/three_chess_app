@@ -65,13 +65,9 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChat({String id, bool isGameChat, bool wasInit}) async {
+  Future<void> fetchChat({String id, bool isGameChat}) async {
     // either receive userId or gameId...
     try {
-      if (wasInit) {
-// TODO : Find Better Solution to amke the decision whether curretn chat should be deleted
-        _chats.removeAt(_currentChatIndex);
-      }
       // http request
       final Map<String, dynamic> data =
           await _serverProvider.fetchChat(isGameChat, id);
@@ -82,7 +78,7 @@ class ChatProvider with ChangeNotifier {
       print("next up fetch print:");
       notifyListeners();
       _printWholeChat(chat);
-    } catch (error) {
+    } catch (error) { 
       _serverProvider.handleError('Error while Fetching Chat', error);
     }
   }
@@ -93,7 +89,6 @@ class ChatProvider with ChangeNotifier {
       return await fetchChat(
         id: id,
         isGameChat: isGameChat,
-        wasInit: false,
       );
     } else {
       _currentChatIndex = index;
@@ -103,8 +98,9 @@ class ChatProvider with ChangeNotifier {
 
   void _handleMessageData(Map<String, dynamic> messageData,
       Function increaseNewMessageCounterCallback) {
+        print('Message was Received');
     int chatIndex =
-        _chats.indexWhere((chat) => chat.id = messageData['chatId']);
+        _chats.indexWhere((chat) => chat.id == messageData['chatId']);
     _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     if (chatIndex != _currentChatIndex) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to

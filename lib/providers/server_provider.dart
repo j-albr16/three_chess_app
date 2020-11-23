@@ -105,6 +105,7 @@ class ServerProvider with ChangeNotifier {
       Function friendRequestCallback,
       Function friendAcceptedCallback,
       Function friendDeclinedCallback) {
+        _printRawData(data);
     switch (data['action']) {
       case 'message':
         _handleSocketServerMessage(data['action'], data['message']);

@@ -1,49 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:three_chess/helpers/path_clipper.dart';
 
-class WaitingScreen extends StatelessWidget {
-  static const routeName = '/WaitingScreen';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Stack(children: [
-        Positioned(
-          top: 10,
-            left: 10,
-            child: CornerTile.unknown(startingOffset: Offset(0,0), scaleFactor: 30, isCornerLeft: true, borderWidth: 2,)),
-        Positioned
-          (
-          top: 10,
-            right: 10,
-            child:CornerTile.unknown(startingOffset: Offset(0,0), scaleFactor: 30, isCornerLeft: false, borderWidth: 2)),
-        // Container(
-        //   width: 200,
-        //   height: 400,
-        //   color: Colors.black,
-        // )
-      ],),
-    );
-  }
-}
-
 
 class CornerTile extends StatelessWidget {
-  bool isCornerLeft;
+  final bool isCornerLeft;
   bool isOnline;
   String username;
   int score;
+  final double scaleFactor;
+  final double borderWidth;
   bool isKnown;
-  double scaleFactor;
-  Offset startingOffset;
-  double borderWidth;
 
-  CornerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, @required this.startingOffset, this.scaleFactor = 1, this.borderWidth = 1}) {
+  CornerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, this.scaleFactor = 1, this.borderWidth = 1}) {
     isKnown = true;
   }
 
-  CornerTile.unknown({@required this.startingOffset, this.scaleFactor = 1, @required this.isCornerLeft, this.borderWidth = 1}){
+  CornerTile.unknown({ this.scaleFactor = 1, @required this.isCornerLeft, this.borderWidth = 1}){
     isKnown = false;
   }
 
@@ -56,12 +28,12 @@ class CornerTile extends StatelessWidget {
       i = -1;
     }
     Path path = Path()
-    ..moveTo(0 + startingOffset.dx + helper, 0 + startingOffset.dy)
-    ..relativeLineTo(10 * i  * scaleFactor  , 0)
-    ..relativeLineTo(0                   , 2 * scaleFactor)
-    ..relativeLineTo(-8 * i * scaleFactor, 4 * scaleFactor)
-    ..relativeLineTo(-2 * i * scaleFactor, 0)
-    ..relativeLineTo(0                   , -6 * scaleFactor);
+      ..moveTo(0 + helper, 0 )
+      ..relativeLineTo(10 * i  * scaleFactor  , 0)
+      ..relativeLineTo(0                   , 2 * scaleFactor)
+      ..relativeLineTo(-8 * i * scaleFactor, 4 * scaleFactor)
+      ..relativeLineTo(-2 * i * scaleFactor, 0)
+      ..relativeLineTo(0                   , -6 * scaleFactor);
     return Stack(
       children: [
 
@@ -95,12 +67,12 @@ class CornerTile extends StatelessWidget {
             ),
           ),
           clipper: PathClipper(path: path),
-          ),
+        ),
         CustomPaint(
           painter: BorderPainter(path: path, width: borderWidth, color: Colors.black),
         ),
-        ],
-      );
+      ],
+    );
 
 
   }
@@ -117,9 +89,9 @@ class BorderPainter extends CustomPainter{
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = width
-    ..color = color;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width
+      ..color = color;
     canvas.drawPath(path, paint);
   }
 

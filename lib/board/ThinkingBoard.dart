@@ -284,13 +284,7 @@ class ThinkingBoard {
       BoardState virtualState = copyBoardState(boardState);
       PieceMover.movePieceTo(piece.position, element, virtualState);
 
-      resultRemove = isTileCovered(
-        boardState: virtualState,
-          toBeCheckedTile: virtualState.pieces
-              .values.toList()
-              .firstWhere((currPiece) => ((currPiece.pieceType == PieceType.King) && (currPiece.playerColor == piece.playerColor)), orElse: () => null)
-              .position,
-          requestingPlayer: piece.playerColor);
+      resultRemove = isCheck(piece.playerColor, virtualState);
       return resultRemove;
     });
     return result;
@@ -434,6 +428,7 @@ class ThinkingBoard {
       }
       if (checkAttacked && (result != false)) {
         if (isTileCovered(
+            boardState: boardState,
             toBeCheckedTile: toBeCheckedTile,
             requestingPlayer: requestingPlayer)) {
           return false;
@@ -448,7 +443,7 @@ class ThinkingBoard {
       {BoardState boardState,
       List<PieceType> typesToLookFor,
       PlayerColor requestingPlayer}) {
-    return (String toBeCheckedTile) {
+    return (String toBeCheckedTile, ) {
       bool result = false;
       Piece piece = boardState.pieces[toBeCheckedTile];
       if (piece != null) {
@@ -518,7 +513,7 @@ class ThinkingBoard {
       bool canMoveWithoutTake = true,
       PlayerColor twoStepWorkaroundPlayerColor}) {
     twoStepWorkaroundPlayerColor ??=
-        boardState.pieces[startingTile].playerColor;
+        boardState.pieces[startingTile]?.playerColor;
     twoStepWorkaroundPlayerColor ??= BoardData.sideData[startingTile];
     List<String> nextTiles = BoardData.adjacentTiles[startingTile]
         ?.getRelativeEnum(direction, twoStepWorkaroundPlayerColor,

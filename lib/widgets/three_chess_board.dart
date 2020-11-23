@@ -21,9 +21,10 @@ class ThreeChessBoard extends StatefulWidget {
   final TileSelect tileSelect = TileSelect();
   final double height;
   final double width;
+  final bool isOffline;
 
 
-  ThreeChessBoard({this.boardState, this.height, this.width});
+  ThreeChessBoard({this.boardState, this.height, this.width, this.isOffline = false});
 
   @override
   _ThreeChessBoardState createState() => _ThreeChessBoardState();
@@ -40,6 +41,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   bool somethingChangedWorkAround = true;
 
   bool get myTurn{
+    if(widget.isOffline){
+      return true;
+    }
     return playingPlayer != null ? (playingPlayer == PlayerColor.values[widget.boardState.chessMoves.length%3] && didStart) : false;
   }
 
@@ -64,14 +68,14 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     super.initState();
   }
 
-  void updateGame(Game game){
+  void updateGame(Game game){ // TODO Should inherite from an implemention in Boardstate (its missing now) to make BoardState keepable (possibly in PageViewerMain)
     //TODO maybe catch chessmove diffrence the other way around
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
     if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
       int difference =
           game.chessMoves.length - widget.boardState.chessMoves.length;
       for (int i = game.chessMoves.length-difference; i < game.chessMoves.length ; i ++) {
-        print("what do i do: " + i.toString() + " with: " + game.chessMoves[i].nextTile.toString());
+        //print("what do i do: " + i.toString() + " with: " + game.chessMoves[i].nextTile.toString());
         PieceMover.movePieceTo(
             game.chessMoves[i].initialTile, game.chessMoves[i].nextTile, widget.boardState);
       }
@@ -81,19 +85,28 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
 
   _moveWasMade(context){
-    GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
-      gameProvider.sendMove(widget.boardState.chessMoves.last); //TODO make a timefull chessMove
+    if (!widget.isOffline) {
+      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
+        gameProvider.sendMove(widget.boardState.chessMoves.last);
+    }
+//TODO make a timefull chessMove
   }
 
   @override
   Widget build(BuildContext context) {
 
     GameProvider gameProvider = Provider.of<GameProvider>(context);
-    setState(() {
-      updateGame(gameProvider.game);
-    });
+
+    if (widget.isOffline != true) {
+      setState(() {
+        updateGame(gameProvider.game);
+      });
+    }
 
     didStart = gameProvider.game?.didStart?? false;
+    if(widget.isOffline){
+      didStart = true;
+    }
     playingPlayer =
         gameProvider.player?.playerColor ?? PlayerColor.red;
 
@@ -101,20 +114,22 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       widget.tileKeeper.highlightTiles(highlighted?.value);
     });
 
+
+    // Provider.of<GameProvider>(context).game == null ?
+    // Center(child: Column(
+    //   children: [
+    //     Text("lodaing ... "),
+    //     CircularProgressIndicator(),
+    //   ],
+    // ))
+    //     :
     //print("im a print " + widget.boardState.pieces.toString());
-    return Provider.of<GameProvider>(context).game == null ?
-    Center(child: Column(
-      children: [
-        Text("lodaing ... "),
-        CircularProgressIndicator(),
-      ],
-    ))
-        :
+    return
      Listener(
        behavior: HitTestBehavior.opaque,
         onPointerDown: (details){
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
-          print(whatsHit);
+         // print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");
             highlighted = MapEntry(whatsHit, ThinkingBoard.getLegalMove(whatsHit, widget.boardState));

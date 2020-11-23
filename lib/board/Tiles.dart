@@ -8,8 +8,9 @@ class Tiles{
 
   Map<String, Tile> tiles;
   List<String> lastHighlighted;
+  PlayerColor perspectiveOf;
 
-  Tiles({PlayerColor perspectiveOf = PlayerColor.white}){
+  Tiles({ this.perspectiveOf = PlayerColor.white}){
     tiles = {};
 
     BoardData.tileData.entries.toList().forEach((e) {
@@ -73,6 +74,8 @@ class Tiles{
         side: BoardData.sideData[prevId],
         path: tile.path);
   }
+  perspectiveOf = PlayerColor.values[perspectiveOf.index + 2 % 3];
+
   tiles = newTiles;}
 
   void rotateTilesNext() {
@@ -87,7 +90,9 @@ class Tiles{
         side: BoardData.sideData[nextId],
         path: tile.path);
   }
-  tiles = newTiles;
+
+    perspectiveOf = PlayerColor.values[perspectiveOf.index + 1 % 3];
+    tiles = newTiles;
   }
 
   static Map<PlayerColor, List<String>> charCoordinatesOf = {

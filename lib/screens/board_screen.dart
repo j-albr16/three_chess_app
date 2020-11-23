@@ -110,9 +110,13 @@ class _BoardScreenState extends State<BoardScreen> {
                   child: Row(
                     //mainAxisSize: MainAxisSize.min,
                     children: [
-                      CornerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,),
-                      Container(width: screenWidth * 0.2, color: Colors.transparent),
-                      //CornerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: usableHeight / 2, isCornerLeft: false, isOnline: rightCorner?.isOnline, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,),
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: PlayerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,)),
+                      Expanded(child: Container(color: Colors.transparent)),
+                      Align(
+                          alignment: Alignment.topRight,
+                          child: PlayerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: false, isOnline: rightCorner?.isOnline, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,)),
 
                     ],
                   )),
@@ -127,12 +131,20 @@ class _BoardScreenState extends State<BoardScreen> {
 
             ),
             Align(
-              alignment: Alignment.topCenter,
-              child: Container(color: Colors.grey,
+              alignment: Alignment.bottomCenter,
+              child: Container(
                   child: Row(
                     //mainAxisSize: MainAxisSize.min,
                     children: [
-
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, onTap: () => print("I pressed left"), borderWidth: 2, icon: Icon(Icons.arrow_left),),
+                      ),
+                      Expanded(child: Container(color: Colors.transparent)),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, onTap: () => print("I pressed right"), borderWidth: 2, icon: Icon(Icons.arrow_right),),
+                      )
                     ],
                   )),
             ),

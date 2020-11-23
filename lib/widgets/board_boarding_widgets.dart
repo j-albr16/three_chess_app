@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:three_chess/helpers/path_clipper.dart';
 
-
+enum Corner{ topLeft, topRight, bottomLeft, bottomRight}
 class CornerTile extends StatelessWidget {
-  final bool isCornerLeft;
-  bool isOnline;
-  String username;
-  int score;
+  final Corner whereIsCorner;
   final double startY;
   final double borderWidth;
   final double cutOfLength;
-  bool isKnown;
+  final Widget child;
+  final bool alignCenter;
 
-  CornerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, this.cutOfLength, this.startY , this.borderWidth = 1, this.isKnown = true});
-
-  CornerTile.unknown({this.startY, this.cutOfLength, @required this.isCornerLeft, this.borderWidth = 1}){
-    isKnown = false;
-  }
+  CornerTile({this.alignCenter = false, this.startY, this.whereIsCorner, this.cutOfLength, this.borderWidth = 1, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -25,28 +19,46 @@ class CornerTile extends StatelessWidget {
     double shortSideLength = startY - (cutOfLength * 1.732);
     double longSideLength = shortSideLength * (2 / (1.732 * 2));
 
-    double i = 1;
-    double helper = isCornerLeft ? 0 : longSideLength;
+    double xTurn = 1;
+    double yTurn = 1;
+    double helperX = 0;
+    double helperY = 0;
+    Alignment alignment;
 
-    if(!isCornerLeft){
-      i = -1;
+    switch(whereIsCorner){
+      case Corner.topLeft:
+        alignment = Alignment.topLeft;
+        break;
+      case Corner.topRight:
+        alignment = Alignment.topRight;
+        xTurn = -1;
+        helperX = longSideLength;
+        break;
+      case Corner.bottomLeft:
+        alignment = Alignment.bottomLeft;
+        yTurn = -1;
+        helperY = shortSideLength;
+        break;
+      case Corner.bottomRight:
+        alignment = Alignment.bottomRight;
+        yTurn = -1;
+        helperY = shortSideLength;
+        
+        xTurn = -1;
+        helperX = longSideLength;
+        break;
     }
-
-    // Path path = Path()
-    //   ..moveTo(0 + helper, 0 )
-    //   ..relativeLineTo(10 * i  * scaleFactor  , 0)
-    //   ..relativeLineTo(0                   , 2 * scaleFactor)
-    //   ..relativeLineTo(-8 * i * scaleFactor, 4 * scaleFactor)
-    //   ..relativeLineTo(-2 * i * scaleFactor, 0)
-    //   ..relativeLineTo(0                   , -6 * scaleFactor);
-
+    if(alignCenter){
+      alignment = Alignment.center;
+    }
+    
     Path path = Path()
-    ..moveTo(0 , 0)
-      ..relativeLineTo(0, shortSideLength)
-      ..relativeLineTo(cutOfLength * i, 0)
-      ..relativeLineTo(longSideLength * i,-(shortSideLength-cutOfLength))
-      ..relativeLineTo(0, -cutOfLength)
-      ..relativeLineTo(-longSideLength * i,0);
+    ..moveTo(0 +helperX, 0 + helperY)
+      ..relativeLineTo(0, shortSideLength * yTurn)
+      ..relativeLineTo(cutOfLength * xTurn, 0)
+      ..relativeLineTo(longSideLength * xTurn,-(shortSideLength-cutOfLength) * yTurn)
+      ..relativeLineTo(0, -cutOfLength * yTurn)
+      ..relativeLineTo(-longSideLength * xTurn,0);
 
     return Stack(
       children: [
@@ -55,31 +67,13 @@ class CornerTile extends StatelessWidget {
           child:
 
           Container(
-            width: longSideLength,
-            height: shortSideLength,
-            //decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2)),
-            color: Colors.transparent,
-            child: Align(
-              alignment: isCornerLeft ? Alignment.topLeft  : Alignment.topRight,
-              child: Container(
-                child: isKnown ? Column(
-                  children: [
-                    Row(children: [
-                      Icon(
-                        isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                        color: Colors.green,
-                      ),
-                      Text(username),
-                    ],),
-                    Text(score.toString()),
-                  ],
-                ) :
-                Container(
-                    padding: isCornerLeft ? EdgeInsets.only(top: 5, left: 20) : EdgeInsets.only(top: 5, right: 20),
-                    child: Text("?", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, ),)),
-              ),
-            ),
-          ),
+          width: longSideLength,
+          height: shortSideLength,
+          //decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2)),
+          color: Colors.transparent,
+          child: Align(
+            alignment: alignment,
+            child: child,)),
           clipper: PathClipper(path: path),
         ),
         CustomPaint(
@@ -89,6 +83,84 @@ class CornerTile extends StatelessWidget {
     );
 
 
+  }
+}
+
+class PlayerTile extends StatelessWidget {
+  final bool isCornerLeft;
+  final bool isOnline;
+  final String username;
+  final int score;
+  final double startY;
+  final double borderWidth;
+  final double cutOfLength;
+  final bool isKnown;
+
+  PlayerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, this.cutOfLength, this.startY , this.borderWidth = 1, this.isKnown = true});
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return CornerTile(
+      cutOfLength: cutOfLength,
+          borderWidth: borderWidth,
+          whereIsCorner: isCornerLeft ? Corner.topLeft : Corner.topRight,
+          startY: startY,
+          child: Container(
+            child: isKnown ? Column(
+              children: [
+                Row(children: [
+                  Icon(
+                    isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                    color: Colors.green,
+                  ),
+                  Text(username),
+                ],),
+                Text(score.toString()),
+              ],
+            ) :
+            Container(
+                padding: isCornerLeft ? EdgeInsets.only(top: 5, left: 20) : EdgeInsets.only(top: 5, right: 20),
+                child: Text("?", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, ),)),
+          ),
+    );
+  }
+  
+  
+}class ActionTile extends StatelessWidget {
+  final bool isCornerLeft;
+  final double startY;
+  final double borderWidth;
+  final double cutOfLength;
+  final Function onTap;
+  final Widget icon;
+
+  ActionTile({@required this.isCornerLeft, this.cutOfLength, this.startY , this.borderWidth = 1, this.onTap, this.icon});
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return GestureDetector(
+      onTap: () => onTap(),
+      child: CornerTile(
+        alignCenter: true,
+          cutOfLength: cutOfLength,
+              borderWidth: borderWidth,
+              whereIsCorner: isCornerLeft ? Corner.bottomLeft : Corner.bottomRight,
+              startY: startY,
+                child: SizedBox(
+                  width: startY * 0.6,
+                  height: startY * 0.6,
+                  child: Center(
+                    child: IgnorePointer(child: icon,),
+                  ),
+                ),
+        ),
+    );
   }
 }
 

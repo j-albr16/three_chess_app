@@ -7,33 +7,47 @@ class CornerTile extends StatelessWidget {
   bool isOnline;
   String username;
   int score;
-  final double scaleFactor;
+  final double startY;
   final double borderWidth;
+  final double cutOfLength;
   bool isKnown;
 
-  CornerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, this.scaleFactor = 1, this.borderWidth = 1}) {
-    isKnown = true;
-  }
+  CornerTile({@required this.isOnline, @required this.username, @required this.isCornerLeft, @required this.score, this.cutOfLength, this.startY , this.borderWidth = 1, this.isKnown = true});
 
-  CornerTile.unknown({ this.scaleFactor = 1, @required this.isCornerLeft, this.borderWidth = 1}){
+  CornerTile.unknown({this.startY, this.cutOfLength, @required this.isCornerLeft, this.borderWidth = 1}){
     isKnown = false;
   }
 
   @override
   Widget build(BuildContext context) {
+
+    //TODO MIRROR
+    double shortSideLength = startY - (cutOfLength * 1.732);
+    double longSideLength = shortSideLength * (2 / (1.732 * 2));
+
     double i = 1;
-    double helper = isCornerLeft ? 0 : 10*scaleFactor;
+    double helper = isCornerLeft ? 0 : longSideLength;
 
     if(!isCornerLeft){
       i = -1;
     }
+
+    // Path path = Path()
+    //   ..moveTo(0 + helper, 0 )
+    //   ..relativeLineTo(10 * i  * scaleFactor  , 0)
+    //   ..relativeLineTo(0                   , 2 * scaleFactor)
+    //   ..relativeLineTo(-8 * i * scaleFactor, 4 * scaleFactor)
+    //   ..relativeLineTo(-2 * i * scaleFactor, 0)
+    //   ..relativeLineTo(0                   , -6 * scaleFactor);
+
     Path path = Path()
-      ..moveTo(0 + helper, 0 )
-      ..relativeLineTo(10 * i  * scaleFactor  , 0)
-      ..relativeLineTo(0                   , 2 * scaleFactor)
-      ..relativeLineTo(-8 * i * scaleFactor, 4 * scaleFactor)
-      ..relativeLineTo(-2 * i * scaleFactor, 0)
-      ..relativeLineTo(0                   , -6 * scaleFactor);
+    ..moveTo(0 , 0)
+      ..relativeLineTo(0, shortSideLength)
+      ..relativeLineTo(cutOfLength * i, 0)
+      ..relativeLineTo(longSideLength * i,-(shortSideLength-cutOfLength))
+      ..relativeLineTo(0, -cutOfLength)
+      ..relativeLineTo(-longSideLength * i,0);
+
     return Stack(
       children: [
 
@@ -41,8 +55,8 @@ class CornerTile extends StatelessWidget {
           child:
 
           Container(
-            width: 10 * scaleFactor,
-            height: 6 * scaleFactor,
+            width: longSideLength,
+            height: shortSideLength,
             //decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2)),
             color: Colors.transparent,
             child: Align(

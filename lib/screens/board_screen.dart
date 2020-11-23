@@ -66,7 +66,6 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    printNewPoints();
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
 
     double scaleFactor = 20;
@@ -92,12 +91,14 @@ class _BoardScreenState extends State<BoardScreen> {
     }
 
 
+
     return Scaffold(
       appBar: AppBar(),
       body:
       RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx)
     {
+      double usableHeight = screenHeight - unusableHeight;
       return Container(
         height: screenHeight,
         child: Stack(
@@ -109,9 +110,10 @@ class _BoardScreenState extends State<BoardScreen> {
                   child: Row(
                     //mainAxisSize: MainAxisSize.min,
                     children: [
-                      PlayerInfo(height: 50, width: screenWidth * 0.4, isLeft: true, player: leftCorner,),
+                      CornerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,),
                       Container(width: screenWidth * 0.2, color: Colors.transparent),
-                      PlayerInfo(height: 50, width: screenWidth * 0.4, isLeft: false, player: rightCorner,)
+                      //CornerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: usableHeight / 2, isCornerLeft: false, isOnline: rightCorner?.isOnline, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,),
+
                     ],
                   )),
             ),

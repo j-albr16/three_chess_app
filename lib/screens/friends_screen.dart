@@ -33,24 +33,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   bool isTyping = false;
   bool _isPendingOpen = false;
-  final List<FriendTileModel> sampleFriends = [
-    FriendTileModel(
-      isOnline: false,
-      isPlaying: false,
-      username: "Halbrechts",
-    ),
-    FriendTileModel(
-      isOnline: true,
-      isPlaying: true,
-      username: "LeosLeo",
-    ),
-    FriendTileModel(
-      isOnline: true,
-      isPlaying: false,
-      username: "winkt",
-    )
-  ];
-
+  
   Future<void> _friendPopUp(context, FriendTileModel model) async {
     switch (await showDialog<FriendAction>(
         context: context,

@@ -28,7 +28,6 @@ class _ChatState extends State<Chat> {
   ChatProvider chatProvider;
   @override
   void initState() {
-    Future.delayed(Duration.zero).then((_) => chatProvider = Provider.of<ChatProvider>(context));
     _chatController = TextEditingController();
     _scrollController = ScrollController();
     super.initState();
@@ -50,6 +49,7 @@ class _ChatState extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
+    chatProvider = Provider.of<ChatProvider>(context);
     chat = chatProvider.chat;
     return Container(
       width: widget.size.width,

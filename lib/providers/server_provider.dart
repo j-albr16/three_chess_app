@@ -53,7 +53,8 @@ class ServerProvider with ChangeNotifier {
       {messageCallback,
       friendRequestCallback,
       friendAcceptedCallback,
-      friendDeclinedCallback}) {
+      friendDeclinedCallback,
+      friendRemovedCallback}) {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleAuthUserChannelSocketData(
@@ -61,7 +62,8 @@ class ServerProvider with ChangeNotifier {
           messageCallback,
           friendRequestCallback,
           friendAcceptedCallback,
-          friendDeclinedCallback);
+          friendDeclinedCallback,
+          friendRemovedCallback);
     });
   }
 
@@ -104,8 +106,9 @@ class ServerProvider with ChangeNotifier {
       Function messageCallback,
       Function friendRequestCallback,
       Function friendAcceptedCallback,
-      Function friendDeclinedCallback) {
-        _printRawData(data);
+      Function friendDeclinedCallback,
+      Function friendRemovedCallback) {
+    _printRawData(data);
     switch (data['action']) {
       case 'message':
         _handleSocketServerMessage(data['action'], data['message']);
@@ -121,7 +124,11 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'friend-declined':
         _handleSocketServerMessage(data['action'], data['message']);
-        friendDeclinedCallback(data['userId']);
+        friendDeclinedCallback(data['friendId']);
+        break;
+      case 'friend-removed':
+        _handleSocketServerMessage(data['action'], data['message']);
+        friendRemovedCallback(data['userId']);
         break;
     }
   }
@@ -211,6 +218,22 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     return data;
   }
+
+  Future<Map<String, dynamic>> friendRemove(String userId) async {
+    final String url = SERVER_ADRESS + 'remove-friend' + _authString;
+    // Make http posts
+    final encodedData = await http.post(
+      url,
+      body: json.encode({'userId': userId}),
+      headers: {'Content-Type': 'application/json'},
+    );
+    // decode Data
+    final Map<String, dynamic> data = json.decode(encodedData.body);
+    // print raw data and validation
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
   //#########################################################################################################
 
   //#########################################################################################################
@@ -223,7 +246,10 @@ class ServerProvider with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
-    final url = SERVER_ADRESS + 'fetch-chat' + _authString + '&id=$id&isGameChat=$isGameChat';
+    final url = SERVER_ADRESS +
+        'fetch-chat' +
+        _authString +
+        '&id=$id&isGameChat=$isGameChat';
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     _printRawData(data);

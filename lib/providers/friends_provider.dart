@@ -35,6 +35,7 @@ class FriendsProvider with ChangeNotifier {
   void subscribeToAuthUserChannel() {
     print('Did Subscribe to Auth User Channel');
     _chatProvider.subsribeToAuthUserChannel(
+      friendRemovedCallback: (userId) => _handleFriendRemove(userId),
       friendDeclinedCallback: (userId) => _handleFriendDeclined(userId),
       friendAcceptedCallback: (userId) => _handleFriendAccepted(userId),
       friendRequestCallback: (friendData, chatId) =>
@@ -98,6 +99,17 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 
+  Future<void> removeFriend(String userId) async {
+    try{
+      final Map<String, dynamic> data = await _serverProvider.friendRemove(userId);
+      _friends.removeWhere((friend) => friend.user.id == userId);
+      notifyListeners();
+    }catch(error){
+      _serverProvider.handleError('Error While Removing Friend', error);
+    }
+
+  }
+
   void _handleFriendRequest(Map<String, dynamic> friendData, String chatId) {
     // add new Friend to _friends
     _pendingFriends.add(_rebaseOneFriend(friendData, chatId));
@@ -123,6 +135,11 @@ class FriendsProvider with ChangeNotifier {
         friend.newMessages++;
       }
     });
+    notifyListeners();
+  }
+  void _handleFriendRemove(String userId){
+    _friends.removeWhere((friend) => friend.user.id == userId);
+    notifyListeners();
   }
 
   Friend _matchChatIdAndFriend(Map<String, dynamic> friendData, chatData) {

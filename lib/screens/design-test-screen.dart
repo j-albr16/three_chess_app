@@ -89,7 +89,7 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
               child: Column(
                 children: <Widget>[
                   if (showChat)
-                    Chat(Size(size.height * 0.4, size.height * 0.6)),
+                  Text('No Chat Here Anymore'),
                   if (!showChat)
                     GameTable(
                         game: game,

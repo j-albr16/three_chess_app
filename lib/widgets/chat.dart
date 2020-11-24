@@ -8,55 +8,34 @@ import '../models/user.dart';
 import '../models/chat_model.dart' as mod;
 import '../screens/auth_test_screen.dart' as DEC;
 
-class Chat extends StatefulWidget {
+class Chat extends StatelessWidget{
   Size size;
-
-  Chat(this.size);
-  @override
-  _ChatState createState() => _ChatState();
-}
-
-class _ChatState extends State<Chat> {
-  ScrollController _scrollController;
-  TextEditingController _chatController;
-
-  List<mod.Chat> availableChats;
-
-  bool lobbyChat = true;
-  String id;
+  Function submitMessage;
   mod.Chat chat;
-  ChatProvider chatProvider;
-  @override
-  void initState() {
-    _chatController = TextEditingController();
-    _scrollController = ScrollController();
-    super.initState();
-  }
+  bool lobbyChat;
+  ScrollController scrollController;
+  TextEditingController chatController;
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _chatController.dispose();
-    super.dispose();
-  }
-
-  listenForMessage(String id) {}
-  newChatMessage(Message message) {
-    setState(() {
-      chat.messages.add(message);
-    });
+  Chat({
+    this.chat,
+    this.lobbyChat,
+    this.size,
+    this.submitMessage,
+    this.chatController,
+    this.scrollController,
+  }){
+    // TODO Scroll Down
   }
 
   @override
   Widget build(BuildContext context) {
-    chatProvider = Provider.of<ChatProvider>(context);
-    chat = chatProvider.chat;
     return Container(
-      width: widget.size.width,
-      height: widget.size.height,
+      alignment: Alignment.center,
+      width:size.width,
+      height:size.height,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white,
+          color: Colors.green,
           width: 1,
           style: BorderStyle.solid,
         ),
@@ -83,34 +62,6 @@ class _ChatState extends State<Chat> {
               onPressed: () {},
             ),
           ]),
-    );
-  }
-
-  Widget selectChat() {
-    return PopupMenuButton(
-      padding: EdgeInsets.all(13),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.white)),
-        ),
-        child: Text(
-          'Dummy Chat Name',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      onSelected: (value) {
-        setState(() {
-          chat = value;
-        });
-      },
-      itemBuilder: (context) => [
-        ...availableChats
-            .map((e) => PopupMenuItem(
-                  value: e.id,
-                  child: Text('Dummy Chat Name'),
-                ))
-            .toList()
-      ],
     );
   }
 
@@ -148,13 +99,9 @@ class _ChatState extends State<Chat> {
 
   submit() {
     if (_chatController.text.isNotEmpty) {
-      // setState(() {
-        chatProvider.sendTextMessage(_chatController.text);
-        _chatController.clear();
-        
-      // });
+      submitMessage(_chatController.text);
+      _chatController.clear();
     }
-    // print(currentChat.messages);
   }
 
   Widget chatObject(DateTime time, String text, String userName, bool isYours) {
@@ -163,7 +110,7 @@ class _ChatState extends State<Chat> {
       child: Container(
         margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(13),
-        constraints: BoxConstraints(maxWidth: widget.size.width * 0.7),
+        constraints: BoxConstraints(maxWidth: size.width * 0.7),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white12,

@@ -14,6 +14,7 @@ import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';
 import './screens/game_provider_test_screen.dart';
 import './screens/friends_screen.dart';
+import './screens/chat_screen.dart';
 import './providers/friends_provider.dart';
 import './providers/server_provider.dart';
 import './providers/user_provider.dart';
@@ -83,6 +84,8 @@ class ThreeChessApp extends StatelessWidget {
             LobbyScreen.routeName: (ctx) => LobbyScreen(),
             GameTestScreen.routeName: (ctx) => GameTestScreen(),
             FriendsScreen.routeName: (ctx) => FriendsScreen(),
+            ChatScreen.routeName: (ctx) => ChatScreen(),
+
           },
           // builder: (context, widget) => ResponsiveWrapper.builder(
           //     BouncingScrollWrapper.builder(context, widget),

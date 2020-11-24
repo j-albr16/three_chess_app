@@ -58,6 +58,9 @@ class ChatProvider with ChangeNotifier {
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
     );
   }
+  void resetCurrentChat(){
+    _currentChatIndex = null;
+  }
 
   Future<void> sendTextMessage(String text) async {
     try {

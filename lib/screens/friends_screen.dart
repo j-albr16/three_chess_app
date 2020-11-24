@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/screens/chat_screen.dart';
 import 'package:three_chess/widgets/friend_list.dart';
 
 import '../providers/chat_provider.dart';
@@ -187,7 +188,7 @@ switchSelectedPending(model){
                         return Provider.of<ChatProvider>(context, listen: false)
                             .selectChatRoom(friend.userId, isGameChat: false)
                             .then((_) => Navigator.of(context)
-                                .pushNamed(DesignTestScreen.routeName));
+                                .pushNamed(ChatScreen.routeName));
                         // TODO Open Chat where chat is supposed to be and not design Test Screen
                       },
                       // friendTiles: sampleFriends,

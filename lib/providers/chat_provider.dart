@@ -47,11 +47,13 @@ class ChatProvider with ChangeNotifier {
       {friendRequestCallback,
       friendAcceptedCallback,
       friendDeclinedCallback,
-      increaseNewMessageCounterCallback}) {
+      increaseNewMessageCounterCallback,
+      friendRemovedCallback}) {
     _serverProvider.subscribeToAuthUserChannel(
+      friendRemovedCallback: (userId) => friendRemovedCallback(userId),
       friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
       friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
-      friendRequestCallback: (friendData) => friendRequestCallback(friendData),
+      friendRequestCallback: (friendData, chatId) => friendRequestCallback(friendData, chatId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
     );

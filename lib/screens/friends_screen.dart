@@ -111,6 +111,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
       case FriendAction.Delete:
         //TODO
+        Provider.of<FriendsProvider>(context, listen: false).removeFriend(model.userId);
         break;
     }
   }

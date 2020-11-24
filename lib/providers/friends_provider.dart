@@ -91,8 +91,12 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> declineFriend(String userId) async {
     try {
-      _serverProvider.friendDecline(userId);
-      _pendingFriends.removeWhere((friend) => friend.user.id == userId);
+      final Map<String, dynamic> data =
+          await _serverProvider.friendDecline(userId);
+      if (data['valid']) {
+        _pendingFriends
+            .removeWhere((friend) => friend.user.id == data['userId']);
+      }
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error While declining Friend', error);
@@ -100,14 +104,16 @@ class FriendsProvider with ChangeNotifier {
   }
 
   Future<void> removeFriend(String userId) async {
-    try{
-      final Map<String, dynamic> data = await _serverProvider.friendRemove(userId);
-      _friends.removeWhere((friend) => friend.user.id == userId);
+    try {
+      final Map<String, dynamic> data =
+          await _serverProvider.friendRemove(userId);
+      if (data['valid']) {
+        _friends.removeWhere((friend) => friend.user.id == userId);
+      }
       notifyListeners();
-    }catch(error){
+    } catch (error) {
       _serverProvider.handleError('Error While Removing Friend', error);
     }
-
   }
 
   void _handleFriendRequest(Map<String, dynamic> friendData, String chatId) {
@@ -137,7 +143,8 @@ class FriendsProvider with ChangeNotifier {
     });
     notifyListeners();
   }
-  void _handleFriendRemove(String userId){
+
+  void _handleFriendRemove(String userId) {
     _friends.removeWhere((friend) => friend.user.id == userId);
     notifyListeners();
   }

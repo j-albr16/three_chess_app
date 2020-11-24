@@ -147,19 +147,15 @@ class PlayerTile extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(),
       child: CornerTile(
-        alignCenter: true,
+        alignCenter: false,
           cutOfLength: cutOfLength,
               borderWidth: borderWidth,
               whereIsCorner: isCornerLeft ? Corner.bottomLeft : Corner.bottomRight,
               startY: startY,
-                child: SizedBox(
-                  width: startY * 0.6,
-                  height: startY * 0.6,
-                  child: Center(
+                child: Container(
                     child: IgnorePointer(child: icon,),
                   ),
                 ),
-        ),
     );
   }
 }

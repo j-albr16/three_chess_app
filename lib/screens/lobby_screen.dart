@@ -24,11 +24,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero).then((_) {
-      GameProvider gameProvider =
-          Provider.of<GameProvider>(context, listen: false);
-      gameProvider.fetchGames();
-    });
 
     super.initState();
   }

@@ -138,12 +138,19 @@ class _BoardScreenState extends State<BoardScreen> {
                     children: [
                       Align(
                         alignment: Alignment.bottomLeft,
-                        child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, onTap: () => print("I pressed left"), borderWidth: 2, icon: Icon(Icons.arrow_left),),
+                        child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed left"), borderWidth: 2, icon:
+                        Container(
+                          alignment: Alignment.bottomLeft,
+                          padding: EdgeInsets.only( bottom:10),
+                            child: FittedBox(child: Icon(Icons.arrow_left, size: 1000,))),),
                       ),
                       Expanded(child: Container(color: Colors.transparent)),
                       Align(
                         alignment: Alignment.bottomRight,
-                        child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, onTap: () => print("I pressed right"), borderWidth: 2, icon: Icon(Icons.arrow_right),),
+                        child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed right"), borderWidth: 2, icon: Container(
+                            alignment: Alignment.bottomRight,
+                            padding: EdgeInsets.only(bottom:10),
+                            child: FittedBox(child: Icon(Icons.arrow_right, size: 1000,))),),
                       )
                     ],
                   )),
@@ -156,63 +163,6 @@ class _BoardScreenState extends State<BoardScreen> {
     );
   }
 }
-
-class PlayerInfo extends StatelessWidget {
-  final bool isLeft;
-  final Player player;
-  final double height;
-  final double width;
-
-  PlayerInfo({this.isLeft, this.player, this.height, this.width});
-
-  Widget onlineIcon(bool isOnline) {
-    return Icon(
-      isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-      color: Colors.green,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return
-    Container(
-
-      color: Colors.grey,
-      height: height,
-      width: width,
-
-      child: FittedBox(
-
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              onlineIcon(player?.isOnline ?? false),
-              Align(
-                  alignment: Alignment.center,
-                  child: player != null ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                Text(player.user.userName),
-                Text(player.user.score.toString())
-              ],) :
-              Text("?")),
-              if(player != null) Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(player.remainingTime.toString())),
-            ],
-          ),
-        ),
-      );
-  }
-}
-
-class CornerAction extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
 
 
 

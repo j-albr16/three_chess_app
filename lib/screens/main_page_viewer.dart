@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:three_chess/providers/friends_provider.dart';
+import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/screens/board_screen.dart';
 import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
@@ -33,6 +36,14 @@ class MainPageViewerState extends State<MainPageViewer> {
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
+    Future.delayed(Duration.zero).then((_) {
+      GameProvider gameProvider =
+      Provider.of<GameProvider>(context, listen: false);
+      gameProvider.fetchGames();
+         Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+    });
+
+
     super.initState();
   }
 

@@ -26,9 +26,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero)
-        .then((_) => Provider.of<FriendsProvider>(context, listen: false).fetchFriends())
-        .then((_) => _didFetch = true);
+
     super.initState();
   }
 
@@ -162,11 +160,7 @@ switchSelectedPending(model){
       appBar: AppBar(
         title: Text('Friends'),
       ),
-      body: !_didFetch
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : GestureDetector(
+      body: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 FocusScope.of(context).unfocus();
@@ -197,9 +191,9 @@ switchSelectedPending(model){
                         // TODO Open Chat where chat is supposed to be and not design Test Screen
                       },
                       // friendTiles: sampleFriends,
-                      friendTiles: friends,
+                      friendTiles: friends ?? [],
                       // pendingFriendTiles: sampleFriends,
-                      pendingFriendTiles: pendingFriends,
+                      pendingFriendTiles: pendingFriends ?? [],
                       onPendingSelect: switchSelectedPending,
                       selectedFriend: selectedPending,
                       isPendingFriendsOpen: _isPendingOpen,

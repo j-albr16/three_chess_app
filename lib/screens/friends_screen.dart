@@ -74,11 +74,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 },
                 child: Center(
                     child: Text(
-                  model.isPlaying
+                  model.isPlaying ?? false
                       ? 'Watch him Play!'
                       : "He ain't Playing right now!",
                   style: TextStyle(
-                      color: model.isPlaying ? Colors.green : Colors.grey,
+                      color: model.isPlaying?? false ? Colors.green : Colors.grey,
                       fontSize: 17,
                       fontWeight: FontWeight.bold),
                 )),

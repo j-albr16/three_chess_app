@@ -46,7 +46,7 @@ class Chat extends StatelessWidget{
           children: <Widget>[
             Expanded(
               child: ListView.builder(
-                controller: _scrollController,
+                controller:scrollController,
                 physics: BouncingScrollPhysics(),
                 itemCount: chat.messages.length,
                 itemBuilder: (context, index) => chatObject(
@@ -73,7 +73,7 @@ class Chat extends StatelessWidget{
           child: Padding(
             padding: EdgeInsets.all(13),
             child: TextField(
-              controller: _chatController,
+              controller: chatController,
               decoration: DEC.decoration('your Message'),
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.done,
@@ -98,9 +98,9 @@ class Chat extends StatelessWidget{
   }
 
   submit() {
-    if (_chatController.text.isNotEmpty) {
-      submitMessage(_chatController.text);
-      _chatController.clear();
+    if (chatController.text.isNotEmpty) {
+      submitMessage(chatController.text);
+      chatController.clear();
     }
   }
 

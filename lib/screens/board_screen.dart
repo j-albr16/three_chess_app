@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/data/board_data%20copy.dart';
+import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
+import 'package:three_chess/providers/scroll_provider.dart';
 
 import '../models/chess_move.dart';
 import '../widgets/board_boarding_widgets.dart';
@@ -35,6 +36,14 @@ class _BoardScreenState extends State<BoardScreen> {
 
   // "A1": [
   //       Point(299.6151407894796, 832.1318750315601),
+
+  // printChangedWhite(){
+  //   print("static Map<String, List<Point>> tileWhiteData = {");
+  //   for(MapEntry isWhiteTile in BoardData.tileWhiteData.entries){
+  //     bool isWhite;
+  //     print(' "${isWhiteTile.key}": $isWhite,');
+  //   }
+  // }
 
   printNewPoints(){
     double maxX = 0;
@@ -90,15 +99,22 @@ class _BoardScreenState extends State<BoardScreen> {
           PlayerColor.values[(gameProvider.player.playerColor.index + 2) % 3]);
     }
 
+    bool isLocked = Provider.of<ScrollProvider>(context).isLocked;
+    switchIsLocked(){
+      Provider.of<ScrollProvider>(context, listen: false).isLocked = !isLocked;
+    }
 
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [IconButton(icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock), onPressed: () => switchIsLocked(),)],
+      ),
       body:
       RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx)
     {
       double usableHeight = screenHeight - unusableHeight;
+      ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: BoardState.newGame(),);
       return Container(
         height: screenHeight,
         child: Stack(
@@ -125,7 +141,7 @@ class _BoardScreenState extends State<BoardScreen> {
               height: min(screenWidth, screenHeight*0.9),
               width: min(screenWidth, screenHeight*0.9),
               child: FittedBox(
-                child: ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: BoardState.newGame(),),
+                child: threeChessBoard,
               ),
             )
 

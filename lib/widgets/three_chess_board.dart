@@ -51,10 +51,14 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   @override
   void initState() {
+    setState(() {
+
+     // widget.tileKeeper.rotateTilesNext();
+    });
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context ,listen: false);
       playingPlayer =
-          gameProvider.player?.playerColor ?? PlayerColor.red; // TODO alternative red call will be removed
+          gameProvider.player?.playerColor ?? PlayerColor.white; // TODO alternative red call will be removed
       if(playingPlayer != null){
         for (int i = 0; i < playingPlayer.index; i++) {
           setState(() {
@@ -129,6 +133,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
        behavior: HitTestBehavior.opaque,
         onPointerDown: (details){
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
+          if(whatsHit != null){
+            print("$whatsHit : ${widget.tileKeeper.tiles[whatsHit].isWhite}");
+          }
          // print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");

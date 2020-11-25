@@ -60,6 +60,7 @@ class ChatProvider with ChangeNotifier {
   }
   void resetCurrentChat(){
     _currentChatIndex = null;
+    notifyListeners();
   }
 
   Future<void> sendTextMessage(String text) async {

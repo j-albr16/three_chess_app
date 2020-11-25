@@ -6,21 +6,33 @@ import '../models/user.dart';
 import '../models/chess_move.dart';
 
 class GameTable extends StatelessWidget {
- final Game game;
- final Size size;
+  final Game game;
+  final Size size;
+  final Function pickMove;
+  final Function surrender;
+  final Function remi;
+  final Function takeBack;
+  ThemeData theme;
 
-GameTable({this.game, this.size});
+  GameTable(
+      {this.theme,
+      this.game,
+      this.pickMove,
+      this.size,
+      this.remi,
+      this.surrender,
+      this.takeBack});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width:  size.width,
+      width: size.width,
       height: size.height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
-        color: Colors.black38,
+        color: theme.backgroundColor,
         border: Border.all(
-          color: Colors.white,
+          color: theme.primaryColorLight,
         ),
       ),
       child: Column(
@@ -35,35 +47,31 @@ GameTable({this.game, this.size});
 
   Widget moveTable(Game game) {
     print(game.chessMoves.length);
-    return 
-      Expanded(
-              child: GridView.count(
-          padding: EdgeInsets.all(5),
-          crossAxisCount: 3,
-          children: [...game.chessMoves.map((e) {
+    return Expanded(
+      child: GridView.count(
+        padding: EdgeInsets.all(5),
+        crossAxisCount: 3,
+        children: [
+          ...game.chessMoves.map((e) {
             return tableTile(e);
-          }).toList() ],
-    ),
-      );
+          }).toList()
+        ],
+      ),
+    );
   }
 
   Widget tableTile(ChessMove chessMove) {
-    // return Padding(
-    //   padding: EdgeInsets.all(2),
-    return Container(
-      // width: 100,
-      // height: 100,
-      child: FittedBox(
-        // fit: BoxFit.contain,
-        child: Center(
-                  child: Text(
+    // TODO Think about how we want to display one Move
+    return GestureDetector(
+      onTap: () => pickMove(chessMove),
+          child: Container(
+        child: FittedBox(
+          child: Text(
             chessMove.nextTile,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 1,
-            ),
+            style: theme.primaryTextTheme.headline2,
             textAlign: TextAlign.center,
           ),
+          fit: BoxFit.none,
         ),
       ),
     );
@@ -72,10 +80,12 @@ GameTable({this.game, this.size});
   Widget iconBar() {
     // return Padding(
     //   padding: EdgeInsets.all(10),
-         return Container(
-           decoration: BoxDecoration(
-             border: Border(top: BorderSide(color: Colors.white),
-           ),),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: theme.primaryColorLight),
+        ),
+      ),
       width: size.width,
       height: size.height * 0.1,
       child: Row(
@@ -83,24 +93,24 @@ GameTable({this.game, this.size});
         children: [
           IconButton(
             padding: EdgeInsets.all(5),
-            onPressed: () {},
+            onPressed: takeBack,
             icon: Icon(
               Icons.arrow_back_ios_rounded,
-              color: Colors.white,
+              color: theme.primaryColorLight,
             ),
           ),
           IconButton(
             padding: EdgeInsets.all(5),
-            onPressed: () {},
+            onPressed: remi,
             icon: Text(
               '1/2',
-              style: TextStyle(color: Colors.white),
+              style: theme.primaryTextTheme.bodyText2,
             ),
           ),
           IconButton(
             padding: EdgeInsets.all(5),
-            onPressed: () {},
-            icon: Icon(Icons.flag, color: Colors.white),
+            onPressed: surrender,
+            icon: Icon(Icons.flag, color: theme.primaryColorLight),
           ),
         ],
       ),
@@ -108,14 +118,12 @@ GameTable({this.game, this.size});
   }
 
   Widget playerBar(List<Player> player) {
-    // return Padding(
-    //   padding: EdgeInsets.all(10),
-         return Container(
-       decoration: BoxDecoration(
-         border: Border(
-           bottom: BorderSide(color: Colors.white),
-         ),
-       ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: theme.primaryColorLight),
+        ),
+      ),
       width: size.width,
       height: size.height * 0.1,
       child: Row(
@@ -124,22 +132,31 @@ GameTable({this.game, this.size});
       ),
     );
   }
-}
 
-Widget playerItem(String userName, bool isOnline) {
-  // return Padding(
-  //   padding: EdgeInsets.all(3),
-       return Flexible(
-         flex: 1,
-    child: Row(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            color: isOnline ? Colors.green : Colors.red,
-            shape: BoxShape.circle,
+  Widget playerItem(String userName, bool isOnline) {
+    // return Padding(
+    //   padding: EdgeInsets.all(3),
+    return Flexible(
+      flex: 1,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            userName,
+            style: theme.primaryTextTheme.subtitle2,
+            textAlign: TextAlign.end,
           ),
-        ),
-      ],
-    ),
-  );
+          SizedBox(width: 6,),
+          Container(
+            height:15,
+            width: 15,
+            decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+              color: isOnline ? Colors.green : theme.errorColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -15,9 +15,11 @@ class Chat extends StatelessWidget{
   bool lobbyChat;
   ScrollController scrollController;
   TextEditingController chatController;
+  ThemeData theme;
 
   Chat({
     this.chat,
+    this.theme,
     this.lobbyChat,
     this.size,
     this.submitMessage,
@@ -57,10 +59,6 @@ class Chat extends StatelessWidget{
               ),
             ),
             textField(),
-            FlatButton(
-              child: Text('Fetch Chat'),
-              onPressed: () {},
-            ),
           ]),
     );
   }
@@ -74,11 +72,11 @@ class Chat extends StatelessWidget{
             padding: EdgeInsets.all(13),
             child: TextField(
               controller: chatController,
-              decoration: DEC.decoration('your Message'),
+              decoration: DEC.decoration('your Message', theme),
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.done,
-              cursorColor: Colors.white70,
-              style: TextStyle(color: Colors.white70),
+              cursorColor: Colors.black26,
+              style: TextStyle(color: Colors.black26),
               onSubmitted: (_) {
                 submit();
               },
@@ -90,7 +88,7 @@ class Chat extends StatelessWidget{
           onPressed: submit,
           icon: Icon(
             Icons.subdirectory_arrow_right_sharp,
-            color: Colors.white,
+            color: Colors.black26,
           ),
         ),
       ],
@@ -113,7 +111,7 @@ class Chat extends StatelessWidget{
         constraints: BoxConstraints(maxWidth: size.width * 0.7),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white12,
+          color: Colors.black26,
         ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -124,8 +122,8 @@ class Chat extends StatelessWidget{
                   Text(
                     userName,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
+                      color: Colors.white70,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.left,
@@ -137,8 +135,8 @@ class Chat extends StatelessWidget{
                   text: TextSpan(
                     text: text,
                     style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
+                      fontSize: 14,
+                      color: Colors.white70,
                     ),
                     children: [],
                   ),
@@ -151,8 +149,8 @@ class Chat extends StatelessWidget{
               Text(
                 DateFormat.Hm().format(time),
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
+                    color: Colors.white70,
+                    fontSize: 8,
                     fontWeight: FontWeight.w300),
               ),
             ]),

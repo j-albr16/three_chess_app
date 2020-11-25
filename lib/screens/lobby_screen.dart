@@ -28,6 +28,19 @@ class _LobbyScreenState extends State<LobbyScreen> {
     super.initState();
   }
 
+  Widget getButton(Text text, {double height, double width, Color color = Colors.deepPurpleAccent}){
+
+    return Card(
+        child: Container(
+          height: height,
+          width: width,
+        padding: EdgeInsets.symmetric(horizontal: width * 0.1, vertical: height * 0.05),
+    color: color,
+    child: FittedBox(child: text),
+    ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +68,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               child: Container(
                 child: LobbyTable(
                   width: screenWidth,
-                  height: 400,
+                  height: screenHeight * 0.5,
                   selectedColumns: [
                     ColumnType.Time,
                     ColumnType.AverageScore,
@@ -102,13 +115,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: column
                                 .map(
-                                  (child) => Card(
-                                    child: Container(
-                                      padding: EdgeInsets.all(25),
-                                      color: Colors.deepPurpleAccent,
-                                      child: Text(child.value +
-                                          " ${child.key[0]} + ${child.key[1]}"),
-                                    ),
+                                  (child) => getButton(
+                                      Text(child.value + " ${child.key[0]} + ${child.key[1]}"),
+                                    width: screenWidth * 0.3,
+                                      height: screenHeight * 0.08
                                   ),
                                 )
                                 .toList(),
@@ -120,23 +130,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    flex: 6,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      color: Colors.deepPurple,
-                      child: Text("Find a Game like"),
-                    ),
+                  getButton(Text("Find a Game like"),
+                      height: screenHeight * 0.08,
+                      width: screenWidth * 0.4,
+                      color: Colors.deepPurple
                   ),
-                  Spacer(flex: 1),
-                  Flexible(
-                    flex: 6,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      color: Colors.deepPurple,
-                      child: Text("Find me this Game"),
+                  Container(width: screenWidth*0.15, color: Colors.transparent),
+                  getButton(Text("Find me this Game"),
+                      height: screenHeight * 0.08,
+                      width: screenWidth * 0.4,
+                      color: Colors.deepPurple
                     ),
-                  ),
                 ],
               ),
             )

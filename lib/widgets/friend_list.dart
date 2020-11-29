@@ -332,20 +332,28 @@ class AddFriendArea extends StatelessWidget {
 
   AddFriendArea({this.addFriend, this.isTyping = false, this.switchTyping});
 
+  void _submit(submitted){
+    switchTyping();
+    addFriend(submitted);
+  }
+
   Widget textField() {
+    TextEditingController controller = TextEditingController();
     return Container(
       padding: EdgeInsets.only(left: 10),
       child: TextField(
+        controller: controller,
         autofocus: true,
         style: TextStyle(fontSize: 16),
         decoration: InputDecoration(
+          suffixIcon: IconButton(
+            icon: Icon(Icons.send),
+            onPressed: () => _submit(controller.text),
+          ),
           hintText: '... add a Friend',
         ),
         maxLines: 1,
-        onSubmitted: (submitted) {
-          switchTyping();
-          addFriend(submitted);
-        },
+        onSubmitted: _submit,
       ),
     );
   }

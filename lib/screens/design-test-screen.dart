@@ -91,9 +91,9 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
                   if (showChat)
                   Text('No Chat Here Anymore'),
                   if (!showChat)
-                    GameTable(
-                        game: game,
-                        size: Size(size.height * 0.4, size.height * 0.6)),
+                    // GameTable(
+                    //     game: game,
+                    //     size: Size(size.height * 0.4, size.height * 0.6)),
                   Divider(
                     color: Colors.white,
                     height: 10,

@@ -80,8 +80,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           game.chessMoves.length - widget.boardState.chessMoves.length;
       for (int i = game.chessMoves.length-difference; i < game.chessMoves.length ; i ++) {
         //print("what do i do: " + i.toString() + " with: " + game.chessMoves[i].nextTile.toString());
-        PieceMover.movePieceTo(
-            game.chessMoves[i].initialTile, game.chessMoves[i].nextTile, widget.boardState);
+        widget.boardState.movePieceTo(
+            game.chessMoves[i].initialTile, game.chessMoves[i].nextTile);
       }
 
     }
@@ -156,7 +156,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
             }
             else{
               if(highlighted.value.contains(whatsHit) && myTurn){
-                  PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
+                widget.boardState.movePieceTo(highlighted.key, whatsHit);
                   _moveWasMade(context);
                   highlighted = null;
               }
@@ -184,7 +184,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
               setState(() {
                 if(highlighted.value.contains(whatsHit)&& myTurn){
 
-                      PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
+                  widget.boardState.movePieceTo(highlighted.key, whatsHit);
                       _moveWasMade(context);
                       highlighted = null;
                       draggedPiece = null;

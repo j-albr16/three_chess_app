@@ -4,8 +4,10 @@ import '../models/enums.dart';
 import './player.dart';
 import './chess_move.dart';
 import './piece.dart';
+import './request.dart';
 
 class Game {
+  Map finishedGameData;
   @required
   String id;
   @required
@@ -20,11 +22,14 @@ class Game {
   bool isRated;
   int posRatingRange;
   int negRatingRange;
+  List<Request> requests;
 
   Game({
     this.player,
+    this.finishedGameData,
     this.chessMoves,
     this.startingBoard,
+    this.requests,
     this.didStart,
     this.id,
     this.increment,

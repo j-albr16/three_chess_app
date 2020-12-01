@@ -17,6 +17,10 @@ import '../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'dart:math';
 
+import 'board_subscreens/board_board_subscreen.dart';
+import 'board_subscreens/chat_board_subscreen.dart';
+import 'board_subscreens/table_board_subscreen.dart';
+
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
 
@@ -29,11 +33,15 @@ class _BoardScreenState extends State<BoardScreen> {
   BoardState boardState;
   bool didload = false;
   ScrollController controller;
+  double iconBarFractionOfTable = 0.1;
+  double gameTableHeightFraction = 0.7;
+  final int _subSectionnCount  = 4;
 
   @override
   void initState() {
     boardState = BoardState();
     controller = ScrollController();
+
     // threeChessBoard = ThreeChessBoard(
     //     boardState: BoardState.newGame(), height: 1000, width: 1000);
     super.initState();
@@ -45,186 +53,112 @@ class _BoardScreenState extends State<BoardScreen> {
     super.dispose();
   }
 
-  // "A1": [
-  //       Point(299.6151407894796, 832.1318750315601),
-
-  // printChangedWhite(){
-  //   print("static Map<String, List<Point>> tileWhiteData = {");
-  //   for(MapEntry isWhiteTile in BoardData.tileWhiteData.entries){
-  //     bool isWhite;
-  //     print(' "${isWhiteTile.key}": $isWhite,');
-  //   }
-  // }
-
-  printNewPoints(){
-    double maxX = 0;
-    double maxY =0;
-    num turnOverX(num num){
-      if(num > maxX) {
-        maxX = num;
-      }
-      return num / 960.3414639624506 * 1000;
+  double sectionHeight({@required int section, @required double screenHeight}){
+    assert(section <= _subSectionnCount); //screen section is 1 more then subScreens because TableSubScreen has 2 sections
+    if(section == 0 || section == 1){
+      return screenHeight;
     }
-    num turnOverY(num num){
-      if(num > maxY){
-        maxY = num;
-      }
-      return num / 832.7580722940685 * 866.025;
+    else if(section == 2){
+      return  gameTableHeightFraction * screenHeight * iconBarFractionOfTable;
     }
-
-    print("static Map<String, List<Point>> tileData = {");
-    for(MapEntry tileData in BoardData.tileData.entries){
-      print('"${tileData.key}": [');
-      for(Point point in tileData.value){
-        print("Point(${turnOverX(point.x)}, ${turnOverY(point.y)}), ");
-      }
-      print('],');
-    }
-    print("};");
-    //print("Max x: $maxX and max y: $maxY");
+    //if section == 3
+    return(gameTableHeightFraction * screenHeight * (1/iconBarFractionOfTable));
   }
+
+  List<double> _sectionStarts(double screenHeight){
+    return [
+      0,
+      (screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
+      (screenHeight*gameTableHeightFraction)
+    ];
+  }
+
+  List<Widget> _subScreens;
+
+  _itemBuilder(BuildContext context, int index){
+    return _subScreens[index];
+  }
+
+  _goToNearestSubScreen(double screenHeight){
+    controller.animateTo(_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))],
+    curve: Curves.bounceIn, duration: Duration(milliseconds: 200));
+      //curve: Curves.bounceIn, duration: Duration(milliseconds: 200
+  } //_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))]
+  
+  int _nearestIndexOf(double input, List<double> list){
+    assert (list != null && list.isNotEmpty);
+
+    double difference = (list[0] - input).abs();
+    int index = 0;
+   //print("input: $input");
+    for( int i = 1; i < list.length;i++){
+      if((list[i] - input).abs() < difference){
+        difference = (list[i]-input).abs();
+        index = i;
+      }
+    }
+    //print("index: $index");
+    return index;
+  }
+
+  bool _onEndNotification(ScrollEndNotification scrollNotification, double screenHeight){
+    if(scrollNotification is ScrollEndNotification){
+      Future.delayed(Duration.zero).then((_) =>
+          _goToNearestSubScreen(screenHeight));
+      print("i tried, this scroll just ended");
+    }
+    return true;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
-
-    GameProvider gameProvider =
-        Provider.of<GameProvider>(context, listen: false);
-    Player getPlayer(PlayerColor playerColor) {
-      return gameProvider.game.player.firstWhere(
-          (element) => element.playerColor == playerColor,
-          orElse: null);
-    }
-
-    bool waiting = gameProvider.game == null || !gameProvider.game.didStart;
-    Player leftCorner;
-    Player rightCorner;
-
-    if (gameProvider.game != null) {
-      leftCorner = getPlayer(
-          PlayerColor.values[(gameProvider.player.playerColor.index + 1) % 3]);
-      rightCorner = getPlayer(
-          PlayerColor.values[(gameProvider.player.playerColor.index + 2) % 3]);
-    }
 
     bool isLocked = Provider.of<ScrollProvider>(context).isLocked;
     switchIsLocked(){
       Provider.of<ScrollProvider>(context, listen: false).isLocked = !isLocked;
     }
 
-
-    return Scaffold(
-      appBar: AppBar(
-        actions: [IconButton(icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock), onPressed: () => switchIsLocked(),)],
-      ),
-      body:
+    double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
 
 
-      SingleChildScrollView(
-        child: RelativeBuilder(
-            builder: (context, screenHeight, screenWidth, sy, sx)
-            {
-              double usableHeight = screenHeight - unusableHeight;
-              ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: boardState,);
+    return RelativeBuilder(
 
-    return Column(
-          children: [
+        builder: (context, screenHeight, screenWidth, sy, sx)
+      {
+        double usableHeight = screenHeight - unusableHeight;
+        _subScreens = [
+          ChatBoardSubScreen(
+              height: gameTableHeightFraction * screenHeight,
+              iconBarFraction: iconBarFractionOfTable),
+          BoardBoardSubScreen(
+            boardState: boardState,),
+          TableBoardSubScreen(
+            boardState: boardState,
+            controller: ScrollController(),
+            height: gameTableHeightFraction * screenHeight,),
+        ];
 
-             Container(
-              height: usableHeight,
-              child: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                        height: 50,
-                        child: Row(
-                          //mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                                alignment: Alignment.topLeft,
-                                child: PlayerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,)),
-                            Expanded(child: Container(color: Colors.transparent)),
-                            Align(
-                                alignment: Alignment.topRight,
-                                child: PlayerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: false, isOnline: rightCorner?.isOnline, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,)),
-
-                          ],
-                        )),
-                  ),
-                  Center(child: Container(
-                    height: min(screenWidth, screenHeight*0.9),
-                    width: min(screenWidth, screenHeight*0.9),
-                    child: FittedBox(
-                      child: threeChessBoard,
-                    ),
-                  )
-
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                        child: Row(
-                          //mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.bottomLeft,
-                              child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed left"), borderWidth: 2, icon:
-                              Container(
-                                alignment: Alignment.bottomLeft,
-                                padding: EdgeInsets.only( bottom:10),
-                                  child: FittedBox(child: Icon(Icons.arrow_left, size: 1000,))),),
-                            ),
-                            Expanded(child: Container(color: Colors.transparent)),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed right"), borderWidth: 2, icon: Container(
-                                  alignment: Alignment.bottomRight,
-                                  padding: EdgeInsets.only(bottom:10),
-                                  child: FittedBox(child: Icon(Icons.arrow_right, size: 1000,))),),
-                            )
-                          ],
-                        )),
-                  ),
-                ],
+        return Scaffold(
+          appBar: AppBar(
+            actions: [
+              IconButton(
+              icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
+              onPressed: () => switchIsLocked(),),
+            ],
+          ),
+          body: NotificationListener<ScrollEndNotification>(
+            onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight),
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: _subScreens,
               ),
             ),
-
-           GameTable(
-             boardState: boardState,
-             size: Size(screenWidth *0.8, 400),
-            controller: controller,
-             confirmation: confirmation,
-             onConfirmation: (tableAction) {
-               setState(() {
-                 confirmation = tableAction;
-               });
-             },
-             onConfirmationCancel: () => setState(() =>confirmation = null),
-             onRequest: (tableAction) {
-               print("i demand a $tableAction");
-               setState(() {
-                 pendingActions.add(tableAction);
-                 confirmation = null;
-               });
-             },
-             onRequestCancel: (cancelPending) {
-               print("I demand to stop the vote!");
-               setState(() {
-                 pendingActions.remove(cancelPending);
-               });
-
-             },
-             pendingActions: pendingActions ,
-           ),
-          ],);
-  }),
-      ),
+          ),
+        );},
     );
-  }
-  TableAction confirmation;
-  List<TableAction> pendingActions = [];
+        }
 }
-
-
 

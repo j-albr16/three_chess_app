@@ -101,7 +101,6 @@ class GameTable extends StatelessWidget {
       // height: size.height * 0.8,
       child: GridView.count(
         shrinkWrap: true,
-        //TODO NEEDS CONTROLLER TO SCROLL IN THE BIGGER PICTURE IF ON EdGE
         controller: controller,
         padding: EdgeInsets.all(5),
         crossAxisCount: 3,
@@ -231,7 +230,7 @@ class GameTable extends StatelessWidget {
         ),
       ),
       width: size.width,
-      height: size.height * 0.1,
+      height: size.height * 0.1, //TODO Should inherit IconBarFraction of BoardScreen
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: confirmation != null

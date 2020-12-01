@@ -57,21 +57,23 @@ class _BoardScreenState extends State<BoardScreen> {
   }
 
   
-  List<double> _sectionStarts(double screenHeight){
+  List<double> _sectionStarts(double screenHeight, int requestsLength){
     double chatHeight = chatScreenHeight ?? screenHeight;
+    double requestsHeight = (screenHeight * voteHeightFraction) * requestsLength;
 
     return [
       0,
       chatHeight,
-      chatHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
-    chatHeight + (screenHeight*gameTableHeightFraction),
+      chatHeight + requestsHeight,
+      chatHeight + requestsHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
+    chatHeight + requestsHeight + (screenHeight*gameTableHeightFraction),
     ];
   }
 
   List<Widget> _subScreens;
   
-  _goToNearestSubScreen(double screenHeight){
-    controller.animateTo(_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))],
+  _goToNearestSubScreen(double screenHeight, int requestsLength){
+    controller.animateTo(_sectionStarts(screenHeight, requestsLength)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight, requestsLength))],
     curve: Curves.linear, duration: Duration(milliseconds: 200));
       //curve: Curves.bounceIn, duration: Duration(milliseconds: 200
   } //_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))]
@@ -92,10 +94,10 @@ class _BoardScreenState extends State<BoardScreen> {
     return index;
   }
 
-  bool _onEndNotification(ScrollEndNotification scrollNotification, double screenHeight){
+  bool _onEndNotification(ScrollEndNotification scrollNotification, double screenHeight, int requestsLength){
     if(scrollNotification is ScrollEndNotification){
       Future.delayed(Duration.zero).then((_) =>
-          _goToNearestSubScreen(screenHeight));
+          _goToNearestSubScreen(screenHeight, requestsLength));
       print("i tried, this scroll just ended");
     }
     return true;
@@ -118,11 +120,15 @@ class _BoardScreenState extends State<BoardScreen> {
         builder: (context, screenHeight, screenWidth, sy, sx)
       {
         double usableHeight = screenHeight - unusableHeight;
-        List<Request> requests = [];
+        List<Request> requests = []; //Needs to be Not Null !
         List<Widget> votes = [];
         requests.forEach((request) { votes.add(AcceptRequestType(
           height: screenHeight * voteHeightFraction,
           requestType: request.requestType,
+          whosAsking: request.playerResponse[ResponseRole.Create],
+          onAccept: () => print("I accept the offer"),
+          onDecline: () => print("I decline the offer"),
+          movesLeftToVote: 3 - (boardState.chessMoves.length - 1 - request.moveIndex),
         ));});
         _subScreens = [
           ChatBoardSubScreen(
@@ -145,7 +151,7 @@ class _BoardScreenState extends State<BoardScreen> {
             ],
           ),
           body: NotificationListener<ScrollEndNotification>(
-            onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight),
+            onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
             child: SingleChildScrollView(
               controller: controller,
               child: Column(

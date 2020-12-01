@@ -115,12 +115,26 @@ class _BoardScreenState extends State<BoardScreen> {
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
 
 
+    //TODO JAN SET FUNCTIONS FOR REQUEST VOTE
+    Map<RequestType, Function> onAccept = {
+      RequestType.TakeBack: () => null,
+      RequestType.Remi: () => null,
+      RequestType.Surrender: () => null,
+    };
+
+    Map<RequestType, Function> onDecline = {
+      RequestType.TakeBack: () => null,
+      RequestType.Remi: () => null,
+      RequestType.Surrender: () => null,
+    };
+
+
     return RelativeBuilder(
 
         builder: (context, screenHeight, screenWidth, sy, sx)
       {
         double usableHeight = screenHeight - unusableHeight;
-        List<Request> requests = []; //Needs to be Not Null !
+        List<Request> requests = []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
 
         /* Example Request:
 
@@ -140,9 +154,9 @@ class _BoardScreenState extends State<BoardScreen> {
           height: screenHeight * voteHeightFraction,
           requestType: request.requestType,
           whosAsking: request.playerResponse[ResponseRole.Create],
-          onAccept: () => print("I accept the offer"),
-          onDecline: () => print("I decline the offer"),
-          movesLeftToVote: 3 - (boardState.chessMoves.length - 1 - request.moveIndex),
+          onAccept: () => onAccept[request.requestType],
+          onDecline: () => onDecline[request.requestType],
+          movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
         ));});
         _subScreens = [
           ChatBoardSubScreen(

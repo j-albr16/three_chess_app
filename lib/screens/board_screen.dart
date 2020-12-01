@@ -64,7 +64,7 @@ class _BoardScreenState extends State<BoardScreen> {
     return [
       0,
       chatHeight,
-      chatHeight + requestsHeight,
+      chatHeight + requestsHeight + 30,
       chatHeight + requestsHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
     chatHeight + requestsHeight + (screenHeight*gameTableHeightFraction),
     ];
@@ -98,7 +98,7 @@ class _BoardScreenState extends State<BoardScreen> {
     if(scrollNotification is ScrollEndNotification){
       Future.delayed(Duration.zero).then((_) =>
           _goToNearestSubScreen(screenHeight, requestsLength));
-      print("i tried, this scroll just ended");
+      //print("i tried, this scroll just ended");
     }
     return true;
   }
@@ -121,6 +121,20 @@ class _BoardScreenState extends State<BoardScreen> {
       {
         double usableHeight = screenHeight - unusableHeight;
         List<Request> requests = []; //Needs to be Not Null !
+
+        /* Example Request:
+
+        Request(
+          moveIndex: 0,
+          playerResponse: {
+            ResponseRole.Create: PlayerColor.black,
+            ResponseRole.Decline: null,
+            ResponseRole.Accept: null,
+          },
+          requestType: RequestType.Surrender,
+        )
+
+         */
         List<Widget> votes = [];
         requests.forEach((request) { votes.add(AcceptRequestType(
           height: screenHeight * voteHeightFraction,
@@ -135,6 +149,7 @@ class _BoardScreenState extends State<BoardScreen> {
               height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
             boardState: boardState,),
+          ...votes,
           TableBoardSubScreen(
             boardState: boardState,
             controller: ScrollController(),

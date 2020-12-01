@@ -16,10 +16,10 @@ class AcceptRequestType extends StatelessWidget {
       {this.onAccept, this.onDecline, this.movesLeftToVote, this.requestType, this.whosAsking, this.height});
 
   String voteText(RequestType requestType) {
-    Map<TableAction, String> text = {
-      TableAction.TakebackRequest: "Do you agree to let $whosAsking",
-      TableAction.DrawOffer: "",
-      TableAction.SurrenderRequest: "",
+    Map<RequestType, String> text = {
+      RequestType.TakeBack: "Do you agree to let $whosAsking take back?",
+      RequestType.Remi: "Do you agree to a draw?",
+      RequestType.Surrender: "Do you want to Surrender with $whosAsking",
     };
     return text[requestType];
   }
@@ -68,7 +68,7 @@ class AcceptRequestType extends StatelessWidget {
             child: Container(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Text("Move till vote expires: $movesLeftToVote"),
+                child: Text("Move till vote expires: $movesLeftToVote    "),
               ),
             ),
           )
@@ -83,12 +83,15 @@ class AcceptRequestType extends StatelessWidget {
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
           return Container(
+            color: Colors.black45,
             height: height,
-            child: Column(
-              children: [
-                Text(voteText(requestType)),
-                decideRow(screenWidth)
-              ],
+            child: FittedBox(
+              child: Column(
+                children: [
+                  Text(voteText(requestType)),
+                  decideRow(screenWidth)
+                ],
+              ),
             ),
           );
         }

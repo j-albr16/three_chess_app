@@ -78,14 +78,49 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
               color: theme.primaryColorDark,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: GameTable(
-              theme: theme,
-              game: game,
-              size: Size(size.height * 0.4, size.height * 0.6),
+          child: Center(
+            child: Container(
+              // width: size.height * 0.4,
+              // height: size.height * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.black38,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Column(
+                children: <Widget>[
+                  if (showChat)
+                  Text('No Chat Here Anymore'),
+                  if (!showChat)
+                    // GameTable(
+                    //     game: game,
+                    //     size: Size(size.height * 0.4, size.height * 0.6)),
+                  Divider(
+                    color: Colors.white,
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Text(
+                        'showChat',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Switch(
+                        value: showChat,
+                        onChanged: (bool newValue) {
+                          setState(() {
+                            showChat = newValue;
+                          });
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
+    ));
   }
 }

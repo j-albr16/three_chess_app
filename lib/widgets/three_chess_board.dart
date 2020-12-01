@@ -51,10 +51,14 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   @override
   void initState() {
+    setState(() {
+
+     // widget.tileKeeper.rotateTilesNext();
+    });
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context ,listen: false);
       playingPlayer =
-          gameProvider.player?.playerColor ?? PlayerColor.red; // TODO alternative red call will be removed
+          gameProvider.player?.playerColor ?? PlayerColor.white; // TODO alternative red call will be removed
       if(playingPlayer != null){
         for (int i = 0; i < playingPlayer.index; i++) {
           setState(() {
@@ -76,8 +80,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           game.chessMoves.length - widget.boardState.chessMoves.length;
       for (int i = game.chessMoves.length-difference; i < game.chessMoves.length ; i ++) {
         //print("what do i do: " + i.toString() + " with: " + game.chessMoves[i].nextTile.toString());
-        PieceMover.movePieceTo(
-            game.chessMoves[i].initialTile, game.chessMoves[i].nextTile, widget.boardState);
+        widget.boardState.movePieceTo(
+            game.chessMoves[i].initialTile, game.chessMoves[i].nextTile);
       }
 
     }
@@ -129,6 +133,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
        behavior: HitTestBehavior.opaque,
         onPointerDown: (details){
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
+          if(whatsHit != null){
+            print("$whatsHit : ${widget.tileKeeper.tiles[whatsHit].isWhite}");
+          }
          // print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");
@@ -149,7 +156,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
             }
             else{
               if(highlighted.value.contains(whatsHit) && myTurn){
-                  PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
+                widget.boardState.movePieceTo(highlighted.key, whatsHit);
                   _moveWasMade(context);
                   highlighted = null;
               }
@@ -177,7 +184,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
               setState(() {
                 if(highlighted.value.contains(whatsHit)&& myTurn){
 
-                      PieceMover.movePieceTo(highlighted.key, whatsHit, widget.boardState);
+                  widget.boardState.movePieceTo(highlighted.key, whatsHit);
                       _moveWasMade(context);
                       highlighted = null;
                       draggedPiece = null;

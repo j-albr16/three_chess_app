@@ -31,6 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _chatController.dispose();
     _scrollController.dispose();
+    _chatProvider.resetCurrentChat();
     super.dispose();
   }
 
@@ -38,15 +39,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) => IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _chatProvider.resetCurrentChat();
-            },
-          ),
-        ),
       ),
       body: Center(
         child: Consumer<ChatProvider>(

@@ -1,17 +1,122 @@
+import 'package:three_chess/board/ThinkingBoard.dart';
+import 'package:three_chess/data/board_data.dart';
+
 import '../models/enums.dart';
 import '../models/piece.dart';
 import '../models/chess_move.dart';
 import 'package:collection/collection.dart';
 
 import 'PieceMover.dart';
+import 'Tiles.dart';
+import 'chess_move_info.dart';
 class BoardState{
   Map<String, Piece> pieces;
   Map<PlayerColor, String> enpassent;
   List<ChessMove> chessMoves;
+  List<ChessMoveInfo> infoChessMoves;
 
-  BoardState({this.pieces, this.enpassent, this.chessMoves});
+  BoardState() {
+    _newGame();
+  }
 
-  BoardState.newGame() {
+  BoardState.takeOver({this.pieces, this.enpassent, this.chessMoves});
+
+  BoardState.generate({this.chessMoves}){
+    for(ChessMove chessMove in chessMoves){
+      movePieceTo(chessMove.initialTile, chessMove.nextTile);
+    }
+  }
+
+  movePieceTo(String start, String end){
+    List<SpecialMove> specialMoves =[];
+    PieceKey takenPiece;
+    
+      if (end != null && start != null) {
+        if (pieces[end] != null) {
+          //boardState.pieces.firstWhere(()) = boardState.pieces[String]
+          takenPiece = pieces[end].pieceKey;
+          specialMoves.add(SpecialMove.Take);
+          pieces.remove(end);
+        }
+        Piece movedPiece = pieces[start];
+        if (movedPiece != null) {
+          enpassent.removeWhere((key, value) => key == movedPiece.playerColor);
+
+          pieces.remove(start); // removes entry of old piece with old position
+          movedPiece.position = end;
+          pieces.putIfAbsent(end, () => movedPiece); // adds new entry for piece with new pos
+          // moves the selectedPieces
+
+          // Following code listens to weather The King is castling and moves the rook accordingly
+          //moveCountOnCharAxis calulates the diffrence between start and end on the character Axis
+          int moveCountOnCharAxis = Tiles.charCoordinatesOf[movedPiece.playerColor].indexOf(start[0]) -
+              Tiles.charCoordinatesOf[movedPiece.playerColor].indexOf(end[0]);
+          if (movedPiece.pieceType == PieceType.King && moveCountOnCharAxis.abs() == 2) {
+            //If true: This is a castling move
+            specialMoves.add(SpecialMove.Castling);
+            if (moveCountOnCharAxis < 0) {
+              //Checks in which direction we should castle
+              String rookPos =
+                  Tiles.charCoordinatesOf[movedPiece.playerColor][7] + Tiles.numCoordinatesOf[movedPiece.playerColor][0];
+
+              Piece rook = pieces[rookPos];
+              String newRookPos = BoardData.adjacentTiles[movedPiece.position].left[0];
+              rook.position = newRookPos;
+              pieces.remove(rookPos);
+              pieces.putIfAbsent(newRookPos, () => rook);
+              // pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
+              //     BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
+
+            } else if (moveCountOnCharAxis > 0) {
+              //Checks in which direction we should castle
+              String rookPos =
+                  Tiles.charCoordinatesOf[movedPiece.playerColor][0] + Tiles.numCoordinatesOf[movedPiece.playerColor][0];
+
+              Piece rook = pieces[rookPos];
+              String newRookPos = BoardData.adjacentTiles[movedPiece.position].right[0];
+              rook.position = newRookPos;
+              pieces.remove(rookPos);
+              pieces.putIfAbsent(newRookPos, () => rook);
+              //Places the rook to the right of the King
+            }
+          }
+          //Pawn en passent listener
+          if (movedPiece.pieceType == PieceType.Pawn) {
+            int numIndexOld = Tiles.numCoordinatesOf[BoardData.sideData[end]].indexOf(start.substring(1));
+            int numIndexNew = Tiles.numCoordinatesOf[BoardData.sideData[end]].indexOf(end.substring(1));
+            int charIndexOld = Tiles.charCoordinatesOf[BoardData.sideData[end]].indexOf(start[0]);
+            int charIndexNew = Tiles.charCoordinatesOf[BoardData.sideData[end]].indexOf(end[0]);
+            if (numIndexOld == 1 && numIndexNew == 3) {
+              enpassent[movedPiece.playerColor] = end;
+            }
+            //If passent occurs delete driven by pawn
+            else if ((charIndexOld - charIndexNew).abs() == 1 &&
+                (numIndexOld - numIndexNew).abs() == 1 &&
+                pieces[BoardData.adjacentTiles[end].top[0]] != null) {
+
+              takenPiece = pieces[end].pieceKey;
+              specialMoves.add(SpecialMove.Take);
+              pieces.remove(BoardData.adjacentTiles[end].top[0]);
+              specialMoves.add(SpecialMove.Enpassant);
+            }
+          }
+        }
+
+        ChessMove chessMove = ChessMove(initialTile: start, nextTile: end);
+        chessMoves.add(chessMove);
+        if (ThinkingBoard.isCheckMate(PlayerColor.values[chessMoves.length%3], this)) {
+          specialMoves.add(SpecialMove.CheckMate);
+        }
+        else if(ThinkingBoard.isCheck(PlayerColor.values[chessMoves.length%3], this)){
+          specialMoves.add(SpecialMove.Check);
+        }
+
+        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: pieces[end].pieceKey, specialMoves: specialMoves, takenPiece: takenPiece));
+      }
+  }
+
+
+  _newGame() {
     pieces = {};
     [
       //White

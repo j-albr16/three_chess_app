@@ -230,32 +230,15 @@ class FriendList extends StatelessWidget {
               child: child,
             );
     }
-
-    Widget friendList = _onPendingWrapper(
-      child: ListView(
-        shrinkWrap: true,
-        children: friendTiles
-            .map((model) => Container(
-                  child: FriendTile(
-                    model: model,
-                    height: tileHeight,
-                    onTap: onTap,
-                    onLongTap: onLongTap,
-                  ),
-                  constraints: BoxConstraints(maxWidth: width),
-                ))
-            .toList(),
-      ),
-    );
-
     return Container(
-        padding: EdgeInsets.only(bottom: 5, top: 5, right: 8),
+        padding: EdgeInsets.only(bottom: 5, top: 5),
         decoration:
             BoxDecoration(border: Border.all(width: 3, color: Colors.black)),
         child: Container(
           width: width,
           child: Stack(
             children: [
+              if(isPendingFriendsOpen) Container(width: double.infinity, height: double.infinity, color: Colors.grey,),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -301,16 +284,24 @@ class FriendList extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(left: 7),
+                      margin: EdgeInsets.only(left: 7, right: 7),
                       height: tileHeight,
                       width: double.infinity,
                       child: ElevatedButton(
-                        child: Text(
-                          "FriendRequest",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold),
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "FriendRequest",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Icon( isPendingFriendsOpen ? Icons.arrow_upward : Icons.arrow_downward),
+                            ],
+                          ),
                         ),
                         onPressed: switchShowPending,
                       ),
@@ -341,20 +332,28 @@ class AddFriendArea extends StatelessWidget {
 
   AddFriendArea({this.addFriend, this.isTyping = false, this.switchTyping});
 
+  void _submit(submitted){
+    switchTyping();
+    addFriend(submitted);
+  }
+
   Widget textField() {
+    TextEditingController controller = TextEditingController();
     return Container(
       padding: EdgeInsets.only(left: 10),
       child: TextField(
+        controller: controller,
         autofocus: true,
         style: TextStyle(fontSize: 16),
         decoration: InputDecoration(
+          suffixIcon: IconButton(
+            icon: Icon(Icons.send),
+            onPressed: () => _submit(controller.text),
+          ),
           hintText: '... add a Friend',
         ),
         maxLines: 1,
-        onSubmitted: (submitted) {
-          switchTyping();
-          addFriend(submitted);
-        },
+        onSubmitted: _submit,
       ),
     );
   }
@@ -393,7 +392,7 @@ class AddFriendArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(left: 7),
+        margin: EdgeInsets.only(left: 7, right: 7),
         width: double.infinity,
         decoration:
             BoxDecoration(border: Border.all(width: 1, color: Colors.black)),

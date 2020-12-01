@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/friends_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
+import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/screens/board_screen.dart';
 import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
@@ -62,13 +63,15 @@ class MainPageViewerState extends State<MainPageViewer> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return new Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),
         child: new Stack(
           children: <Widget>[
             new PageView.builder(
-              physics: new AlwaysScrollableScrollPhysics(),
+              physics: !Provider.of<ScrollProvider>(context).isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
               controller: _controller,
               itemBuilder: (BuildContext context, int index) {
                 return _pages[index % _pages.length];

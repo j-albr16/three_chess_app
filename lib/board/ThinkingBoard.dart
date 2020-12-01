@@ -32,7 +32,7 @@ class ThinkingBoard {
       );
     }
 
-    return new BoardState(
+    return new BoardState.takeOver(
       pieces: virtualPieces,
       enpassent: virtualEnPassent,
       chessMoves: [...boardState.chessMoves],
@@ -282,7 +282,7 @@ class ThinkingBoard {
     result.removeWhere((element) {
       bool resultRemove = false;
       BoardState virtualState = copyBoardState(boardState);
-      PieceMover.movePieceTo(piece.position, element, virtualState);
+      virtualState.movePieceTo(piece.position, element);
 
       resultRemove = isCheck(piece.playerColor, virtualState);
       return resultRemove;
@@ -309,7 +309,7 @@ class ThinkingBoard {
         for (String legalMove in getLegalMove(piece.position, boardState)) {
 
           BoardState virtualState = copyBoardState(boardState);
-          PieceMover.movePieceTo(piece.position, legalMove, virtualState);
+          virtualState.movePieceTo(piece.position, legalMove);
 
           if (!isCheck(toBeChecked, virtualState)) {
             result = false;

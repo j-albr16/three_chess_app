@@ -20,7 +20,7 @@ class ChatBoardSubScreen extends StatelessWidget {
   double height;
   double iconBarFraction;
 
-  ChatBoardSubScreen({this.height, this.iconBarFraction});
+  ChatBoardSubScreen({this.height});
 
   @override
   Widget build(BuildContext context) {

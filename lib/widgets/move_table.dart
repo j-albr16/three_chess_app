@@ -20,9 +20,11 @@ class GameTable extends StatelessWidget {
   final RequestAction onRequest;
   final RequestAction onRequestCancel;
   final ScrollController controller;
+  final double iconBarFraction;
 
   GameTable(
       {this.boardState,
+        this.iconBarFraction,
       this.onRequestCancel,
       this.onConfirmation,
       this.onConfirmationCancel,
@@ -230,7 +232,7 @@ class GameTable extends StatelessWidget {
         ),
       ),
       width: size.width,
-      height: size.height * 0.1, //TODO Should inherit IconBarFraction of BoardScreen
+      height: size.height * iconBarFraction, //TODO Should inherit IconBarFraction of BoardScreen
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: confirmation != null

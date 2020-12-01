@@ -35,6 +35,7 @@ class _BoardScreenState extends State<BoardScreen> {
   ScrollController controller;
   double iconBarFractionOfTable = 0.1;
   double gameTableHeightFraction = 0.7;
+  double chatScreenHeight = 0;
   final int _subSectionnCount  = 4;
 
   @override
@@ -66,10 +67,13 @@ class _BoardScreenState extends State<BoardScreen> {
   }
 
   List<double> _sectionStarts(double screenHeight){
+    double chatHeight = chatScreenHeight ?? screenHeight;
+
     return [
       0,
-      (screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
-      (screenHeight*gameTableHeightFraction)
+      chatHeight,
+      chatHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
+    chatHeight + (screenHeight*gameTableHeightFraction),
     ];
   }
 
@@ -81,7 +85,7 @@ class _BoardScreenState extends State<BoardScreen> {
 
   _goToNearestSubScreen(double screenHeight){
     controller.animateTo(_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))],
-    curve: Curves.bounceIn, duration: Duration(milliseconds: 200));
+    curve: Curves.linear, duration: Duration(milliseconds: 200));
       //curve: Curves.bounceIn, duration: Duration(milliseconds: 200
   } //_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))]
   
@@ -129,14 +133,14 @@ class _BoardScreenState extends State<BoardScreen> {
         double usableHeight = screenHeight - unusableHeight;
         _subScreens = [
           ChatBoardSubScreen(
-              height: gameTableHeightFraction * screenHeight,
-              iconBarFraction: iconBarFractionOfTable),
+              height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
             boardState: boardState,),
           TableBoardSubScreen(
             boardState: boardState,
             controller: ScrollController(),
-            height: gameTableHeightFraction * screenHeight,),
+            height: gameTableHeightFraction * screenHeight,
+              iconBarFraction: iconBarFractionOfTable),
         ];
 
         return Scaffold(

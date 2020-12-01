@@ -12,6 +12,7 @@ import '../models/user.dart';
 import '../models/chess_move.dart';
 import '../providers/server_provider.dart';
 import '../models/enums.dart';
+import '../models/request.dart';
 import '../data/server.dart';
 import '../helpers/user_acc.dart';
 
@@ -91,6 +92,30 @@ class GameProvider with ChangeNotifier {
     print('=================================');
   }
 
+  void subscribeToGameLobbyChannel() {
+    _serverProvider.subscribeToGameLobbyChannel(
+      gameId: _game.id,
+      moveMadeCallback: (moveData) => _handleMoveData(moveData),
+      playerJoinedLobbyCallback: (gameData) =>
+          _handlePlayerJoinedLobbyData(gameData),
+      remiAcceptCallback: (userId) => _handleRemiAccept(userId),
+      remiDeclineCallback: (userId) => _handleRemiDecline(userId),
+      remiRequestCallback: (userId, chessMove) =>
+          _handleRemiRequest(userId, chessMove),
+      surrenderDeclineCallback: (userId) => _handleSurrenderDecline(userId),
+      surrenderRequestCallback: (userId, chessMove) =>
+          _handleSurrenderRequest(userId, chessMove),
+      takeBackAcceptCallback: (userId) => _handleTakeBackAccept(userId),
+      takeBackDeclineCallback: (userId) => _handleTakeBackDecline(userId),
+      takeBackRequestCallback: (userId, chessMove) =>
+          _handleTakeBackRequest(userId, chessMove),
+      takenBackCallback: (userId, chessMove) =>
+          _handleTakenBack(userId, chessMove),
+      gameFinishedcallback: (data) => _handleGameFinished(data),
+      surrenderFailedCallback: () => _handleSurrenderFailed(),
+    );
+  }
+
   void subscribeToLobbychannel() {
     // disposing all previous Listeners to Lobby. In  case something went wrong with quit listening
     // _serverProvider.unSubscribeToLobbyChannel();
@@ -128,12 +153,7 @@ class GameProvider with ChangeNotifier {
       if (_game == null) {
         throw ('No Game Saved as _game!!');
       }
-      _serverProvider.subscribeToGameLobbyChannel(
-        gameId: _game.id,
-        moveMadeCallback: (moveData) => _handleMoveData(moveData),
-        playerJoinedLobbyCallback: (gameData) =>
-            _handlePlayerJoinedLobbyData(gameData),
-      );
+      subscribeToGameLobbyChannel();
       // stop listen to lobby channel
       // _serverProvider.unSubscribeToLobbyChannel();
       notifyListeners();
@@ -158,12 +178,7 @@ class GameProvider with ChangeNotifier {
       if (_game == null) {
         throw ('Error _game caught on Null after joining a game');
       }
-      _serverProvider.subscribeToGameLobbyChannel(
-        gameId: gameId,
-        moveMadeCallback: (moveData) => _handleMoveData(moveData),
-        playerJoinedLobbyCallback: (gameData) =>
-            _handlePlayerJoinedLobbyData(gameData),
-      );
+      subscribeToGameLobbyChannel();
       // stop listenng to lobby Channel
       // _serverProvider.unSubscribeToLobbyChannel();
       notifyListeners();
@@ -206,7 +221,6 @@ class GameProvider with ChangeNotifier {
         );
         _serverProvider.subscribeToLobbyChannel();
       }
-
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error whileFetching Game', error);
@@ -233,6 +247,78 @@ class GameProvider with ChangeNotifier {
       }
     } catch (error) {
       _serverProvider.handleError('error While fetching Games', error);
+    }
+  }
+
+  Future<void> requestSurrender() async {
+    try {
+      await _serverProvider.requestSurrender();
+    } catch (error) {
+      _serverProvider.handleError('Error While Requesting Surrender', error);
+    }
+  }
+
+  Future<void> acceptSurrender() async {
+    try {
+      await _serverProvider.acceptSurrender();
+    } catch (error) {
+      _serverProvider.handleError('Error while Accepting Surrender', error);
+    }
+  }
+
+  Future<void> declineSurrender() async {
+    try {
+      await _serverProvider.declineSurrender();
+    } catch (error) {
+      _serverProvider.handleError('Error while Decline Surrender', error);
+    }
+  }
+
+  Future<void> requestRemi() async {
+    try {
+      await _serverProvider.requestRemi();
+    } catch (error) {
+      _serverProvider.handleError('Error while Requesting Remi', error);
+    }
+  }
+
+  Future<void> acceptRemi() async {
+    try {
+      await _serverProvider.acceptRemi();
+    } catch (error) {
+      _serverProvider.handleError('Error while Accepting Remi', error);
+    }
+  }
+
+  Future<void> declineRemi() async {
+    try {
+      await _serverProvider.declineRemi();
+    } catch (error) {
+      _serverProvider.handleError('Error while declining Remi', error);
+    }
+  }
+
+  Future<void> requestTakeBack() async {
+    try {
+      await _serverProvider.requestTakeBack();
+    } catch (error) {
+      _serverProvider.handleError('Error while Declining Take Back', error);
+    }
+  }
+
+  Future<void> acceptTakeBack() async {
+    try {
+      await _serverProvider.acceptTakeBack();
+    } catch (error) {
+      _serverProvider.handleError('Error while accepting Take Back', error);
+    }
+  }
+
+  Future<void> declineTakeBack() async {
+    try {
+      await _serverProvider.declineTakeBack();
+    } catch (error) {
+      _serverProvider.handleError('Error while declining Take Back', error);
     }
   }
 
@@ -290,24 +376,138 @@ class GameProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void _handleSurrenderRequest(String userId, int chessMove) {
+    Map<ResponseRole, PlayerColor> playerResponse;
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    playerResponse[ResponseRole.Create] = playerColor;
+    _game.requests.add(new Request(
+      moveIndex: chessMove,
+      playerResponse: playerResponse,
+      requestType: RequestType.Surrender,
+    ));
+    notifyListeners();
+  }
+
+  void _handleSurrenderDecline(String userId) {
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    _getRequestFromRequestType(RequestType.Surrender)
+        .playerResponse[ResponseRole.Decline] = playerColor;
+    notifyListeners();
+  }
+
+  void _handleSurrenderFailed() {
+    _game.requests
+        .removeWhere((request) => request.requestType == RequestType.Surrender);
+    notifyListeners();
+  }
+
+  void _handleRemiRequest(String userId, int chessMove) {
+    Map<ResponseRole, PlayerColor> playerResponse;
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    playerResponse[ResponseRole.Create] = playerColor;
+    _game.requests.add(new Request(
+      moveIndex: chessMove,
+      playerResponse: playerResponse,
+      requestType: RequestType.Remi,
+    ));
+    notifyListeners();
+  }
+
+  void _handleRemiAccept(String userId) {
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    _getRequestFromRequestType(RequestType.Remi)
+        .playerResponse[ResponseRole.Accept] = playerColor;
+    notifyListeners();
+  }
+
+  void _handleRemiDecline(String userId) {
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    _getRequestFromRequestType(RequestType.Remi)
+        .playerResponse[ResponseRole.Decline] = playerColor;
+    _game.requests
+        .removeWhere((request) => request.requestType == RequestType.Remi);
+    notifyListeners();
+  }
+
+  void _handleTakeBackRequest(String userId, int chessMove) {
+    Map<ResponseRole, PlayerColor> playerResponse;
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    playerResponse[ResponseRole.Create] = playerColor;
+    _game.requests.add(new Request(
+      moveIndex: chessMove,
+      playerResponse: playerResponse,
+      requestType: RequestType.TakeBack,
+    ));
+    notifyListeners();
+  }
+
+  void _handleTakeBackAccept(String userId) {
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    _getRequestFromRequestType(RequestType.TakeBack)
+        .playerResponse[ResponseRole.Accept] = playerColor;
+    notifyListeners();
+  }
+
+  void _handleTakeBackDecline(String userId) {
+    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    _getRequestFromRequestType(RequestType.TakeBack)
+        .playerResponse[ResponseRole.Decline] = playerColor;
+    _game.requests
+        .removeWhere((request) => request.requestType == RequestType.TakeBack);
+    notifyListeners();
+  }
+
+  void _handleTakenBack(String userId, int chessMove) {
+    _game.chessMoves.removeRange(chessMove, _game.chessMoves.length);
+    _game.requests
+        .removeWhere((request) => request.requestType == RequestType.TakeBack);
+    notifyListeners();
+  }
+
+  void _handleGameFinished(Map<String, dynamic> data) {
+    PlayerColor winnerPlayerColor = _getPlayerColorFromUserId(data['winnerId']);
+    List<Map<String, dynamic>> newUsers = data['newUsers'];
+    Map finishedGameData = {
+      'winner': winnerPlayerColor,
+    };
+    newUsers.forEach((newUser) {
+      _game.finishedGameData[PlayerColor.values[newUser['playerColor']]] =
+          newUser['scoreAfter'];
+    });
+    finishedGameData['howGameEnded'] =
+        HowGameEnded.values[data['howGameEnded']];
+    _game.finishedGameData = finishedGameData;
+    notifyListeners();
+  }
+
+  PlayerColor _getPlayerColorFromUserId(String userId) {
+    return _game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null)
+        .playerColor;
+  }
+
+  Request _getRequestFromRequestType(RequestType requestType) {
+    return _game.requests
+        .firstWhere((request) => request.requestType == requestType);
+  }
+
   Game _rebaseWholeGame(Map<String, dynamic> data) {
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
-    // TODO :remove data prin t
-    print(data);
     // extracting gameData, from JSON Response
     final gameData = data['gameData'];
     // convert Chess moves and add them to exisitng Chess Move Class
     List<ChessMove> chessMoves = [];
     // TODO : Delete
-    print('Move Data');
-    print(gameData['chessMoves']);
     gameData['chessMoves'].forEach((e) => chessMoves.add(_rebaseOneMove(e)));
     // convert player List and add them to existing player class
     List<Player> convPlayer = _connectUserPlayerData(
       player: gameData['player'],
       users: gameData['user'],
     );
+    List<Request> convRequests;
+    data['requests']
+        .forEach((request) => convRequests.add(_rebaseOneRequest(request)));
     // TODO : Delete Printout
     print('Finished converting Player and User');
     // creates a game and sets Game options in it
@@ -340,6 +540,24 @@ class GameProvider with ChangeNotifier {
     game.chessMoves = chessMoves;
     // returns the converted Game
     return game;
+  }
+
+  Request _rebaseOneRequest(Map<String, dynamic> requestData) {
+    PlayerColor createPlayerColor =
+        _getPlayerColorFromUserId(requestData['create']);
+    PlayerColor acceptPlayerColor =
+        _getPlayerColorFromUserId(requestData['accept']);
+    PlayerColor declinePlayerColor =
+        _getPlayerColorFromUserId(requestData['decline']);
+    Map<ResponseRole, PlayerColor> playerResponse = {};
+    playerResponse[ResponseRole.Create] = createPlayerColor;
+    playerResponse[ResponseRole.Accept] = acceptPlayerColor;
+    playerResponse[ResponseRole.Decline] = declinePlayerColor;
+    return Request(
+      moveIndex: requestData['chessMove'],
+      playerResponse: playerResponse,
+      requestType: RequestType.values[requestData['requestType']],
+    );
   }
 
   Player _rebaseOnePlayer({playerData, userData}) {

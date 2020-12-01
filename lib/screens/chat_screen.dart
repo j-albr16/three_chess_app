@@ -21,6 +21,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    Future.delayed(Duration.zero).then((_) => _chatProvider = Provider.of<ChatProvider>(context, listen: false));
     _chatController = TextEditingController();
     _scrollController = ScrollController();
     super.initState();
@@ -30,6 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _chatController.dispose();
     _scrollController.dispose();
+    _chatProvider.resetCurrentChat();
     super.dispose();
   }
 
@@ -37,24 +39,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) => IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              _chatProvider.resetCurrentChat();
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
       ),
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) => wig.Chat(
-          chat: chatProvider.chat,
-          chatController: _chatController,
-          scrollController: _scrollController,
-          lobbyChat: true,
-          size: Size(400, 600),
-          submitMessage: (text) => _chatProvider.sendTextMessage(text),
+      body: Center(
+        child: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) => wig.Chat(
+            chat: chatProvider.chat,
+            chatController: _chatController,
+            scrollController: _scrollController,
+            lobbyChat: true,
+            size: Size(400, 600),
+            submitMessage: (text) => _chatProvider.sendTextMessage(text),
+          ),
         ),
       ),
     );

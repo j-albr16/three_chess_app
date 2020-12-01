@@ -95,6 +95,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -102,22 +103,18 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('auth-image.jpg'),
-            fit: BoxFit.cover,
-          ),
         ),
         child: Column(
           children: [
-            if (authMode == AuthMode.logIn) _label('Sign Up', size),
-            if (authMode == AuthMode.signUp) _label('Sign Up', size),
-            if (authMode == AuthMode.reset) _label('Remake', size),
+            if (authMode == AuthMode.logIn) _label('Sign Up', size, theme),
+            if (authMode == AuthMode.signUp) _label('Sign Up', size, theme),
+            if (authMode == AuthMode.reset) _label('Remake', size, theme),
             SizedBox(height: 40),
             Center(
               child: Container(
                 padding: EdgeInsets.all(13),
                 decoration: BoxDecoration(
-                    color: Colors.black38,
+                  border: Border.all(color: theme.primaryColorDark),
                     borderRadius: BorderRadius.circular(8)),
                 height: size.height * 0.6,
                 width: size.width * 0.4,
@@ -128,9 +125,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (authMode == AuthMode.signUp)
                         TextFormField(
                           initialValue: 'scrutycs',
-                          decoration: decoration('Username'),
-                          cursorColor: Colors.white70,
-                          style: TextStyle(color: Colors.white70),
+                          decoration: decoration('Username', theme),
+                          cursorColor: theme.primaryColorDark,
+                          style: theme.primaryTextTheme.bodyText1,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.text,
                           validator: (value) {
@@ -151,9 +148,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         initialValue: 'jan.albrecht2000@gmail.com',
                         focusNode: _emailNode,
-                        decoration: decoration('Email'),
-                        cursorColor: Colors.white70,
-                          style: TextStyle(color: Colors.white70),
+                        decoration: decoration('Email', theme),
+                        cursorColor: theme.primaryColorDark,
+                          style: theme.primaryTextTheme.bodyText1,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
@@ -173,9 +170,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         initialValue: 'dont4getme',
                         focusNode: _passwordNode,
-                        decoration: decoration('Password'),
-                        cursorColor: Colors.white70,
-                          style: TextStyle(color: Colors.white70),
+                        decoration: decoration('Password', theme),
+                        cursorColor: theme.primaryColorDark,
+                          style: theme.primaryTextTheme.bodyText1,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.visiblePassword,
                         validator: (value) {
@@ -200,10 +197,10 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           initialValue: 'dont4getme',
                           focusNode: _confirmPasswordNode,
-                          decoration: decoration('Confirm Password'),
+                          decoration: decoration('Confirm Password', theme),
                           textInputAction: TextInputAction.done,
-                          cursorColor: Colors.white70,
-                          style: TextStyle(color: Colors.white70),
+                          cursorColor: theme.primaryColorDark,
+                          style: theme.primaryTextTheme.bodyText1,
                           keyboardType: TextInputType.visiblePassword,
                           validator: (value) {
                             if (value.isEmpty) {
@@ -229,7 +226,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: FlatButton(
                           child: Text(
                             'Submitt',
-                            style: TextStyle(color: Colors.white70),
+                            style: theme.primaryTextTheme.bodyText1,
                           ),
                           onPressed: () => _saveForm(context),
                         ),
@@ -249,7 +246,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             height: 40,
                             child: Text(
                               authMode == AuthMode.logIn ? 'Sign Up' : 'Log In',
-                              style: TextStyle(color: Colors.white70),
+                              style: theme.primaryTextTheme.bodyText1,
                             ),
                             onPressed: () => _switchAuthMode(
                                 authMode == AuthMode.logIn
@@ -275,47 +272,47 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-InputDecoration decoration(String text) {
+InputDecoration decoration(String text, theme) {
   return InputDecoration(
-    hoverColor: Colors.white54,
-    focusColor: Colors.white54,
-    counterStyle: TextStyle(color: Colors.white54),
-    errorStyle: TextStyle(color: Colors.white54),
-    helperStyle: TextStyle(color: Colors.white54),
-    hintStyle: TextStyle(color: Colors.white54),
-    labelStyle: TextStyle(color: Colors.white54),
-    prefixStyle: TextStyle(color: Colors.white54),
-    suffixStyle: TextStyle(color: Colors.white54),
+    hoverColor: theme.primaryColor,
+    focusColor: theme.focusColor,
+    counterStyle: theme.primaryTextTheme.bodyText1,
+    errorStyle: theme.primaryTextTheme.bodyText1,
+    helperStyle:theme.primaryTextTheme.bodyText1,
+    hintStyle: theme.primaryTextTheme.bodyText1,
+    labelStyle: theme.primaryTextTheme.bodyText1,
+    prefixStyle: theme.primaryTextTheme.bodyText1,
+    suffixStyle: theme.primaryTextTheme.bodyText1,
     labelText: text,
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide:
-          BorderSide(style: BorderStyle.solid, color: Colors.red, width: 2),
+          BorderSide(style: BorderStyle.solid, color: theme.errorColor, width: 2),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide:
-          BorderSide(style: BorderStyle.solid, color: Colors.red, width: 1),
+          BorderSide(style: BorderStyle.solid, color: theme.errorColor , width: 1),
     ),
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide:
-          BorderSide(style: BorderStyle.solid, color: Colors.white, width: 1),
+          BorderSide(style: BorderStyle.solid, color: theme.primaryColor, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide:
-          BorderSide(style: BorderStyle.solid, color: Colors.white, width: 0.7),
+          BorderSide(style: BorderStyle.solid, color: theme.primaryColor, width: 0.7),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide:
-          BorderSide(style: BorderStyle.solid, color: Colors.white, width: 2),
+          BorderSide(style: BorderStyle.solid, color: theme.focusColor, width: 2),
     ),
   );
 }
 
-Widget _label(String text, Size size) {
+Widget _label(String text, Size size, ThemeData theme) {
   return Container(
     padding: EdgeInsets.symmetric(
       vertical: size.width * 0.05,
@@ -324,14 +321,11 @@ Widget _label(String text, Size size) {
     margin: EdgeInsets.all(30),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
-      color: Colors.black38,
+      color: theme.primaryColorDark,
     ),
     child: Text(
       text,
-      style: TextStyle(
-        color: Colors.white70,
-        fontSize: 30,
-      ),
+      style: theme.primaryTextTheme.headline1,
       textAlign: TextAlign.center,
     ),
   );

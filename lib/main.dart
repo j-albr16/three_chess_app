@@ -76,7 +76,50 @@ class ThreeChessApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
-          theme: ThemeData(primaryColor: Colors.blueAccent),
+          theme: ThemeData(
+            primarySwatch: Colors.deepPurpleAccent[300],
+            errorColor: Colors.red[800],
+            disabledColor: Colors.grey[800],
+            primaryColorDark: Colors.black87,
+          backgroundColor: Colors.white24,
+            primaryColorLight: Colors.white70,
+            focusColor: Colors.deepPurpleAccent[800],
+            primaryTextTheme: TextTheme(
+              bodyText1: TextStyle(
+                color: Colors.black87,
+                fontSize: 11,
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.normal
+              ),
+              bodyText2: TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.normal,
+              ),
+              headline1: TextStyle(
+                color: Colors.black,
+                fontSize: 17,
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.bold
+              ),
+              headline2: TextStyle(
+                color: Colors.white70,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+              subtitle1: TextStyle(
+                color: Colors.black87,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.normal,
+              ),
+              subtitle2: TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+            ),
           title: 'three chess app',
           home: MainPageViewer(),
           routes: {

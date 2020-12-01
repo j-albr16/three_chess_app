@@ -61,6 +61,7 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     Size size = MediaQuery.of(context).size;
     // Game game = Provider.of<GameProvider>(context).game;
     return Scaffold(
@@ -71,13 +72,12 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/auth-image.jpg'),
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.primaryColorDark,
+              borderRadius: BorderRadius.circular(13),
             ),
-          ),
           child: Center(
             child: Container(
               // width: size.height * 0.4,
@@ -121,6 +121,6 @@ class _DesignTestScreenState extends State<DesignTestScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

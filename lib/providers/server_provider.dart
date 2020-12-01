@@ -74,12 +74,40 @@ class ServerProvider with ChangeNotifier {
     });
   }
 
-  void subscribeToGameLobbyChannel(
-      {String gameId, moveMadeCallback, playerJoinedLobbyCallback}) {
+  void subscribeToGameLobbyChannel({
+    String gameId,
+    Function moveMadeCallback,
+    Function playerJoinedLobbyCallback,
+    Function surrenderRequestCallback,
+    Function surrenderDeclineCallback,
+    Function remiRequestCallback,
+    Function remiAcceptCallback,
+    Function remiDeclineCallback,
+    Function takeBackRequestCallback,
+    Function takeBackAcceptCallback,
+    Function takenBackCallback,
+    Function takeBackDeclineCallback,
+    Function gameFinishedcallback,
+    Function surrenderFailedCallback,
+  }) {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleGameLobbyChannelData(
-          data, moveMadeCallback, playerJoinedLobbyCallback);
+        data,
+        moveMadeCallback,
+        playerJoinedLobbyCallback,
+        surrenderRequestCallback,
+        surrenderDeclineCallback,
+        remiRequestCallback,
+        remiAcceptCallback,
+        remiDeclineCallback,
+        takeBackRequestCallback,
+        takeBackAcceptCallback,
+        takenBackCallback,
+        takeBackDeclineCallback,
+        gameFinishedcallback,
+        surrenderFailedCallback
+      );
     });
   }
   //#########################################################################################################
@@ -109,25 +137,21 @@ class ServerProvider with ChangeNotifier {
       Function friendDeclinedCallback,
       Function friendRemovedCallback) {
     _printRawData(data);
+    _handleSocketServerMessage(data['action'], data['message']);
     switch (data['action']) {
       case 'message':
-        _handleSocketServerMessage(data['action'], data['message']);
         messageCallback(data['messageData']);
         break;
       case 'friend-request':
-        _handleSocketServerMessage(data['action'], data['message']);
         friendRequestCallback(data['friendData'], data['chatId']);
         break;
       case 'friend-accepted':
-        _handleSocketServerMessage(data['action'], data['message']);
         friendAcceptedCallback(data['userId']);
         break;
       case 'friend-declined':
-        _handleSocketServerMessage(data['action'], data['message']);
         friendDeclinedCallback(data['friendId']);
         break;
       case 'friend-removed':
-        _handleSocketServerMessage(data['action'], data['message']);
         friendRemovedCallback(data['userId']);
         break;
     }
@@ -135,28 +159,75 @@ class ServerProvider with ChangeNotifier {
 
   void _handleLobbyChannelData(Map<String, dynamic> data,
       Function newGameCallback, Function playerJoinedCallback) {
+    _handleSocketServerMessage(data['action'], data['message']);
+    _printRawData(data);
     switch (data['action']) {
       case 'new-game':
-        _handleSocketServerMessage(data['action'], data['message']);
         newGameCallback(data['gameData']);
         break;
       case 'player-joined':
-        _handleSocketServerMessage(data['action'], data['message']);
         playerJoinedCallback(data['gameData']);
         break;
     }
   }
 
-  void _handleGameLobbyChannelData(Map<String, dynamic> data,
-      Function moveMadeCallback, Function playerJoinedLobbyCallback) {
+  void _handleGameLobbyChannelData(
+    Map<String, dynamic> data,
+    Function moveMadeCallback,
+    Function playerJoinedLobbyCallback,
+    Function surrenderRequestCallback,
+    Function surrenderDeclineCallback,
+    Function remiRequestCallback,
+    Function remiAcceptCallback,
+    Function remiDeclineCallback,
+    Function takeBackRequestCallback,
+    Function takeBackAcceptCallback,
+    Function takenBackCallback,
+    Function takeBackDeclineCallback,
+    Function gameFinishedCallback,
+    Function surrenderFailedCallback,
+  ) {
+    _handleSocketServerMessage(data['action'], data['message']);
+    _printRawData(data);
     switch (data['action']) {
       case 'move-made':
-        _handleSocketServerMessage(data['action'], data['message']);
         moveMadeCallback(data['chessMove']);
         break;
       case 'player-joined-lobby':
-        _handleSocketServerMessage(data['action'], data['message']);
         playerJoinedLobbyCallback(data['gameData']);
+        break;
+      case 'surrender-request':
+        surrenderRequestCallback(data['userId'], data['chessMove']);
+        break;
+      case 'surrender-decline':
+        surrenderDeclineCallback(data['userId']);
+        break;
+        case 'surrender-failed':
+        surrenderFailedCallback();
+        break;
+      case 'remi-request':
+        remiRequestCallback(data['userId'], data['chessMove']);
+        break;
+      case 'remi-accept':
+        remiAcceptCallback(data['userId']);
+        break;
+      case 'remi-decline':
+        remiDeclineCallback(data['userId']);
+        break;
+      case 'takeBack-request':
+        takeBackRequestCallback(data['userId'], data['chessMove']);
+        break;
+      case 'takeBack-accept':
+        takeBackAcceptCallback(data['userId']);
+        break;
+      case 'taken-back':
+        takenBackCallback(data['userId'], data['chessMove']);
+        break;
+      case 'takeBack-decline':
+        takeBackDeclineCallback(data['userId']);
+        break;
+      case 'game-finished':
+        gameFinishedCallback(data);
         break;
     }
   }
@@ -378,6 +449,114 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     // Game Provider Fetch Games
     return data;
+  }
+
+  Future<void> requestSurrender() async {
+    try {
+      final String url = SERVER_ADRESS + 'request-surrender' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> acceptSurrender() async {
+    try {
+      final String url = SERVER_ADRESS + 'accept-surrender' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> declineSurrender() async {
+    try {
+      final String url = SERVER_ADRESS + 'decline-surrender' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> requestRemi() async {
+    try {
+      final String url = SERVER_ADRESS + 'request-remi' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> acceptRemi() async {
+    try {
+      final String url = SERVER_ADRESS + 'accept-remi' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> declineRemi() async {
+    try {
+      final String url = SERVER_ADRESS + 'decline-remi' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> requestTakeBack() async {
+    try {
+      final String url = SERVER_ADRESS + 'request-takeback' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> acceptTakeBack() async {
+    try {
+      final String url = SERVER_ADRESS + 'accept-takeback' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> declineTakeBack() async {
+    try {
+      final String url = SERVER_ADRESS + 'decline-takeback' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      throw (error);
+    }
   }
   //#########################################################################################################
 

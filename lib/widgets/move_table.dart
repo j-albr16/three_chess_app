@@ -5,16 +5,15 @@ import '../models/game.dart';
 import '../models/player.dart';
 import '../models/user.dart';
 import '../models/chess_move.dart';
+import '../models/enums.dart';
 
-enum TableAction { DrawOffer, TakebackRequest, SurrenderRequest }
-
-typedef void RequestAction(TableAction tableAction);
+typedef void RequestAction(RequestType requestType);
 
 class GameTable extends StatelessWidget {
   final BoardState boardState;
   final Size size;
-  final List<TableAction> pendingActions;
-  final TableAction confirmation;
+  final List<RequestType> pendingActions;
+  final RequestType confirmation;
   final RequestAction onConfirmation;
   final Function onConfirmationCancel;
   final RequestAction onRequest;
@@ -67,13 +66,13 @@ class GameTable extends StatelessWidget {
     );
   }
 
-  final Map<TableAction, String> pendingMessage = {
-    TableAction.DrawOffer: "Draw offer pending ..",
-    TableAction.SurrenderRequest: "Surrender request pending ..",
-    TableAction.TakebackRequest: "Takeback request pending..",
+  final Map<RequestType, String> pendingMessage = {
+    RequestType.Remi: "Draw offer pending ..",
+    RequestType.Surrender: "Surrender request pending ..",
+    RequestType.TakeBack: "Takeback request pending..",
   };
 
-  Widget pendingBox({double height, TableAction pendingAction}) {
+  Widget pendingBox({double height, RequestType pendingAction}) {
     return Container(
       width: double.infinity,
       height: height,
@@ -137,8 +136,8 @@ class GameTable extends StatelessWidget {
     );
   }
   
-  Widget _noPressWrapper({Widget child, TableAction tableAction}){
-    return pendingActions?.contains(tableAction) ?? false ? IgnorePointer(
+  Widget _noPressWrapper({Widget child, RequestType requestType}){
+    return pendingActions?.contains(RequestType) ?? false ? IgnorePointer(
       child:Stack(children: [
         child,
       Positioned.fill(
@@ -148,41 +147,41 @@ class GameTable extends StatelessWidget {
     child;
   }
   
-  List<Widget> _confirmationBar(TableAction tableAction) {
+  List<Widget> _confirmationBar(RequestType requestType) {
     List<Widget> result = [];
 
     
     Widget iconButtonTake = _noPressWrapper(
-        tableAction: TableAction.TakebackRequest,
+        requestType: RequestType.TakeBack,
         child: Container(
         color: Colors.orangeAccent,
         child: IconButton(
       padding: EdgeInsets.all(5),
-      onPressed: () => onRequest(TableAction.TakebackRequest),
+      onPressed: () => onRequest(RequestType.TakeBack),
       icon: Icon(
         Icons.arrow_back_ios_rounded,
         color: Colors.white,
       ),
     )));
     Widget iconButtonDraw = _noPressWrapper(
-        tableAction: TableAction.DrawOffer,
+        requestType: RequestType.Remi,
         child: Container(
         color: Colors.orangeAccent,
         child: IconButton(
       padding: EdgeInsets.all(5),
-      onPressed: () => onRequest(TableAction.DrawOffer),
+      onPressed: () => onRequest(RequestType.Remi),
       icon: Text(
         '1/2',
         style: TextStyle(color: Colors.white),
       ),
     )));
     Widget iconButtonSurr = _noPressWrapper(
-        tableAction: TableAction.SurrenderRequest,
+        requestType: RequestType.Surrender,
         child: Container(
         color: Colors.orangeAccent,
         child: IconButton(
           padding: EdgeInsets.all(5),
-          onPressed: () => onRequest(TableAction.SurrenderRequest),
+          onPressed: () => onRequest(RequestType.Surrender),
           icon: Icon(
             Icons.flag,
             color: Colors.black,
@@ -207,14 +206,14 @@ class GameTable extends StatelessWidget {
         color: Colors.transparent,
       ),
     );
-    switch (tableAction) {
-      case TableAction.TakebackRequest:
+    switch (requestType) {
+      case RequestType.TakeBack:
         result = [iconButtonTake, cancel, emptySpace];
         break;
-      case TableAction.DrawOffer:
+      case RequestType.Remi:
         result = [emptySpace, iconButtonDraw, cancel];
         break;
-      case TableAction.SurrenderRequest:
+      case RequestType.Surrender:
         result = [emptySpace, cancel, iconButtonSurr];
         break;
     }
@@ -239,30 +238,30 @@ class GameTable extends StatelessWidget {
             ? _confirmationBar(confirmation)
             : [
                 _noPressWrapper(
-                    tableAction: TableAction.TakebackRequest,
+                    requestType: RequestType.TakeBack,
                     child: IconButton(
                   padding: EdgeInsets.all(5),
-                  onPressed: () => onConfirmation(TableAction.TakebackRequest),
+                  onPressed: () => onConfirmation(RequestType.TakeBack),
                   icon: Icon(
                     Icons.arrow_back_ios_rounded,
                     color: Colors.white,
                   ),
                 )),
           _noPressWrapper(
-              tableAction: TableAction.DrawOffer,
+              requestType: RequestType.Remi,
               child: IconButton(
                   padding: EdgeInsets.all(5),
-                  onPressed: () => onConfirmation(TableAction.DrawOffer),
+                  onPressed: () => onConfirmation(RequestType.Remi),
                   icon: Text(
                     '1/2',
                     style: TextStyle(color: Colors.white),
                   ),
                 )),
           _noPressWrapper(
-              tableAction: TableAction.SurrenderRequest,
+              requestType: RequestType.Surrender,
               child: IconButton(
                   padding: EdgeInsets.all(5),
-                  onPressed: () => onConfirmation(TableAction.SurrenderRequest),
+                  onPressed: () => onConfirmation(RequestType.Surrender),
                   icon: Icon(Icons.flag, color: Colors.white),
                 )),
               ],

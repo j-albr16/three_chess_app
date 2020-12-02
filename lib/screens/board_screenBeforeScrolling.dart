@@ -194,16 +194,16 @@ class _BoardScreenState extends State<BoardScreen> {
                    size: Size(screenWidth *0.8, 400),
                   controller: controller,
                    confirmation: confirmation,
-                   onConfirmation: (tableAction) {
+                   onConfirmation: (requestType) {
                      setState(() {
-                       confirmation = tableAction;
+                       confirmation = requestType;
                      });
                    },
                    onConfirmationCancel: () => setState(() =>confirmation = null),
-                   onRequest: (tableAction) {
-                     print("i demand a $tableAction");
+                   onRequest: (requestType) {
+                     print("i demand a $requestType");
                      setState(() {
-                       pendingActions.add(tableAction);
+                       pendingActions.add(requestType);
                        confirmation = null;
                      });
                    },
@@ -221,8 +221,8 @@ class _BoardScreenState extends State<BoardScreen> {
             ),
           );
         }
-  TableAction confirmation;
-  List<TableAction> pendingActions = [];
+  RequestType confirmation;
+  List<RequestType> pendingActions = [];
 }
 
 

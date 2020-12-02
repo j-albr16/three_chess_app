@@ -13,114 +13,66 @@ import '../models/chess_move.dart';
 import '../widgets/move_table.dart';
 import '../widgets/chat.dart';
 
-class DesignTestScreen extends StatefulWidget {
+class DesignTestScreen extends StatelessWidget {
   static const routeName = '/design-test';
-
-  @override
-  _DesignTestScreenState createState() => _DesignTestScreenState();
-}
-
-class _DesignTestScreenState extends State<DesignTestScreen> {
-  bool showChat = true;
-
-  Game _game = new Game(chessMoves: [
-    new ChessMove(
-      initialTile: 'H6',
-      nextTile: 'B4',
-      remainingTime: 6,
-    )
-  ], player: [
-    new Player(
-      isOnline: true,
-      user: new User(
-        userName: 'Jan',
-      ),
-    ),
-    new Player(
-      isOnline: true,
-      user: new User(
-        userName: 'Leo',
-      ),
-    ),
-    new Player(
-      isOnline: true,
-      user: new User(userName: 'Jan'),
-    ),
-  ]);
-  bool didIncrement = false;
-  get game {
-    if (!didIncrement) {
-      for (int i = 0; i <= 14; i++) {
-        _game.chessMoves.add(_game.chessMoves[0]);
-      }
-      didIncrement = true;
-    }
-
-    return _game;
-  }
-
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    Size size = MediaQuery.of(context).size;
-    // Game game = Provider.of<GameProvider>(context).game;
+    GameProvider _gameProvider=
+        Provider.of<GameProvider>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Test Design'),
+      appBar: AppBar(),
+      body: ListView(
+        children: <Widget>[
+          testButtonBar(callback: () => _gameProvider.createTestGame(), color: Colors.orangeAccent, text : 'Create Test Game in DB'),
+          sorrounding([
+            Text('Surrender'),
+            testButtonBar(callback:() =>  _gameProvider.requestSurrender(), color: Colors.blue, text: 'Surrender Request'),
+            testButtonBar(callback: () => _gameProvider.acceptSurrender(), color: Colors.green, text : 'Surrender Accept'),
+            testButtonBar(callback:() =>  _gameProvider.declineSurrender(), color: Colors.red, text: 'Surrender Decline'),
+          ]),
+          sorrounding([
+            Text('Remi'),
+            testButtonBar(callback: () => _gameProvider.requestRemi(), color: Colors.tealAccent, text : 'Remi Request'),
+            testButtonBar(callback: () => _gameProvider.acceptRemi(), color: Colors.green, text : 'Remi Accpet'),
+            testButtonBar(callback: () => _gameProvider.declineRemi(), color: Colors.red, text: 'Remi Decline'),
+          ]),
+          sorrounding([
+            Text('Take Back'),
+            testButtonBar(callback: () => _gameProvider.requestTakeBack(), color: Colors.orangeAccent, text : 'take Back request'),
+            testButtonBar(callback: () => _gameProvider.acceptTakeBack(), color: Colors.green, text : 'Take Back Accept'),
+            testButtonBar(callback: () => _gameProvider.declineTakeBack(), color: Colors.red, text : 'Take Back Decline')
+          ])
+        ],
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.primaryColorDark,
-              borderRadius: BorderRadius.circular(13),
-            ),
-          child: Center(
-            child: Container(
-              // width: size.height * 0.4,
-              // height: size.height * 0.8,
-              decoration: BoxDecoration(
-                color: Colors.black38,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Column(
-                children: <Widget>[
-                  if (showChat)
-                  Text('No Chat Here Anymore'),
-                  if (!showChat)
-                    // GameTable(
-                    //     game: game,
-                    //     size: Size(size.height * 0.4, size.height * 0.6)),
-                  Divider(
-                    color: Colors.white,
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Text(
-                        'showChat',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Switch(
-                        value: showChat,
-                        onChanged: (bool newValue) {
-                          setState(() {
-                            showChat = newValue;
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
+    );
+  }
+
+  Widget sorrounding(array){
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(width: 2, color: Colors.black),
+      ),
+      child: Padding(padding: EdgeInsets.all(13), child: Column(children: array,),),
+    );
+  }
+
+  Widget testButtonBar({String text,  callback, Color color}) {
+    return FlatButton(
+      color: color,
+      height: 200,
+      minWidth: 400,
+      padding: EdgeInsets.all(13),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+      onPressed: callback,
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
         ),
       ),
-    ));
+    );
   }
 }

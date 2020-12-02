@@ -450,6 +450,17 @@ class ServerProvider with ChangeNotifier {
     // Game Provider Fetch Games
     return data;
   }
+  Future<void> createTestGame() async {
+    try{
+      final String url = SERVER_ADRESS + 'create-test-game' + _authString;
+      final response = await http.get(url);
+      final data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    }catch(error){
+      throw (error);
+    }
+  }
 
   Future<void> requestSurrender() async {
     try {

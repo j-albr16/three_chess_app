@@ -322,6 +322,15 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  // TODO Remove
+  Future<void> createTestGame() async {
+    try{
+      await _serverProvider.createTestGame();
+    }catch(error){
+      _serverProvider.handleError('Error while declining Take Bakc', error);
+    }
+  }
+
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
     _games.add(_rebaseLobbyGame(

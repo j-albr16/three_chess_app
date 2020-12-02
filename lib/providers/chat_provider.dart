@@ -12,6 +12,7 @@ import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
 import '../widgets/friend_list.dart';
+import '../models/enums.dart';
 
 class ChatProvider with ChangeNotifier {
   String _userId = constUserId;
@@ -107,10 +108,11 @@ class ChatProvider with ChangeNotifier {
         print('Message was Received');
     int chatIndex =
         _chats.indexWhere((chat) => chat.id == messageData['chatId']);
-    _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
-    if (chatIndex != _currentChatIndex) {
+    if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
       increaseNewMessageCounterCallback(messageData['userId']);
+    }else{
+    _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     }
     notifyListeners();
   }
@@ -138,9 +140,14 @@ class ChatProvider with ChangeNotifier {
 
   Message _rebaseOneMessage(Map<String, dynamic> messageData,
       {String userName}) {
-    final isYours = messageData['userId'] == _userId;
+    MessageOwner owner = MessageOwner.Mate;
+    if(messageData['userId'] == 'server'){
+      owner = MessageOwner.Server;
+    }else if(messageData['userId'] == _userId){
+      owner = MessageOwner.You;
+    }
     return new Message(
-      isYours: isYours,
+      owner:owner,
       text: messageData['text'],
       timeStamp: DateTime.parse(messageData['date']),
       userId: messageData['userId'],

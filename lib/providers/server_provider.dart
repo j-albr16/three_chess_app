@@ -311,9 +311,12 @@ class ServerProvider with ChangeNotifier {
   // Chat Provider -----------------------------------------------------------------------------------------
   Future<void> sendMessage(String text, String chatId) async {
     final url = SERVER_ADRESS + 'send-message' + _authString;
-    await http.post(url,
+    final response = await http.post(url,
         body: json.encode({'text': text, 'chatId': chatId}),
         headers: {'Content-Type': 'application/json'});
+        final data = json.decode(response.body);
+        _printRawData(data);
+        _validation(data);
   }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {

@@ -85,15 +85,16 @@ class ChatProvider with ChangeNotifier {
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
       print("next up fetch print:");
-      notifyListeners();
       _printWholeChat(chat);
+      print(_chats);
     } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
     }
   }
 
   Future<void> selectChatRoom(String id, {bool isGameChat = false}) async {
-    int index = _chats.indexWhere((e) => e.id == id);
+    int index = _chats.indexWhere((chat) =>
+        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null);
     if (index == -1) {
       return await fetchChat(
         id: id,
@@ -129,8 +130,9 @@ class ChatProvider with ChangeNotifier {
     });
 
     chatData['chat']['messages'].forEach((messageData) {
-      final User user =
-          users.firstWhere((user) => user.id == messageData['userId'], orElse: () => null);
+      final User user = users.firstWhere(
+          (user) => user.id == messageData['userId'],
+          orElse: () => null);
       messages.add(_rebaseOneMessage(messageData, userName: user?.userName));
     });
     return new Chat(

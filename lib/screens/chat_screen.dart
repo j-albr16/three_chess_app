@@ -37,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
       ),
@@ -49,6 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
             lobbyChat: true,
             size: Size(400, 600),
             submitMessage: (text) => _chatProvider.sendTextMessage(text),
+            theme: theme,
           ),
         ),
       ),

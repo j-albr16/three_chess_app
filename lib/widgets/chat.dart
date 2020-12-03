@@ -78,8 +78,8 @@ class Chat extends StatelessWidget{
               textInputAction: TextInputAction.done,
               cursorColor: Colors.black26,
               style: TextStyle(color: Colors.black26),
-              onSubmitted: (_) {
-                submit();
+              onSubmitted: (_){
+
               },
             ),
           ),

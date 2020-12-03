@@ -99,8 +99,8 @@ class ChatProvider with ChangeNotifier {
       );
     } else {
       _currentChatIndex = index;
-      notifyListeners();
     }
+      notifyListeners();
   }
 
   void _handleMessageData(Map<String, dynamic> messageData,

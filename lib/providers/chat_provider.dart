@@ -37,9 +37,9 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
-    if(_chats[_currentChatIndex] == null){
+    if (_chats[_currentChatIndex] == null) {
       // TODO
-     return new Chat(); 
+      return new Chat();
     }
     return _chats[_currentChatIndex];
   }
@@ -54,14 +54,16 @@ class ChatProvider with ChangeNotifier {
       friendRemovedCallback: (userId) => friendRemovedCallback(userId),
       friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
       friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
-      friendRequestCallback: (friendData, chatId) => friendRequestCallback(friendData, chatId),
+      friendRequestCallback: (friendData, chatId) =>
+          friendRequestCallback(friendData, chatId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
     );
   }
-  void resetCurrentChat(){
+
+  void resetCurrentChat() {
     _currentChatIndex = null;
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future<void> sendTextMessage(String text) async {
@@ -85,7 +87,7 @@ class ChatProvider with ChangeNotifier {
       print("next up fetch print:");
       notifyListeners();
       _printWholeChat(chat);
-    } catch (error) { 
+    } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
     }
   }
@@ -100,19 +102,19 @@ class ChatProvider with ChangeNotifier {
     } else {
       _currentChatIndex = index;
     }
-      notifyListeners();
+    notifyListeners();
   }
 
   void _handleMessageData(Map<String, dynamic> messageData,
       Function increaseNewMessageCounterCallback) {
-        print('Message was Received');
+    print('Message was Received');
     int chatIndex =
         _chats.indexWhere((chat) => chat.id == messageData['chatId']);
     if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
       increaseNewMessageCounterCallback(messageData['userId']);
-    }else{
-    _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
+    } else {
+      _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     }
     notifyListeners();
   }
@@ -124,12 +126,12 @@ class ChatProvider with ChangeNotifier {
     List<User> users = [];
     chatData['user'].forEach((userData) {
       users.add(_rebaseOneUser(userData));
-      chatData['chat']['messages'].forEach((messageData) {
-        if (messageData['userId'] == userData['_id']) {
-          messages.add(
-              _rebaseOneMessage(messageData, userName: userData['userName']));
-        }
-      });
+    });
+
+    chatData['chat']['messages'].forEach((messageData) {
+      final User user =
+          users.firstWhere((user) => user.id == messageData['userId']);
+      messages.add(_rebaseOneMessage(messageData, userName: user.userName));
     });
     return new Chat(
       user: users,
@@ -141,13 +143,13 @@ class ChatProvider with ChangeNotifier {
   Message _rebaseOneMessage(Map<String, dynamic> messageData,
       {String userName}) {
     MessageOwner owner = MessageOwner.Mate;
-    if(messageData['userId'] == 'server'){
+    if (messageData['userId'] == 'server') {
       owner = MessageOwner.Server;
-    }else if(messageData['userId'] == _userId){
+    } else if (messageData['userId'] == _userId) {
       owner = MessageOwner.You;
     }
     return new Message(
-      owner:owner,
+      owner: owner,
       text: messageData['text'],
       timeStamp: DateTime.parse(messageData['date']),
       userId: messageData['userId'],
@@ -177,7 +179,7 @@ void _printWholeChat(Chat _chat) {
       print('-> id:         ' + e?.id ?? 'null');
       print('-> userName:   ' + e?.userName ?? 'null');
       print('-> score:      ' + e?.score?.toString() ?? 'null');
-      playerIndex ++;
+      playerIndex++;
     });
     print('messages----------------------------------------');
     _chat?.messages?.forEach((el) {
@@ -185,7 +187,7 @@ void _printWholeChat(Chat _chat) {
       print('-> text:       ' + el?.text ?? 'null');
       print('-> userName:   ' + el?.userName ?? 'null');
       print('-> timeStamp:  ' + el?.timeStamp?.toIso8601String() ?? 'null');
-      messagesIndex ++;
+      messagesIndex++;
     });
     print('===============================================');
   }

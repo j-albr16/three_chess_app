@@ -112,7 +112,7 @@ class ChatProvider with ChangeNotifier {
         _chats.indexWhere((chat) => chat.id == messageData['chatId']);
     if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
-      increaseNewMessageCounterCallback(messageData['userId']);
+      // increaseNewMessageCounterCallback(messageData['userId']);
     } else {
       _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     }
@@ -130,8 +130,8 @@ class ChatProvider with ChangeNotifier {
 
     chatData['chat']['messages'].forEach((messageData) {
       final User user =
-          users.firstWhere((user) => user.id == messageData['userId']);
-      messages.add(_rebaseOneMessage(messageData, userName: user.userName));
+          users.firstWhere((user) => user.id == messageData['userId'], orElse: () => null);
+      messages.add(_rebaseOneMessage(messageData, userName: user?.userName));
     });
     return new Chat(
       user: users,

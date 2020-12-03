@@ -136,9 +136,11 @@ class FriendsProvider with ChangeNotifier {
   }
 
   void _handleNewMessage(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId);
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId, orElse: () => null);
+    if(friend != null){
     friend.newMessages++;
     notifyListeners();
+    }
   }
 
   void _handleFriendRemove(String userId) {

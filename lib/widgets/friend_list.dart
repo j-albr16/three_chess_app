@@ -30,7 +30,6 @@ class FriendTile extends StatelessWidget {
   FriendTile({this.onLongTap, this.newMessages, this.onTap, this.height, this.model});
 
   Widget onlineIcon(bool isOnline) {
-    isOnline = false;
     return Icon(
       isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
       color: Colors.green,
@@ -38,7 +37,6 @@ class FriendTile extends StatelessWidget {
   }
 
   Widget playingIcon(bool isPlaying) {
-    isPlaying = false;
     return Icon(isPlaying ? Icons.live_tv : Icons.tv_off,
         color: isPlaying ? Colors.red : Colors.black);
   }

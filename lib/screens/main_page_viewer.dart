@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/helpers/convert_data_print.dart';
 import 'package:three_chess/providers/friends_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
@@ -10,10 +11,8 @@ import '../screens/lobby_screen.dart';
 import '../providers/online_provider.dart';
 //
 
-
 import 'dart:math';
 import 'package:flutter/material.dart';
-
 
 class MainPageViewer extends StatefulWidget {
   static const routeName = '/main-page-viewer';
@@ -26,8 +25,7 @@ class MainPageViewer extends StatefulWidget {
 }
 
 class MainPageViewerState extends State<MainPageViewer> {
-
-   PageController _controller;
+  PageController _controller;
 
   static const _kDuration = const Duration(milliseconds: 300);
 
@@ -39,13 +37,16 @@ class MainPageViewerState extends State<MainPageViewer> {
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
     Future.delayed(Duration.zero).then((_) {
-      GameProvider gameProvider =
-      Provider.of<GameProvider>(context, listen: false);
+      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
       gameProvider.fetchGames();
          Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
          Provider.of<OnlineProvider>(context, listen: false);
     });
 
+    //TODO REMOVE
+    print("########################################");
+    //ConvertDataPrint.printJSboardDataAj();
+    print("########################################");
 
     super.initState();
   }
@@ -65,15 +66,14 @@ class MainPageViewerState extends State<MainPageViewer> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return new Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),
         child: new Stack(
           children: <Widget>[
             new PageView.builder(
-              physics: !Provider.of<ScrollProvider>(context).isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
+              physics:
+                  !Provider.of<ScrollProvider>(context).isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
               controller: _controller,
               itemBuilder: (BuildContext context, int index) {
                 return _pages[index % _pages.length];
@@ -107,7 +107,6 @@ class MainPageViewerState extends State<MainPageViewer> {
     );
   }
 }
-
 
 /// An indicator showing the currently selected page of a PageController
 class DotsIndicator extends AnimatedWidget {
@@ -143,7 +142,7 @@ class DotsIndicator extends AnimatedWidget {
 
   Widget _buildDot(int index) {
     bool toLoop = false;
-    if(controller.page != null && controller.page.ceil() % itemCount == 0 && index == 0){
+    if (controller.page != null && controller.page.ceil() % itemCount == 0 && index == 0) {
       toLoop = true;
     }
     double selectedness = Curves.easeOut.transform(

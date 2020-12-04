@@ -113,6 +113,8 @@ class GameProvider with ChangeNotifier {
           _handleTakenBack(userId, chessMove),
       gameFinishedcallback: (data) => _handleGameFinished(data),
       surrenderFailedCallback: () => _handleSurrenderFailed(),
+      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
+      playerIsOfflineCallback: (userId, expiryDate) => _handlePlayerIsOffline(userId, expiryDate),
     );
   }
 
@@ -345,6 +347,18 @@ class GameProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void _handlePlayerIsOnline(String userId){
+    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null);
+    player?.isOnline = true;
+    notifyListeners();
+  }
+  void _handlePlayerIsOffline(String userId , String expiryDate){
+    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null );
+    player?.isOnline = false;
+    _game.endGameExpiry = DateTime.parse(expiryDate);
+    notifyListeners();
+  }
+
   void _handlePlayerJoinedData(Map<String, dynamic> gameData) {
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
@@ -525,6 +539,7 @@ class GameProvider with ChangeNotifier {
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
+    game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
     game.chessMoves = chessMoves;
     // returns the converted Game
     return game;
@@ -573,6 +588,7 @@ class GameProvider with ChangeNotifier {
     // input: takes player Converted Data of One Player as Input
     // output: returns a Player Model with the Given Data
     return new Player(
+      isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: new User(

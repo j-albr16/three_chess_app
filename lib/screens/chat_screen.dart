@@ -14,16 +14,26 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-
   TextEditingController _chatController;
   ScrollController _scrollController;
   ChatProvider _chatProvider;
+  bool maxScrollExtent = false;
+
+  _scrollListener() {
+    if (_scrollController.offset ==
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      maxScrollExtent = true;
+    }
+  }
 
   @override
   void initState() {
-    Future.delayed(Duration.zero).then((_) => _chatProvider = Provider.of<ChatProvider>(context, listen: false));
+    Future.delayed(Duration.zero).then((_) =>
+        _chatProvider = Provider.of<ChatProvider>(context, listen: false));
     _chatController = TextEditingController();
     _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
     super.initState();
   }
 
@@ -37,21 +47,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+    if (maxScrollExtent) {
+      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500), curve: Curves.bounceIn);
+    }
+    });
+    ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     ThemeData theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-      ),
+      appBar: AppBar(),
       body: Center(
-        child: Consumer<ChatProvider>(
-          builder: (context, chatProvider, child) => wig.Chat(
-            chat: chatProvider.chat,
-            chatController: _chatController,
-            scrollController: _scrollController,
-            lobbyChat: true,
-            size: Size(400, 600),
-            submitMessage: (text) => _chatProvider.sendTextMessage(text),
-            theme: theme,
-          ),
+        child: wig.Chat(
+          chat: chatProvider.chat,
+          chatController: _chatController,
+          scrollController: _scrollController,
+          lobbyChat: true,
+          size: Size(400, 600),
+          submitMessage: (text) => _chatProvider.sendTextMessage(text),
+          theme: theme,
+          maxScrollExtent: maxScrollExtent,
         ),
       ),
     );

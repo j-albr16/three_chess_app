@@ -8,6 +8,7 @@ import './request.dart';
 
 class Game {
   Map finishedGameData;
+  DateTime endGameExpiry;
   @required
   String id;
   @required
@@ -38,5 +39,6 @@ class Game {
     this.isRated,
     this.negRatingRange,
     this.posRatingRange,
+    this.endGameExpiry,
   });
 }

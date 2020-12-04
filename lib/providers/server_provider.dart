@@ -49,21 +49,31 @@ class ServerProvider with ChangeNotifier {
 
   //#########################################################################################################
 // Subscribe to Socket Channels ---------------------------------------------------------------------------
-  void subscribeToAuthUserChannel(
-      {messageCallback,
-      friendRequestCallback,
-      friendAcceptedCallback,
-      friendDeclinedCallback,
-      friendRemovedCallback}) {
+  void subscribeToAuthUserChannel({
+    messageCallback,
+    friendRequestCallback,
+    friendAcceptedCallback,
+    friendDeclinedCallback,
+    friendRemovedCallback,
+    friendIsOnlineCallback,
+    friendIsAfkCallback,
+    friendIsPlayingCallback,
+    friendIsNotPlayingCallback,
+  }) {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleAuthUserChannelSocketData(
-          data,
-          messageCallback,
-          friendRequestCallback,
-          friendAcceptedCallback,
-          friendDeclinedCallback,
-          friendRemovedCallback);
+        data,
+        messageCallback,
+        friendRequestCallback,
+        friendAcceptedCallback,
+        friendDeclinedCallback,
+        friendRemovedCallback,
+        friendIsOnlineCallback,
+        friendIsAfkCallback,
+        friendIsPlayingCallback,
+        friendIsNotPlayingCallback,
+      );
     });
   }
 
@@ -89,25 +99,29 @@ class ServerProvider with ChangeNotifier {
     Function takeBackDeclineCallback,
     Function gameFinishedcallback,
     Function surrenderFailedCallback,
+    Function playerIsOnlineCallback,
+    Function playerIsOfflineCallback,
   }) {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleGameLobbyChannelData(
-        data,
-        moveMadeCallback,
-        playerJoinedLobbyCallback,
-        surrenderRequestCallback,
-        surrenderDeclineCallback,
-        remiRequestCallback,
-        remiAcceptCallback,
-        remiDeclineCallback,
-        takeBackRequestCallback,
-        takeBackAcceptCallback,
-        takenBackCallback,
-        takeBackDeclineCallback,
-        gameFinishedcallback,
-        surrenderFailedCallback
-      );
+          data,
+          moveMadeCallback,
+          playerJoinedLobbyCallback,
+          surrenderRequestCallback,
+          surrenderDeclineCallback,
+          remiRequestCallback,
+          remiAcceptCallback,
+          remiDeclineCallback,
+          takeBackRequestCallback,
+          takeBackAcceptCallback,
+          takenBackCallback,
+          takeBackDeclineCallback,
+          gameFinishedcallback,
+          surrenderFailedCallback,
+          playerIsOnlineCallback,
+          playerIsOfflineCallback,
+          );
     });
   }
   //#########################################################################################################
@@ -130,12 +144,17 @@ class ServerProvider with ChangeNotifier {
   //#########################################################################################################
 // Handle Socket Messages of different Channels -----------------------------------------------------------
   void _handleAuthUserChannelSocketData(
-      Map<String, dynamic> data,
-      Function messageCallback,
-      Function friendRequestCallback,
-      Function friendAcceptedCallback,
-      Function friendDeclinedCallback,
-      Function friendRemovedCallback) {
+    Map<String, dynamic> data,
+    Function messageCallback,
+    Function friendRequestCallback,
+    Function friendAcceptedCallback,
+    Function friendDeclinedCallback,
+    Function friendRemovedCallback,
+    Function friendIsOnlineCallback,
+    Function friendIsAfkCallback,
+    Function friendIsPlayingCallback,
+    Function friendIsNotPlayingCallback,
+  ) {
     _printRawData(data);
     _handleSocketServerMessage(data['action'], data['message']);
     switch (data['action']) {
@@ -153,6 +172,18 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'friend-removed':
         friendRemovedCallback(data['userId']);
+        break;
+      case 'friend-online':
+        friendIsOnlineCallback(data['userId']);
+        break;
+      case 'friend-afk':
+        friendIsAfkCallback(data['userId']);
+        break;
+      case 'friend-playing':
+        friendIsPlayingCallback(data['userId']);
+        break;
+      case 'friend-not-playing':
+        friendIsNotPlayingCallback(data['userId']);
         break;
     }
   }
@@ -186,6 +217,8 @@ class ServerProvider with ChangeNotifier {
     Function takeBackDeclineCallback,
     Function gameFinishedCallback,
     Function surrenderFailedCallback,
+    Function playerIsOnlineCallback,
+    Function playerIsOfflineCallback,
   ) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
@@ -202,7 +235,7 @@ class ServerProvider with ChangeNotifier {
       case 'surrender-decline':
         surrenderDeclineCallback(data['userId']);
         break;
-        case 'surrender-failed':
+      case 'surrender-failed':
         surrenderFailedCallback();
         break;
       case 'remi-request':
@@ -228,6 +261,12 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'game-finished':
         gameFinishedCallback(data);
+        break;
+        case 'player-online':
+          playerIsOnlineCallback(data['userId']);
+        break;
+        case 'player-offline':
+        playerIsOfflineCallback(data['userId'], data['expiryDate']);
         break;
     }
   }
@@ -314,9 +353,9 @@ class ServerProvider with ChangeNotifier {
     final response = await http.post(url,
         body: json.encode({'text': text, 'chatId': chatId}),
         headers: {'Content-Type': 'application/json'});
-        final data = json.decode(response.body);
-        _printRawData(data);
-        _validation(data);
+    final data = json.decode(response.body);
+    _printRawData(data);
+    _validation(data);
   }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
@@ -453,14 +492,15 @@ class ServerProvider with ChangeNotifier {
     // Game Provider Fetch Games
     return data;
   }
+
   Future<void> createTestGame() async {
-    try{
+    try {
       final String url = SERVER_ADRESS + 'create-test-game' + _authString;
       final response = await http.get(url);
       final data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
-    }catch(error){
+    } catch (error) {
       throw (error);
     }
   }

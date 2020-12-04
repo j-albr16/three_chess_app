@@ -44,20 +44,30 @@ class ChatProvider with ChangeNotifier {
     return _chats[_currentChatIndex];
   }
 
-  void subsribeToAuthUserChannel(
-      {friendRequestCallback,
-      friendAcceptedCallback,
-      friendDeclinedCallback,
-      increaseNewMessageCounterCallback,
-      friendRemovedCallback}) {
+  void subsribeToAuthUserChannel({
+    friendRequestCallback,
+    friendAcceptedCallback,
+    friendDeclinedCallback,
+    increaseNewMessageCounterCallback,
+    friendRemovedCallback,
+    friendIsOnlineCallback,
+    friendIsAfkCallback,
+    friendIsPlayingCallback,
+    friendIsNotPlayingCallback,
+  }) {
     _serverProvider.subscribeToAuthUserChannel(
       friendRemovedCallback: (userId) => friendRemovedCallback(userId),
       friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
       friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
       friendRequestCallback: (friendData, chatId) =>
           friendRequestCallback(friendData, chatId),
+          friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
+          friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
+          friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
+          friendIsNotPlayingCallback: (userId) => friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
+
     );
   }
 
@@ -114,8 +124,8 @@ class ChatProvider with ChangeNotifier {
     if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
       // increaseNewMessageCounterCallback(messageData['userId']);
-    } 
-    if(chatIndex != -1) {
+    }
+    if (chatIndex != -1) {
       _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     }
     notifyListeners();

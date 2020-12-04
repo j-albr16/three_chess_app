@@ -17,9 +17,11 @@ class Chat extends StatelessWidget{
   ScrollController scrollController;
   TextEditingController chatController;
   ThemeData theme;
+  bool maxScrollExtent;
 
   Chat({
     this.chat,
+    this.maxScrollExtent,
     this.theme,
     this.lobbyChat,
     this.size,

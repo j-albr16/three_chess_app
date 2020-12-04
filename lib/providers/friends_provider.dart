@@ -41,6 +41,10 @@ class FriendsProvider with ChangeNotifier {
       friendRequestCallback: (friendData, chatId) =>
           _handleFriendRequest(friendData, chatId),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
+      friendIsAfkCallback: (userId) => _handleFriendIsAfk(userId),
+      friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
+      friendIsNotPlayingCallback: (userId) => _handleFriendIsNotPlaying(userId),
+      friendIsPlayingCallback: (userId) => _handleFriendIsPlaying(userId),
     );
   }
 
@@ -135,12 +139,41 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleNewMessage(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId, orElse: () => null);
-    if(friend != null){
-    friend.newMessages++;
+  void _handleFriendIsPlaying(String userId) {
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
+        orElse: () => null);
+    friend?.isPlaying = true;
     notifyListeners();
+  }
+
+  void _handleFriendIsNotPlaying(String userId) {
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
+        orElse: () => null);
+    friend?.isPlaying = false;
+    notifyListeners();
+  }
+
+  void _handleNewMessage(String userId) {
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
+        orElse: () => null);
+    if (friend != null) {
+      friend.newMessages++;
+      notifyListeners();
     }
+  }
+
+  void _handleFriendIsOnline(String userId) {
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
+        orElse: () => null);
+    friend.isOnline = true;
+    notifyListeners();
+  }
+
+  void _handleFriendIsAfk(String userId) {
+    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
+        orElse: () => null);
+    friend.isOnline = false;
+    notifyListeners();
   }
 
   void _handleFriendRemove(String userId) {
@@ -156,7 +189,10 @@ class FriendsProvider with ChangeNotifier {
   }
 
   Friend _rebaseOneFriend(Map<String, dynamic> friendData, String chatId) {
+    bool isPlaying = friendData['gameId'] != null;
     return new Friend(
+      isPlaying: isPlaying,
+      isOnline: friendData['isOnline'],
       chatId: chatId,
       user: new User(
         id: friendData['_id'],

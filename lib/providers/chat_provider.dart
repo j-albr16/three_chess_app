@@ -22,6 +22,7 @@ class ChatProvider with ChangeNotifier {
   ServerProvider _serverProvider;
 
   void update({chatIndex, chats, serverProvider}) {
+    print('Update Chat');
     _currentChatIndex = chatIndex;
     _chats = chats;
     _serverProvider = serverProvider;

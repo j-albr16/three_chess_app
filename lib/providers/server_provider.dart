@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -269,6 +270,16 @@ class ServerProvider with ChangeNotifier {
         playerIsOfflineCallback(data['userId'], data['expiryDate']);
         break;
     }
+  }
+
+  Future<Map<String, dynamic>> onlineStatusUpdate() async {
+    print('exec online status update');
+    final String url = SERVER_ADRESS + 'online' + _authString;
+    final encodedResponse = await  http.get(url);
+    final Map<String, dynamic> data = json.decode(encodedResponse.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
   }
   //#########################################################################################################
 

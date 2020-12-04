@@ -7,6 +7,7 @@ import 'package:three_chess/screens/board_screen.dart';
 import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lobby_screen.dart';
+import '../providers/online_provider.dart';
 //
 
 
@@ -42,6 +43,7 @@ class MainPageViewerState extends State<MainPageViewer> {
       Provider.of<GameProvider>(context, listen: false);
       gameProvider.fetchGames();
          Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+         Provider.of<OnlineProvider>(context, listen: false);
     });
 
 

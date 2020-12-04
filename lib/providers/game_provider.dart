@@ -332,6 +332,7 @@ class GameProvider with ChangeNotifier {
       _serverProvider.handleError('Error while declining Take Bakc', error);
     }
   }
+   
 
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {

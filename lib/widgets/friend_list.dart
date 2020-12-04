@@ -4,9 +4,9 @@ import 'package:relative_scale/relative_scale.dart';
 typedef void FriendDialog(FriendTileModel model);
 
 class FriendTileModel {
-  final bool isOnline;
+  bool isOnline;
   final String username;
-  final bool isPlaying;
+  bool isPlaying;
   final String chatId;
   final String userId;
   final int newMessages;

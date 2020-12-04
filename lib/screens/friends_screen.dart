@@ -144,7 +144,8 @@ switchSelectedPending(model){
           chatId: friend.chatId,
           newMessages: friend.newMessages,
           // isOnline: friend.isOnline,
-          isOnline : true,
+          isOnline : friend.isOnline,
+          isPlaying: friend.isPlaying,
         )).toList();
     pendingFriends = _friendsProvider.pendingFriends.map((pendingFriend) =>
         new FriendTileModel(

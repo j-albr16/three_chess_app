@@ -22,6 +22,7 @@ class FriendsProvider with ChangeNotifier {
   }
 
   void update({friends, serverProvider, chatProvider}) {
+    print('Update');
     _friends = friends;
     _serverProvider = serverProvider;
     _chatProvider = chatProvider;

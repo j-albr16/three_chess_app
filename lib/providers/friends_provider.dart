@@ -164,6 +164,7 @@ class FriendsProvider with ChangeNotifier {
   }
 
   void _handleFriendIsOnline(String userId) {
+    print('Handling Friend is Online');
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);
     friend.isOnline = true;
@@ -171,6 +172,7 @@ class FriendsProvider with ChangeNotifier {
   }
 
   void _handleFriendIsAfk(String userId) {
+    print('Handle Friend is AFK');
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);
     friend.isOnline = false;

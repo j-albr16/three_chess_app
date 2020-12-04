@@ -25,3 +25,9 @@ enum ResponseRole {
   Create,
   Decline,
 }
+
+enum MessageOwner{
+  You,
+  Server,
+  Mate,
+}

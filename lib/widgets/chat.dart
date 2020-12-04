@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/chat_provider.dart';
+import '../models/enums.dart';
 import '../models/message.dart';
 import '../models/user.dart';
 import '../models/chat_model.dart' as mod;
@@ -16,9 +17,11 @@ class Chat extends StatelessWidget{
   ScrollController scrollController;
   TextEditingController chatController;
   ThemeData theme;
+  bool maxScrollExtent;
 
   Chat({
     this.chat,
+    this.maxScrollExtent,
     this.theme,
     this.lobbyChat,
     this.size,
@@ -55,7 +58,7 @@ class Chat extends StatelessWidget{
                     chat.messages[index].timeStamp,
                     chat.messages[index].text,
                     chat.messages[index].userName,
-                    chat.messages[index].isYours),
+                    chat.messages[index].owner),
               ),
             ),
             textField(),
@@ -77,8 +80,8 @@ class Chat extends StatelessWidget{
               textInputAction: TextInputAction.done,
               cursorColor: Colors.black26,
               style: TextStyle(color: Colors.black26),
-              onSubmitted: (_) {
-                submit();
+              onSubmitted: (_){
+
               },
             ),
           ),
@@ -102,9 +105,23 @@ class Chat extends StatelessWidget{
     }
   }
 
-  Widget chatObject(DateTime time, String text, String userName, bool isYours) {
+AlignmentGeometry getAlignment(MessageOwner owner){
+  switch(owner){
+    case MessageOwner.You : 
+    return Alignment.bottomRight;
+    break;
+    case MessageOwner.Mate:
+    return Alignment.bottomLeft;
+    break;
+    case MessageOwner.Server:
+    return Alignment.bottomCenter;
+    break;
+  }
+
+}
+  Widget chatObject(DateTime time, String text, String userName, MessageOwner owner) {
     return Align(
-      alignment: isYours ? Alignment.bottomRight : Alignment.bottomLeft,
+      alignment: getAlignment(owner),
       child: Container(
         margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(13),
@@ -118,7 +135,7 @@ class Chat extends StatelessWidget{
             mainAxisSize: MainAxisSize.min,
             children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (lobbyChat && !isYours)
+                if (lobbyChat && owner == MessageOwner.You)
                   Text(
                     userName,
                     style: TextStyle(
@@ -135,7 +152,7 @@ class Chat extends StatelessWidget{
                   text: TextSpan(
                     text: text,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: owner != MessageOwner.Server ? 14 : 8,
                       color: Colors.white70,
                     ),
                     children: [],

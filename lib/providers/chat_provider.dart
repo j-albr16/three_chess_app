@@ -12,6 +12,7 @@ import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
 import '../widgets/friend_list.dart';
+import '../models/enums.dart';
 
 class ChatProvider with ChangeNotifier {
   String _userId = constUserId;
@@ -36,31 +37,43 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
-    if(_chats[_currentChatIndex] == null){
+    if (_chats[_currentChatIndex] == null) {
       // TODO
-     return new Chat(); 
+      return new Chat();
     }
     return _chats[_currentChatIndex];
   }
 
-  void subsribeToAuthUserChannel(
-      {friendRequestCallback,
-      friendAcceptedCallback,
-      friendDeclinedCallback,
-      increaseNewMessageCounterCallback,
-      friendRemovedCallback}) {
+  void subsribeToAuthUserChannel({
+    friendRequestCallback,
+    friendAcceptedCallback,
+    friendDeclinedCallback,
+    increaseNewMessageCounterCallback,
+    friendRemovedCallback,
+    friendIsOnlineCallback,
+    friendIsAfkCallback,
+    friendIsPlayingCallback,
+    friendIsNotPlayingCallback,
+  }) {
     _serverProvider.subscribeToAuthUserChannel(
       friendRemovedCallback: (userId) => friendRemovedCallback(userId),
       friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
       friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
-      friendRequestCallback: (friendData, chatId) => friendRequestCallback(friendData, chatId),
+      friendRequestCallback: (friendData, chatId) =>
+          friendRequestCallback(friendData, chatId),
+          friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
+          friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
+          friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
+          friendIsNotPlayingCallback: (userId) => friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
+
     );
   }
-  void resetCurrentChat(){
+
+  void resetCurrentChat() {
     _currentChatIndex = null;
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future<void> sendTextMessage(String text) async {
@@ -82,15 +95,16 @@ class ChatProvider with ChangeNotifier {
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
       print("next up fetch print:");
-      notifyListeners();
       _printWholeChat(chat);
-    } catch (error) { 
+      print(_chats);
+    } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
     }
   }
 
   Future<void> selectChatRoom(String id, {bool isGameChat = false}) async {
-    int index = _chats.indexWhere((e) => e.id == id);
+    int index = _chats.indexWhere((chat) =>
+        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null);
     if (index == -1) {
       return await fetchChat(
         id: id,
@@ -98,19 +112,21 @@ class ChatProvider with ChangeNotifier {
       );
     } else {
       _currentChatIndex = index;
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   void _handleMessageData(Map<String, dynamic> messageData,
       Function increaseNewMessageCounterCallback) {
-        print('Message was Received');
+    print('Message was Received');
     int chatIndex =
         _chats.indexWhere((chat) => chat.id == messageData['chatId']);
-    _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
-    if (chatIndex != _currentChatIndex) {
+    if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
-      increaseNewMessageCounterCallback(messageData['userId']);
+      // increaseNewMessageCounterCallback(messageData['userId']);
+    }
+    if (chatIndex != -1) {
+      _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
     }
     notifyListeners();
   }
@@ -122,12 +138,13 @@ class ChatProvider with ChangeNotifier {
     List<User> users = [];
     chatData['user'].forEach((userData) {
       users.add(_rebaseOneUser(userData));
-      chatData['chat']['messages'].forEach((messageData) {
-        if (messageData['userId'] == userData['_id']) {
-          messages.add(
-              _rebaseOneMessage(messageData, userName: userData['userName']));
-        }
-      });
+    });
+
+    chatData['chat']['messages'].forEach((messageData) {
+      final User user = users.firstWhere(
+          (user) => user.id == messageData['userId'],
+          orElse: () => null);
+      messages.add(_rebaseOneMessage(messageData, userName: user?.userName));
     });
     return new Chat(
       user: users,
@@ -138,9 +155,14 @@ class ChatProvider with ChangeNotifier {
 
   Message _rebaseOneMessage(Map<String, dynamic> messageData,
       {String userName}) {
-    final isYours = messageData['userId'] == _userId;
+    MessageOwner owner = MessageOwner.Mate;
+    if (messageData['userId'] == 'server') {
+      owner = MessageOwner.Server;
+    } else if (messageData['userId'] == _userId) {
+      owner = MessageOwner.You;
+    }
     return new Message(
-      isYours: isYours,
+      owner: owner,
       text: messageData['text'],
       timeStamp: DateTime.parse(messageData['date']),
       userId: messageData['userId'],
@@ -170,7 +192,7 @@ void _printWholeChat(Chat _chat) {
       print('-> id:         ' + e?.id ?? 'null');
       print('-> userName:   ' + e?.userName ?? 'null');
       print('-> score:      ' + e?.score?.toString() ?? 'null');
-      playerIndex ++;
+      playerIndex++;
     });
     print('messages----------------------------------------');
     _chat?.messages?.forEach((el) {
@@ -178,7 +200,7 @@ void _printWholeChat(Chat _chat) {
       print('-> text:       ' + el?.text ?? 'null');
       print('-> userName:   ' + el?.userName ?? 'null');
       print('-> timeStamp:  ' + el?.timeStamp?.toIso8601String() ?? 'null');
-      messagesIndex ++;
+      messagesIndex++;
     });
     print('===============================================');
   }

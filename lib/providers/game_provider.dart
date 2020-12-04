@@ -113,6 +113,8 @@ class GameProvider with ChangeNotifier {
           _handleTakenBack(userId, chessMove),
       gameFinishedcallback: (data) => _handleGameFinished(data),
       surrenderFailedCallback: () => _handleSurrenderFailed(),
+      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
+      playerIsOfflineCallback: (userId, expiryDate) => _handlePlayerIsOffline(userId, expiryDate),
     );
   }
 
@@ -322,6 +324,15 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  // TODO Remove
+  Future<void> createTestGame() async {
+    try{
+      await _serverProvider.createTestGame();
+    }catch(error){
+      _serverProvider.handleError('Error while declining Take Bakc', error);
+    }
+  }
+
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
     _games.add(_rebaseLobbyGame(
@@ -333,6 +344,18 @@ class GameProvider with ChangeNotifier {
     if (printGameSocket) {
       _printEverything(_game, player, _games);
     }
+    notifyListeners();
+  }
+
+  void _handlePlayerIsOnline(String userId){
+    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null);
+    player?.isOnline = true;
+    notifyListeners();
+  }
+  void _handlePlayerIsOffline(String userId , String expiryDate){
+    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null );
+    player?.isOnline = false;
+    _game.endGameExpiry = DateTime.parse(expiryDate);
     notifyListeners();
   }
 
@@ -516,6 +539,7 @@ class GameProvider with ChangeNotifier {
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
+    game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
     game.chessMoves = chessMoves;
     // returns the converted Game
     return game;
@@ -564,6 +588,7 @@ class GameProvider with ChangeNotifier {
     // input: takes player Converted Data of One Player as Input
     // output: returns a Player Model with the Given Data
     return new Player(
+      isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: new User(

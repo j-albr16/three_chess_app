@@ -1,12 +1,17 @@
+import '../models/enums.dart';
 
-
-class Message{
-  
+class Message {
   final String text;
   final String userName;
   final String userId;
   final DateTime timeStamp;
-  final bool isYours;
+  final MessageOwner owner;
 
-  Message({this.text, this.timeStamp, this.userId, this.userName, this.isYours});
+  Message({
+    this.text,
+    this.owner,
+    this.timeStamp,
+    this.userId,
+    this.userName,
+  });
 }

@@ -43,7 +43,7 @@ class MainPageViewerState extends State<MainPageViewer> {
 
     //TODO REMOVE
     print("########################################");
-    ConvertDataPrint.printJSboardDataAj();
+    //ConvertDataPrint.printJSboardDataAj();
     print("########################################");
 
     super.initState();

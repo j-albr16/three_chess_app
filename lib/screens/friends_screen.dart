@@ -159,7 +159,6 @@ switchSelectedPending(model){
   Widget build(BuildContext context) {
     provideFriends();
     //mobile thing
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Friends'),

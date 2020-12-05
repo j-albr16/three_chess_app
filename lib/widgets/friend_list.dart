@@ -23,11 +23,10 @@ class FriendTileModel {
 class FriendTile extends StatelessWidget {
   final double height;
   final FriendTileModel model;
-  final int newMessages;
   final FriendDialog onLongTap;
   final FriendDialog onTap;
 
-  FriendTile({this.onLongTap, this.newMessages = 0, this.onTap, this.height, this.model});
+  FriendTile({this.onLongTap, this.onTap, this.height, this.model});
 
   Widget onlineIcon(bool isOnline) {
     return Icon(
@@ -63,7 +62,7 @@ class FriendTile extends StatelessWidget {
                 Container(width: 10, color: Colors.transparent),
                 playingIcon(model.isPlaying),
                 // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
-                Text(newMessages?.toString() ?? 10.toString())
+                Text(model.newMessages.toString()),
               ],
             ),
           ),

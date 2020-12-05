@@ -277,8 +277,8 @@ class ServerProvider with ChangeNotifier {
     final String url = SERVER_ADRESS + 'online' + _authString;
     final encodedResponse = await  http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    _validation(data);
+    // _printRawData(data);
+    // _validation(data);
     return data;
   }
   //#########################################################################################################

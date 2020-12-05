@@ -8,7 +8,7 @@ class Friend{
   int newMessages;
 
   Friend({
-    this.newMessages,
+    this.newMessages = 0,
     this.chatId,
     this.isPlaying,
     this.isOnline,

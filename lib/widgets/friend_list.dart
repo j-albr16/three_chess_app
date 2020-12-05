@@ -27,7 +27,7 @@ class FriendTile extends StatelessWidget {
   final FriendDialog onLongTap;
   final FriendDialog onTap;
 
-  FriendTile({this.onLongTap, this.newMessages, this.onTap, this.height, this.model});
+  FriendTile({this.onLongTap, this.newMessages = 0, this.onTap, this.height, this.model});
 
   Widget onlineIcon(bool isOnline) {
     return Icon(

@@ -124,7 +124,7 @@ class ChatProvider with ChangeNotifier {
         _chats.indexWhere((chat) => chat.id == messageData['chatId']);
     if (chatIndex != _currentChatIndex || chatIndex == -1) {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
-      // increaseNewMessageCounterCallback(messageData['userId']);
+      increaseNewMessageCounterCallback(messageData['userId']);
     }
     if (chatIndex != -1) {
       _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));

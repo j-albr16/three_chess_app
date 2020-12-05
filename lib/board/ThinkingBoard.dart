@@ -36,6 +36,7 @@ class ThinkingBoard {
       pieces: virtualPieces,
       enpassent: virtualEnPassent,
       chessMoves: [...boardState.chessMoves],
+      infoChessMoves: [...boardState.infoChessMoves],
     );
   }
 

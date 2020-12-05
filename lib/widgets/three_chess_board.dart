@@ -11,6 +11,7 @@ import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/providers/game_provider.dart';
+import 'package:three_chess/providers/scroll_provider.dart';
 
 
 
@@ -134,9 +135,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
         onPointerDown: (details){
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
           if(whatsHit != null){
-            print("$whatsHit : ${widget.tileKeeper.tiles[whatsHit].isWhite}");
+            Provider.of<ScrollProvider>(context, listen: false).isMakeAMoveLock = true;
+            //print("$whatsHit : ${widget.tileKeeper.tiles[whatsHit].isWhite}");
           }
-         // print(whatsHit);
+         print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");
             highlighted = MapEntry(whatsHit, ThinkingBoard.getLegalMove(whatsHit, widget.boardState));
@@ -156,8 +158,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
             }
             else{
               if(highlighted.value.contains(whatsHit) && myTurn){
+                if(!widget.isOffline){ // TODO THIS WILL BE DIFFRENT ONCE THERES A BOARDSTATE MANAGER THAT HANDLES OFFLINE MOVES
                 widget.boardState.movePieceTo(highlighted.key, whatsHit);
-                  _moveWasMade(context);
+              }
+              _moveWasMade(context);
                   highlighted = null;
               }
               else if(pieceColor == playingPlayer){
@@ -178,14 +182,16 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           }
         },
         onPointerUp: (details){
+          Provider.of<ScrollProvider>(context, listen: false).isMakeAMoveLock = false;
           String whatsHit = widget.tileKeeper.getTilePositionOf(details.localPosition);
          // print(whatsHit);
             if (highlighted != null) {
               setState(() {
                 if(highlighted.value.contains(whatsHit)&& myTurn){
-
-                  widget.boardState.movePieceTo(highlighted.key, whatsHit);
-                      _moveWasMade(context);
+                  if(!widget.isOffline){ // TODO THIS WILL BE DIFFRENT ONCE THERES A BOARDSTATE MANAGER THAT HANDLES OFFLINE MOVES
+                widget.boardState.movePieceTo(highlighted.key, whatsHit);
+              }
+              _moveWasMade(context);
                       highlighted = null;
                       draggedPiece = null;
                       dragOffset = null;

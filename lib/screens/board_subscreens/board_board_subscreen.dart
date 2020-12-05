@@ -48,7 +48,7 @@ class BoardBoardSubScreen extends StatelessWidget {
         builder: (context, screenHeight, screenWidth, sy, sx)
         {
           double usableHeight = screenHeight - unusableHeight;
-          ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: boardState,);
+          ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game != null ? true : false, boardState: boardState,);
 
           return Container(
                 height: usableHeight,
@@ -72,15 +72,7 @@ class BoardBoardSubScreen extends StatelessWidget {
                             ],
                           )),
                     ),
-                    Center(child: Container(
-                      height: min(screenWidth, screenHeight*0.9),
-                      width: min(screenWidth, screenHeight*0.9),
-                      child: FittedBox(
-                        child: threeChessBoard,
-                      ),
-                    )
 
-                    ),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
@@ -105,6 +97,15 @@ class BoardBoardSubScreen extends StatelessWidget {
                               )
                             ],
                           )),
+                    ),
+                    Center(child: Container(
+                      height: min(screenWidth, screenHeight*0.9),
+                      width: min(screenWidth, screenHeight*0.9),
+                      child: FittedBox(
+                        child: threeChessBoard,
+                      ),
+                    )
+
                     ),
                   ],
                 ),

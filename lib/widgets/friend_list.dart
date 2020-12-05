@@ -62,7 +62,7 @@ class FriendTile extends StatelessWidget {
                 onlineIcon(model.isOnline),
                 Container(width: 10, color: Colors.transparent),
                 playingIcon(model.isPlaying),
-                // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
+                // TODO for now just print out new Messages as Text Widget.. Will be removed
                 Text(newMessages?.toString() ?? 10.toString())
               ],
             ),

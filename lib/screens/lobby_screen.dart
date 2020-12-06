@@ -143,12 +143,14 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   getButton(Text("Find a Game like"),
+                      onTap: () => print("something"),
                       height: screenHeight * 0.08,
                       width: screenWidth * 0.4,
                       color: Colors.deepPurple),
                   Container(
                       width: screenWidth * 0.15, color: Colors.transparent),
                   getButton(Text("Find me this Game"),
+                      onTap: () => print("something"),
                       height: screenHeight * 0.08,
                       width: screenWidth * 0.4,
                       color: Colors.deepPurple),

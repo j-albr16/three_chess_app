@@ -2,13 +2,22 @@ import 'package:flutter/foundation.dart';
 
 class ScrollProvider extends ChangeNotifier{
 
-  bool _isLocked = false;
+  bool _isLockedHorizontal = false;
+  bool _isMakeAMoveLock = false;
 
-  set isLocked(bool newLock){
-    _isLocked = newLock;
+  set isMakeAMoveLock(bool newLock){
+    _isMakeAMoveLock = newLock;
     notifyListeners();
   }
-  get isLocked{
-    return _isLocked;
+  get isMakeAMoveLock{
+    return _isMakeAMoveLock;
+  }
+
+  set isLockedHorizontal(bool newLock){
+    _isLockedHorizontal = newLock;
+    notifyListeners();
+  }
+  get isLockedHorizontal{
+    return _isLockedHorizontal;
   }
 }

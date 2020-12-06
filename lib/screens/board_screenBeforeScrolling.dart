@@ -106,9 +106,9 @@ class _BoardScreenState extends State<BoardScreen> {
           PlayerColor.values[(gameProvider.player.playerColor.index + 2) % 3]);
     }
 
-    bool isLocked = Provider.of<ScrollProvider>(context).isLocked;
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
     switchIsLocked(){
-      Provider.of<ScrollProvider>(context, listen: false).isLocked = !isLocked;
+      Provider.of<ScrollProvider>(context, listen: false).isLockedHorizontal = !isLocked;
     }
 
 

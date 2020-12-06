@@ -45,7 +45,7 @@ class MainPageViewerState extends State<MainPageViewer> {
 
     //TODO REMOVE
     print("########################################");
-    //ConvertDataPrint.printJSboardDataAj();
+    //ConvertDataPrint.printNewBlackAndRedOrder();
     print("########################################");
 
     super.initState();
@@ -66,6 +66,7 @@ class MainPageViewerState extends State<MainPageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
     return new Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),
@@ -73,7 +74,7 @@ class MainPageViewerState extends State<MainPageViewer> {
           children: <Widget>[
             new PageView.builder(
               physics:
-                  !Provider.of<ScrollProvider>(context).isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
+                  !isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
               controller: _controller,
               itemBuilder: (BuildContext context, int index) {
                 return _pages[index % _pages.length];

@@ -16,12 +16,30 @@ class BoardState{
   List<ChessMoveInfo> infoChessMoves;
 
   BoardState() {
+    chessMoves = [];
+    pieces = {};
+    enpassent = {};
+    infoChessMoves = [];
     _newGame();
   }
 
-  BoardState.takeOver({this.pieces, this.enpassent, this.chessMoves});
+  BoardState.takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves}){
+    chessMoves ??= [];
+    pieces ??= {};
+    enpassent ??= {};
+    if(infoChessMoves == null){
+      pieces = {};
+      enpassent = {};
+      for(ChessMove chessMove in chessMoves){
+        movePieceTo(chessMove.initialTile, chessMove.nextTile);
+      }
+    }
+  }
 
   BoardState.generate({this.chessMoves}){
+    infoChessMoves = [];
+    pieces = {};
+    enpassent = {};
     for(ChessMove chessMove in chessMoves){
       movePieceTo(chessMove.initialTile, chessMove.nextTile);
     }
@@ -382,6 +400,7 @@ class BoardState{
     ].forEach((piece) {pieces[piece.position] = piece;});
         enpassent = {};
     chessMoves = [];
+    infoChessMoves = [];
   }
 
   @override

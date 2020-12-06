@@ -64,7 +64,7 @@ class _BoardScreenState extends State<BoardScreen> {
     return [
       0,
       chatHeight,
-      chatHeight + requestsHeight + 30,
+      chatHeight + requestsHeight + 30*(requestsHeight == 0 ? 0 : 1),
       chatHeight + requestsHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
     chatHeight + requestsHeight + (screenHeight*gameTableHeightFraction),
     ];
@@ -107,9 +107,10 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   Widget build(BuildContext context) {
 
-    bool isLocked = Provider.of<ScrollProvider>(context).isLocked;
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
+
     switchIsLocked(){
-      Provider.of<ScrollProvider>(context, listen: false).isLocked = !isLocked;
+      Provider.of<ScrollProvider>(context, listen: false).isLockedHorizontal = !isLocked;
     }
 
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
@@ -182,6 +183,7 @@ class _BoardScreenState extends State<BoardScreen> {
           body: NotificationListener<ScrollEndNotification>(
             onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
             child: SingleChildScrollView(
+              physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
               controller: controller,
               child: Column(
                 mainAxisSize: MainAxisSize.min,

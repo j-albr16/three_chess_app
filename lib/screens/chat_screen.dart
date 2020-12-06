@@ -18,6 +18,7 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController _scrollController;
   ChatProvider _chatProvider;
   bool maxScrollExtent = false;
+  bool wasInit = false;
 
   _scrollListener() {
     if (_scrollController.offset ==
@@ -47,11 +48,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_){
-    if (maxScrollExtent) {
-      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 500), curve: Curves.bounceIn);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (maxScrollExtent || wasInit == false) {
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 500), curve: Curves.bounceIn);
+        wasInit = true;
+      }
     });
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     ThemeData theme = Theme.of(context);

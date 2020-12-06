@@ -60,6 +60,7 @@ class ServerProvider with ChangeNotifier {
     friendIsAfkCallback,
     friendIsPlayingCallback,
     friendIsNotPlayingCallback,
+    gameInvitationsCallback,
   }) {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
@@ -74,6 +75,7 @@ class ServerProvider with ChangeNotifier {
         friendIsAfkCallback,
         friendIsPlayingCallback,
         friendIsNotPlayingCallback,
+        gameInvitationsCallback,
       );
     });
   }
@@ -155,6 +157,7 @@ class ServerProvider with ChangeNotifier {
     Function friendIsAfkCallback,
     Function friendIsPlayingCallback,
     Function friendIsNotPlayingCallback,
+    Function gameInvitationCallback,
   ) {
     _printRawData(data);
     _handleSocketServerMessage(data['action'], data['message']);
@@ -185,6 +188,9 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'friend-not-playing':
         friendIsNotPlayingCallback(data['userId']);
+        break;
+        case 'game-invitation':
+        gameInvitationCallback(data['gameData']);
         break;
     }
   }
@@ -384,6 +390,15 @@ class ServerProvider with ChangeNotifier {
   //#########################################################################################################
 
   //#########################################################################################################
+  // fetch Invitations
+  Future<Map<String, dynamic>> fetchInvitations() async {
+    final String url = SERVER_ADRESS + 'invitations' + _authString;
+    final encodedResponse = await http.get(url);
+    final Map<String, dynamic> data = json.decode(encodedResponse.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
   // Game Provider -----------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> createGame(
       {bool isPublic,

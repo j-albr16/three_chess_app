@@ -13,6 +13,7 @@ import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
 import '../widgets/friend_list.dart';
 import '../models/enums.dart';
+import '../conversion/chat_conversion.dart';
 
 class ChatProvider with ChangeNotifier {
   String _userId = constUserId;
@@ -55,6 +56,7 @@ class ChatProvider with ChangeNotifier {
     friendIsAfkCallback,
     friendIsPlayingCallback,
     friendIsNotPlayingCallback,
+    gameInvitationCallback,
   }) {
     _serverProvider.subscribeToAuthUserChannel(
       friendRemovedCallback: (userId) => friendRemovedCallback(userId),
@@ -68,6 +70,7 @@ class ChatProvider with ChangeNotifier {
           friendIsNotPlayingCallback: (userId) => friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
+          gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
 
     );
   }
@@ -92,11 +95,11 @@ class ChatProvider with ChangeNotifier {
       final Map<String, dynamic> data =
           await _serverProvider.fetchChat(isGameChat, id);
       // convert chat
-      _chats.add(_convertChat(data));
+      _chats.add(ChatConversion.convertChat(data, _userId));
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
       print("next up fetch print:");
-      _printWholeChat(chat);
+      ChatConversion.printWholeChat(chat);
       print(_chats);
     } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
@@ -129,82 +132,11 @@ class ChatProvider with ChangeNotifier {
       
     }
     if (chatIndex != -1) {
-      _chats[chatIndex].messages.add(_rebaseOneMessage(messageData));
+      _chats[chatIndex].messages.add(ChatConversion.rebaseOneMessage(messageData, _userId));
     }
     notifyListeners();
   }
 
-  _convertChat(Map<String, dynamic> chatData) {
-    //converting icoming mesages and sort them into existing classes...
-    // for more information look at data models in three_chess_app_node repo
-    List<Message> messages = [];
-    List<User> users = [];
-    chatData['user'].forEach((userData) {
-      users.add(_rebaseOneUser(userData));
-    });
-
-    chatData['chat']['messages'].forEach((messageData) {
-      final User user = users.firstWhere(
-          (user) => user.id == messageData['userId'],
-          orElse: () => null);
-      messages.add(_rebaseOneMessage(messageData, userName: user?.userName));
-    });
-    return new Chat(
-      user: users,
-      id: chatData['chat']['_id'],
-      messages: messages,
-    );
-  }
-
-  Message _rebaseOneMessage(Map<String, dynamic> messageData,
-      {String userName}) {
-    MessageOwner owner = MessageOwner.Mate;
-    if (messageData['userId'] == 'server') {
-      owner = MessageOwner.Server;
-    } else if (messageData['userId'] == _userId) {
-      owner = MessageOwner.You;
-    }
-    return new Message(
-      owner: owner,
-      text: messageData['text'],
-      timeStamp: DateTime.parse(messageData['date']),
-      userId: messageData['userId'],
-      userName: userName ?? messageData['userName'],
-    );
-  }
-
-  User _rebaseOneUser(Map<String, dynamic> userData) {
-    return new User(
-      id: userData['_id'],
-      score: userData['score'],
-      userName: userData['userName'],
-    );
-  }
 }
 
-void _printWholeChat(Chat _chat) {
-  if (_chat != null) {
-    int playerIndex = 0;
-    int messagesIndex = 0;
-    print('===============================================');
-    print('PRINT CHAT ------------------------------------');
-    print('id:         ' + _chat?.id ?? 'null');
-    print('user:------------------------------------');
-    _chat?.user?.forEach((e) {
-      print('player ${playerIndex + 1}-----------------------');
-      print('-> id:         ' + e?.id ?? 'null');
-      print('-> userName:   ' + e?.userName ?? 'null');
-      print('-> score:      ' + e?.score?.toString() ?? 'null');
-      playerIndex++;
-    });
-    print('messages----------------------------------------');
-    _chat?.messages?.forEach((el) {
-      print('message ${messagesIndex + 1}--------------------');
-      print('-> text:       ' + el?.text ?? 'null');
-      print('-> userName:   ' + el?.userName ?? 'null');
-      print('-> timeStamp:  ' + el?.timeStamp?.toIso8601String() ?? 'null');
-      messagesIndex++;
-    });
-    print('===============================================');
-  }
-}
+

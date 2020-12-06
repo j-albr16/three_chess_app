@@ -12,6 +12,7 @@ import '../models/user.dart';
 import '../models/chess_move.dart';
 import '../providers/server_provider.dart';
 import '../models/enums.dart';
+import '../conversion/game_conversion.dart';
 import '../models/request.dart';
 import '../data/server.dart';
 import '../helpers/user_acc.dart';
@@ -54,8 +55,6 @@ class GameProvider with ChangeNotifier {
   bool _didInitLobby = false;
 // updated vlaues from ProxyProvider:
   void update({ServerProvider serverProvider, Game game, List<Game> games}) {
-    // TODO : Find better Work around for SocketLobby Channel Init
-
     _games = games;
     _game = game;
     _serverProvider = serverProvider;
@@ -80,7 +79,7 @@ class GameProvider with ChangeNotifier {
     print('start fetching games');
     await fetchGame();
     await fetchGames();
-    _printEverything(_game, player, _games);
+    GameConversion.printEverything(_game, player, _games);
   }
 
 // TODO
@@ -127,6 +126,7 @@ class GameProvider with ChangeNotifier {
       playerJoinedCallback: (gameData) => _handlePlayerJoinedData(gameData),
     );
   }
+  
 
   Future<void> createGame(
       {bool isPublic,
@@ -145,11 +145,11 @@ class GameProvider with ChangeNotifier {
         time: time,
       );
       // rebasing the whole Game. COnverting JSON to Game Model Data. See Methode below
-      _game = _rebaseWholeGame(data);
+      _game = GameConversion.rebaseWholeGame(data['gameData']);
       print('successfully created game');
       // printing whole game if option to print it is set on true. Look on top ... at imports.. there printout options are defined
       if (printCreateGame) {
-        _printEverything(_game, player, _games);
+        GameConversion.printEverything(_game, player, _games);
       }
       // ToDO : Remove line below
       if (_game == null) {
@@ -168,14 +168,14 @@ class GameProvider with ChangeNotifier {
     try {
       // http request
       final Map<String, dynamic> data = await _serverProvider.joinGame(gameId);
-      _game = _rebaseWholeGame(data);
+      _game = GameConversion.rebaseWholeGame(data['gameData']);
       // starts game If didStart is true => 3 Player are in the Game now and the server noticed that
       if (_game.didStart) {
         _startGame();
       }
       // print whole game Provider Data if option is set on true
       if (printjoinGame) {
-        _printEverything(_game, player, _games);
+        GameConversion.printEverything(_game, player, _games);
       }
       if (_game == null) {
         throw ('Error _game caught on Null after joining a game');
@@ -208,11 +208,11 @@ class GameProvider with ChangeNotifier {
     try {
       // make http request
       final Map<String, dynamic> data = await _serverProvider.fetchGame();
-      _game = _rebaseWholeGame(data);
+      _game = GameConversion.rebaseWholeGame(data['gameData']);
       // starts listening to Game Lobby Websoket (Message on player who joined Game or made a Chess move etc....)
       // prints all Data if option is set on true
       if (printFetchGame) {
-        _printEverything(_game, player, _games);
+        GameConversion.printEverything(_game, player, _games);
       }
       if (_game != null) {
         _serverProvider.subscribeToGameLobbyChannel(
@@ -237,15 +237,19 @@ class GameProvider with ChangeNotifier {
       final Map<String, dynamic> data = await _serverProvider.fetchGames();
       _games = [];
       // Convert Data to existing Models
-      data['gameData']['games'].forEach((e) => _games.add(_rebaseLobbyGame(
-            gameData: e,
-            playerData: data['gameData']['player'],
-            userData: data['gameData']['user'],
-          )));
+      data['gameData']['games'].forEach((game) {
+        final playerData = data['gameData']['player'].firstWhere((player) => player['gameId'] == game['_id'], orElse: () => null);
+        final userData= data['gameData']['user'].firstWhere((user) =>user['gameId'] == game['_id'], orElse: () => null);
+_games.add(GameConversion.rebaseLobbyGame(
+            gameData: game,
+            playerData: playerData,
+            userData: userData,
+          ));
+      } );
       notifyListeners();
       // printsa all game Provider Data if option is set on true
       if (printFetchGames) {
-        _printEverything(_game, player, _games);
+        GameConversion.printEverything(_game, player, _games);
       }
     } catch (error) {
       _serverProvider.handleError('error While fetching Games', error);
@@ -336,14 +340,14 @@ class GameProvider with ChangeNotifier {
 
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
-    _games.add(_rebaseLobbyGame(
+    _games.add(GameConversion.rebaseLobbyGame(
       gameData: gameData,
       playerData: gameData['player'],
       userData: gameData['user'],
     ));
     // print all Game Data if option is set on true
     if (printGameSocket) {
-      _printEverything(_game, player, _games);
+      GameConversion.printEverything(_game, player, _games);
     }
     notifyListeners();
   }
@@ -363,18 +367,18 @@ class GameProvider with ChangeNotifier {
   void _handlePlayerJoinedData(Map<String, dynamic> gameData) {
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
-    _games[gameIndex].player.add(_rebaseOnePlayer(
+    _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
           playerData: gameData['player'],
           userData: gameData['user'],
         ));
     if (printGameSocket) {
-      _printEverything(_game, player, _games);
+      GameConversion.printEverything(_game, player, _games);
     }
     notifyListeners();
   }
 
   void _handlePlayerJoinedLobbyData(Map<String, dynamic> gameData) {
-    _game.player.add(_rebaseOnePlayer(
+    _game.player.add(GameConversion.rebaseOnePlayer(
       playerData: gameData['player'],
       userData: gameData['user'],
     ));
@@ -385,24 +389,24 @@ class GameProvider with ChangeNotifier {
     }
     // print all game provider Data if option is set ot true
     if (printGameSocket) {
-      _printEverything(_game, player, _games);
+      GameConversion.printEverything(_game, player, _games);
     }
     notifyListeners();
   }
 
   void _handleMoveData(Map<String, dynamic> moveData) {
     print(moveData);
-    _game.chessMoves.add(_rebaseOneMove(moveData));
+    _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true
     if (printGameSocket) {
-      _printEverything(_game, player, _games);
+      GameConversion.printEverything(_game, player, _games);
     }
     notifyListeners();
   }
 
   void _handleSurrenderRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -413,8 +417,8 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleSurrenderDecline(String userId) {
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
-    _getRequestFromRequestType(RequestType.Surrender)
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
+    GameConversion.getRequestFromRequestType(RequestType.Surrender, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     notifyListeners();
   }
@@ -427,7 +431,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleRemiRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -438,15 +442,15 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRemiAccept(String userId) {
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
-    _getRequestFromRequestType(RequestType.Remi)
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleRemiDecline(String userId) {
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
-    _getRequestFromRequestType(RequestType.Remi)
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
         .removeWhere((request) => request.requestType == RequestType.Remi);
@@ -455,7 +459,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleTakeBackRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -466,15 +470,15 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakeBackAccept(String userId) {
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
-    _getRequestFromRequestType(RequestType.TakeBack)
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleTakeBackDecline(String userId) {
-    PlayerColor playerColor = _getPlayerColorFromUserId(userId);
-    _getRequestFromRequestType(RequestType.TakeBack)
+    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
         .removeWhere((request) => request.requestType == RequestType.TakeBack);
@@ -489,7 +493,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleGameFinished(Map<String, dynamic> data) {
-    PlayerColor winnerPlayerColor = _getPlayerColorFromUserId(data['winnerId']);
+    PlayerColor winnerPlayerColor = GameConversion.getPlayerColorFromUserId(data['winnerId'],_game);
     List<Map<String, dynamic>> newUsers = data['newUsers'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,
@@ -502,213 +506,5 @@ class GameProvider with ChangeNotifier {
         HowGameEnded.values[data['howGameEnded']];
     _game.finishedGameData = finishedGameData;
     notifyListeners();
-  }
-
-  PlayerColor _getPlayerColorFromUserId(String userId) {
-    return _game.player
-        .firstWhere((player) => player.user.id == userId, orElse: () => null)
-        .playerColor;
-  }
-
-  Request _getRequestFromRequestType(RequestType requestType) {
-    return _game.requests
-        .firstWhere((request) => request.requestType == requestType);
-  }
-
-  Game _rebaseWholeGame(Map<String, dynamic> data) {
-    // input: takes a decoded response from Server , where GameData in JSON is encoeded
-    // output: Returns a game Model
-    // extracting gameData, from JSON Response
-    final gameData = data['gameData'];
-    // convert Chess moves and add them to exisitng Chess Move Class
-    List<ChessMove> chessMoves = [];
-    // TODO : Delete
-    gameData['chessMoves'].forEach((e) => chessMoves.add(_rebaseOneMove(e)));
-    // convert player List and add them to existing player class
-    List<Player> convPlayer = _connectUserPlayerData(
-      player: gameData['player'],
-      users: gameData['user'],
-    );
-    List<Request> convRequests;
-    data['requests']
-        .forEach((request) => convRequests.add(_rebaseOneRequest(request)));
-    // TODO : Delete Printout
-    print('Finished converting Player and User');
-    // creates a game and sets Game options in it
-    Game game = _createGameWithOptions(gameData['options']);
-    // set remaining Game parameters
-    game.didStart = gameData['didStart'];
-    game.id = gameData['_id'];
-    game.player = convPlayer;
-    game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
-    game.chessMoves = chessMoves;
-    // returns the converted Game
-    return game;
-  }
-
-  Game _rebaseLobbyGame({gameData, userData, playerData}) {
-    // input: takes the decoded GameData of an JSON Response as Input
-    // output: returns a converted Game that includes Lobby Game Data
-    //No Chess Moves made in Lobby Games
-    List<ChessMove> chessMoves = [];
-    // convert player List and add them to existing player class
-    List<Player> convPlayer = _connectUserPlayerData(
-      player: playerData,
-      users: userData,
-    );
-    // creates a game and sets gameOptions
-    Game game = _createGameWithOptions(gameData['options']);
-    // set remaining Game parameters
-    game.didStart = gameData['didStart'];
-    game.id = gameData['_id'];
-    game.player = convPlayer;
-    game.chessMoves = chessMoves;
-    // returns the converted Game
-    return game;
-  }
-
-  Request _rebaseOneRequest(Map<String, dynamic> requestData) {
-    PlayerColor createPlayerColor =
-        _getPlayerColorFromUserId(requestData['create']);
-    PlayerColor acceptPlayerColor =
-        _getPlayerColorFromUserId(requestData['accept']);
-    PlayerColor declinePlayerColor =
-        _getPlayerColorFromUserId(requestData['decline']);
-    Map<ResponseRole, PlayerColor> playerResponse = {};
-    playerResponse[ResponseRole.Create] = createPlayerColor;
-    playerResponse[ResponseRole.Accept] = acceptPlayerColor;
-    playerResponse[ResponseRole.Decline] = declinePlayerColor;
-    return Request(
-      moveIndex: requestData['chessMove'],
-      playerResponse: playerResponse,
-      requestType: RequestType.values[requestData['requestType']],
-    );
-  }
-
-  Player _rebaseOnePlayer({playerData, userData}) {
-    // input: takes player Converted Data of One Player as Input
-    // output: returns a Player Model with the Given Data
-    return new Player(
-      isOnline: userData['isPlaying'],
-      playerColor: PlayerColor.values[playerData['playerColor']],
-      remainingTime: playerData['remainingTime'],
-      user: new User(
-        id: userData['_id'],
-        score: userData['score'],
-        userName: userData['userName'],
-      ),
-    );
-  }
-
-  ChessMove _rebaseOneMove(moveData) {
-    // input : receive Move Data,
-    // output : return Chess Move Model
-    return ChessMove(
-      initialTile: moveData['initialTile'],
-      nextTile: moveData['nextTile'],
-      remainingTime: moveData['remainingTime'],
-    );
-  }
-
-  void _validation(data) {
-    // input: receives a bool as decoded JSON Object __> mainly res.json(valid)
-    // output : Return whether this bool is true or false
-    // Checks whether Data was even recieved
-    if (data == null) {
-      throw ('No Data was received ... Data is equal to NULL');
-    }
-    // cheks whether Data is Valid. If validis not true Error was thrown on Server
-    if (data['valid'] == false || data['valid'] == null) {
-      throw ('validation did not succeed ... thsi is the Error Message: ...' +
-          data['message']);
-    }
-    print('validation finished , was succesfull');
-  }
-
-  List<Player> _connectUserPlayerData({users, player}) {
-    // input: get a Player JSON Object and a User JSON Object
-    // output: return a Player model where User and Player are asigned
-    List<Player> convPlayer = [];
-    player.forEach((p) {
-      print(p);
-      final user =
-          users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
-      // returns user object where player-userId and user.id are qual
-      convPlayer.add(_rebaseOnePlayer(
-        playerData: p,
-        userData: user,
-      ));
-    });
-    // return List of Player.
-    return convPlayer;
-  }
-
-  Game _createGameWithOptions(gameOptions) {
-    // input: takes JSOON Game Options as Input
-    // output: returns a game Model where Game options are set already
-    return new Game(
-      increment: gameOptions['increment'],
-      isPublic: gameOptions['isPublic'],
-      isRated: gameOptions['isRated'],
-      negRatingRange: gameOptions['negRatingRange'],
-      posRatingRange: gameOptions['posRatingRange'],
-      time: gameOptions['time'],
-    );
-  }
-
-  _printEverything(Game game, Player player, List<Game> games) {
-    print('###################################');
-    if (game != null) {
-      print('Game:----------------------------');
-      print('=================================');
-      print('id:         ' + game.id.toString());
-      print('didStart:   ' + game.didStart.toString());
-      print('----------------------------------');
-      print('options: --------------------------   ');
-      print(' -> increment:       ' + game.increment.toString());
-      print(' -> time:            ' + game.time.toString());
-      print(' -> negratingRange:  ' + game.negRatingRange.toString());
-      print(' -> posRatingrange:  ' + game.posRatingRange.toString());
-      print(' -> isPublic:        ' + game.isPublic.toString());
-      print(' -> isRated:         ' + game.isRated.toString());
-      print('---------------------------------');
-      print('player:--------------------------');
-      game.player.forEach((e) {
-        print(' -> playerColor:     ' + e.playerColor.toString());
-        print(' -> remainingTime:   ' + e.remainingTime.toString());
-        print(' -> user:-----------------------');
-        print('     - id:               ' + e.user.id.toString());
-        print('     - userName:         ' + e.user.userName.toString());
-        print('     - score:            ' + e.user.score.toString());
-      });
-      print('Chess Moves:-----------------------');
-      game.chessMoves.forEach((m) {
-        print('one move:-------------------------');
-        print(' -> initialTile:     ' + m.initialTile);
-        print(' -> nextTile:        ' + m.nextTile);
-        print(' -> remainingTime:   ' + m.remainingTime.toString());
-      });
-    }
-    print('==================================');
-    print('This Player:----------------------');
-    print('playerColor:     ' + player.playerColor.toString());
-    print('remainingTime:   ' + player.remainingTime.toString());
-    print('----------------------------------');
-    print('user:------------------------------');
-    print(' -> id:          ' + player.user.id.toString());
-    print(' -> userName:    ' + player.user.userName.toString());
-    print(' -> score:       ' + player.user.score.toString());
-    print(' -> email:       ' + player.user.email.toString());
-    print('===================================');
-    if (games.isNotEmpty) {
-      print('games:----------------------------');
-      for (game in games) {
-        print('a game:-------------------------');
-        print(' -> id:        ' + game.id.toString());
-        print(' -> isRated:   ' + game.isRated.toString());
-        print('--------------------------------');
-      }
-    }
-    print('#####################################');
   }
 }

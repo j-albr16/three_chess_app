@@ -62,260 +62,123 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
             height: 20,
           ),
           Container(
-            // height: size.height * 0.5,
-            width: size.width * 0.6,
-            padding: EdgeInsets.all(25),
-            margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(
-                color: Colors.black45, borderRadius: BorderRadius.circular(7)),
-            child: Column(children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(isPublic ? 'Public' : 'Private',
-                      style: TextStyle(color: Colors.white)),
-                  Switch(
-                    onChanged: (value) {
-                      setState(() {
-                        isPublic = value;
-                      });
-                    },
-                    value: isPublic,
+              // height: size.height * 0.5,
+              width: size.width * 0.6,
+              padding: EdgeInsets.all(25),
+              margin: EdgeInsets.all(13),
+              decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(7)),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(isPublic ? 'Public' : 'Private',
+                          style: TextStyle(color: Colors.white)),
+                      Switch(
+                        onChanged: (value) {
+                          setState(() {
+                            isPublic = value;
+                          });
+                        },
+                        value: isPublic,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Divider(
-                color: Colors.white,
-                thickness: 0.5,
-              ),
-              Text('Time', style: TextStyle(color: Colors.white)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(Icons.access_time, color: Colors.white),
-                  SizedBox(
-                    width: size.width * 0.4,
-                    child: Slider(
-                      value: _totalTime,
-                      min: 1,
-                      max: 50,
-                      divisions: 100,
-                      label: totalTime.toStringAsFixed(1),
-                      onChanged: (double value) {
-                        setState(() {
-                          _totalTime = value;
-                        });
-                      },
-                    ),
-                  ),
-                  Text(_totalTime.toStringAsFixed(1),
-                      style: TextStyle(color: Colors.white)),
-                ],
-              ),
-              Text('Increment', style: TextStyle(color: Colors.white)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(
-                    Icons.add_alarm_outlined,
+                  Divider(
                     color: Colors.white,
-                  ),
-                  SizedBox(
-                    width: size.width * 0.4,
-                    child: Slider(
-                      value: _increment,
-                      min: 0,
-                      max: 25,
-                      divisions: 50,
-                      label: increment.toStringAsFixed(1),
-                      onChanged: (double value) {
-                        setState(() {
-                          _increment = value;
-                        });
-                      },
-                    ),
+                    thickness: 0.5,
                   ),
                   Text(increment.toStringAsFixed(1),
                       style: TextStyle(color: Colors.white)),
                 ],
-              ),
-              Divider(
-                color: Colors.white,
-                thickness: 0.5,
-              ),
-              ButtonBar(
-                alignment: MainAxisAlignment.center,
-                children: [
-                  FlatButton(
-                    padding: EdgeInsets.all(25),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    color: isRated ? Colors.blueAccent : Colors.black45,
-                    onPressed: () {
-                      setState(() {
-                        isRated = true;
-                      });
-                    },
-                    child: Text(
-                      'Public',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  FlatButton(
-                    padding: EdgeInsets.all(25),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    color: !isRated ? Colors.blueAccent : Colors.black45,
-                    onPressed: () {
-                      setState(() {
-                        isRated = false;
-                      });
-                    },
-                    child: Text(
-                      'Casual',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              Divider(
-                thickness: 0.5,
-                color: Colors.white,
-                // indent: 1000,
+              )),
+          Divider(
+            color: Colors.white,
+            thickness: 0.5,
+          ),
+          
+          Divider(
+            thickness: 0.5,
+            color: Colors.white,
+            // indent: 1000,
+          ),
+          Text(
+            'Rating Range',
+            style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: size.width * 0.2,
+                child: Slider(
+                  value: _negDeviation,
+                  min: -500,
+                  max: 0,
+                  divisions: 500,
+                  label: negDeviation.toStringAsFixed(0),
+                  onChanged: (double value) {
+                    setState(() {
+                      _negDeviation = value;
+                    });
+                  },
+                ),
               ),
               Text(
-                'Rating Range',
-                style: TextStyle(color: Colors.white),
+                negDeviation.toStringAsFixed(0) +
+                    '   /   ' +
+                    posDeviation.toStringAsFixed(0),
+                style: TextStyle(
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: size.width * 0.2,
-                    child: Slider(
-                      value: _negDeviation,
-                      min: -500,
-                      max: 0,
-                      divisions: 500,
-                      label: negDeviation.toStringAsFixed(0),
-                      onChanged: (double value) {
-                        setState(() {
-                          _negDeviation = value;
-                        });
-                      },
-                    ),
-                  ),
-                  Text(
-                    negDeviation.toStringAsFixed(0) +
-                        '   /   ' +
-                        posDeviation.toStringAsFixed(0),
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    width: size.width * 0.2,
-                    child: Slider(
-                      value: _posDeviation,
-                      min: 0,
-                      max: 500,
-                      divisions: 500,
-                      label: posDeviation.toStringAsFixed(0),
-                      onChanged: (double value) {
-                        setState(() {
-                          _posDeviation = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Divider(
-                color: Colors.white,
-                thickness: 0.5,
-              ),
-              FlatButton(
-                child:
-                    Text('Create Game', style: TextStyle(color: Colors.white)),
-                color: Colors.blue,
-                onPressed: () {
-                  Provider.of<GameProvider>(context, listen: false).createGame(
-                    increment: increment,
-                    isPublic: isPublic,
-                    isRated: isRated,
-                    negDeviation: negDeviation,
-                    posDeviation: posDeviation,
-                    time: totalTime,
-                  );
-                  // return Navigator.of(context).pushNamed(GameTestScreen.routeName);
-                  //print('Game was created');
-                },
-                minWidth: 100,
-                padding: EdgeInsets.all(25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
+              SizedBox(
+                width: size.width * 0.2,
+                child: Slider(
+                  value: _posDeviation,
+                  min: 0,
+                  max: 500,
+                  divisions: 500,
+                  label: posDeviation.toStringAsFixed(0),
+                  onChanged: (double value) {
+                    setState(() {
+                      _posDeviation = value;
+                    });
+                  },
                 ),
               ),
-              // TODO: remove Test Button
-              FlatButton(
-                child: Text('Fetch Game and Fetch Games',
-                    style: TextStyle(color: Colors.white)),
-                color: Colors.blue,
-                onPressed: () {
-                  print('clicked Button');
-                  Provider.of<GameProvider>(context, listen: false).fetchAll();
-                  //print('Game was created');
-                },
-                minWidth: 100,
-                padding: EdgeInsets.all(25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-              // TODO: remove Test Button
-              FlatButton(
-                child: Text('join Jans Game',
-                    style: TextStyle(color: Colors.white)),
-                color: Colors.blue,
-                onPressed: () {
-                  print('clicked Button');
-                  Provider.of<GameProvider>(context, listen: false)
-                      .joinGame('5fa27c3ceef24445347a5505');
-                  //print('Game was created');
-                },
-                minWidth: 100,
-                padding: EdgeInsets.all(25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-              // TODO: remove Test Button
-              FlatButton(
-                child: Text('Make chess Move',
-                    style: TextStyle(color: Colors.white)),
-                color: Colors.blue,
-                onPressed: () {
-                  print('clicked Button');
-                  Provider.of<GameProvider>(context, listen: false)
-                      .sendMove(new ChessMove(
-                    initialTile: 'A2',
-                    nextTile: 'A4',
-                    remainingTime: 30,
-                  ));
-                  //print('Game was created');
-                },
-                minWidth: 100,
-                padding: EdgeInsets.all(25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-            ]),
+            ],
           ),
+          Divider(
+            color: Colors.white,
+            thickness: 0.5,
+          ),
+          FlatButton(
+            child: Text('Create Game', style: TextStyle(color: Colors.white)),
+            color: Colors.blue,
+            onPressed: () {
+              Provider.of<GameProvider>(context, listen: false).createGame(
+                increment: increment,
+                isPublic: isPublic,
+                isRated: isRated,
+                negDeviation: negDeviation,
+                posDeviation: posDeviation,
+                time: totalTime,
+              );
+              // return Navigator.of(context).pushNamed(GameTestScreen.routeName);
+              //print('Game was created');
+            },
+            minWidth: 100,
+            padding: EdgeInsets.all(25),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+            ),
+          ),
+          // TODO: remove Test Button
         ]),
       ),
     );

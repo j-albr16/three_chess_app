@@ -1,9 +1,13 @@
 import 'package:provider/provider.dart';
+import 'package:three_chess/conversion/chat_conversion.dart';
 import '../models/friend.dart';
 import 'package:flutter/foundation.dart';
+import '../models/game.dart';
 import '../providers/server_provider.dart';
 import '../models/user.dart';
+import '../conversion/game_conversion.dart';
 import '../providers/chat_provider.dart';
+import '../conversion/friend_conversion.dart';
 
 class FriendsProvider with ChangeNotifier {
   List<Friend> _friends = [];
@@ -20,6 +24,13 @@ class FriendsProvider with ChangeNotifier {
   List<Friend> get pendingFriends {
     return [..._pendingFriends];
   }
+  List<Game> _invitations = [];
+
+  List<Game> get invitations {
+    return [..._invitations];
+  }
+
+
 
   void update({friends, serverProvider, chatProvider}) {
     print('Update');
@@ -46,6 +57,7 @@ class FriendsProvider with ChangeNotifier {
       friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
       friendIsNotPlayingCallback: (userId) => _handleFriendIsNotPlaying(userId),
       friendIsPlayingCallback: (userId) => _handleFriendIsPlaying(userId),
+      gameInvitationCallback: (gameData) => _handleGameInvitation(gameData),
     );
   }
 
@@ -56,13 +68,27 @@ class FriendsProvider with ChangeNotifier {
       final Map<String, dynamic> data = await _serverProvider.fetchFriends();
       // destinguish between friends whoare accepted and those who are not
       data['friends'].forEach((friend) =>
-          _friends.add(_matchChatIdAndFriend(friend, data['chats'])));
+          _friends.add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
       data['pendingFriends'].forEach((pendingFriend) => _pendingFriends
-          .add(_matchChatIdAndFriend(pendingFriend, data['chats'])));
+          .add(FriendConversion.matchChatIdAndFriend(pendingFriend, data['chats'])));
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Friends', error);
     }
+  }
+Future<void> fetchInvitations() async {
+    try{
+      final Map<String, dynamic> data = await _serverProvider.fetchInvitations();
+      data['games'].forEach((gameData) {
+        final playerData = data['player'].firstWhere((player) => player['gameId'] == gameData['_id'], orElse : () => null);
+        final userData = data['user'].firstWhere((user) => user['gameId'] == gameData['_id'], orElse : ()  => null);
+        _invitations.add(GameConversion.rebaseLobbyGame(gameData: gameData, playerData: playerData, userData: userData));
+        GameConversion.printEverything(null, null, _invitations);
+        notifyListeners();
+      });
+    }catch(error){
+      _serverProvider.handleError('Error while fetching Invitations', error);
+    };
   }
 
   Future<void> makeFriendRequest(String userName) async {
@@ -70,7 +96,7 @@ class FriendsProvider with ChangeNotifier {
       final Map<String, dynamic> data =
           await _serverProvider.sendFriendRequest(userName);
       // add _frinds =>  but until acceptance not accepted
-      _pendingFriends.add(_rebaseOneFriend(data['friend'], data['chatId']));
+      _pendingFriends.add(FriendConversion.rebaseOneFriend(data['friend'], data['chatId']));
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Erorr while Making Friend Request', error);
@@ -121,9 +147,14 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 
+  void _handleGameInvitation(Map<String, dynamic> gameData){
+    _invitations.add(GameConversion.rebaseWholeGame(gameData));
+    notifyListeners();
+  }
+
   void _handleFriendRequest(Map<String, dynamic> friendData, String chatId) {
     // add new Friend to _friends
-    _pendingFriends.add(_rebaseOneFriend(friendData, chatId));
+    _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData, chatId));
     notifyListeners();
   }
 
@@ -184,24 +215,4 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Friend _matchChatIdAndFriend(Map<String, dynamic> friendData, chatData) {
-    final chat = chatData.firstWhere(
-        (c) => c['user'].contains(friendData['_id']) as bool,
-        orElse: () => throw ('Chat and Friend Dont Match'));
-    return _rebaseOneFriend(friendData, chat['_id']);
-  }
-
-  Friend _rebaseOneFriend(Map<String, dynamic> friendData, String chatId) {
-    bool isPlaying = friendData['gameId'] != null;
-    return new Friend(
-      isPlaying: isPlaying,
-      isOnline: friendData['isOnline'],
-      chatId: chatId,
-      user: new User(
-        id: friendData['_id'],
-        score: friendData['score'],
-        userName: friendData['userName'],
-      ),
-    );
-  }
 }

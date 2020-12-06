@@ -141,7 +141,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
          print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");
-            if (widget.boardState.selectedMove == widget.boardState.chessMoves.length -1) {
+            print(widget.boardState.selectedMove.toString());
+            if (widget.boardState.selectedMove == widget.boardState.chessMoves.length -1 || widget.boardState.selectedMove == null) {
               highlighted = MapEntry(whatsHit, ThinkingBoard.getLegalMove(whatsHit, widget.boardState));
               draggedPiece = whatsHit;
               startingOffset = details.localPosition;

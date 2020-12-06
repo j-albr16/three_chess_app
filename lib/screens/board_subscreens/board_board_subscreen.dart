@@ -22,13 +22,13 @@ class BoardBoardSubScreen extends StatelessWidget {
   BoardBoardSubScreen({this.boardState});
 
   _moveLeft(){
-    if(boardState.selectedMove > 0){
+    if(boardState.chessMoves.length > 0 && boardState.selectedMove > 0){
       boardState.selectedMove -= 1;
     }
   }
 
   _moveRight(){
-    if(boardState.selectedMove < boardState.chessMoves.length - 1){
+    if(boardState.chessMoves.length > 0 && boardState.selectedMove < boardState.chessMoves.length - 1){
       boardState.selectedMove += 1;
     }
 

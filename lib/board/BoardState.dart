@@ -29,7 +29,7 @@ class BoardState{
   }
 
   Map<String, Piece> get selectedPieces{
-    return subStates[selectedMove].pieces;
+    return selectedMove == null ? pieces : subStates[selectedMove].pieces;
   }
 
   BoardState() {
@@ -41,7 +41,6 @@ class BoardState{
   }
 
   BoardState._takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves, this.subStates, int selectedMove}){
-    _selectedMove = selectedMove ?? chessMoves.length;
   }
 
   BoardState.generate({this.chessMoves}){
@@ -49,7 +48,7 @@ class BoardState{
     pieces = {};
     enpassent = {};
     subStates = [];
-    selectedMove = chessMoves.length - 1;
+    _newGame();
     for(ChessMove chessMove in chessMoves){
       movePieceTo(chessMove.initialTile, chessMove.nextTile);
     }
@@ -435,10 +434,12 @@ class BoardState{
         playerColor: PlayerColor.red,
         position: 'L12',
       ),
-      //#endregion
+      //#endregions
       //#endregion
     ].forEach((piece) {pieces[piece.position] = piece;});
         enpassent = {};
+    subStates = [];
+    subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
     chessMoves = [];
     infoChessMoves = [];
   }

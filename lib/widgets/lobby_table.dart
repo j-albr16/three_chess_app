@@ -260,7 +260,12 @@ class _LobbyTableState extends State<LobbyTable> {
               (game.time % 60).toString() +
               " + " +
               game.increment.toString())),
-      ColumnType.Mode: (Game game) => Center(child: Text(game.isRated ? "Rated" : "Unrated")),
+      ColumnType.Mode: (Game game) => Center(child: Column(
+        children: [
+          if(game.allowPremades)Icon(Icons.group_add, color: Colors.orange,),
+          Text(game.isRated ? "Rated" : "Unrated"),
+        ],
+      )),
       ColumnType.Fullness: (Game game) => Center(child: Text(game.player.length.toString() + "/3")),
     };
   }

@@ -28,7 +28,8 @@ class ChessSlider extends StatelessWidget {
           children: [
             Icon(Icons.access_time, color: Colors.black),
             SizedBox(
-              width: size.width,
+              width: size.width * 0.7,
+              height: size.height,
               child: Slider(
                 value: totalValue,
                 min: min,

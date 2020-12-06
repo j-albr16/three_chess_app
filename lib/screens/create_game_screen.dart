@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 
 import '../providers/game_provider.dart';
 import '../models/chess_move.dart';
+import '../widgets/create_game.dart';
 import './game_provider_test_screen.dart';
 
+  typedef CreateGameCallback({int increment, int time, int posRatingRange, int negRatingRange, bool isPrivate, bool isRated, bool allowPremades});
 class CreateGameScreen extends StatefulWidget {
   static const routeName = '/create-screen';
 
@@ -15,155 +17,166 @@ class CreateGameScreen extends StatefulWidget {
 }
 
 class _CreateGameScreenState extends State<CreateGameScreen> {
-  bool isPublic = true;
-  bool isRated = true;
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero).then((_) =>
+        _gameProvider = Provider.of<GameProvider>(context, listen: false));
+  }
 
-  double _totalTime = 5;
-  int get totalTime => _totalTime.round();
-  double _increment = 2;
-  int get increment => _increment.round();
+  GameProvider _gameProvider;
 
-  double _negDeviation = -100;
-  int get negDeviation => _negDeviation.round();
+  Size size;
 
-  double _posDeviation = 100;
-  int get posDeviation => _posDeviation.round();
+// is Private vars
+  bool isPrivate = false;
+  Function updateIsPrivate(bool value) {
+    setState(() {
+      isPrivate = value;
+    });
+  }
 
+//allow Premade vars
+  bool allowPremades = true;
+  Function updateAllowPremades(bool value) {
+    setState(() {
+      allowPremades = value;
+    });
+  }
+
+// is Public Button Bar (Switch)
+  Function updateButtonBarData(int index) {
+    setState(() {
+      currentPublicitySelection = index;
+    });
+  }
+
+  int currentPublicitySelection = 0;
+
+// player Color Selection
+  Function updatePlayerColorSelection(int index) {
+    setState(() {
+      playerColorSelection = index;
+    });
+  }
+
+  int playerColorSelection = 4;
+
+  // time Slider
+  double time = 10;
+  double timeMin = 0;
+  double timeMax = 50;
+  Function updateTime(double value) {
+    setState(() {
+      time = value;
+    });
+  }
+
+  int timeDivisions = 100;
+
+  // increment Slider
+  double increment = 3;
+  double incrementMin = 0;
+  double incrementMax = 10;
+  int incrementDivisions = 10;
+  Function updateIncrement(double value) {
+    setState(() {
+      increment = value;
+    });
+  }
+
+  // Rating Range
+  double posRatingRange = 100;
+  double posratingRangeMin = 0;
+  double posRatingRangeMax = 1000;
+  int posRatingRangeDivisions = 1000;
+  Function updatePosRatingRange(double value) {
+    setState(() {
+      posRatingRange = value;
+    });
+  }
+
+  double negRatingRange = -100;
+  double negRatingRangeMin = 0;
+  double negRatingRangeMax = 1000;
+  int negRatingRangeDivisions = 1000;
+  Function updateNegRatingRange(double value) {
+    setState(() {
+      negRatingRange = -value;
+    });
+  }
+
+// finish Buttons
+  CreateGameCallback createGame(
+      {increment,
+      time,
+      isRated,
+      isPrivate,
+      negRatingRange,
+      posRatingRange,
+      allowPremades}) {
+    _gameProvider.createGame(
+      increment: increment,
+      time: time,
+      isPublic: !isPrivate,
+      isRated: isRated,
+      negDeviation: negRatingRange,
+      posDeviation: posRatingRange,
+      allowPremades: allowPremades,
+    );
+    Navigator.of(context).pop();
+  }
+
+  Function cancelCreateGame(){
+    Navigator.of(context).pop();
+  }
   @override
   Widget build(BuildContext context) {
-    // print(_negDeviation);
-    // print(negDeviation);
-    final Size size = MediaQuery.of(context).size;
-    // final args = ModalRoute.of(context).settings.arguments;
+    size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Game'),
       ),
-      body: Container(
-        width: size.width,
-        height: size.height,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/auth-image.jpg'),
-            fit: BoxFit.cover,
-          ),
+      body: CreateGame(
+        allowPremades: allowPremades,
+        cancelCreateGame: () => cancelCreateGame(),
+        createGame: () => createGame(
+          allowPremades: allowPremades,
+          increment: increment,
+          isPrivate: isPrivate,
+          isRated: isPrivate,
+          negRatingRange: negRatingRange,
+          posRatingRange: posRatingRange,
+          time: time,
         ),
-        child: Column(children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Text(
-              'Create a new Game',
-              style: TextStyle(color: Colors.white),
-            ),
-            margin: EdgeInsets.all(13),
-            decoration: BoxDecoration(color: Colors.black45),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-              // height: size.height * 0.5,
-              width: size.width * 0.6,
-              padding: EdgeInsets.all(25),
-              margin: EdgeInsets.all(13),
-              decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(7)),
-              child: Column(
-                children: <Widget>[
-                  
-                  Divider(
-                    color: Colors.white,
-                    thickness: 0.5,
-                  ),
-                ],
-              )),
-          Divider(
-            color: Colors.white,
-            thickness: 0.5,
-          ),
-          
-          Divider(
-            thickness: 0.5,
-            color: Colors.white,
-            // indent: 1000,
-          ),
-          Text(
-            'Rating Range',
-            style: TextStyle(color: Colors.white),
-            textAlign: TextAlign.center,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                width: size.width * 0.2,
-                child: Slider(
-                  value: _negDeviation,
-                  min: -500,
-                  max: 0,
-                  divisions: 500,
-                  label: negDeviation.toStringAsFixed(0),
-                  onChanged: (double value) {
-                    setState(() {
-                      _negDeviation = value;
-                    });
-                  },
-                ),
-              ),
-              Text(
-                negDeviation.toStringAsFixed(0) +
-                    '   /   ' +
-                    posDeviation.toStringAsFixed(0),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                width: size.width * 0.2,
-                child: Slider(
-                  value: _posDeviation,
-                  min: 0,
-                  max: 500,
-                  divisions: 500,
-                  label: posDeviation.toStringAsFixed(0),
-                  onChanged: (double value) {
-                    setState(() {
-                      _posDeviation = value;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          Divider(
-            color: Colors.white,
-            thickness: 0.5,
-          ),
-          FlatButton(
-            child: Text('Create Game', style: TextStyle(color: Colors.white)),
-            color: Colors.blue,
-            onPressed: () {
-              Provider.of<GameProvider>(context, listen: false).createGame(
-                increment: increment,
-                isPublic: isPublic,
-                isRated: isRated,
-                negDeviation: negDeviation,
-                posDeviation: posDeviation,
-                time: totalTime,
-              );
-              // return Navigator.of(context).pushNamed(GameTestScreen.routeName);
-              //print('Game was created');
-            },
-            minWidth: 100,
-            padding: EdgeInsets.all(25),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(7),
-            ),
-          ),
-          // TODO: remove Test Button
-        ]),
+        currentPublicitySelection: currentPublicitySelection,
+        increment: increment,
+        incrementDivisions: incrementDivisions,
+        incrementMax: incrementMax,
+        incrementMin: incrementMin,
+         isPublic: isPublic,
+        negRatingRange: negRatingRange,
+        negRatingRangeDivisions: negRatingRangeDivisions,
+        negRatingRangeMax: negRatingRangeMax,
+        negratingRangeMin: negRatingRangeMin,
+        playerColorSelection: playerColorSelection,
+        posRatingRange: posRatingRangeMax,
+        posRatingRangeDivisions: posRatingRangeDivisions,
+        posRatingRangeMax: posRatingRangeMax,
+        posratingRangeMin: posRatingRangeMax,
+        size: size,
+        time: time,
+        timeDivisions: timeDivisions,
+        timeMax: timeMax,
+        timeMin: timeMin,
+        updateAllowPremades: (bool value)  => updateAllowPremades(value),
+        updateButtonBarData: (int index) => updateButtonBarData(index),
+        updateIncrement: (double value) => updateIncrement(value),
+        updateIsPrivate: (bool value) => updateIsPrivate(value),
+        updateNegRatingRange: (double value) => updateNegRatingRange(value),
+        updatePlayerColorSelection: (int index) => updatePlayerColorSelection(index),
+        updatePosRatingRange: (double value) => updatePosRatingRange(value),
+        updateTime: (double value) => updateTime(value),
       ),
     );
   }

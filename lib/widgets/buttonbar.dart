@@ -11,7 +11,7 @@ class ChessButtonBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonBar(
         buttonHeight: size.height,
-        buttonMinWidth: size.width,
+        buttonMinWidth: size.width * 0.7 / buttonBarData.length,
         buttonPadding: EdgeInsets.all(25),
         alignment: MainAxisAlignment.center,
         children: buttonBarData.asMap().entries.map((label) {

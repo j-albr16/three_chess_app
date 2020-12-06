@@ -133,10 +133,12 @@ class GameProvider with ChangeNotifier {
       bool isRated,
       int increment,
       int time,
+      bool allowPremades,
       int negDeviation,
       int posDeviation}) async {
     try {
       final Map<String, dynamic> data = await _serverProvider.createGame(
+        allowPremades : allowPremades,
         isPublic: isPublic,
         increment: increment,
         isRated: isRated,

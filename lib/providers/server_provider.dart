@@ -405,6 +405,7 @@ class ServerProvider with ChangeNotifier {
       bool isRated,
       int increment,
       int time,
+      bool allowPremades,
       int negDeviation,
       int posDeviation}) async {
     // input: Takes all game Options as input
@@ -420,6 +421,7 @@ class ServerProvider with ChangeNotifier {
         'isPublic': isPublic,
         'isRated': isRated,
         'increment': increment,
+        'allowPremades': allowPremades,
         'time': time,
         'negRatingRange': negRatingRange,
         'posRatingRange': posRatingRange,

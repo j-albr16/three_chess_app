@@ -71,27 +71,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   borderRadius: BorderRadius.circular(7)),
               child: Column(
                 children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(isPublic ? 'Public' : 'Private',
-                          style: TextStyle(color: Colors.white)),
-                      Switch(
-                        onChanged: (value) {
-                          setState(() {
-                            isPublic = value;
-                          });
-                        },
-                        value: isPublic,
-                      ),
-                    ],
-                  ),
+                  
                   Divider(
                     color: Colors.white,
                     thickness: 0.5,
                   ),
-                  Text(increment.toStringAsFixed(1),
-                      style: TextStyle(color: Colors.white)),
                 ],
               )),
           Divider(

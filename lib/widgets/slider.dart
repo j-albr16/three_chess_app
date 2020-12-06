@@ -5,6 +5,18 @@ class ChessSlider extends StatelessWidget {
   double totalValue;
   Function updateValue;
   String title;
+  double min;
+  double max;
+  int divisions;
+
+  ChessSlider(
+      {this.size,
+      this.divisions,
+      this.max,
+      this.min,
+      this.totalValue,
+      this.title,
+      this.updateValue});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +28,12 @@ class ChessSlider extends StatelessWidget {
           children: [
             Icon(Icons.access_time, color: Colors.black),
             SizedBox(
-              width: size.width * 0.4,
+              width: size.width,
               child: Slider(
                 value: totalValue,
-                min: 1,
-                max: 50,
-                divisions: 100,
+                min: min,
+                max: max,
+                divisions: divisions,
                 label: totalValue.toStringAsFixed(1),
                 onChanged: (double value) => updateValue(value),
               ),

@@ -24,8 +24,10 @@ class Game {
   int posRatingRange;
   int negRatingRange;
   List<Request> requests;
+  bool allowPremades;
 
   Game({
+    this.allowPremades,
     this.player,
     this.finishedGameData,
     this.chessMoves,

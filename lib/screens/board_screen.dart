@@ -39,11 +39,13 @@ class _BoardScreenState extends State<BoardScreen> {
   double gameTableHeightFraction = 0.7;
   double chatScreenHeight = 0;
   double voteHeightFraction = 0.1;
+  GameProvider gameProvider;
 
   @override
   void initState() {
     boardState = BoardState();
     controller = ScrollController();
+    Future.delayed(Duration.zero).then((_) => gameProvider = Provider.of(context, listen: false));
 
     // threeChessBoard = ThreeChessBoard(
     //     boardState: BoardState.newGame(), height: 1000, width: 1000);
@@ -116,19 +118,22 @@ class _BoardScreenState extends State<BoardScreen> {
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
 
 
-    //TODO JAN SET FUNCTIONS FOR REQUEST VOTE
-    Map<RequestType, Function> onAccept = {
-      RequestType.TakeBack: () => null,
-      RequestType.Remi: () => null,
-      RequestType.Surrender: () => null,
-    };
-
-    Map<RequestType, Function> onDecline = {
-      RequestType.TakeBack: () => null,
-      RequestType.Remi: () => null,
-      RequestType.Surrender: () => null,
-    };
-
+Function getOnAccept(RequestType requestType){
+  Map<RequestType, Function> onAccept = {
+    RequestType.Surrender :() =>  gameProvider.acceptSurrender(),
+    RequestType.Remi : ()  => gameProvider.acceptRemi(),
+    RequestType.TakeBack : () => gameProvider.acceptTakeBack(),
+  };
+  return onAccept[requestType];
+}
+Function getOnDecline(RequestType requestType){
+  Map<RequestType, Function> onDecline= {
+    RequestType.Surrender : () => gameProvider.declineSurrender(),
+    RequestType.Remi : ()  => gameProvider.declineRemi(),
+    RequestType.TakeBack : ()  => gameProvider.declineTakeBack(),
+  };
+  return onDecline[requestType];
+}
 
     return RelativeBuilder(
 
@@ -155,8 +160,8 @@ class _BoardScreenState extends State<BoardScreen> {
           height: screenHeight * voteHeightFraction,
           requestType: request.requestType,
           whosAsking: request.playerResponse[ResponseRole.Create],
-          onAccept: () => onAccept[request.requestType],
-          onDecline: () => onDecline[request.requestType],
+          onAccept: () => getOnAccept(request.requestType),
+          onDecline: () => getOnDecline(request.requestType),
           movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
         ));});
         _subScreens = [

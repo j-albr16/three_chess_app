@@ -17,6 +17,7 @@ import '../../widgets/board_boarding_widgets.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
+import '../../providers/game_provider.dart';
 
 class TableBoardSubScreen extends StatefulWidget {
   final BoardState boardState;
@@ -30,6 +31,25 @@ class TableBoardSubScreen extends StatefulWidget {
 }
 
 class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
+
+Function getOnRequest(RequestType requestType){
+Map<RequestType, Function> onRequest = {
+    RequestType.Surrender : () => gameProvider.requestSurrender(),
+    RequestType.Remi :() =>  gameProvider.requestRemi(),
+    RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
+  };
+  return onRequest[requestType];
+}
+
+GameProvider gameProvider;
+
+@override
+void initState() { 
+  super.initState();
+  Future.delayed(Duration.zero).then((_) => gameProvider = Provider.of<GameProvider>(context, listen : false));
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +73,7 @@ class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
           setState(() {
             pendingActions.add(requestType);
             confirmation = null;
+            getOnRequest(requestType);
           });
         },
         onRequestCancel: (cancelPending) {
@@ -64,8 +85,9 @@ class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
         pendingActions: pendingActions,
       );
     });
-}
+  }
 RequestType confirmation;
 List<RequestType> pendingActions = [];
   }
+   
 

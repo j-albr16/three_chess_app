@@ -24,21 +24,32 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   void initState() {
-
     super.initState();
   }
 
-  Widget getButton(Text text, {double height, double width, Color color = Colors.deepPurpleAccent}){
-
-    return Card(
+  Widget getButton(Text text,
+      {double height, double width, Color color = Colors.deepPurpleAccent, Function onTap}) {
+    onTap ??= () => print("noFunctionGiven");
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
         child: Container(
           height: height,
           width: width,
-        padding: EdgeInsets.symmetric(horizontal: width * 0.1, vertical: height * 0.05),
-    color: color,
-    child: FittedBox(child: text),
-    ),
+          padding: EdgeInsets.symmetric(
+              horizontal: width * 0.1, vertical: height * 0.05),
+          color: color,
+          child: FittedBox(child: text),
+        ),
+      ),
     );
+  }
+
+  _createGameTap(List<int> timeAndIncrement){
+    assert(timeAndIncrement.length == 2);
+    int timeInMinutes = timeAndIncrement[0];
+    int incrementInSeconds = timeAndIncrement[1];
+    //TODO need to create a game with the given time and increment (public, rated)
   }
 
   @override
@@ -116,10 +127,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             children: column
                                 .map(
                                   (child) => getButton(
-                                      Text(child.value + " ${child.key[0]} + ${child.key[1]}"),
-                                    width: screenWidth * 0.3,
-                                      height: screenHeight * 0.08
-                                  ),
+                                      Text(child.value +
+                                          " ${child.key[0]} + ${child.key[1]}"),
+                                      width: screenWidth * 0.3,
+                                      height: screenHeight * 0.08,
+                                  onTap: _createGameTap(child.key),),
                                 )
                                 .toList(),
                           ))
@@ -133,14 +145,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   getButton(Text("Find a Game like"),
                       height: screenHeight * 0.08,
                       width: screenWidth * 0.4,
-                      color: Colors.deepPurple
-                  ),
-                  Container(width: screenWidth * 0.15, color: Colors.transparent),
+                      color: Colors.deepPurple),
+                  Container(
+                      width: screenWidth * 0.15, color: Colors.transparent),
                   getButton(Text("Find me this Game"),
                       height: screenHeight * 0.08,
                       width: screenWidth * 0.4,
-                      color: Colors.deepPurple
-                    ),
+                      color: Colors.deepPurple),
                 ],
               ),
             )

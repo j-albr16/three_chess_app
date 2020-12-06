@@ -141,9 +141,11 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
          print(whatsHit);
           _startAMove(){
             //print(ThinkingBoard.getLegalMove(whatsHit, widget.boardState).toString() + "THIS IS WHAT BOARD SETS");
-            highlighted = MapEntry(whatsHit, ThinkingBoard.getLegalMove(whatsHit, widget.boardState));
-            draggedPiece = whatsHit;
-            startingOffset = details.localPosition;
+            if (widget.boardState.selectedMove == widget.boardState.chessMoves.length -1) {
+              highlighted = MapEntry(whatsHit, ThinkingBoard.getLegalMove(whatsHit, widget.boardState));
+              draggedPiece = whatsHit;
+              startingOffset = details.localPosition;
+            }
           }
           PlayerColor pieceColor = widget.boardState.pieces[whatsHit]?.playerColor;
           //PlayerColor playingPlayer = PlayerColor.white;
@@ -211,7 +213,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
         },
 
         child: BoardPainter(
-          pieces: widget.boardState.pieces,
+          pieces: widget.boardState.selectedPieces,
           tiles: widget.tileKeeper.tiles,
           height: widget.height,
           width: widget.width,

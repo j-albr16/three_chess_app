@@ -16,30 +16,6 @@ class ThinkingBoard {
   static List<List<Direction>> _directionListKnight = [[Direction.left, Direction.top, Direction.top], [Direction.right, Direction.top, Direction.top], [Direction.top, Direction.left, Direction.left], [Direction.bottom, Direction.left, Direction.left], [Direction.left, Direction.bottom, Direction.bottom], [Direction.right, Direction.bottom, Direction.bottom], [Direction.top, Direction.right, Direction.right], [Direction.bottom, Direction.right, Direction.right]];
   static List<List<Direction>> _directionListKnight2 = [[Direction.top, Direction.top, Direction.left], [Direction.top, Direction.top, Direction.right], [Direction.left, Direction.left, Direction.top], [Direction.left, Direction.left, Direction.bottom], [Direction.bottom, Direction.bottom, Direction.left], [Direction.bottom, Direction.bottom, Direction.right], [Direction.right, Direction.right, Direction.top], [Direction.right, Direction.right, Direction.bottom]];
 
-  static BoardState copyBoardState(BoardState boardState) {
-    Map<String, Piece> virtualPieces = {};
-    Map<PlayerColor, String> virtualEnPassent = {};
-
-    for (MapEntry potEnPass in boardState.enpassent.entries) {
-      virtualEnPassent[potEnPass.key] = potEnPass.value;
-    }
-
-    for (Piece piece in boardState.pieces.values) {
-      virtualPieces[piece.position] = Piece(
-        pieceType: piece.pieceType,
-        playerColor: piece.playerColor,
-        position: piece.position,
-      );
-    }
-
-    return new BoardState.takeOver(
-      pieces: virtualPieces,
-      enpassent: virtualEnPassent,
-      chessMoves: [...boardState.chessMoves],
-      infoChessMoves: [...boardState.infoChessMoves],
-    );
-  }
-
   static List<String> getLegalMove(
       String selectedTile, BoardState boardState,) {
     if(selectedTile == null){
@@ -282,7 +258,7 @@ class ThinkingBoard {
     //print(result.toString());
     result.removeWhere((element) {
       bool resultRemove = false;
-      BoardState virtualState = copyBoardState(boardState);
+      BoardState virtualState = boardState.clone();
       virtualState.movePieceTo(piece.position, element);
 
       resultRemove = isCheck(piece.playerColor, virtualState);
@@ -309,7 +285,7 @@ class ThinkingBoard {
       for (Piece piece in boardState.pieces.values.where((element) => element.playerColor == toBeChecked).toList()) {
         for (String legalMove in getLegalMove(piece.position, boardState)) {
 
-          BoardState virtualState = copyBoardState(boardState);
+          BoardState virtualState = boardState.clone();
           virtualState.movePieceTo(piece.position, legalMove);
 
           if (!isCheck(toBeChecked, virtualState)) {

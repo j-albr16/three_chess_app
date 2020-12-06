@@ -21,6 +21,19 @@ class BoardBoardSubScreen extends StatelessWidget {
 
   BoardBoardSubScreen({this.boardState});
 
+  _moveLeft(){
+    if(boardState.selectedMove > 0){
+      boardState.selectedMove -= 1;
+    }
+  }
+
+  _moveRight(){
+    if(boardState.selectedMove < boardState.chessMoves.length - 1){
+      boardState.selectedMove += 1;
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     Player leftCorner;
@@ -81,7 +94,7 @@ class BoardBoardSubScreen extends StatelessWidget {
                             children: [
                               Align(
                                 alignment: Alignment.bottomLeft,
-                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed left"), borderWidth: 2, icon:
+                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveLeft(), borderWidth: 2, icon:
                                 Container(
                                     alignment: Alignment.bottomLeft,
                                     padding: EdgeInsets.only( bottom:10),
@@ -90,7 +103,7 @@ class BoardBoardSubScreen extends StatelessWidget {
                               Expanded(child: Container(color: Colors.transparent)),
                               Align(
                                 alignment: Alignment.bottomRight,
-                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => print("I pressed right"), borderWidth: 2, icon: Container(
+                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(), borderWidth: 2, icon: Container(
                                     alignment: Alignment.bottomRight,
                                     padding: EdgeInsets.only(bottom:10),
                                     child: FittedBox(child: Icon(Icons.arrow_right, size: 1000,))),),

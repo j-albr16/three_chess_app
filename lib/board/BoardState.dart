@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/data/board_data.dart';
 
@@ -10,10 +11,26 @@ import 'PieceMover.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
 class BoardState{
+  List<SubBoardState> subStates;
   Map<String, Piece> pieces;
   Map<PlayerColor, String> enpassent;
   List<ChessMove> chessMoves;
   List<ChessMoveInfo> infoChessMoves;
+
+  int _selectedMove;
+
+  int get selectedMove{
+    return _selectedMove;
+  }
+
+  set selectedMove(int newIndex){
+    assert(newIndex < chessMoves.length);
+    _selectedMove = newIndex;
+  }
+
+  Map<String, Piece> get selectedPieces{
+    return subStates[selectedMove].pieces;
+  }
 
   BoardState() {
     chessMoves = [];
@@ -23,29 +40,52 @@ class BoardState{
     _newGame();
   }
 
-  BoardState.takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves}){
-    chessMoves ??= [];
-    pieces ??= {};
-    enpassent ??= {};
-    if(infoChessMoves == null){
-      pieces = {};
-      enpassent = {};
-      for(ChessMove chessMove in chessMoves){
-        movePieceTo(chessMove.initialTile, chessMove.nextTile);
-      }
-    }
+  BoardState._takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves, this.subStates, int selectedMove}){
+    _selectedMove = selectedMove ?? chessMoves.length;
   }
 
   BoardState.generate({this.chessMoves}){
     infoChessMoves = [];
     pieces = {};
     enpassent = {};
+    subStates = [];
+    selectedMove = chessMoves.length - 1;
     for(ChessMove chessMove in chessMoves){
       movePieceTo(chessMove.initialTile, chessMove.nextTile);
     }
   }
 
-  movePieceTo(String start, String end){
+  BoardState clone(){
+    Map<String, Piece> clonePieces = {};
+    Map<PlayerColor, String> clonePassent = {};
+    List<SubBoardState> cloneSubStates = [];
+
+    for (MapEntry potEnPass in enpassent.entries) {
+      clonePassent[potEnPass.key] = potEnPass.value;
+    }
+
+    for (Piece piece in pieces.values) {
+      clonePieces[piece.position] = Piece(
+        pieceType: piece.pieceType,
+        playerColor: piece.playerColor,
+        position: piece.position,
+      );
+    }
+    for(SubBoardState subState in subStates){
+      cloneSubStates.add(subState.clone());
+    }
+
+    return new BoardState._takeOver(
+      pieces: clonePieces,
+      enpassent: clonePassent,
+      chessMoves: [...chessMoves],
+      subStates: cloneSubStates,
+      selectedMove: selectedMove,
+      infoChessMoves: [...infoChessMoves],
+    );
+  }
+
+  void movePieceTo(String start, String end){
     List<SpecialMove> specialMoves =[];
     PieceKey takenPiece;
     
@@ -128,13 +168,13 @@ class BoardState{
         else if(ThinkingBoard.isCheck(PlayerColor.values[chessMoves.length%3], this)){
           specialMoves.add(SpecialMove.Check);
         }
-
+        subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
         infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: pieces[end].pieceKey, specialMoves: specialMoves, takenPiece: takenPiece));
       }
   }
 
 
-  _newGame() {
+  void _newGame() {
     pieces = {};
     [
       //White
@@ -410,4 +450,26 @@ class BoardState{
 
   @override
   int get hashCode => chessMoves.hashCode;
+}
+
+class SubBoardState {
+  Map<String, Piece> pieces;
+  Map<PlayerColor, String> enpassent;
+  SubBoardState({@required this.enpassent, @required this.pieces});
+
+  SubBoardState clone(){
+    Map<PlayerColor, String> newEn = {};
+    Map<String, Piece> newPieces = {};
+    for(MapEntry entry in enpassent.entries){
+      newEn[entry.key] = entry.value;
+    }
+    for (Piece piece in pieces.values) {
+      newPieces[piece.position] = Piece(
+        pieceType: piece.pieceType,
+        playerColor: piece.playerColor,
+        position: piece.position,
+      );
+    }
+    return SubBoardState(enpassent: newEn, pieces: newPieces);
+  }
 }

@@ -73,18 +73,12 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     super.initState();
   }
 
-  void updateGame(Game game){ // TODO Should inherite from an implemention in Boardstate (its missing now) to make BoardState keepable (possibly in PageViewerMain)
+  void updateGame(Game game) {
+    // TODO Should inherite from an implemention in Boardstate (its missing now) to make BoardState keepable (possibly in PageViewerMain)
     //TODO maybe catch chessmove diffrence the other way around
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
-    if(game != null && (game.chessMoves.length - widget.boardState.chessMoves.length) > 0){
-      int difference =
-          game.chessMoves.length - widget.boardState.chessMoves.length;
-      for (int i = game.chessMoves.length-difference; i < game.chessMoves.length ; i ++) {
-        //print("what do i do: " + i.toString() + " with: " + game.chessMoves[i].nextTile.toString());
-        widget.boardState.movePieceTo(
-            game.chessMoves[i].initialTile, game.chessMoves[i].nextTile);
-      }
-
+    if (game != null) {
+      widget.boardState.transformTo(game.chessMoves);
     }
   }
 

@@ -14,4 +14,8 @@ class ChessMove {
   int remainingTime; // in secs
 
   ChessMove({this.initialTile, this.nextTile, this.remainingTime});
+
+  bool equalMove(ChessMove chessMove){
+    return (chessMove.initialTile == initialTile && chessMove.nextTile == chessMove.nextTile);
+  }
 }

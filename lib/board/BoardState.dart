@@ -44,6 +44,10 @@ class BoardState{
   }
 
   BoardState.generate({this.chessMoves}){
+    _generate(chessMoves);
+  }
+
+  void _generate(List<ChessMove> chessMoves){
     infoChessMoves = [];
     pieces = {};
     enpassent = {};
@@ -82,6 +86,41 @@ class BoardState{
       selectedMove: selectedMove,
       infoChessMoves: [...infoChessMoves],
     );
+  }
+
+  void transformTo(List<ChessMove> newChessMoves){
+    bool isSame = true;
+    int smallerLength = newChessMoves.length < chessMoves.length ? newChessMoves.length : chessMoves.length;
+    for(int i = 0; i < smallerLength; i++){
+      if(!chessMoves[i].equalMove(newChessMoves[i])){
+        isSame = false;
+      }
+    }
+
+    if(isSame) {
+      if (newChessMoves.length < chessMoves.length) {
+        if (selectedMove != null && selectedMove >= newChessMoves.length) {
+          selectedMove = newChessMoves.length - 1;
+        }
+        pieces = subStates[newChessMoves.length - 1].pieces;
+        enpassent = subStates[newChessMoves.length - 1].enpassent;
+        subStates = subStates.sublist(0, newChessMoves.length - 1);
+        infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length - 1);
+        chessMoves = newChessMoves;
+      }
+      else if(newChessMoves.length > chessMoves.length){
+          int difference =
+              newChessMoves.length - chessMoves.length;
+          for (int i = newChessMoves.length-difference; i < newChessMoves.length ; i ++) {
+            movePieceTo(
+                newChessMoves[i].initialTile, newChessMoves[i].nextTile);
+          }
+
+      }
+    }
+    else{
+      _generate(newChessMoves);
+    }
   }
 
   void movePieceTo(String start, String end){

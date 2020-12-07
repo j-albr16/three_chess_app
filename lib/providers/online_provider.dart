@@ -11,7 +11,6 @@ ServerProvider _serverProvider;
 Timer _keepOnlineTimer;
 
    void update({game, server}){
-     print('Update');
      _serverProvider = server;
      inGame = game != null; 
      if(inGame){

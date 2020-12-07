@@ -291,7 +291,7 @@ class ServerProvider with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> onlineStatusUpdate() async {
-    print('exec online status update');
+    // print('exec online status update');
     final String url = SERVER_ADRESS + 'online' + _authString;
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);

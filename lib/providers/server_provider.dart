@@ -62,6 +62,7 @@ class ServerProvider with ChangeNotifier {
     friendIsNotPlayingCallback,
     gameInvitationsCallback,
   }) {
+    print('Subscribe to Auth USer Channel');
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleAuthUserChannelSocketData(
@@ -81,6 +82,7 @@ class ServerProvider with ChangeNotifier {
   }
 
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
+    print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
@@ -105,26 +107,27 @@ class ServerProvider with ChangeNotifier {
     Function playerIsOnlineCallback,
     Function playerIsOfflineCallback,
   }) {
+    print('Ddi Subscribe to Lobby Channel');
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleGameLobbyChannelData(
-          data,
-          moveMadeCallback,
-          playerJoinedLobbyCallback,
-          surrenderRequestCallback,
-          surrenderDeclineCallback,
-          remiRequestCallback,
-          remiAcceptCallback,
-          remiDeclineCallback,
-          takeBackRequestCallback,
-          takeBackAcceptCallback,
-          takenBackCallback,
-          takeBackDeclineCallback,
-          gameFinishedcallback,
-          surrenderFailedCallback,
-          playerIsOnlineCallback,
-          playerIsOfflineCallback,
-          );
+        data,
+        moveMadeCallback,
+        playerJoinedLobbyCallback,
+        surrenderRequestCallback,
+        surrenderDeclineCallback,
+        remiRequestCallback,
+        remiAcceptCallback,
+        remiDeclineCallback,
+        takeBackRequestCallback,
+        takeBackAcceptCallback,
+        takenBackCallback,
+        takeBackDeclineCallback,
+        gameFinishedcallback,
+        surrenderFailedCallback,
+        playerIsOnlineCallback,
+        playerIsOfflineCallback,
+      );
     });
   }
   //#########################################################################################################
@@ -189,7 +192,7 @@ class ServerProvider with ChangeNotifier {
       case 'friend-not-playing':
         friendIsNotPlayingCallback(data['userId']);
         break;
-        case 'game-invitation':
+      case 'game-invitation':
         gameInvitationCallback(data['gameData']);
         break;
     }
@@ -269,15 +272,16 @@ class ServerProvider with ChangeNotifier {
       case 'game-finished':
         gameFinishedCallback(data);
         break;
-        case 'player-online':
-          playerIsOnlineCallback(data['userId']);
+      case 'player-online':
+        playerIsOnlineCallback(data['userId']);
         break;
-        case 'player-offline':
+      case 'player-offline':
         playerIsOfflineCallback(data['userId'], data['expiryDate']);
         break;
     }
   }
-  Future<Map<String , dynamic>> fetchAuthUser() async {
+
+  Future<Map<String, dynamic>> fetchAuthUser() async {
     final String url = SERVER_ADRESS + 'user' + _authString;
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
@@ -289,7 +293,7 @@ class ServerProvider with ChangeNotifier {
   Future<Map<String, dynamic>> onlineStatusUpdate() async {
     print('exec online status update');
     final String url = SERVER_ADRESS + 'online' + _authString;
-    final encodedResponse = await  http.get(url);
+    final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
     // _printRawData(data);
     // _validation(data);
@@ -407,6 +411,7 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     return data;
   }
+
   // Game Provider -----------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> createGame(
       {bool isPublic,
@@ -415,12 +420,10 @@ class ServerProvider with ChangeNotifier {
       List<String> invitations,
       int time,
       bool allowPremades,
-      int negDeviation,
-      int posDeviation}) async {
+      int negRatingRange,
+      int posRatingRange}) async {
     // input: Takes all game Options as input
     // output: send a game-create req to server and receives a whole Game as JSON which will be converted into Game Model
-    final int negRatingRange = user.score + negDeviation;
-    final int posRatingRange = user.score + posDeviation;
     // defining url for Server post request.token and userId are used for authentification purposes
     final url = SERVER_URL + 'create-game' + _authString;
     // sending async post request to server. Game options are encoded n req Body
@@ -679,26 +682,30 @@ class ServerProvider with ChangeNotifier {
 }
 
 void _handleSocketServerMessage(String action, String message) {
-  print(
-      '-------------------------------------------------------------------------------------------------');
-  print(
-      'Received Socket Data------------------------------------------------------------------------------');
-  print(
-      'Socket Message ... :   ---------------------------------------------------------------------------');
-  print('$message   ');
-  print(
-      'Action Key String   ------------------------------------------------------------------------------');
-  print(action);
-  print(
-      '-------------------------------------------------------------------------------------------------');
+  if (action != 'friend-online') {
+    print(
+        '-------------------------------------------------------------------------------------------------');
+    print(
+        'Received Socket Data------------------------------------------------------------------------------');
+    print(
+        'Socket Message ... :   ---------------------------------------------------------------------------');
+    print('$message   ');
+    print(
+        'Action Key String   ------------------------------------------------------------------------------');
+    print(action);
+    print(
+        '-------------------------------------------------------------------------------------------------');
+  }
 }
 
 void _printRawData(dynamic data) {
-  print(
-      '-------------------------------------------------------------------------------------------------');
-  print(
-      'RAW DATA     ------------------------------------------------------------------------------------');
-  print(data);
-  print(
-      '-------------------------------------------------------------------------------------------------');
+  if (data['action'] != 'friend-online') {
+    print(
+        '-------------------------------------------------------------------------------------------------');
+    print(
+        'RAW DATA     ------------------------------------------------------------------------------------');
+    print(data);
+    print(
+        '-------------------------------------------------------------------------------------------------');
+  }
 }

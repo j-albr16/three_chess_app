@@ -39,7 +39,7 @@ class MainPageViewerState extends State<MainPageViewer> {
     _controller = PageController(initialPage: widget.initPage);
     Future.delayed(Duration.zero).then((_) {
       GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
-      gameProvider.fetchGames();
+      gameProvider.fetchAll();
          Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
          Provider.of<OnlineProvider>(context, listen: false);
          Provider.of<UserProvider>(context, listen: false).fetchUser();

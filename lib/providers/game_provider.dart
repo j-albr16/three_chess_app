@@ -135,8 +135,8 @@ class GameProvider with ChangeNotifier {
       List<String> invitations,
       int time,
       bool allowPremades,
-      int negDeviation,
-      int posDeviation}) async {
+      int negRatingRange,
+      int posRatingRange}) async {
     try {
       final Map<String, dynamic> data = await _serverProvider.createGame(
         allowPremades : allowPremades,
@@ -144,8 +144,8 @@ class GameProvider with ChangeNotifier {
         increment: increment,
         isRated: isRated,
         invitations : invitations,
-        negDeviation: negDeviation,
-        posDeviation: posDeviation,
+        negRatingRange: negRatingRange,
+        posRatingRange: posRatingRange,
         time: time,
       );
       // rebasing the whole Game. COnverting JSON to Game Model Data. See Methode below
@@ -344,6 +344,7 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
+    print('Handle New Game Data');
     _games.add(GameConversion.rebaseLobbyGame(
       gameData: gameData,
       playerData: gameData['player'],
@@ -369,6 +370,7 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handlePlayerJoinedData(Map<String, dynamic> gameData) {
+    print('Handle Player Joined');
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
     _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
@@ -382,6 +384,7 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handlePlayerJoinedLobbyData(Map<String, dynamic> gameData) {
+    print('Handle Player Joined Lobby');
     _game.player.add(GameConversion.rebaseOnePlayer(
       playerData: gameData['player'],
       userData: gameData['user'],
@@ -399,6 +402,7 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleMoveData(Map<String, dynamic> moveData) {
+    print('Handle Move Data');
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true

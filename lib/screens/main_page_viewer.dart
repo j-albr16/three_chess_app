@@ -9,6 +9,7 @@ import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lobby_screen.dart';
 import '../providers/online_provider.dart';
+import '../providers/user_provider.dart';
 //
 
 import 'dart:math';
@@ -41,6 +42,7 @@ class MainPageViewerState extends State<MainPageViewer> {
       gameProvider.fetchGames();
          Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
          Provider.of<OnlineProvider>(context, listen: false);
+         Provider.of<UserProvider>(context, listen: false).fetchUser();
     });
 
     //TODO REMOVE

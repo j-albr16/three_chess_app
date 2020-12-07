@@ -277,6 +277,14 @@ class ServerProvider with ChangeNotifier {
         break;
     }
   }
+  Future<Map<String , dynamic>> fetchAuthUser() async {
+    final String url = SERVER_ADRESS + 'user' + _authString;
+    final encodedResponse = await http.get(url);
+    final Map<String, dynamic> data = json.decode(encodedResponse.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
 
   Future<Map<String, dynamic>> onlineStatusUpdate() async {
     print('exec online status update');
@@ -404,6 +412,7 @@ class ServerProvider with ChangeNotifier {
       {bool isPublic,
       bool isRated,
       int increment,
+      List<String> invitations,
       int time,
       bool allowPremades,
       int negDeviation,
@@ -421,6 +430,7 @@ class ServerProvider with ChangeNotifier {
         'isPublic': isPublic,
         'isRated': isRated,
         'increment': increment,
+        'invitations': invitations,
         'allowPremades': allowPremades,
         'time': time,
         'negRatingRange': negRatingRange,

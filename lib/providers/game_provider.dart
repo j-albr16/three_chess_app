@@ -132,6 +132,7 @@ class GameProvider with ChangeNotifier {
       {bool isPublic,
       bool isRated,
       int increment,
+      List<String> invitations,
       int time,
       bool allowPremades,
       int negDeviation,
@@ -142,6 +143,7 @@ class GameProvider with ChangeNotifier {
         isPublic: isPublic,
         increment: increment,
         isRated: isRated,
+        invitations : invitations,
         negDeviation: negDeviation,
         posDeviation: posDeviation,
         time: time,
@@ -496,13 +498,13 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleGameFinished(Map<String, dynamic> data) {
     PlayerColor winnerPlayerColor = GameConversion.getPlayerColorFromUserId(data['winnerId'],_game);
-    List<Map<String, dynamic>> newUsers = data['newUsers'];
+    List<Map<String, dynamic>>  convertedPlayer = data['convertedPlayer'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,
     };
-    newUsers.forEach((newUser) {
-      _game.finishedGameData[PlayerColor.values[newUser['playerColor']]] =
-          newUser['scoreAfter'];
+    convertedPlayer.forEach((convPlayer) {
+      _game.finishedGameData[PlayerColor.values[convPlayer['playerColor']]] =
+          convPlayer['scoreAfter'];
     });
     finishedGameData['howGameEnded'] =
         HowGameEnded.values[data['howGameEnded']];

@@ -22,7 +22,7 @@ class ChessSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('Time', style: TextStyle(color: Colors.black)),
+        Text(title, style: TextStyle(color: Colors.black)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -30,16 +30,16 @@ class ChessSlider extends StatelessWidget {
             SizedBox(
               width: size.width * 0.7,
               height: size.height,
-              child: Slider(
+              child: Slider( 
                 value: totalValue,
                 min: min,
                 max: max,
                 divisions: divisions,
-                label: totalValue.toStringAsFixed(1),
+                label: totalValue.toStringAsFixed(0),
                 onChanged: (double value) => updateValue(value),
               ),
             ),
-            Text(totalValue.toStringAsFixed(1),
+            Text(totalValue.toStringAsFixed(0),
                 style: TextStyle(color: Colors.black)),
           ],
         ),

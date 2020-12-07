@@ -6,9 +6,21 @@ import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
 import '../models/chess_move.dart';
 import '../widgets/create_game.dart';
+import '../models/user.dart';
 import './game_provider_test_screen.dart';
+import '../providers/user_provider.dart';
+import '../models/friend.dart';
+import '../providers/friends_provider.dart';
 
-  typedef CreateGameCallback({int increment, int time, int posRatingRange, int negRatingRange, bool isPrivate, bool isRated, bool allowPremades});
+typedef CreateGameCallback(
+    {int increment,
+    int time,
+    int posRatingRange,
+    int negRatingRange,
+    bool isPrivate,
+    bool isRated,
+    bool allowPremades});
+
 class CreateGameScreen extends StatefulWidget {
   static const routeName = '/create-screen';
 
@@ -20,19 +32,28 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero).then((_) =>
-        _gameProvider = Provider.of<GameProvider>(context, listen: false));
+    Future.delayed(Duration.zero).then((_) {
+      _gameProvider = Provider.of<GameProvider>(context, listen: false);
+      Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+      Provider.of<UserProvider>(context, listen: false)
+          .fetchUser()
+          .then((_) => setState(() {
+                _isInit = true;
+              }));
+    });
   }
 
+  bool _isInit = false;
   GameProvider _gameProvider;
 
   Size size;
+  User user;
 
 // is Private vars
-  bool isPrivate = false;
+  bool isPublic = true;
   Function updateIsPrivate(bool value) {
     setState(() {
-      isPrivate = value;
+      isPublic = value;
     });
   }
 
@@ -72,7 +93,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     });
   }
 
-  int timeDivisions = 100;
+  int timeDivisions = 50;
 
   // increment Slider
   double increment = 3;
@@ -85,25 +106,55 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     });
   }
 
-  // Rating Range
-  double posRatingRange = 100;
-  double posratingRangeMin = 0;
-  double posRatingRangeMax = 1000;
-  int posRatingRangeDivisions = 1000;
-  Function updatePosRatingRange(double value) {
+  // Friend Popup
+  int friendSelectionAmount = 0;
+  Function confirmFriendSelection(List<String> selectedFriendIds) {
+    selectedFriends = friends.where((friend) =>  selectedFriendIds.contains(friend.user.id)).toList();
+    Navigator.of(context).pop();
+    setState(() {});
+  }
+  Function cancelFriendSelection() {
+    Navigator.of(context).pop();
+  }
+  Function removeFriend(String id){
     setState(() {
-      posRatingRange = value;
+      selectedFriends.removeWhere((friend) => friend.user.id == id);
     });
   }
 
-  double negRatingRange = -100;
-  double negRatingRangeMin = 0;
-  double negRatingRangeMax = 1000;
-  int negRatingRangeDivisions = 1000;
-  Function updateNegRatingRange(double value) {
-    setState(() {
-      negRatingRange = -value;
-    });
+List<Friend> selectedFriends = [];
+  List<Friend> friends;
+
+  // Rating Range
+  double posRatingRange;
+  updateRatingRange(RangeValues values) {
+    print(user.score);
+    if (values.start <= user.score) {
+      setState(() {
+        negRatingRange = values.start;
+      });
+    }
+    if (values.end >= user.score) {
+      setState(() {
+        posRatingRange = values.end;
+      });
+    }
+  }
+
+  double negRatingRange = 100;
+
+  int get playerColor {
+    if (playerColorSelection == 4) {
+      return null;
+    }
+    return playerColorSelection;
+  }
+
+  bool get isRated {
+    if (currentPublicitySelection == 0) {
+      return true;
+    }
+    return false;
   }
 
 // finish Buttons
@@ -111,14 +162,17 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       {increment,
       time,
       isRated,
-      isPrivate,
+      isPublic,
       negRatingRange,
+      invitations,
       posRatingRange,
       allowPremades}) {
+      print('Create Game');
     _gameProvider.createGame(
       increment: increment,
       time: time,
-      isPublic: !isPrivate,
+      invitations: invitations,
+      isPublic: isPublic,
       isRated: isRated,
       negDeviation: negRatingRange,
       posDeviation: posRatingRange,
@@ -127,57 +181,71 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     Navigator.of(context).pop();
   }
 
-  Function cancelCreateGame(){
+  Function cancelCreateGame() {
     Navigator.of(context).pop();
   }
+
   @override
   Widget build(BuildContext context) {
+    if (!_isInit) {
+      return Center(child: CircularProgressIndicator());
+    }
     size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Game'),
       ),
-      body: CreateGame(
-        allowPremades: allowPremades,
-        cancelCreateGame: () => cancelCreateGame(),
-        createGame: () => createGame(
+      body: Consumer2<UserProvider, FriendsProvider>(
+          builder: (context, userProvider, friendsProvider, child) {
+        user = userProvider.user;
+        friends = friendsProvider.friends;
+        if (posRatingRange == null ) {
+          posRatingRange = user.score + 100.0;
+          negRatingRange = user.score - 100.0;
+        }
+        return CreateGame(
           allowPremades: allowPremades,
+          cancelCreateGame: () => cancelCreateGame(),
+          createGame: (model) => createGame(
+            invitations : selectedFriends.map((friend) => friend.user.id).toList(),
+            allowPremades: model.allowPremades,
+            increment: model.increment,
+            isPublic: model.isPublic,
+            isRated: model.isRated,
+            negRatingRange: model.negRatingRange,
+            posRatingRange: model.posRatingRange,
+            time: model.time,
+          ),
+          currentPublicitySelection: currentPublicitySelection,
           increment: increment,
-          isPrivate: isPrivate,
-          isRated: isPrivate,
+          incrementDivisions: incrementDivisions,
+          incrementMax: incrementMax,
+          incrementMin: incrementMin,
+          isPublic: isPublic,
           negRatingRange: negRatingRange,
+          user: user,
+          playerColorSelection: playerColorSelection,
           posRatingRange: posRatingRange,
+          size: size,
           time: time,
-        ),
-        currentPublicitySelection: currentPublicitySelection,
-        increment: increment,
-        incrementDivisions: incrementDivisions,
-        incrementMax: incrementMax,
-        incrementMin: incrementMin,
-         isPublic: isPublic,
-        negRatingRange: negRatingRange,
-        negRatingRangeDivisions: negRatingRangeDivisions,
-        negRatingRangeMax: negRatingRangeMax,
-        negratingRangeMin: negRatingRangeMin,
-        playerColorSelection: playerColorSelection,
-        posRatingRange: posRatingRangeMax,
-        posRatingRangeDivisions: posRatingRangeDivisions,
-        posRatingRangeMax: posRatingRangeMax,
-        posratingRangeMin: posRatingRangeMax,
-        size: size,
-        time: time,
-        timeDivisions: timeDivisions,
-        timeMax: timeMax,
-        timeMin: timeMin,
-        updateAllowPremades: (bool value)  => updateAllowPremades(value),
-        updateButtonBarData: (int index) => updateButtonBarData(index),
-        updateIncrement: (double value) => updateIncrement(value),
-        updateIsPrivate: (bool value) => updateIsPrivate(value),
-        updateNegRatingRange: (double value) => updateNegRatingRange(value),
-        updatePlayerColorSelection: (int index) => updatePlayerColorSelection(index),
-        updatePosRatingRange: (double value) => updatePosRatingRange(value),
-        updateTime: (double value) => updateTime(value),
-      ),
+          selectedFriends: selectedFriends,
+          timeDivisions: timeDivisions,
+          timeMax: timeMax,
+          friends: friends,
+          timeMin: timeMin,
+          removeFriend: (String id) => removeFriend(id),
+          cancelFriendInvitation: () => cancelFriendSelection(),
+          confirmFriendInvitations: (List<String> selectedFriendIds)  => confirmFriendSelection(selectedFriendIds),
+          updateAllowPremades: (bool value) => updateAllowPremades(value),
+          updateButtonBarData: (int index) => updateButtonBarData(index),
+          updateIncrement: (double value) => updateIncrement(value),
+          updateIsPrivate: (bool value) => updateIsPrivate(value),
+          updateRatingRange: (RangeValues values) => updateRatingRange(values),
+          updatePlayerColorSelection: (int index) =>
+              updatePlayerColorSelection(index),
+          updateTime: (double value) => updateTime(value),
+        );
+      }),
     );
   }
 }

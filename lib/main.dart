@@ -66,10 +66,12 @@ class ThreeChessApp extends StatelessWidget {
                 friends: previousFriends.friends,
               ),
           ),
-          ChangeNotifierProxyProvider<ServerProvider, UserProvider>(
+          ChangeNotifierProxyProvider2<ServerProvider, GameProvider, UserProvider>(
             create: (_) => UserProvider(),
-            update: (_, server, previousUser) => previousUser
+            update: (_, server, gameProvider, previousUser) => previousUser
               ..update(
+                gameProvider : gameProvider,
+                serverProvider: server,
                 user: previousUser.user,
               ),
           ),

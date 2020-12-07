@@ -1,4 +1,3 @@
-
 import '../models/game.dart';
 import '../models/player.dart';
 import '../models/request.dart';
@@ -6,16 +5,14 @@ import '../models/user.dart';
 import '../models/enums.dart';
 import '../models/chess_move.dart';
 
-class GameConversion{
-  
-
- static Game rebaseWholeGame(Map<String, dynamic> gameData) {
+class GameConversion {
+  static Game rebaseWholeGame(Map<String, dynamic> gameData) {
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
     // convert Chess moves and add them to exisitng Chess Move Class
     List<ChessMove> chessMoves = [];
     // TODO : Delete
-    gameData['chessMoves'].forEach((e) => chessMoves.add(rebaseOneMove(e)));
+    gameData['chessMoves']?.forEach((e) => chessMoves.add(rebaseOneMove(e)));
     // convert player List and add them to existing player class
     List<Player> convPlayer = connectUserPlayerData(
       player: gameData['player'],
@@ -29,11 +26,13 @@ class GameConversion{
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
-    game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
+    if (gameData['endGameExpiry'] != null) {
+      game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
+    }
     game.chessMoves = chessMoves;
     List<Request> convRequests;
-    gameData['requests']
-        .forEach((request) => convRequests.add(rebaseOneRequest(request, game)));
+    gameData['requests']?.forEach(
+        (request) => convRequests.add(rebaseOneRequest(request, game)));
     // returns the converted Game
     return game;
   }
@@ -84,15 +83,18 @@ class GameConversion{
       isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
-      user: new User(
-        id: userData['_id'],
-        score: userData['score'],
-        userName: userData['userName'],
-      ),
+      user: rebaseOneUser(userData),
     );
   }
 
- static  ChessMove rebaseOneMove(moveData) {
+  static User rebaseOneUser(Map<String, dynamic> userData) {
+    return new User(
+        id: userData['_id'],
+        score: userData['score'],
+        userName: userData['userName']);
+  }
+
+  static ChessMove rebaseOneMove(moveData) {
     // input : receive Move Data,
     // output : return Chess Move Model
     return ChessMove(
@@ -101,17 +103,19 @@ class GameConversion{
       remainingTime: moveData['remainingTime'],
     );
   }
-static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
+
+  static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
     return game.player
         .firstWhere((player) => player.user.id == userId, orElse: () => null)
         .playerColor;
   }
 
- static Request getRequestFromRequestType(RequestType requestType, Game game) {
+  static Request getRequestFromRequestType(RequestType requestType, Game game) {
     return game.requests
         .firstWhere((request) => request.requestType == requestType);
   }
- static void validation(data) {
+
+  static void validation(data) {
     // input: receives a bool as decoded JSON Object __> mainly res.json(valid)
     // output : Return whether this bool is true or false
     // Checks whether Data was even recieved
@@ -144,7 +148,7 @@ static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
     return convPlayer;
   }
 
- static Game createGameWithOptions(gameOptions) {
+  static Game createGameWithOptions(gameOptions) {
     // input: takes JSOON Game Options as Input
     // output: returns a game Model where Game options are set already
     return new Game(
@@ -152,12 +156,13 @@ static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
       isPublic: gameOptions['isPublic'],
       isRated: gameOptions['isRated'],
       negRatingRange: gameOptions['negRatingRange'],
+      allowPremades: gameOptions['allowPremades'],
       posRatingRange: gameOptions['posRatingRange'],
       time: gameOptions['time'],
     );
   }
 
- static printEverything(Game game, Player player, List<Game> games) {
+  static printEverything(Game game, Player player, List<Game> games) {
     print('###################################');
     if (game != null) {
       print('Game:----------------------------');
@@ -212,4 +217,4 @@ static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
     }
     print('#####################################');
   }
-  }
+}

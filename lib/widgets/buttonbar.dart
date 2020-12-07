@@ -31,12 +31,14 @@ class ChessButtonBar extends StatelessWidget {
       color = Colors.black45;
     }
     return FlatButton(
+      height: size.height,
+      minWidth: size.width * 0.7/ buttonBarData.length,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(7),
       ),
       color: color,
       onPressed: () => updateValue(index),
-      child: label,
+      child:  label,
     );
   }
 }

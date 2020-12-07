@@ -28,19 +28,19 @@ class FriendTile extends StatelessWidget {
 
   FriendTile({this.onLongTap, this.onTap, this.height, this.model});
 
-  Widget onlineIcon(bool isOnline) {
+ static Widget onlineIcon(bool isOnline) {
     return Icon(
       isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
       color: Colors.green,
     );
   }
 
-  Widget playingIcon(bool isPlaying) {
+ static Widget playingIcon(bool isPlaying) {
     return Icon(isPlaying ? Icons.live_tv : Icons.tv_off,
         color: isPlaying ? Colors.red : Colors.black);
   }
 
-  Widget usernameText(String username) {
+ static Widget usernameText(String username) {
     return Text(
       username,
       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

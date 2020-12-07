@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import '../widgets/slider.dart';
 import '../widgets/switch_row.dart';
 import '../widgets/buttonbar.dart';
+import '../models/friend.dart';
+import '../models/game_opptions.dart';
+import './friend_popup.dart';
+import '../models/user.dart';
 
-  typedef CreateGameCallback({int increment, int time, int posRatingRange, int negRatingRange, bool isPublic, bool isRated, bool allowPremades});
+typedef CreateGameCallback(Options options);
+
 class CreateGame extends StatelessWidget {
   Size size;
-
+  User user;
 // is Private vars
-  bool isPublic;
+  bool isPublic = true;
   Function updateIsPrivate;
 
 //allow Premade vars
@@ -39,30 +44,29 @@ class CreateGame extends StatelessWidget {
 
   // Rating Range
   double posRatingRange;
-  double posratingRangeMin;
-  double posRatingRangeMax;
-  int posRatingRangeDivisions;
-  Function updatePosRatingRange;
-
   double negRatingRange;
-  double negratingRangeMin;
-  double negRatingRangeMax;
-  int negRatingRangeDivisions;
-  Function updateNegRatingRange;
+  Function updateRatingRange;
+
+//Friend Popup
+  List<Friend> friends;
+  Function confirmFriendInvitations;
+  Function cancelFriendInvitation;
+  List<Friend> selectedFriends;
+  Function removeFriend;
 
 // finish Buttons
   CreateGameCallback createGame;
   Function cancelCreateGame;
 
   int get playerColor {
-    if(playerColorSelection == 5){
+    if (playerColorSelection == 5) {
       return null;
     }
     return playerColorSelection;
   }
 
-  bool get isRated{
-    if(currentPublicitySelection == 0){
+  bool get isRated {
+    if (currentPublicitySelection == 0) {
       return true;
     }
     return false;
@@ -72,26 +76,22 @@ class CreateGame extends StatelessWidget {
       {this.cancelCreateGame,
       this.createGame,
       this.allowPremades,
-      this.updatePosRatingRange,
       this.posRatingRange,
-      this.posratingRangeMin,
-      this.negRatingRangeMax,
-      this.negRatingRangeDivisions,
-      this.updateNegRatingRange,
+      this.user,
       this.negRatingRange,
-      this.negratingRangeMin,
       this.updateIncrement,
       this.incrementMin,
       this.incrementMax,
       this.incrementDivisions,
       this.timeDivisions,
+      this.removeFriend,
       this.playerColorSelection,
       this.currentPublicitySelection,
       this.updateIsPrivate,
       this.increment,
       this.isPublic,
-      this.posRatingRangeDivisions,
-      this.posRatingRangeMax,
+      this.updateRatingRange,
+      this.selectedFriends,
       this.size,
       this.time,
       this.timeMax,
@@ -99,27 +99,32 @@ class CreateGame extends StatelessWidget {
       this.updateAllowPremades,
       this.updateButtonBarData,
       this.updatePlayerColorSelection,
-      this.updateTime});
-
-  
+      this.updateTime,
+      this.confirmFriendInvitations,
+      this.friends,
+      this.cancelFriendInvitation});
 
   @override
   Widget build(BuildContext context) {
+    print(selectedFriends);
     return Container(
       height: size.height,
       width: size.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
+      child: ListView(
         children: <Widget>[
           header('Create Game'),
           isPublicSwitch(),
           allowPremadeSwitch(),
           isRatedButtonBar(),
+          // playerColorButtonBar(),
           timeSlider(),
           incrementSlider(),
           ratingRangeSlider(),
+          inviteFriend(context),
+          if (selectedFriends.length > 0) invitedFriends(),
           finishSelection(),
         ],
       ),
@@ -169,9 +174,24 @@ class CreateGame extends StatelessWidget {
       size: Size(size.width, size.height * 0.1),
       updateValue: updatePlayerColorSelection,
       buttonBarData: [
-        Image.asset('assets/pieces/king_white.png'),
-        Image.asset('assets/pieces/king_black.png'),
-        Image.asset('assets/pieces/king_red.png'),
+        Image.asset(
+          'assets/pieces/king_white.png',
+          fit: BoxFit.scaleDown,
+          height: size.height * 0.06,
+          width: size.width / 8,
+        ),
+        Image.asset(
+          'assets/pieces/king_black.png',
+          fit: BoxFit.scaleDown,
+          height: size.height * 0.06,
+          width: size.width / 8,
+        ),
+        Image.asset(
+          'assets/pieces/king_red.png',
+          fit: BoxFit.scaleDown,
+          height: size.height * 0.06,
+          width: size.width / 8,
+        ),
         null,
         Text('Random'),
       ],
@@ -203,28 +223,90 @@ class CreateGame extends StatelessWidget {
   }
 
   Widget ratingRangeSlider() {
-    return Row(
-      children: <Widget>[
-        ChessSlider(
-          divisions: negRatingRangeDivisions,
-          max: negRatingRangeMax,
-          min: negratingRangeMin,
-          size: Size(size.width * 0.5, size.height * 0.1),
-          title: 'Negative Rating Range',
-          totalValue: negRatingRange,
-          updateValue: updateNegRatingRange,
+    return Column(
+      children: [
+        Text('Rating Range'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(negRatingRange?.toString()),
+            SizedBox(
+              height: size.height * 0.1,
+              width: size.width * 0.6,
+              child: RangeSlider(
+                min: 0,
+                max: user.score + 1000.0,
+                divisions: user.score + 1000,
+                labels: RangeLabels(
+                    negRatingRange?.toString(), posRatingRange?.toString()),
+                onChanged: (RangeValues values) => updateRatingRange(values),
+                values: RangeValues(negRatingRange, posRatingRange),
+              ),
+            ),
+            Text(posRatingRange?.toString()),
+          ],
         ),
-        ChessSlider(
-          divisions: posRatingRangeDivisions,
-          max: posRatingRangeMax,
-          min: posratingRangeMin,
-          size: Size(size.width * 0.5, size.height * 0.1),
-          title: 'Positive Rating Range',
-          totalValue: posRatingRange,
-          updateValue: updatePosRatingRange,
-        )
       ],
     );
+  }
+
+  Widget inviteFriend(BuildContext context) {
+    List<String> selectedFriendIds = [];
+    return FlatButton(
+        child: Text(
+          'Invite Friends',
+          style: TextStyle(fontSize: 14),
+        ),
+        height: size.height * 0.1,
+        minWidth: size.width * 0.6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        onPressed: () => showDialog<void>(
+              context: context,
+              builder: (BuildContext context) => StatefulBuilder(
+                builder: (context, setState) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  title: Text('Invite Friends'),
+                  content: FriendPopup(
+                      cancelFriendSelection: cancelCreateGame,
+                      confirmFriendSelection: confirmFriendInvitations,
+                      selectedFriendIds: selectedFriendIds,
+                      friends: friends,
+                      size: Size(size.width * 0.7, size.height * 0.7),
+                      updateFriendSelectionStatus: (bool value, String id) {
+                        print(selectedFriends);
+                        if (value && selectedFriends.length < 3) {
+                          selectedFriendIds.add(id);
+                        } else if (!value) {
+                          selectedFriendIds.remove(id);
+                        }
+                        setState(() {});
+                      }),
+                ),
+              ),
+            ));
+  }
+
+  Widget invitedFriends() {
+    print('Create invite Friends');
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: selectedFriends
+            .map((e) {
+              print('Hi');
+      return
+         Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: SizedBox(
+            height: size.height * 0.08,
+            width : size.width / 3,
+            child: FriendPopup.friendTile(e, size, remove: true, removeCallback: (String id) => removeFriend(id))),
+          // child: Text(e.user.userName),
+          elevation: 8,
+      );
+    }).toList());
   }
 
   Widget finishSelection() {
@@ -235,14 +317,15 @@ class CreateGame extends StatelessWidget {
           child: Text('Create'),
           height: size.height * 0.1,
           minWidth: size.width * 0.2,
-          onPressed: () => createGame(
-              increment: increment.round(),
-              time: time.round(),
-              negRatingRange: negRatingRange.round(),
-              posRatingRange: posRatingRange.round(),
-              isPublic:isPublic,
-              isRated: isRated,
-              allowPremades: allowPremades),
+          onPressed: () => createGame(new Options(
+            allowPremades: allowPremades,
+            increment: increment.round(),
+            isPublic: isPublic,
+            isRated: isRated,
+            negRatingRange: negRatingRange.round(),
+            posRatingRange: posRatingRange.round(),
+            time: time.round(),
+          )),
           padding: EdgeInsets.all(10),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
         ),

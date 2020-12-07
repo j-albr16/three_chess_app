@@ -13,6 +13,7 @@ class Game {
   String id;
   @required
   bool didStart;
+  List<String> invitations;
   List<Player> player;
   List<ChessMove> chessMoves;
   @required
@@ -30,6 +31,7 @@ class Game {
     this.allowPremades,
     this.player,
     this.finishedGameData,
+    this.invitations,
     this.chessMoves,
     this.startingBoard,
     this.requests,

@@ -174,8 +174,8 @@ List<Friend> selectedFriends = [];
       invitations: invitations,
       isPublic: isPublic,
       isRated: isRated,
-      negDeviation: negRatingRange,
-      posDeviation: posRatingRange,
+      negRatingRange: negRatingRange,
+      posRatingRange: posRatingRange,
       allowPremades: allowPremades,
     );
     Navigator.of(context).pop();

@@ -94,7 +94,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   @override
   Widget build(BuildContext context) {
 
+
     GameProvider gameProvider = Provider.of<GameProvider>(context);
+
+    print(gameProvider.player.playerColor.toString() + " this is what gameProvider says");
 
     if (widget.isOffline != true) {
       setState(() {

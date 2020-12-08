@@ -61,7 +61,7 @@ class BoardBoardSubScreen extends StatelessWidget {
         builder: (context, screenHeight, screenWidth, sy, sx)
         {
           double usableHeight = screenHeight - unusableHeight;
-          ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game != null ? true : false, boardState: boardState,);
+          ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: boardState,);
 
           return Container(
                 height: usableHeight,

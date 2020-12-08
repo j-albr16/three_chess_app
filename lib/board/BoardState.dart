@@ -97,14 +97,14 @@ class BoardState{
       }
     }
 
-    if(isSame) {
+    if(isSame && newChessMoves.length > 0) {
       if (newChessMoves.length < chessMoves.length) {
         if (selectedMove != null && selectedMove >= newChessMoves.length) {
-          selectedMove = newChessMoves.length - 1;
+          selectedMove = newChessMoves.length;
         }
-        pieces = subStates[newChessMoves.length - 1].pieces;
-        enpassent = subStates[newChessMoves.length - 1].enpassent;
-        subStates = subStates.sublist(0, newChessMoves.length - 1);
+        pieces = subStates[newChessMoves.length].pieces;
+        enpassent = subStates[newChessMoves.length].enpassent;
+        subStates = subStates.sublist(0, newChessMoves.length);
         infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length - 1);
         chessMoves = newChessMoves;
       }

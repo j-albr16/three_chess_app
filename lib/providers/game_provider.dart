@@ -238,12 +238,12 @@ class GameProvider with ChangeNotifier {
     // output: sends fetch Games request to Server. Receives all Lobby Games a JSON From Server. Returns List of Lobby Games
     try {
       // make http request
-      final Map<String, dynamic> data = await _serverProvider.fetchGames();
+      final  data = await _serverProvider.fetchGames();
       _games = [];
       // Convert Data to existing Models
       data['gameData']['games'].forEach((game) {
-        final playerData = data['gameData']['player'].firstWhere((player) => player['gameId'] == game['_id'], orElse: () => null);
-        final userData= data['gameData']['user'].firstWhere((user) =>user['gameId'] == game['_id'], orElse: () => null);
+        final playerData = data['gameData']['player']?.where((player) => player['gameId'] == game['_id']);
+        final userData= data['gameData']['user']?.where((user) =>user['gameId'] == game['_id']);
 _games.add(GameConversion.rebaseLobbyGame(
             gameData: game,
             playerData: playerData,

@@ -42,7 +42,7 @@ class BoardBoardSubScreen extends StatelessWidget {
     GameProvider gameProvider =
     Provider.of<GameProvider>(context, listen: false);
     Player getPlayer(PlayerColor playerColor) {
-      return gameProvider.game.player.firstWhere(
+      return gameProvider.game?.player?.firstWhere(
               (element) => element.playerColor == playerColor,
           orElse: null);
     }

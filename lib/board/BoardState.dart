@@ -111,7 +111,7 @@ class BoardState{
       else if(newChessMoves.length > chessMoves.length){
           int difference =
               newChessMoves.length - chessMoves.length;
-          for (int i = newChessMoves.length-difference; i < newChessMoves.length ; i ++) {
+          for (int i = newChessMoves.length-difference;  i < newChessMoves.length ; i ++) {
             movePieceTo(
                 newChessMoves[i].initialTile, newChessMoves[i].nextTile);
           }

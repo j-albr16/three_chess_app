@@ -50,6 +50,7 @@ void update({context ,friendsProvider }){
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13),
           ),
+          child:
         );
       },
     );

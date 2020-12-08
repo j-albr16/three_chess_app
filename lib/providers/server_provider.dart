@@ -235,6 +235,7 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     switch (data['action']) {
       case 'move-made':
+      print('Chess Move was made');
         moveMadeCallback(data['chessMove']);
         break;
       case 'player-joined-lobby':

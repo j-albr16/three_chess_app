@@ -21,7 +21,7 @@ const String SERVER_URL = SERVER_ADRESS;
 
 const printCreateGame = true;
 const printjoinGame = true;
-const printFetchGame = true;
+const printFetchGame = false;
 const printFetchGames = false;
 const printGameSocket = true;
 const printGameMove = true;

@@ -12,6 +12,7 @@ import '../conversion/friend_conversion.dart';
 class FriendsProvider with ChangeNotifier {
   List<Friend> _friends = [];
   List<Friend> _pendingFriends = [];
+  bool newPopup = false;
 
   ServerProvider _serverProvider;
   ChatProvider _chatProvider;

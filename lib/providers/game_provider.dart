@@ -405,6 +405,8 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleMoveData(Map<String, dynamic> moveData) {
     print('Handle Move Data');
+    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3 ];
+    moveData['playerColor'] = playerColor;
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true

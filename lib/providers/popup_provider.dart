@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 import './friends_provider.dart';
 import '../models/game.dart';
 import '../models/player.dart';
+import '../widgets/invitations.dart';
+import './game_provider.dart';
 import '../models/user.dart';
 
 typedef PopUp(BuildContext context);
@@ -15,10 +18,10 @@ class PopupProvider with ChangeNotifier {
     _friendsProvider = friendsProvider;
   }
 
-  List<PopUp> _popUps = [];
+  PopUp _popUp;
 
-  List<PopUp> get popUps {
-    return [..._popUps];
+  PopUp get popUp {
+    return _popUp;
   }
 
   void _checklForPopUps() {
@@ -28,12 +31,6 @@ class PopupProvider with ChangeNotifier {
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
     }
-  }
-
-  Widget displayPopups(BuildContext context) {
-    _popUps.forEach((popUp) {
-      popUp(context);
-    });
   }
 
   void makeInvitationPopup(Game game) {
@@ -48,27 +45,15 @@ class PopupProvider with ChangeNotifier {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    'Game Invitation',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+              child: Invitations.invitationTile(
+                accept: () {},
+                decline: () => Navigator.of(context).pop(),
+                game: game,
+                size: Size(size.width * 0.34, size.height * 0.1),
               ),
             );
           },
         );
-    _popUps.add(invitationPopup);
-  }
-
-  Widget gameInfos(String userName, int time, int increment) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text(userName),
-        Text(time.toString() + ' + ' + increment.toString()),
-      ],
-    );
+    _popUp = invitationPopup;
   }
 }

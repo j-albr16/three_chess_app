@@ -84,6 +84,7 @@ class ServerProvider with ChangeNotifier {
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
+      print('New Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
     });
@@ -107,7 +108,7 @@ class ServerProvider with ChangeNotifier {
     Function playerIsOnlineCallback,
     Function playerIsOfflineCallback,
   }) {
-    print('Ddi Subscribe to Lobby Channel');
+    print('Ddi Subscribe to Game Lobby Channel');
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleGameLobbyChannelData(

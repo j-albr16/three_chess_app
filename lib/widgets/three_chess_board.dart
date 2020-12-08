@@ -61,11 +61,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       playingPlayer =
           gameProvider.player?.playerColor ?? PlayerColor.white; // TODO alternative red call will be removed
       if(playingPlayer != null){
-        for (int i = 0; i < playingPlayer.index; i++) {
           setState(() {
-            widget.tileKeeper.rotateTilesNext();
+            widget.tileKeeper.rotateTilesTo(playingPlayer);
           });
-        }
       }}
       );
 
@@ -74,8 +72,6 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   }
 
   void updateGame(Game game) {
-    // TODO Should inherite from an implemention in Boardstate (its missing now) to make BoardState keepable (possibly in PageViewerMain)
-    //TODO maybe catch chessmove diffrence the other way around
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
     if (game != null) {
       widget.boardState.transformTo(game.chessMoves);

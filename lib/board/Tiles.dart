@@ -61,6 +61,11 @@ class Tiles{
     lastHighlighted = highlighted;
   }
 
+  void rotateTilesTo(PlayerColor playerColor){
+    while(perspectiveOf != playerColor){
+      rotateTilesNext();
+    }
+  }
 
   void rotateTilesPrevious() {
     Map<String, Tile> newTiles = {};

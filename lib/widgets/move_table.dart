@@ -97,7 +97,7 @@ class GameTable extends StatelessWidget {
   }
 
   Widget moveTable(BoardState boardState) {
-    print(boardState.chessMoves.length);
+   // print(boardState.chessMoves.length);
     return Container(
       // height: size.height * 0.8,
       child: GridView.count(

@@ -80,7 +80,7 @@ class GameProvider with ChangeNotifier {
     print('start fetching games');
     await fetchGame();
     await fetchGames();
-    GameConversion.printEverything(_game, player, _games);
+    // GameConversion.printEverything(_game, player, _games);
   }
 
 // TODO
@@ -199,9 +199,10 @@ class GameProvider with ChangeNotifier {
     _game = null;
   }
 
-  Future<void> sendMove(ChessMove chessMove) async {
+  Future<bool> sendMove(ChessMove chessMove) async {
     try {
-      await _serverProvider.sendMove(chessMove);
+     final data = await _serverProvider.sendMove(chessMove);
+     return data['valid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating Game', error);
     }

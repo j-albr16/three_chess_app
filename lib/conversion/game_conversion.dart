@@ -135,7 +135,7 @@ class GameConversion {
     // output: return a Player model where User and Player are asigned
     List<Player> convPlayer = [];
     player.forEach((p) {
-      print(p);
+      // print(p);
       final user =
           users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
       // returns user object where player-userId and user.id are qual

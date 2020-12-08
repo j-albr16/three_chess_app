@@ -46,9 +46,9 @@ class MainPageViewerState extends State<MainPageViewer> {
     });
 
     //TODO REMOVE
-    print("########################################");
+    //print("########################################");
     //ConvertDataPrint.printNewBlackAndRedOrder();
-    print("########################################");
+    //print("########################################");
 
     super.initState();
   }

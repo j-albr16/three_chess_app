@@ -76,11 +76,11 @@ class BoardBoardSubScreen extends StatelessWidget {
                             children: [
                               Align(
                                   alignment: Alignment.topLeft,
-                                  child: PlayerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,)),
+                                  child: PlayerTile(isKnown: leftCorner != null,cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: true, isOnline: leftCorner?.isOnline ?? false, score: leftCorner?.user?.score, username: leftCorner?.user?.userName, borderWidth: 2,)),
                               Expanded(child: Container(color: Colors.transparent)),
                               Align(
                                   alignment: Alignment.topRight,
-                                  child: PlayerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: false, isOnline: rightCorner?.isOnline, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,)),
+                                  child: PlayerTile(isKnown: rightCorner != null, cutOfLength: 10, startY: (usableHeight / 2) * 0.7, isCornerLeft: false, isOnline: rightCorner?.isOnline ?? false, score: rightCorner?.user?.score, username: rightCorner?.user?.userName, borderWidth: 2,)),
 
                             ],
                           )),

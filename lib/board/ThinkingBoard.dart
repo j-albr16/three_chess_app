@@ -9,6 +9,13 @@ import '../board/PieceMover.dart';
 
 class ThinkingBoard {
 
+  static _checkEmpty(List list, int index){
+    if(list.isNotEmpty && list.length > index){
+      return list[index];
+    }
+    return null;
+  }
+
   static PlayerColor _getCurrentPlayer(BoardState boardState){
     return PlayerColor.values[boardState.chessMoves.length % 3];
   }
@@ -70,8 +77,8 @@ class ThinkingBoard {
         String possPassent =
             boardState.enpassent[BoardData.sideData[selectedTile]];
         if ([
-          BoardData.adjacentTiles[selectedTile].left[0],
-          BoardData.adjacentTiles[selectedTile].right[0]
+          _checkEmpty(BoardData.adjacentTiles[selectedTile].left, 0),
+          _checkEmpty(BoardData.adjacentTiles[selectedTile].right, 0)
         ].contains(possPassent)) {
           allLegalMoves.add(BoardData.adjacentTiles[possPassent].bottom[0]);
         }
@@ -133,7 +140,7 @@ class ThinkingBoard {
         );
       }
       //Castling check
-      if (!boardState.pieces[selectedTile].didMove) {
+      if (!boardState.pieces[selectedTile].didMove && selectedTile == Tiles.getEqualCoordinate("E1", boardState.pieces[selectedTile].playerColor)) {
         Map<String, Piece> rooks = {
           "left": boardState.pieces[Tiles.getEqualCoordinate("A1", _getCurrentPlayer(boardState))],
           "right": boardState.pieces[Tiles.getEqualCoordinate("H1", _getCurrentPlayer(boardState))]
@@ -259,7 +266,10 @@ class ThinkingBoard {
     result.removeWhere((element) {
       bool resultRemove = false;
       BoardState virtualState = boardState.clone();
-      virtualState.movePieceTo(piece.position, element);
+
+      if (virtualState.pieces[element]?.pieceType != PieceType.King) {
+        virtualState.movePieceTo(piece.position, element);
+      }
 
       resultRemove = isCheck(piece.playerColor, virtualState);
       return resultRemove;

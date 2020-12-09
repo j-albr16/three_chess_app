@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/board/BoardState.dart';
+import 'package:three_chess/board/Tiles.dart';
 import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
@@ -16,22 +17,45 @@ import '../../providers/game_provider.dart';
 import '../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 
-class BoardBoardSubScreen extends StatelessWidget {
+class BoardBoardSubScreen extends StatefulWidget {
   final BoardState boardState;
+  final Tiles tileKeeper;
 
-  BoardBoardSubScreen({this.boardState});
+  BoardBoardSubScreen({this.boardState, this.tileKeeper});
+
+  @override
+  _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
+}
+
+class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
+  bool local = true;
+  ThreeChessBoard threeChessBoard;
+
+  @override
+  void initState(){
+
+    super.initState();
+  }
 
   _moveLeft(){
-    if(boardState.chessMoves.length > 0 && boardState.selectedMove > 0){
-      boardState.selectedMove -= 1;
-    }
+
+      setState(() {
+        widget.boardState.selectedMove -= 1;
+      });
   }
 
   _moveRight(){
-    if(boardState.chessMoves.length > 0 && boardState.selectedMove < boardState.chessMoves.length - 1){
-      boardState.selectedMove += 1;
-    }
+      setState(() {
+        widget.boardState.selectedMove += 1;
+      });
 
+  }
+
+  Future<bool>_sendMove(ChessMove chessMove, GameProvider gameProvider){
+    if(local){
+      return Future.delayed(Duration.zero).then((_) =>  true);
+    }
+    return gameProvider.sendMove(chessMove);
   }
 
   @override
@@ -41,6 +65,23 @@ class BoardBoardSubScreen extends StatelessWidget {
 
     GameProvider gameProvider =
     Provider.of<GameProvider>(context, listen: false);
+    GameProvider gameProviderListen =
+    Provider.of<GameProvider>(context);
+
+    if(gameProviderListen.game != null) {
+      local = false;
+    }
+
+    threeChessBoard = ThreeChessBoard(
+      height: 500,
+      width: 500,
+      didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
+      sendMove: (ChessMove chessMove) => _sendMove(chessMove, gameProvider),
+      whoIsPlaying: local ? null : gameProviderListen.player.playerColor,
+      syncChessMoves: local ? null : ValueNotifier(gameProviderListen.game.chessMoves),
+      tileKeeper: widget.tileKeeper,
+      boardState: widget.boardState,);
+
     Player getPlayer(PlayerColor playerColor) {
       return gameProvider.game?.player?.firstWhere(
               (element) => element.playerColor == playerColor,
@@ -61,7 +102,7 @@ class BoardBoardSubScreen extends StatelessWidget {
         builder: (context, screenHeight, screenWidth, sy, sx)
         {
           double usableHeight = screenHeight - unusableHeight;
-          ThreeChessBoard threeChessBoard = ThreeChessBoard(height: 500, width: 500, isOffline: gameProvider.game == null ? true : false, boardState: boardState,);
+
 
           return Container(
                 height: usableHeight,

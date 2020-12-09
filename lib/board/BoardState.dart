@@ -20,16 +20,21 @@ class BoardState{
   int _selectedMove;
 
   int get selectedMove{
-    return _selectedMove;
+    return _selectedMove ?? chessMoves.length-1;
   }
 
   set selectedMove(int newIndex){
-    assert(newIndex < chessMoves.length);
-    _selectedMove = newIndex;
+    if(newIndex < 0){
+      _selectedMove = 0;
+    } else if(newIndex >= chessMoves.length){
+      _selectedMove = chessMoves.length-1;
+    } else {
+      _selectedMove = newIndex;
+    }
   }
 
   Map<String, Piece> get selectedPieces{
-    return selectedMove == null ? pieces : subStates[selectedMove].pieces;
+    return _selectedMove == null ? pieces : subStates[selectedMove+1].pieces;
   }
 
   BoardState() {
@@ -191,9 +196,11 @@ class BoardState{
                 pieces[BoardData.adjacentTiles[end].top[0]] != null) {
 
               takenPiece = pieces[end].pieceKey;
-              specialMoves.add(SpecialMove.Take);
-              pieces.remove(BoardData.adjacentTiles[end].top[0]);
-              specialMoves.add(SpecialMove.Enpassant);
+              if (enpassent[PieceKeyGen.getPlayerColor(takenPiece)] != null && enpassent[PieceKeyGen.getPlayerColor(takenPiece)] == end) {
+                specialMoves.add(SpecialMove.Take);
+                pieces.remove(BoardData.adjacentTiles[end].top[0]);
+                specialMoves.add(SpecialMove.Enpassant);
+              }
             }
           }
         }
@@ -206,8 +213,9 @@ class BoardState{
         else if(ThinkingBoard.isCheck(PlayerColor.values[chessMoves.length%3], this)){
           specialMoves.add(SpecialMove.Check);
         }
+        _selectedMove = null;
         subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
-        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: pieces[end].pieceKey, specialMoves: specialMoves, takenPiece: takenPiece));
+        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: movedPiece.pieceKey, specialMoves: specialMoves, takenPiece: takenPiece));
       }
   }
 

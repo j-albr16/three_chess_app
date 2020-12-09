@@ -8,21 +8,33 @@ import '../providers/game_provider.dart';
 
 import '../models/player.dart';
 import '../models/user.dart';
+import '../widgets/invitations.dart';
 import '../models/game.dart';
 import '../models/chess_move.dart';
 import '../widgets/move_table.dart';
+import '../providers/friends_provider.dart';
 import '../widgets/chat.dart';
+import '../providers/popup_provider.dart';
 
 class DesignTestScreen extends StatelessWidget {
   static const routeName = '/design-test';
+
+
   @override
   Widget build(BuildContext context) {
+    Provider.of<PopupProvider>(context).displayPopup(context);
     GameProvider _gameProvider=
         Provider.of<GameProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
+          Invitations(
+            acceptInvitation: (String gameId) => print('Accept Invitation to ' + gameId),
+            declineInvitation: () => print('Declined Invitation'),
+            invitations: Provider.of<FriendsProvider>(context).invitations,
+            size: Size(400, 600),
+          ),
           testButtonBar(callback: () => _gameProvider.createTestGame(), color: Colors.orangeAccent, text : 'Create Test Game in DB'),
           sorrounding([
             Text('Surrender'),

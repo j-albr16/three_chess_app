@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ class PopupProvider with ChangeNotifier {
 
   void update({context, friendsProvider}) {
     _friendsProvider = friendsProvider;
+    _checklForPopUps();
   }
 
   PopUp _popUp;
@@ -26,18 +29,27 @@ class PopupProvider with ChangeNotifier {
 
   void _checklForPopUps() {
     // Invitation PopUps
-    if (_friendsProvider.newPopup) {
-      _friendsProvider.newPopup = false;
+    if (_friendsProvider.newInvitation) {
+      _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
     }
   }
+
+  displayPopup(BuildContext context){
+    if(_popUp != null){
+      _popUp(context);
+      _popUp = null;
+    }
+  }
+
 
   void makeInvitationPopup(Game game) {
     Function invitationPopup = (BuildContext context) => showDialog(
           context: context,
           builder: (context) {
             Size size = MediaQuery.of(context).size;
+            new Timer(Duration(seconds : 20), () => Navigator.of(context).pop());
             return Container(
               height: size.height * 0.1,
               width: size.width * 0.35,
@@ -46,7 +58,10 @@ class PopupProvider with ChangeNotifier {
                 borderRadius: BorderRadius.circular(13),
               ),
               child: Invitations.invitationTile(
-                accept: () {},
+                accept: () {
+                  print('Here You will join the Game');
+                  Navigator.of(context).pop();
+                },
                 decline: () => Navigator.of(context).pop(),
                 game: game,
                 size: Size(size.width * 0.34, size.height * 0.1),

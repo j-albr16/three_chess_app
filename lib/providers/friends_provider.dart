@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:provider/provider.dart';
 import 'package:three_chess/conversion/chat_conversion.dart';
 import '../models/friend.dart';
@@ -12,7 +14,7 @@ import '../conversion/friend_conversion.dart';
 class FriendsProvider with ChangeNotifier {
   List<Friend> _friends = [];
   List<Friend> _pendingFriends = [];
-  bool newPopup = false;
+  bool newInvitation = false;
 
   ServerProvider _serverProvider;
   ChatProvider _chatProvider;
@@ -78,11 +80,12 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 Future<void> fetchInvitations() async {
+  print('Fetching Invitations');
     try{
       final Map<String, dynamic> data = await _serverProvider.fetchInvitations();
       data['games'].forEach((gameData) {
-        final playerData = data['player'].firstWhere((player) => player['gameId'] == gameData['_id'], orElse : () => null);
-        final userData = data['user'].firstWhere((user) => user['gameId'] == gameData['_id'], orElse : ()  => null);
+        final playerData = data['player'].where((player) => player['gameId'] == gameData['_id']);
+        final userData = data['user'].where((user) => user['gameId'] == gameData['_id']);
         _invitations.add(GameConversion.rebaseLobbyGame(gameData: gameData, playerData: playerData, userData: userData));
         GameConversion.printEverything(null, null, _invitations);
         notifyListeners();
@@ -149,7 +152,9 @@ Future<void> fetchInvitations() async {
   }
 
   void _handleGameInvitation(Map<String, dynamic> gameData){
+    print('Handling Game Invitation');
     _invitations.add(GameConversion.rebaseWholeGame(gameData));
+    newInvitation = true;
     notifyListeners();
   }
 

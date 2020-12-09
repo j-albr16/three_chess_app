@@ -227,7 +227,9 @@ Future<void> fetchInvitations() async {
     // print('Handling Friend is Online');
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);
+        if(friend != null){
     friend.isOnline = true;
+        }
     notifyListeners();
   }
 

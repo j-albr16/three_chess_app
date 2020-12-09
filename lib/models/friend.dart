@@ -1,8 +1,8 @@
 import './user.dart';
 
 class Friend{
-  bool isPlaying = false;
-  bool isOnline = false;
+  bool isPlaying;
+  bool isOnline;
   User user; 
   String chatId;
   int newMessages;
@@ -10,8 +10,8 @@ class Friend{
   Friend({
     this.newMessages = 0,
     this.chatId,
-    this.isPlaying,
-    this.isOnline,
+    this.isPlaying = false,
+    this.isOnline = false,
     this.user,
   });
 }

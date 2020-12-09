@@ -19,58 +19,95 @@ import '../providers/popup_provider.dart';
 class DesignTestScreen extends StatelessWidget {
   static const routeName = '/design-test';
 
-
   @override
   Widget build(BuildContext context) {
-    Provider.of<PopupProvider>(context).displayPopup(context);
-    GameProvider _gameProvider=
+    WidgetsBinding.instance.addPostFrameCallback((t) {
+      Provider.of<PopupProvider>(context).displayPopup(context);
+    });
+    GameProvider _gameProvider =
         Provider.of<GameProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
           Invitations(
-            acceptInvitation: (String gameId) => print('Accept Invitation to ' + gameId),
+            acceptInvitation: (String gameId) =>
+                print('Accept Invitation to ' + gameId),
             declineInvitation: () => print('Declined Invitation'),
             invitations: Provider.of<FriendsProvider>(context).invitations,
             size: Size(400, 600),
           ),
-          testButtonBar(callback: () => _gameProvider.createTestGame(), color: Colors.orangeAccent, text : 'Create Test Game in DB'),
+          testButtonBar(
+              callback: () => _gameProvider.createTestGame(),
+              color: Colors.orangeAccent,
+              text: 'Create Test Game in DB'),
           sorrounding([
             Text('Surrender'),
-            testButtonBar(callback:() =>  _gameProvider.requestSurrender(), color: Colors.blue, text: 'Surrender Request'),
-            testButtonBar(callback: () => _gameProvider.acceptSurrender(), color: Colors.green, text : 'Surrender Accept'),
-            testButtonBar(callback:() =>  _gameProvider.declineSurrender(), color: Colors.red, text: 'Surrender Decline'),
+            testButtonBar(
+                callback: () => _gameProvider.requestSurrender(),
+                color: Colors.blue,
+                text: 'Surrender Request'),
+            testButtonBar(
+                callback: () => _gameProvider.acceptSurrender(),
+                color: Colors.green,
+                text: 'Surrender Accept'),
+            testButtonBar(
+                callback: () => _gameProvider.declineSurrender(),
+                color: Colors.red,
+                text: 'Surrender Decline'),
           ]),
           sorrounding([
             Text('Remi'),
-            testButtonBar(callback: () => _gameProvider.requestRemi(), color: Colors.tealAccent, text : 'Remi Request'),
-            testButtonBar(callback: () => _gameProvider.acceptRemi(), color: Colors.green, text : 'Remi Accpet'),
-            testButtonBar(callback: () => _gameProvider.declineRemi(), color: Colors.red, text: 'Remi Decline'),
+            testButtonBar(
+                callback: () => _gameProvider.requestRemi(),
+                color: Colors.tealAccent,
+                text: 'Remi Request'),
+            testButtonBar(
+                callback: () => _gameProvider.acceptRemi(),
+                color: Colors.green,
+                text: 'Remi Accpet'),
+            testButtonBar(
+                callback: () => _gameProvider.declineRemi(),
+                color: Colors.red,
+                text: 'Remi Decline'),
           ]),
           sorrounding([
             Text('Take Back'),
-            testButtonBar(callback: () => _gameProvider.requestTakeBack(), color: Colors.orangeAccent, text : 'take Back request'),
-            testButtonBar(callback: () => _gameProvider.acceptTakeBack(), color: Colors.green, text : 'Take Back Accept'),
-            testButtonBar(callback: () => _gameProvider.declineTakeBack(), color: Colors.red, text : 'Take Back Decline')
+            testButtonBar(
+                callback: () => _gameProvider.requestTakeBack(),
+                color: Colors.orangeAccent,
+                text: 'take Back request'),
+            testButtonBar(
+                callback: () => _gameProvider.acceptTakeBack(),
+                color: Colors.green,
+                text: 'Take Back Accept'),
+            testButtonBar(
+                callback: () => _gameProvider.declineTakeBack(),
+                color: Colors.red,
+                text: 'Take Back Decline')
           ])
         ],
       ),
     );
   }
 
-  Widget sorrounding(array){
+  Widget sorrounding(array) {
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
         border: Border.all(width: 2, color: Colors.black),
       ),
-      child: Padding(padding: EdgeInsets.all(13), child: Column(children: array,),),
+      child: Padding(
+        padding: EdgeInsets.all(13),
+        child: Column(
+          children: array,
+        ),
+      ),
     );
   }
 
-  Widget testButtonBar({String text,  callback, Color color}) {
+  Widget testButtonBar({String text, callback, Color color}) {
     return FlatButton(
       color: color,
       height: 200,

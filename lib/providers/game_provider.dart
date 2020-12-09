@@ -245,7 +245,9 @@ class GameProvider with ChangeNotifier {
       // Convert Data to existing Models
       data['gameData']['games'].forEach((game) {
         final playerData = data['gameData']['player']?.where((player) => player['gameId'] == game['_id']);
+        print(playerData);
         final userData= data['gameData']['user']?.where((user) =>user['gameId'] == game['_id']);
+        print(userData);
 _games.add(GameConversion.rebaseLobbyGame(
             gameData: game,
             playerData: playerData,
@@ -375,10 +377,12 @@ _games.add(GameConversion.rebaseLobbyGame(
     print('Handle Player Joined');
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
+    if(gameIndex != -1){
     _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
           playerData: gameData['player'],
           userData: gameData['user'],
         ));
+    }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
     }

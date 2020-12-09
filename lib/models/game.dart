@@ -46,3 +46,14 @@ class Game {
     this.endGameExpiry,
   });
 }
+
+// example for fnishedGameData : 
+
+// {
+//   'winner' : PlayerColor playerColor,
+//   PlayerColor.white : int newScore,
+//   PlayerColor.black : int newScore,
+//   PlayerColor.red : int newScore,
+//   'howGameEnded : HowGameEnded howGmaeEnded
+
+// }

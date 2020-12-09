@@ -41,6 +41,7 @@ class MainPageViewerState extends State<MainPageViewer> {
       GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
       gameProvider.fetchAll();
          Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+         Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
          Provider.of<OnlineProvider>(context, listen: false);
          Provider.of<UserProvider>(context, listen: false).fetchUser();
     });

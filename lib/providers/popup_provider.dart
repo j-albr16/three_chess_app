@@ -41,6 +41,7 @@ class PopupProvider with ChangeNotifier {
     if (hasPopup) {
       _popUp(context);
       _popUp = null;
+      hasPopup = false;
     }
   }
 
@@ -64,8 +65,8 @@ class PopupProvider with ChangeNotifier {
       child: Stack(
         children: [
           Positioned(
-            height: 30,
-            left: 30,
+            height: 70,
+            left: 70,
             child: Container(
               height: size.height * 0.1,
               width: size.width * 0.35,

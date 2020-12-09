@@ -21,8 +21,12 @@ class DesignTestScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool hasPopup = Provider.of<PopupProvider>(context).hasPopup;
     WidgetsBinding.instance.addPostFrameCallback((t) {
-      Provider.of<PopupProvider>(context).displayPopup(context);
+      if (hasPopup) {
+        Provider.of<PopupProvider>(context, listen: false)
+            .displayPopup(context);
+      }
     });
     GameProvider _gameProvider =
         Provider.of<GameProvider>(context, listen: false);

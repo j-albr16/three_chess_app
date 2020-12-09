@@ -22,6 +22,7 @@ class PopupProvider with ChangeNotifier {
   }
 
   PopUp _popUp;
+  bool hasPopup = false;
 
   PopUp get popUp {
     return _popUp;
@@ -37,7 +38,7 @@ class PopupProvider with ChangeNotifier {
   }
 
   displayPopup(BuildContext context){
-    if(_popUp != null){
+    if(hasPopup){
       _popUp(context);
       _popUp = null;
     }
@@ -70,5 +71,6 @@ class PopupProvider with ChangeNotifier {
           },
         );
     _popUp = invitationPopup;
+    hasPopup = true;
   }
 }

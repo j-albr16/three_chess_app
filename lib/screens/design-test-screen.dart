@@ -26,6 +26,7 @@ class DesignTestScreen extends StatelessWidget {
       if (hasPopup) {
         Provider.of<PopupProvider>(context, listen: false)
             .displayPopup(context);
+        hasPopup = false;
       }
     });
     GameProvider _gameProvider =

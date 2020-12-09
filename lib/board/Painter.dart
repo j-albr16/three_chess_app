@@ -15,7 +15,7 @@ class BoardPainter extends StatelessWidget {
   final List<String> highlighted;
 
 
-  BoardPainter({@required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.pieceOffsetKey, this.highlighted});
+  BoardPainter({Key key, @required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.pieceOffsetKey, this.highlighted}) : super(key: key);
 
   // List<Widget> _buildHighlighted(List<String> currHighlighted){
   //   print(currHighlighted.toString() + "PAINTER SEES THIS");

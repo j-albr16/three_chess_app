@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/board/BoardState.dart';
+import 'package:three_chess/board/Tiles.dart';
 import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
@@ -40,11 +41,13 @@ class _BoardScreenState extends State<BoardScreen> {
   double chatScreenHeight = 0;
   double voteHeightFraction = 0.1;
   GameProvider gameProvider;
+  Tiles tileKeeper;
 
   @override
   void initState() {
     boardState = BoardState();
     controller = ScrollController();
+    tileKeeper = Tiles();
     Future.delayed(Duration.zero).then((_) => gameProvider = Provider.of(context, listen: false));
 
     // threeChessBoard = ThreeChessBoard(
@@ -168,7 +171,8 @@ Function getOnDecline(RequestType requestType){
           ChatBoardSubScreen(
               height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
-            boardState: boardState,),
+            boardState: boardState,
+          tileKeeper: tileKeeper,),
           ...votes,
           TableBoardSubScreen(
             boardState: boardState,

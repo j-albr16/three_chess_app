@@ -21,7 +21,7 @@ const String SERVER_URL = SERVER_ADRESS;
 
 const printCreateGame = true;
 const printjoinGame = true;
-const printFetchGame = true;
+const printFetchGame = false;
 const printFetchGames = false;
 const printGameSocket = true;
 const printGameMove = true;
@@ -80,7 +80,7 @@ class GameProvider with ChangeNotifier {
     print('start fetching games');
     await fetchGame();
     await fetchGames();
-    GameConversion.printEverything(_game, player, _games);
+    // GameConversion.printEverything(_game, player, _games);
   }
 
 // TODO
@@ -199,9 +199,10 @@ class GameProvider with ChangeNotifier {
     _game = null;
   }
 
-  Future<void> sendMove(ChessMove chessMove) async {
+  Future<bool> sendMove(ChessMove chessMove) async {
     try {
-      await _serverProvider.sendMove(chessMove);
+     final data = await _serverProvider.sendMove(chessMove);
+     return data['valid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating Game', error);
     }
@@ -244,7 +245,9 @@ class GameProvider with ChangeNotifier {
       // Convert Data to existing Models
       data['gameData']['games'].forEach((game) {
         final playerData = data['gameData']['player']?.where((player) => player['gameId'] == game['_id']);
+        print(playerData);
         final userData= data['gameData']['user']?.where((user) =>user['gameId'] == game['_id']);
+        print(userData);
 _games.add(GameConversion.rebaseLobbyGame(
             gameData: game,
             playerData: playerData,
@@ -374,10 +377,12 @@ _games.add(GameConversion.rebaseLobbyGame(
     print('Handle Player Joined');
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
+    if(gameIndex != -1){
     _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
           playerData: gameData['player'],
           userData: gameData['user'],
         ));
+    }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
     }
@@ -404,6 +409,8 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleMoveData(Map<String, dynamic> moveData) {
     print('Handle Move Data');
+    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3 ];
+    moveData['playerColor'] = playerColor;
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true

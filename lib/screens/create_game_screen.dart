@@ -109,20 +109,24 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   // Friend Popup
   int friendSelectionAmount = 0;
   Function confirmFriendSelection(List<String> selectedFriendIds) {
-    selectedFriends = friends.where((friend) =>  selectedFriendIds.contains(friend.user.id)).toList();
+    selectedFriends = friends
+        .where((friend) => selectedFriendIds.contains(friend.user.id))
+        .toList();
     Navigator.of(context).pop();
     setState(() {});
   }
+
   Function cancelFriendSelection() {
     Navigator.of(context).pop();
   }
-  Function removeFriend(String id){
+
+  Function removeFriend(String id) {
     setState(() {
       selectedFriends.removeWhere((friend) => friend.user.id == id);
     });
   }
 
-List<Friend> selectedFriends = [];
+  List<Friend> selectedFriends = [];
   List<Friend> friends;
 
   // Rating Range
@@ -167,7 +171,7 @@ List<Friend> selectedFriends = [];
       invitations,
       posRatingRange,
       allowPremades}) {
-      print('Create Game');
+    print('Create Game');
     _gameProvider.createGame(
       increment: increment,
       time: time,
@@ -185,6 +189,21 @@ List<Friend> selectedFriends = [];
     Navigator.of(context).pop();
   }
 
+bool didCheckForPreInvites = false;
+  void checkForPreinvites() {
+    final args =
+        ModalRoute.of(context).settings.arguments as Map<String, String>;
+    final String friendId = args['friend'];
+    if (friendId != null) {
+      Friend friend = friends.firstWhere((friend) => friend.user.id == friendId,
+          orElse: () => null);
+      if (friend != null) {
+          selectedFriends.add(friend);
+          didCheckForPreInvites = true;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_isInit) {
@@ -199,7 +218,10 @@ List<Friend> selectedFriends = [];
           builder: (context, userProvider, friendsProvider, child) {
         user = userProvider.user;
         friends = friendsProvider.friends;
-        if (posRatingRange == null ) {
+        if(!didCheckForPreInvites){
+          checkForPreinvites();
+        }
+        if (posRatingRange == null) {
           posRatingRange = user.score + 100.0;
           negRatingRange = user.score - 100.0;
         }
@@ -207,7 +229,8 @@ List<Friend> selectedFriends = [];
           allowPremades: allowPremades,
           cancelCreateGame: () => cancelCreateGame(),
           createGame: (model) => createGame(
-            invitations : selectedFriends.map((friend) => friend.user.id).toList(),
+            invitations:
+                selectedFriends.map((friend) => friend.user.id).toList(),
             allowPremades: model.allowPremades,
             increment: model.increment,
             isPublic: model.isPublic,
@@ -235,7 +258,8 @@ List<Friend> selectedFriends = [];
           timeMin: timeMin,
           removeFriend: (String id) => removeFriend(id),
           cancelFriendInvitation: () => cancelFriendSelection(),
-          confirmFriendInvitations: (List<String> selectedFriendIds)  => confirmFriendSelection(selectedFriendIds),
+          confirmFriendInvitations: (List<String> selectedFriendIds) =>
+              confirmFriendSelection(selectedFriendIds),
           updateAllowPremades: (bool value) => updateAllowPremades(value),
           updateButtonBarData: (int index) => updateButtonBarData(index),
           updateIncrement: (double value) => updateIncrement(value),

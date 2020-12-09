@@ -235,6 +235,7 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     switch (data['action']) {
       case 'move-made':
+      print('Chess Move was made'); 
         moveMadeCallback(data['chessMove']);
         break;
       case 'player-joined-lobby':
@@ -475,7 +476,7 @@ class ServerProvider with ChangeNotifier {
     return data;
   }
 
-  Future<void> sendMove(ChessMove chessMove) async {
+  Future<Map<String, dynamic>> sendMove(ChessMove chessMove) async {
     // input: receives a ChessMove as Input
     // output: sends chess move to server. Server validates and saves chess Move in Lobby of the Auth User. Then returns a json and socket response
     // chess Move will be saved in Game Model of all Player in Lobby
@@ -500,6 +501,7 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     // You are also lstening becuause you created Or joined a Game
     // print everything depending on abogh set Options
+    return data;
   }
 
   Future<Map<String, dynamic>> fetchGame() async {

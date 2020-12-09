@@ -41,7 +41,7 @@ class GameConversion {
     // input: takes the decoded GameData of an JSON Response as Input
     // output: returns a converted Game that includes Lobby Game Data
     //No Chess Moves made in Lobby Games
-    List<ChessMove> chessMoves = [];
+    List<ChessMove> chessMoves = [] ;
     // convert player List and add them to existing player class
     List<Player> convPlayer = connectUserPlayerData(
       player: playerData,
@@ -79,6 +79,9 @@ class GameConversion {
   static Player rebaseOnePlayer({playerData, userData}) {
     // input: takes player Converted Data of One Player as Input
     // output: returns a Player Model with the Given Data
+    print('-----------------Here-------------------------');
+    print(playerData['playerColor']);
+    print(userData);
     return new Player(
       isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
@@ -135,7 +138,7 @@ class GameConversion {
     // output: return a Player model where User and Player are asigned
     List<Player> convPlayer = [];
     player.forEach((p) {
-      print(p);
+      // print(p);
       final user =
           users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
       // returns user object where player-userId and user.id are qual
@@ -199,10 +202,11 @@ class GameConversion {
         print(' -> remainingTime:   ' + m.remainingTime.toString());
       });
     }
+    if(player != null){
     print('=================================================================================================');
     print('This Player:----------------------------------------------------------------------------------------');
-    print('playerColor:     ' + player.playerColor.toString());
-    print('remainingTime:   ' + player.remainingTime.toString());
+    print('playerColor:     ' + player?.playerColor?.toString());
+    print('remainingTime:   ' + player?.remainingTime?.toString());
     print('---------------------------------------------------------------------------------------------------');
     print('user:---------------------------------------------------------------------------------------------');
     print(' -> id:          ' + player.user.id.toString());
@@ -210,6 +214,7 @@ class GameConversion {
     print(' -> score:       ' + player.user.score.toString());
     print(' -> email:       ' + player.user.email.toString());
     print('=========================================================================================================');
+    }
     if (games.isNotEmpty) {
       print('games:------------------------------------------------------------------------------------------------');
       for (game in games) {

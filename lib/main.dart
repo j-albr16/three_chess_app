@@ -11,6 +11,7 @@ import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';
 import './providers/auth_provider.dart';
 import './screens/auth_test_screen.dart';
+import './providers/popup_provider.dart';
 import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';
 import './screens/game_provider_test_screen.dart';
@@ -66,23 +67,30 @@ class ThreeChessApp extends StatelessWidget {
                 friends: previousFriends.friends,
               ),
           ),
-          ChangeNotifierProxyProvider2<ServerProvider, GameProvider, UserProvider>(
+          ChangeNotifierProxyProvider2<ServerProvider, GameProvider,
+              UserProvider>(
             create: (_) => UserProvider(),
             update: (_, server, gameProvider, previousUser) => previousUser
               ..update(
-                gameProvider : gameProvider,
+                gameProvider: gameProvider,
                 serverProvider: server,
                 user: previousUser.user,
               ),
           ),
-          ChangeNotifierProxyProvider2<ServerProvider ,GameProvider, OnlineProvider>(
+          ChangeNotifierProxyProvider2<ServerProvider, GameProvider,
+              OnlineProvider>(
             create: (_) => OnlineProvider(),
-            update: (_,serverProvider, gameProvider, previousOnlineProvider) =>
-                previousOnlineProvider..update(game: gameProvider.game, server: serverProvider),
+            update: (_, serverProvider, gameProvider, previousOnlineProvider) =>
+                previousOnlineProvider
+                  ..update(game: gameProvider.game, server: serverProvider),
           ),
           ChangeNotifierProvider<ScrollProvider>(
             create: (_) => ScrollProvider(),
           ),
+          ChangeNotifierProxyProvider<FriendsProvider, PopupProvider>(
+              create: (_) => PopupProvider(),
+              update: (_, friendsProvider, popUpProvider) =>
+                  popUpProvider..update(friendsProvider: friendsProvider))
         ],
         child: MaterialApp(
           theme: ThemeData(

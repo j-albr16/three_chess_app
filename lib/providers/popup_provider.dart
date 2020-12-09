@@ -16,7 +16,7 @@ typedef PopUp(BuildContext context);
 class PopupProvider with ChangeNotifier {
   FriendsProvider _friendsProvider;
 
-  void update({context, friendsProvider}) {
+  void update({friendsProvider}) {
     _friendsProvider = friendsProvider;
     _checklForPopUps();
   }

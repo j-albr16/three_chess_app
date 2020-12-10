@@ -41,7 +41,7 @@ class GameConversion {
     // input: takes the decoded GameData of an JSON Response as Input
     // output: returns a converted Game that includes Lobby Game Data
     //No Chess Moves made in Lobby Games
-    List<ChessMove> chessMoves = [] ;
+    List<ChessMove> chessMoves = [];
     // convert player List and add them to existing player class
     List<Player> convPlayer = connectUserPlayerData(
       player: playerData,
@@ -166,13 +166,17 @@ class GameConversion {
   }
 
   static printEverything(Game game, Player player, List<Game> games) {
-    print('###########################################################################################');
+    print(
+        '###########################################################################################');
     if (game != null) {
-      print('Game:-------------------------------------------------------------------------------------');
-      print('===========================================================================================');
+      print(
+          'Game:-------------------------------------------------------------------------------------');
+      print(
+          '===========================================================================================');
       print('id:         ' + game.id.toString());
       print('didStart:   ' + game.didStart.toString());
-      print('----------------------------------------------------------------------------------------------');
+      print(
+          '----------------------------------------------------------------------------------------------');
       print('options: --------------------------   ');
       print(' -> increment:       ' + game.increment.toString());
       print(' -> time:            ' + game.time.toString());
@@ -180,50 +184,65 @@ class GameConversion {
       print(' -> posRatingrange:  ' + game.posRatingRange.toString());
       print(' -> isPublic:        ' + game.isPublic.toString());
       print(' -> isRated:         ' + game.isRated.toString());
-      print('----------------------------------------------------------------------------------------------');
-      print('player:---------------------------------------------------------------------------------------');
+      print(
+          '----------------------------------------------------------------------------------------------');
+      print(
+          'player:---------------------------------------------------------------------------------------');
       int index = 0;
       game.player.forEach((e) {
-        print('Player ' +  index.toString());
+        print('Player ' + index.toString());
         print(' -> playerColor:     ' + e.playerColor.toString());
         print(' -> remainingTime:   ' + e.remainingTime.toString());
         print(' -> user:-----------------------');
         print('     - id:               ' + e.user.id.toString());
         print('     - userName:         ' + e.user.userName.toString());
         print('     - score:            ' + e.user.score.toString());
-      print('----------------------------------------------------------------------------------------------');
-      index ++;
+        print(
+            '----------------------------------------------------------------------------------------------');
+        index++;
       });
-      print('Chess Moves:--------------------------------------------------------------------------------');
+      print(
+          'Chess Moves:--------------------------------------------------------------------------------');
       game.chessMoves.forEach((m) {
-        print('one move:-------------------------------------------------------------------------------------');
+        print(
+            'one move:-------------------------------------------------------------------------------------');
         print(' -> initialTile:     ' + m.initialTile);
         print(' -> nextTile:        ' + m.nextTile);
         print(' -> remainingTime:   ' + m.remainingTime.toString());
       });
     }
-    if(player != null){
-    print('=================================================================================================');
-    print('This Player:----------------------------------------------------------------------------------------');
-    print('playerColor:     ' + player?.playerColor?.toString());
-    print('remainingTime:   ' + player?.remainingTime?.toString());
-    print('---------------------------------------------------------------------------------------------------');
-    print('user:---------------------------------------------------------------------------------------------');
-    print(' -> id:          ' + player.user.id.toString());
-    print(' -> userName:    ' + player.user.userName.toString());
-    print(' -> score:       ' + player.user.score.toString());
-    print(' -> email:       ' + player.user.email.toString());
-    print('=========================================================================================================');
+    if (player != null) {
+      print(
+          '=================================================================================================');
+      print(
+          'This Player:----------------------------------------------------------------------------------------');
+          print('playerColor: ');
+      print(player.playerColor);
+      print('remainingTime:   ' + player?.remainingTime?.toString());
+      print(
+          '---------------------------------------------------------------------------------------------------');
+      print(
+          'user:---------------------------------------------------------------------------------------------');
+      print(' -> id:          ' + player.user.id.toString());
+      print(' -> userName:    ' + player.user.userName.toString());
+      print(' -> score:       ' + player.user.score.toString());
+      print(' -> email:       ' + player.user.email.toString());
+      print(
+          '=========================================================================================================');
     }
     if (games.isNotEmpty) {
-      print('games:------------------------------------------------------------------------------------------------');
+      print(
+          'games:------------------------------------------------------------------------------------------------');
       for (game in games) {
-        print('a game:-----------------------------------------------------------------------------------------');
+        print(
+            'a game:-----------------------------------------------------------------------------------------');
         print(' -> id:        ' + game.id.toString());
         print(' -> isRated:   ' + game.isRated.toString());
-        print('-----------------------------------------------------------------------------------------------');
+        print(
+            '-----------------------------------------------------------------------------------------------');
       }
     }
-    print('#####################################################################################################');
+    print(
+        '#####################################################################################################');
   }
 }

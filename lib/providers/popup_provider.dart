@@ -61,16 +61,15 @@ class PopupProvider with ChangeNotifier {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      clipBehavior: Clip.none,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       child: Stack(
         children: [
           Positioned(
-            height: 30,
-            left: 30,
+            top: 1,
+            left: 1,
             child: Container(
-              // height: size.height * 0.1,
-              // width: size.width * 0.35,
-              alignment: Alignment.topLeft,
+            width: size.width - 3,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(13),
@@ -82,7 +81,7 @@ class PopupProvider with ChangeNotifier {
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,
-                size: Size(size.width * 0.7, size.height * 0.7),
+                size: Size(size.width * 0.4, size.height * 0.2),
               ),
             ),
           ),

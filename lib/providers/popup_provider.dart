@@ -45,6 +45,7 @@ class PopupProvider with ChangeNotifier {
     }
   }
 
+
   void makeInvitationPopup(Game game) {
     _popUp = (BuildContext context) => showDialog(
           context: context,
@@ -81,7 +82,6 @@ class PopupProvider with ChangeNotifier {
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,
-                size: Size(size.width * 0.4, size.height * 0.2),
               ),
             ),
           ),

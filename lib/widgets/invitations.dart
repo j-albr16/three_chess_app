@@ -47,11 +47,17 @@ class Invitations extends StatelessWidget {
       padding: EdgeInsets.all(13),
       child: Column(
         children: [
-          Text(
-            'Game Invitation',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Game Invitation',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
-          gameInfos(game.player[0].user.userName, game.time, game.increment),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: gameInfos(game.player[0].user.userName, game.time, game.increment),
+          ),
           actionButtons(accept, decline, game.id),
         ],
       ),
@@ -74,13 +80,13 @@ class Invitations extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         FlatButton(
-          padding: EdgeInsets.all(6),
+          padding: EdgeInsets.all(9),
           child: Text('Join'),
           color: Colors.green,
           onPressed: () => accept(gameId),
         ),
         FlatButton(
-          padding: EdgeInsets.all(6),
+          padding: EdgeInsets.all(9),
           child: Text('Discard'),
           color: Colors.red,
           onPressed: () => decline(),

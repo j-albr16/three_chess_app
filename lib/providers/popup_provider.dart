@@ -65,11 +65,11 @@ class PopupProvider with ChangeNotifier {
       child: Stack(
         children: [
           Positioned(
-            height: 70,
-            left: 70,
+            height: 30,
+            left: 30,
             child: Container(
-              height: size.height * 0.1,
-              width: size.width * 0.35,
+              // height: size.height * 0.1,
+              // width: size.width * 0.35,
               alignment: Alignment.topLeft,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -82,7 +82,7 @@ class PopupProvider with ChangeNotifier {
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,
-                size: Size(size.width * 0.34, size.height * 0.1),
+                size: Size(size.width * 0.7, size.height * 0.7),
               ),
             ),
           ),

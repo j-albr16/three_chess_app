@@ -251,7 +251,8 @@ class CreateGame extends StatelessWidget {
   }
 
   Widget inviteFriend(BuildContext context) {
-    List<String> selectedFriendIds = [];
+    List<String> selectedFriendIds =
+        selectedFriends.map((e) => e.user.id).toList();
     return FlatButton(
         child: Text(
           'Invite Friends',
@@ -290,23 +291,23 @@ class CreateGame extends StatelessWidget {
   Widget invitedFriends() {
     print('Create invite Friends');
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: selectedFriends
-            .map((e) {
-              print('Hi');
-      return
-         Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: SizedBox(
-            height: size.height * 0.08,
-            width : size.width / 3,
-            child: FriendPopup.friendTile(e, size, remove: true, removeCallback: (String id) => removeFriend(id))),
-          // child: Text(e.user.userName),
-          elevation: 8,
-      );
-    }).toList());
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: selectedFriends.map((e) {
+          print('Hi');
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: SizedBox(
+                height: size.height * 0.08,
+                width: size.width / 3,
+                child: FriendPopup.friendTile(e, size,
+                    remove: true,
+                    removeCallback: (String id) => removeFriend(id))),
+            // child: Text(e.user.userName),
+            elevation: 8,
+          );
+        }).toList());
   }
 
   Widget finishSelection() {

@@ -27,13 +27,12 @@ class FriendsProvider with ChangeNotifier {
   List<Friend> get pendingFriends {
     return [..._pendingFriends];
   }
+
   List<Game> _invitations = [];
 
   List<Game> get invitations {
     return [..._invitations];
   }
-
-
 
   void update({friends, serverProvider, chatProvider}) {
     print('Update');
@@ -70,31 +69,42 @@ class FriendsProvider with ChangeNotifier {
       _pendingFriends = [];
       final Map<String, dynamic> data = await _serverProvider.fetchFriends();
       // destinguish between friends whoare accepted and those who are not
-      data['friends'].forEach((friend) =>
-          _friends.add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
-      data['pendingFriends'].forEach((pendingFriend) => _pendingFriends
-          .add(FriendConversion.matchChatIdAndFriend(pendingFriend, data['chats'])));
+      data['friends'].forEach((friend) => _friends
+          .add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
+      data['pendingFriends'].forEach((pendingFriend) => _pendingFriends.add(
+          FriendConversion.matchChatIdAndFriend(pendingFriend, data['chats'])));
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Friends', error);
     }
   }
-Future<void> fetchInvitations() async {
-  print('Fetching Invitations');
-    try{
-      final Map<String, dynamic> data = await _serverProvider.fetchInvitations();
-      data['games'].forEach((gameData) {
-        final playerData = data['player']?.where((player) => player['gameId'] == gameData['_id']);
-        print(playerData);
-        final userData = data['user']?.where((user) => user['gameId'] == gameData['_id']);
-        print(userData);
-        _invitations.add(GameConversion.rebaseLobbyGame(gameData: gameData, playerData: playerData, userData: userData));
-        GameConversion.printEverything(null, null, _invitations);
-        notifyListeners();
-      });
-    }catch(error){
+
+  Future<void> fetchInvitations() async {
+    print('Fetching Invitations');
+    String message = 'An Erro Ocured. Sry';
+    try {
+      final Map<String, dynamic> data =
+          await _serverProvider.fetchInvitations();
+      if (data['games'] == null) {
+        message = 'No Invitations';
+      } else {
+        data['games'].forEach((gameData) {
+          final playerData = data['player']
+              ?.where((player) => player['gameId'] == gameData['_id']);
+          print(playerData);
+          final userData =
+              data['user']?.where((user) => user['gameId'] == gameData['_id']);
+          print(userData);
+          _invitations.add(GameConversion.rebaseLobbyGame(
+              gameData: gameData, playerData: playerData, userData: userData));
+          GameConversion.printEverything(null, null, _invitations);
+          notifyListeners();
+        });
+      }
+    } catch (error) {
       _serverProvider.handleError('Error while fetching Invitations', error);
-    };
+    }
+    ;
   }
 
   Future<String> makeFriendRequest(String userName) async {
@@ -105,12 +115,12 @@ Future<void> fetchInvitations() async {
       // add _frinds =>  but until acceptance not accepted
       // _pendingFriends.add(FriendConversion.rebaseOneFriend(data['friend'], data['chatId']));
       notifyListeners();
-        if(data['valid']){
-          message = data['message'];
-        }
+      if (data['valid']) {
+        message = data['message'];
+      }
     } catch (error) {
       _serverProvider.handleError('Erorr while Making Friend Request', error);
-    }finally{
+    } finally {
       return message;
     }
   }
@@ -120,17 +130,17 @@ Future<void> fetchInvitations() async {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.acceptFriend(userId);
-        int friendIndex =
-            _pendingFriends.indexWhere((friend) => friend.user.id == userId);
-        _friends.add(_pendingFriends[friendIndex]);
-        _pendingFriends.removeAt(friendIndex);
-        if(data['valid']){
-          message = data['message'];
-        }
+      int friendIndex =
+          _pendingFriends.indexWhere((friend) => friend.user.id == userId);
+      _friends.add(_pendingFriends[friendIndex]);
+      _pendingFriends.removeAt(friendIndex);
+      if (data['valid']) {
+        message = data['message'];
+      }
     } catch (error) {
       _serverProvider.handleError('Error whle Accepting Friend', error);
-    }finally{
-        notifyListeners();
+    } finally {
+      notifyListeners();
       return message;
     }
   }
@@ -144,13 +154,13 @@ Future<void> fetchInvitations() async {
         _pendingFriends
             .removeWhere((friend) => friend.user.id == data['userId']);
       }
-        if(data['valid']){
-          message = data['message'];
-        }
+      if (data['valid']) {
+        message = data['message'];
+      }
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error While declining Friend', error);
-    }finally{
+    } finally {
       return message;
     }
   }
@@ -163,18 +173,18 @@ Future<void> fetchInvitations() async {
       if (data['valid']) {
         _friends.removeWhere((friend) => friend.user.id == userId);
       }
-        if(data['valid']){
-          message = data['message'];
-        }
+      if (data['valid']) {
+        message = data['message'];
+      }
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error While Removing Friend', error);
-    }finally{
+    } finally {
       return message;
     }
   }
 
-  void _handleGameInvitation(Map<String, dynamic> gameData){
+  void _handleGameInvitation(Map<String, dynamic> gameData) {
     print('Handling Game Invitation');
     _invitations.add(GameConversion.rebaseWholeGame(gameData));
     newInvitation = true;
@@ -227,9 +237,9 @@ Future<void> fetchInvitations() async {
     // print('Handling Friend is Online');
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);
-        if(friend != null){
-    friend.isOnline = true;
-        }
+    if (friend != null) {
+      friend.isOnline = true;
+    }
     notifyListeners();
   }
 
@@ -245,5 +255,4 @@ Future<void> fetchInvitations() async {
     _friends.removeWhere((friend) => friend.user.id == userId);
     notifyListeners();
   }
-
 }

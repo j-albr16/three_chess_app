@@ -173,7 +173,7 @@ class ServerProvider with ChangeNotifier {
         friendRequestCallback(data['friendData'], data['chatId']);
         break;
       case 'friend-accepted':
-        friendAcceptedCallback(data['userId']);
+        friendAcceptedCallback(data);
         break;
       case 'friend-declined':
         friendDeclinedCallback(data['friendId']);
@@ -235,7 +235,7 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     switch (data['action']) {
       case 'move-made':
-      print('Chess Move was made'); 
+        print('Chess Move was made');
         moveMadeCallback(data['chessMove']);
         break;
       case 'player-joined-lobby':

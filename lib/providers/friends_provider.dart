@@ -51,7 +51,7 @@ class FriendsProvider with ChangeNotifier {
     _chatProvider.subsribeToAuthUserChannel(
       friendRemovedCallback: (userId) => _handleFriendRemove(userId),
       friendDeclinedCallback: (userId) => _handleFriendDeclined(userId),
-      friendAcceptedCallback: (userId) => _handleFriendAccepted(userId),
+      friendAcceptedCallback: (data) => _handleFriendAccepted(data['user'], data['chatId']),
       friendRequestCallback: (friendData, chatId) =>
           _handleFriendRequest(friendData, chatId),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
@@ -197,10 +197,10 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleFriendAccepted(String userId) {
+  void _handleFriendAccepted(Map<String ,dynamic> userData, String chatId) {
     int friendIndex =
-        _pendingFriends.indexWhere((friend) => friend.user.id == userId);
-    _friends.add(_pendingFriends[friendIndex]);
+        _pendingFriends.indexWhere((friend) => friend.user.id == userData['_id']);
+    _friends.add(FriendConversion.rebaseOneFriend(userData, chatId));
     _pendingFriends.removeAt(friendIndex);
     notifyListeners();
   }

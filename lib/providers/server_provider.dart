@@ -703,7 +703,7 @@ void _handleSocketServerMessage(String action, String message) {
 }
 
 void _printRawData(dynamic data) {
-  if (data['action'] != 'friend-online' && data['valid']) {
+  if (data['action'] != 'friend-online' && data['valid'] == true) {
     print(
         '-------------------------------------------------------------------------------------------------');
     print(

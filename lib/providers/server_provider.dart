@@ -662,9 +662,12 @@ class ServerProvider with ChangeNotifier {
     if (data == null) {
       throw ('No Data was Received. Data is null');
     }
-    if (!data['valid']) {
-      throw ('Data is not Valid. This is the Message sent from Server:   ' +
+    if(!data['valid']){
+   if (data['problem']) {
+      throw ('Data is not Valid. This is the Message sent from Server: ' +
           data['message']);
+    }else {
+      throw (data['message']);
     }
   }
 
@@ -702,7 +705,7 @@ void _handleSocketServerMessage(String action, String message) {
 }
 
 void _printRawData(dynamic data) {
-  if (data['action'] != 'friend-online') {
+  if (data['action'] != 'friend-online' && data['valid']) {
     print(
         '-------------------------------------------------------------------------------------------------');
     print(

@@ -49,11 +49,11 @@ class FriendsProvider with ChangeNotifier {
   void subscribeToAuthUserChannel() {
     print('Did Subscribe to Auth User Channel');
     _chatProvider.subsribeToAuthUserChannel(
-      friendRemovedCallback: (userId) => _handleFriendRemove(userId),
-      friendDeclinedCallback: (userId) => _handleFriendDeclined(userId),
-      friendAcceptedCallback: (data) => _handleFriendAccepted(data['user'], data['chatId']),
-      friendRequestCallback: (friendData, chatId) =>
-          _handleFriendRequest(friendData, chatId),
+      friendRemovedCallback: (userId, message) => _handleFriendRemove(userId, message),
+      friendDeclinedCallback: (message) => _handleFriendDeclined(message),
+      friendAcceptedCallback: (data) =>
+          _handleFriendAccepted(data['user'], data['chatId'], data['message']),
+      friendRequestCallback: (friendData, message) => _handleFriendRequest(friendData, message),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
       friendIsAfkCallback: (userId) => _handleFriendIsAfk(userId),
       friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
@@ -113,7 +113,6 @@ class FriendsProvider with ChangeNotifier {
       final Map<String, dynamic> data =
           await _serverProvider.sendFriendRequest(userName);
       // add _frinds =>  but until acceptance not accepted
-      // _pendingFriends.add(FriendConversion.rebaseOneFriend(data['friend'], data['chatId']));
       notifyListeners();
       if (data['valid']) {
         message = data['message'];
@@ -130,10 +129,10 @@ class FriendsProvider with ChangeNotifier {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.acceptFriend(userId);
-      int friendIndex =
-          _pendingFriends.indexWhere((friend) => friend.user.id == userId);
-      _friends.add(_pendingFriends[friendIndex]);
-      _pendingFriends.removeAt(friendIndex);
+      _friends.add(FriendConversion.rebaseOneFriend(data['friend'],
+          chatId: data['chatId']));
+      _pendingFriends
+          .removeWhere((pFriend) => pFriend.user.id == data['friend']['_id']);
       if (data['valid']) {
         message = data['message'];
       }
@@ -191,22 +190,29 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleFriendRequest(Map<String, dynamic> friendData, String chatId) {
+  void _handleFriendRequest(
+      Map<String, dynamic> friendData, String message) {
     // add new Friend to _friends
-    _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData, chatId));
+    print(message);
+    _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData));
     notifyListeners();
   }
 
-  void _handleFriendAccepted(Map<String ,dynamic> userData, String chatId) {
-    int friendIndex =
-        _pendingFriends.indexWhere((friend) => friend.user.id == userData['_id']);
-    _friends.add(FriendConversion.rebaseOneFriend(userData, chatId));
-    _pendingFriends.removeAt(friendIndex);
+  void _handleFriendAccepted(
+      Map<String, dynamic> userData, String chatId, String message) {
+        print(message);
+    _friends.add(FriendConversion.rebaseOneFriend(userData, chatId: chatId));
     notifyListeners();
   }
 
-  void _handleFriendDeclined(String userId) {
-    _pendingFriends.removeWhere((friend) => friend.user.id == userId);
+  void _handleFriendDeclined(String message) {
+    print(message);
+    notifyListeners();
+  }
+
+  void _handleFriendRemove(String userId, String message) {
+    _friends.removeWhere((friend) => friend.user.id == userId);
+    print(message);
     notifyListeners();
   }
 
@@ -248,11 +254,6 @@ class FriendsProvider with ChangeNotifier {
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);
     friend.isOnline = false;
-    notifyListeners();
-  }
-
-  void _handleFriendRemove(String userId) {
-    _friends.removeWhere((friend) => friend.user.id == userId);
     notifyListeners();
   }
 }

@@ -170,16 +170,16 @@ class ServerProvider with ChangeNotifier {
         messageCallback(data['messageData']);
         break;
       case 'friend-request':
-        friendRequestCallback(data['friendData'], data['chatId']);
+        friendRequestCallback(data['friendData'], data['message']);
         break;
       case 'friend-accepted':
         friendAcceptedCallback(data);
         break;
       case 'friend-declined':
-        friendDeclinedCallback(data['friendId']);
+        friendDeclinedCallback(data['message']);
         break;
       case 'friend-removed':
-        friendRemovedCallback(data['userId']);
+        friendRemovedCallback(data['userId'], data['message']);
         break;
       case 'friend-online':
         friendIsOnlineCallback(data['userId']);

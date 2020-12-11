@@ -127,7 +127,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   }
 
   List<Friend> selectedFriends = [];
-  List<Friend> friends;
+  List<Friend> friends = [];
 
   // Rating Range
   double posRatingRange;
@@ -189,8 +189,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     Navigator.of(context).pop();
   }
 
-bool didCheckForPreInvites = false;
-  void checkForPreinvites() {
+  bool didCheckForPreInvites = false;
+  void checkForPreInvites() {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
     final String friendId = args['friend'];
@@ -198,10 +198,10 @@ bool didCheckForPreInvites = false;
       Friend friend = friends.firstWhere((friend) => friend.user.id == friendId,
           orElse: () => null);
       if (friend != null) {
-          selectedFriends.add(friend);
-          didCheckForPreInvites = true;
+        selectedFriends.add(friend);
       }
     }
+    didCheckForPreInvites = true;
   }
 
   @override
@@ -218,8 +218,8 @@ bool didCheckForPreInvites = false;
           builder: (context, userProvider, friendsProvider, child) {
         user = userProvider.user;
         friends = friendsProvider.friends;
-        if(!didCheckForPreInvites){
-          checkForPreinvites();
+        if (!didCheckForPreInvites) {
+          checkForPreInvites();
         }
         if (posRatingRange == null) {
           posRatingRange = user.score + 100.0;

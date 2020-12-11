@@ -41,11 +41,13 @@ class PopupProvider with ChangeNotifier {
     if (hasPopup) {
       _popUp(context);
       _popUp = null;
+      hasPopup = false;
     }
   }
 
+
   void makeInvitationPopup(Game game) {
-    Function invitationPopup = (BuildContext context) => showDialog(
+    _popUp = (BuildContext context) => showDialog(
           context: context,
           builder: (context) {
             Size size = MediaQuery.of(context).size;
@@ -53,7 +55,6 @@ class PopupProvider with ChangeNotifier {
             return invitationWidget(game, size, context);
           },
         );
-    _popUp = invitationPopup;
     hasPopup = true;
   }
 
@@ -61,23 +62,30 @@ class PopupProvider with ChangeNotifier {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Container(
-        height: size.height * 0.1,
-        width: size.width * 0.35,
-        alignment: Alignment.topLeft,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(13),
-        ),
-        child: Invitations.invitationTile(
-          accept: () {
-            print('Here You will join the Game');
-            Navigator.of(context).pop();
-          },
-          decline: () => Navigator.of(context).pop(),
-          game: game,
-          size: Size(size.width * 0.34, size.height * 0.1),
-        ),
+      clipBehavior: Clip.none,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 1,
+            left: 1,
+            child: Container(
+            width: size.width - 3,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Invitations.invitationTile(
+                accept: () {
+                  print('Here You will join the Game');
+                  Navigator.of(context).pop();
+                },
+                decline: () => Navigator.of(context).pop(),
+                game: game,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

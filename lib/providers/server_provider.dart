@@ -170,16 +170,16 @@ class ServerProvider with ChangeNotifier {
         messageCallback(data['messageData']);
         break;
       case 'friend-request':
-        friendRequestCallback(data['friendData'], data['chatId']);
+        friendRequestCallback(data['friendData'], data['message']);
         break;
       case 'friend-accepted':
-        friendAcceptedCallback(data['userId']);
+        friendAcceptedCallback(data);
         break;
       case 'friend-declined':
-        friendDeclinedCallback(data['friendId']);
+        friendDeclinedCallback(data['message']);
         break;
       case 'friend-removed':
-        friendRemovedCallback(data['userId']);
+        friendRemovedCallback(data['userId'], data['message']);
         break;
       case 'friend-online':
         friendIsOnlineCallback(data['userId']);
@@ -235,7 +235,7 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     switch (data['action']) {
       case 'move-made':
-      print('Chess Move was made'); 
+        print('Chess Move was made');
         moveMadeCallback(data['chessMove']);
         break;
       case 'player-joined-lobby':
@@ -662,10 +662,14 @@ class ServerProvider with ChangeNotifier {
     if (data == null) {
       throw ('No Data was Received. Data is null');
     }
-    if (!data['valid']) {
-      throw ('Data is not Valid. This is the Message sent from Server:   ' +
+    if(!data['valid']){
+   if (data['problem']) {
+      throw ('Data is not Valid. This is the Message sent from Server: ' +
           data['message']);
+    }else {
+      throw (data['message']);
     }
+  }
   }
 
 //############################################################################################################
@@ -674,15 +678,12 @@ class ServerProvider with ChangeNotifier {
     print(
         '-----------------------------------------------------------------------------------------------');
     print(
-        'An Error Occured ------------------------------------------------------------------------------');
+        '----------------- ------------------------------------------------------------------------------');
     print(errorText);
-    print(
-        'this is the thrown Error ----------------------------------------------------------------------');
     print(error);
     print(
         '------------------------------------------------------------------------------------------------');
   }
-}
 
 void _handleSocketServerMessage(String action, String message) {
   if (action != 'friend-online') {
@@ -702,7 +703,7 @@ void _handleSocketServerMessage(String action, String message) {
 }
 
 void _printRawData(dynamic data) {
-  if (data['action'] != 'friend-online') {
+  if (data['action'] != 'friend-online' && data['valid'] == true) {
     print(
         '-------------------------------------------------------------------------------------------------');
     print(
@@ -711,4 +712,5 @@ void _printRawData(dynamic data) {
     print(
         '-------------------------------------------------------------------------------------------------');
   }
+}
 }

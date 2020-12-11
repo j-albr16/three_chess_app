@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/data/board_data.dart';
 
@@ -16,6 +16,7 @@ class BoardState{
   Map<PlayerColor, String> enpassent;
   List<ChessMove> chessMoves;
   List<ChessMoveInfo> infoChessMoves;
+  bool gameWon = false;
 
   int _selectedMove;
 
@@ -46,6 +47,9 @@ class BoardState{
   }
 
   BoardState._takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves, this.subStates, int selectedMove}){
+    if(pieces.values.where((element) => element.pieceType == PieceType.King).toList().length != 3){
+      gameWon = true;
+    }
   }
 
   BoardState.generate({this.chessMoves}){
@@ -107,6 +111,7 @@ class BoardState{
         if (selectedMove != null && selectedMove >= newChessMoves.length) {
           selectedMove = newChessMoves.length-1;
         }
+        gameWon = false;
         pieces = subStates[newChessMoves.length].pieces;
         enpassent = subStates[newChessMoves.length].enpassent;
         subStates = subStates.sublist(0, newChessMoves.length+1);
@@ -128,40 +133,60 @@ class BoardState{
     }
   }
 
-  void movePieceTo(String start, String end){
+  void movePieceTo(String start, String end, {noInfo = false}){
     List<SpecialMove> specialMoves =[];
     PieceKey takenPiece;
+    Map<SpecialMove, List<PlayerColor>> chessInfoTargetPlayer = {};
+    Piece movedPiece;
+    if(gameWon){
+      return;
+    }
     
       if (end != null && start != null) {
+        if(end == "" && start == ""){ //Special No Move Call
+         // assert(!ThinkingBoard.anyLegalMove(PlayerColor.values[chessMoves.length % 3], this));
+          specialMoves.add(SpecialMove.NoMove);
+
+        }
+        else{
         if (pieces[end] != null) {
           //boardState.pieces.firstWhere(()) = boardState.pieces[String]
           takenPiece = pieces[end].pieceKey;
           specialMoves.add(SpecialMove.Take);
+          chessInfoTargetPlayer[SpecialMove.Take] = [
+            PieceKeyGen.getPlayerColor(takenPiece)
+          ];
           pieces.remove(end);
         }
-        Piece movedPiece = pieces[start];
+        movedPiece = pieces[start];
         if (movedPiece != null) {
           enpassent.removeWhere((key, value) => key == movedPiece.playerColor);
 
           pieces.remove(start); // removes entry of old piece with old position
           movedPiece.position = end;
-          pieces.putIfAbsent(end, () => movedPiece); // adds new entry for piece with new pos
+          pieces.putIfAbsent(
+              end, () => movedPiece); // adds new entry for piece with new pos
           // moves the selectedPieces
 
           // Following code listens to weather The King is castling and moves the rook accordingly
           //moveCountOnCharAxis calulates the diffrence between start and end on the character Axis
-          int moveCountOnCharAxis = Tiles.charCoordinatesOf[movedPiece.playerColor].indexOf(start[0]) -
+          int moveCountOnCharAxis = Tiles
+                  .charCoordinatesOf[movedPiece.playerColor]
+                  .indexOf(start[0]) -
               Tiles.charCoordinatesOf[movedPiece.playerColor].indexOf(end[0]);
-          if (movedPiece.pieceType == PieceType.King && moveCountOnCharAxis.abs() == 2) {
+          if (movedPiece.pieceType == PieceType.King &&
+              moveCountOnCharAxis.abs() == 2) {
             //If true: This is a castling move
             specialMoves.add(SpecialMove.Castling);
             if (moveCountOnCharAxis < 0) {
               //Checks in which direction we should castle
-              String rookPos =
-                  Tiles.charCoordinatesOf[movedPiece.playerColor][7] + Tiles.numCoordinatesOf[movedPiece.playerColor][0];
+              String rookPos = Tiles.charCoordinatesOf[movedPiece.playerColor]
+                      [7] +
+                  Tiles.numCoordinatesOf[movedPiece.playerColor][0];
 
               Piece rook = pieces[rookPos];
-              String newRookPos = BoardData.adjacentTiles[movedPiece.position].left[0];
+              String newRookPos =
+                  BoardData.adjacentTiles[movedPiece.position].left[0];
               rook.position = newRookPos;
               pieces.remove(rookPos);
               pieces.putIfAbsent(newRookPos, () => rook);
@@ -170,11 +195,13 @@ class BoardState{
 
             } else if (moveCountOnCharAxis > 0) {
               //Checks in which direction we should castle
-              String rookPos =
-                  Tiles.charCoordinatesOf[movedPiece.playerColor][0] + Tiles.numCoordinatesOf[movedPiece.playerColor][0];
+              String rookPos = Tiles.charCoordinatesOf[movedPiece.playerColor]
+                      [0] +
+                  Tiles.numCoordinatesOf[movedPiece.playerColor][0];
 
               Piece rook = pieces[rookPos];
-              String newRookPos = BoardData.adjacentTiles[movedPiece.position].right[0];
+              String newRookPos =
+                  BoardData.adjacentTiles[movedPiece.position].right[0];
               rook.position = newRookPos;
               pieces.remove(rookPos);
               pieces.putIfAbsent(newRookPos, () => rook);
@@ -183,45 +210,89 @@ class BoardState{
           }
           //Pawn en passent listener
           if (movedPiece.pieceType == PieceType.Pawn) {
-            int numIndexOld = Tiles.numCoordinatesOf[BoardData.sideData[end]].indexOf(start.substring(1));
-            int numIndexNew = Tiles.numCoordinatesOf[BoardData.sideData[end]].indexOf(end.substring(1));
-            int charIndexOld = Tiles.charCoordinatesOf[BoardData.sideData[end]].indexOf(start[0]);
-            int charIndexNew = Tiles.charCoordinatesOf[BoardData.sideData[end]].indexOf(end[0]);
+            int numIndexOld = Tiles.numCoordinatesOf[BoardData.sideData[end]]
+                .indexOf(start.substring(1));
+            int numIndexNew = Tiles.numCoordinatesOf[BoardData.sideData[end]]
+                .indexOf(end.substring(1));
+            int charIndexOld = Tiles.charCoordinatesOf[BoardData.sideData[end]]
+                .indexOf(start[0]);
+            int charIndexNew = Tiles.charCoordinatesOf[BoardData.sideData[end]]
+                .indexOf(end[0]);
             if (numIndexOld == 1 && numIndexNew == 3) {
               enpassent[movedPiece.playerColor] = end;
             }
             //If passent occurs delete driven by pawn
             else if ((charIndexOld - charIndexNew).abs() == 1 &&
-                numIndexOld -numIndexNew  == 1 &&
+                numIndexOld - numIndexNew == 1 &&
                 numIndexNew == 2 &&
                 pieces[BoardData.adjacentTiles[end].top[0]] != null) {
-              print("im in boardState movePieceTo enpassent");
-              print(BoardData.adjacentTiles[end].top[0]);
-              print(enpassent[BoardData.sideData[end]].toString() + "this is the enpassent");
+              // print("im in boardState movePieceTo enpassent");
+              // print(BoardData.adjacentTiles[end].top[0]);
+              // print(enpassent[BoardData.sideData[end]].toString() + "this is the enpassent");
 
-              PieceKey possTakenPiece = pieces[BoardData.adjacentTiles[end].top[0]].pieceKey;
-              if (enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] != null && enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] == ThinkingBoard.checkEmpty(BoardData.adjacentTiles[end].top, 0)) {
+              PieceKey possTakenPiece =
+                  pieces[BoardData.adjacentTiles[end].top[0]].pieceKey;
+              if (enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] !=
+                      null &&
+                  enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] ==
+                      ThinkingBoard.checkEmpty(
+                          BoardData.adjacentTiles[end].top, 0)) {
                 specialMoves.add(SpecialMove.Take);
                 pieces.remove(BoardData.adjacentTiles[end].top[0]);
                 specialMoves.add(SpecialMove.Enpassant);
                 takenPiece = possTakenPiece;
+                chessInfoTargetPlayer[SpecialMove.Take] =
+                    PieceKeyGen.getPlayerColor(takenPiece);
               }
             }
           }
         }
-
-        ChessMove chessMove = ChessMove(initialTile: start, nextTile: end);
-        chessMoves.add(chessMove);
-        if (ThinkingBoard.isCheckMate(PlayerColor.values[chessMoves.length%3], this)) {
-          specialMoves.add(SpecialMove.CheckMate);
-        }
-        else if(ThinkingBoard.isCheck(PlayerColor.values[chessMoves.length%3], this)){
-          specialMoves.add(SpecialMove.Check);
-        }
-        _selectedMove = null;
-        subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
-        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: movedPiece.pieceKey, specialMoves: specialMoves, takenPiece: takenPiece));
       }
+      ChessMove chessMove = ChessMove(initialTile: start, nextTile: end);
+        chessMoves.add(chessMove);
+        if(!specialMoves.contains(SpecialMove.NoMove) && !noInfo){
+        bool check = false;
+        bool checkMated = false;
+        List<PlayerColor> checked = [];
+        List<PlayerColor> checkedMated = [];
+        for (int i = 0; i < 2; i++) {
+          if (ThinkingBoard.isCheck(
+              PlayerColor.values[(chessMoves.length + i) % 3], this)) {
+            check = true;
+            checked.add(PlayerColor.values[(chessMoves.length + i) % 3]);
+            if (ThinkingBoard.isCheckMate(
+                PlayerColor.values[(chessMoves.length + i) % 3], this)) {
+              print("I tell you its checkmate in movePieceTo boardState");
+              checkMated = true;
+              checkedMated.add(PlayerColor.values[(chessMoves.length + i) % 3]);
+            }
+          }
+        }
+        if (check) {
+          specialMoves.add(SpecialMove.Check);
+          chessInfoTargetPlayer[SpecialMove.Check] = checked;
+          if (checkMated) {
+            specialMoves.add(SpecialMove.CheckMate);
+            chessInfoTargetPlayer[SpecialMove.CheckMate] = checkedMated;
+          }
+        }
+      }
+        if(takenPiece != null && PieceKeyGen.getPieceType(takenPiece) == PieceType.King){
+          specialMoves.add(SpecialMove.Win);
+          gameWon = true;
+        }
+      _selectedMove = null;
+        subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
+        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: movedPiece?.pieceKey, specialMoves: specialMoves, takenPiece: takenPiece, targetedPlayer: chessInfoTargetPlayer));
+
+
+      }
+  }
+
+  void checkAndExecuteNoMove(){
+    if(chessMoves.length > 0 && !ThinkingBoard.anyLegalMove(PlayerColor.values[chessMoves.length % 3], this)){
+      movePieceTo("", "");
+    }
   }
 
 

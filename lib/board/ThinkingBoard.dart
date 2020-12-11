@@ -268,7 +268,7 @@ class ThinkingBoard {
       BoardState virtualState = boardState.clone();
 
       if (virtualState.pieces[element]?.pieceType != PieceType.King) {
-        virtualState.movePieceTo(piece.position, element);
+        virtualState.movePieceTo(piece.position, element, noInfo: true);
       }
 
       resultRemove = isCheck(piece.playerColor, virtualState);
@@ -287,6 +287,25 @@ class ThinkingBoard {
           .position);
   }
 
+  static bool anyLegalMove(PlayerColor toBeChecked, BoardState boardState){
+    bool result = false;
+    for (Piece piece in boardState.pieces.values.where((element) => element.playerColor == toBeChecked).toList()) {
+      for (String legalMove in getLegalMove(piece.position, boardState)) {
+
+        BoardState virtualState = boardState.clone();
+        virtualState.movePieceTo(piece.position, legalMove, noInfo: true);
+
+        if (!isCheck(toBeChecked, virtualState)) {
+          result = true;
+        }
+        if (result) {
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
   static bool isCheckMate(
       PlayerColor toBeChecked, BoardState boardState) {
     bool result = false;
@@ -296,7 +315,7 @@ class ThinkingBoard {
         for (String legalMove in getLegalMove(piece.position, boardState)) {
 
           BoardState virtualState = boardState.clone();
-          virtualState.movePieceTo(piece.position, legalMove);
+          virtualState.movePieceTo(piece.position, legalMove, noInfo: true);
 
           if (!isCheck(toBeChecked, virtualState)) {
             result = false;

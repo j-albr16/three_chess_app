@@ -25,8 +25,9 @@ class TableBoardSubScreen extends StatefulWidget {
   final double height;
   final double iconBarFraction;
   final Map<RequestType, Function> onRequest;
+  final bool isLocal;
 
-  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction, this.onRequest});
+  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction, this.onRequest, this.isLocal});
   @override
   _TableBoardSubScreenState createState() => _TableBoardSubScreenState();
 }
@@ -66,7 +67,9 @@ void initState() {
         onRequest: (requestType) {
           print("i demand a $requestType");
           setState(() {
-            pendingActions.add(requestType);
+            if(!widget.isLocal) {
+              pendingActions.add(requestType);
+            }
             confirmation = null;
             widget.onRequest[requestType]();
           });
@@ -77,7 +80,7 @@ void initState() {
             pendingActions.remove(cancelPending);
           });
         },
-        pendingActions: pendingActions,
+        pendingActions: widget.isLocal ? [] : pendingActions,
       );
     });
   }

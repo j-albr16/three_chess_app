@@ -185,6 +185,7 @@ Function getOnDecline(RequestType requestType){
           onDecline: () => getOnDecline(request.requestType),
           movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
         ));});
+        bool isLocal = Provider.of<GameProvider>(context)?.game != null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
         _subScreens = [
           ChatBoardSubScreen(
               height: chatScreenHeight ?? screenHeight,),
@@ -195,7 +196,8 @@ Function getOnDecline(RequestType requestType){
           TableBoardSubScreen(
             boardState: boardState,
             controller: ScrollController(),
-            onRequest:  Provider.of<GameProvider>(context)?.game != null ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+            isLocal: isLocal,
+            onRequest:  isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
             height: gameTableHeightFraction * screenHeight,
               iconBarFraction: iconBarFractionOfTable),
         ];

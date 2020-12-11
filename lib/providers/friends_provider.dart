@@ -49,11 +49,13 @@ class FriendsProvider with ChangeNotifier {
   void subscribeToAuthUserChannel() {
     print('Did Subscribe to Auth User Channel');
     _chatProvider.subsribeToAuthUserChannel(
-      friendRemovedCallback: (userId, message) => _handleFriendRemove(userId, message),
+      friendRemovedCallback: (userId, message) =>
+          _handleFriendRemove(userId, message),
       friendDeclinedCallback: (message) => _handleFriendDeclined(message),
       friendAcceptedCallback: (data) =>
           _handleFriendAccepted(data['user'], data['chatId'], data['message']),
-      friendRequestCallback: (friendData, message) => _handleFriendRequest(friendData, message),
+      friendRequestCallback: (friendData, message) =>
+          _handleFriendRequest(friendData, message),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
       friendIsAfkCallback: (userId) => _handleFriendIsAfk(userId),
       friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
@@ -71,8 +73,8 @@ class FriendsProvider with ChangeNotifier {
       // destinguish between friends whoare accepted and those who are not
       data['friends'].forEach((friend) => _friends
           .add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
-      data['pendingFriends'].forEach((pendingFriend) => _pendingFriends.add(
-          FriendConversion.matchChatIdAndFriend(pendingFriend, data['chats'])));
+      data['pendingFriends'].forEach((pendingFriend) =>
+          _pendingFriends.add(FriendConversion.rebaseOneFriend(pendingFriend)));
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Friends', error);
@@ -190,8 +192,7 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleFriendRequest(
-      Map<String, dynamic> friendData, String message) {
+  void _handleFriendRequest(Map<String, dynamic> friendData, String message) {
     // add new Friend to _friends
     print(message);
     _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData));
@@ -200,7 +201,7 @@ class FriendsProvider with ChangeNotifier {
 
   void _handleFriendAccepted(
       Map<String, dynamic> userData, String chatId, String message) {
-        print(message);
+    print(message);
     _friends.add(FriendConversion.rebaseOneFriend(userData, chatId: chatId));
     notifyListeners();
   }

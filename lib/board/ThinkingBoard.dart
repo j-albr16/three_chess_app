@@ -9,7 +9,7 @@ import '../board/PieceMover.dart';
 
 class ThinkingBoard {
 
-  static _checkEmpty(List list, int index){
+  static checkEmpty(List list, int index){
     if(list.isNotEmpty && list.length > index){
       return list[index];
     }
@@ -76,9 +76,9 @@ class ThinkingBoard {
           3) {
         String possPassent =
             boardState.enpassent[BoardData.sideData[selectedTile]];
-        if ([
-          _checkEmpty(BoardData.adjacentTiles[selectedTile].left, 0),
-          _checkEmpty(BoardData.adjacentTiles[selectedTile].right, 0)
+        if (possPassent != null && [
+          checkEmpty(BoardData.adjacentTiles[selectedTile].left, 0),
+          checkEmpty(BoardData.adjacentTiles[selectedTile].right, 0)
         ].contains(possPassent)) {
           allLegalMoves.add(BoardData.adjacentTiles[possPassent].bottom[0]);
         }

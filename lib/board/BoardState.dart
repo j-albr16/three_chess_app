@@ -25,7 +25,7 @@ class BoardState{
 
   set selectedMove(int newIndex){
     if(newIndex < 0){
-      _selectedMove = 0;
+      _selectedMove = -1;
     } else if(newIndex >= chessMoves.length){
       _selectedMove = chessMoves.length-1;
     } else {
@@ -105,12 +105,12 @@ class BoardState{
     if(isSame && newChessMoves.length > 0) {
       if (newChessMoves.length < chessMoves.length) {
         if (selectedMove != null && selectedMove >= newChessMoves.length) {
-          selectedMove = newChessMoves.length;
+          selectedMove = newChessMoves.length-1;
         }
         pieces = subStates[newChessMoves.length].pieces;
         enpassent = subStates[newChessMoves.length].enpassent;
-        subStates = subStates.sublist(0, newChessMoves.length);
-        infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length - 1);
+        subStates = subStates.sublist(0, newChessMoves.length+1);
+        infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length);
         chessMoves = newChessMoves;
       }
       else if(newChessMoves.length > chessMoves.length){
@@ -192,14 +192,19 @@ class BoardState{
             }
             //If passent occurs delete driven by pawn
             else if ((charIndexOld - charIndexNew).abs() == 1 &&
-                (numIndexOld - numIndexNew).abs() == 1 &&
+                numIndexOld -numIndexNew  == 1 &&
+                numIndexNew == 2 &&
                 pieces[BoardData.adjacentTiles[end].top[0]] != null) {
+              print("im in boardState movePieceTo enpassent");
+              print(BoardData.adjacentTiles[end].top[0]);
+              print(enpassent[BoardData.sideData[end]].toString() + "this is the enpassent");
 
-              takenPiece = pieces[end].pieceKey;
-              if (enpassent[PieceKeyGen.getPlayerColor(takenPiece)] != null && enpassent[PieceKeyGen.getPlayerColor(takenPiece)] == end) {
+              PieceKey possTakenPiece = pieces[BoardData.adjacentTiles[end].top[0]].pieceKey;
+              if (enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] != null && enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] == ThinkingBoard.checkEmpty(BoardData.adjacentTiles[end].top, 0)) {
                 specialMoves.add(SpecialMove.Take);
                 pieces.remove(BoardData.adjacentTiles[end].top[0]);
                 specialMoves.add(SpecialMove.Enpassant);
+                takenPiece = possTakenPiece;
               }
             }
           }

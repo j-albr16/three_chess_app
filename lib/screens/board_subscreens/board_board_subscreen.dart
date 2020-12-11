@@ -46,7 +46,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
 
   _moveRight(){
       setState(() {
-        widget.boardState.selectedMove += 1;
+      widget.boardState.selectedMove += 1;
       });
 
   }
@@ -141,7 +141,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                                     padding: EdgeInsets.only( bottom:10),
                                     child: FittedBox(child: Icon(Icons.arrow_left, size: 1000,))),),
                               ),
-                              Expanded(child: Container(color: Colors.transparent)),
+                              Expanded(child: Container(color: Colors.transparent,)),
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(), borderWidth: 2, icon: Container(
@@ -156,7 +156,34 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                       height: min(screenWidth, screenHeight*0.9),
                       width: min(screenWidth, screenHeight*0.9),
                       child: FittedBox(
-                        child: threeChessBoard,
+                        child: Stack(
+                          children: [
+                            Positioned(bottom: screenHeight * 0.09, left: 0, right: 0,
+                                child: Center(
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                        width: screenWidth * 0.3,
+                                        height: screenHeight * 0.07,
+                                        color: Colors.black45,
+                                        padding: EdgeInsets.all(5) ,
+                                        child: FittedBox(
+                                          child: Text(
+                                            widget.boardState.selectedMove+1 == widget.boardState.chessMoves.length ?
+                                                "Move ${widget.boardState.chessMoves.length}":
+                                            "Move ${widget.boardState.selectedMove+1} of ${widget.boardState.chessMoves.length}",
+                                            style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87),
+                                          ),
+                                        ),
+                                    ),
+                                ),
+                              ),
+
+                            threeChessBoard,
+                          ],
+                        ),
                       ),
                     )
 

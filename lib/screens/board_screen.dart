@@ -138,7 +138,25 @@ Function getOnDecline(RequestType requestType){
   return onDecline[requestType];
 }
 
+    Map<RequestType, Function> onRequest = {
+      RequestType.Surrender : () => gameProvider.requestSurrender(),
+      RequestType.Remi :() =>  gameProvider.requestRemi(),
+      RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
+    };
+
+    Map<RequestType, Function> onLocalRequest = {
+      RequestType.Surrender : () =>setState( () => boardState = BoardState()), //TODO TESTING PHASE ONLY
+      RequestType.Remi :() => setState( () => boardState = BoardState()),  //TODO TESTING PHASE ONLY
+      RequestType.TakeBack :() =>  setState( () {
+
+        if (boardState.chessMoves.length != null && boardState.chessMoves.length > 1) {
+          boardState.transformTo(boardState.chessMoves.sublist(0, boardState.chessMoves.length-1));
+        }
+      }),
+    };
+
     return RelativeBuilder(
+      
 
         builder: (context, screenHeight, screenWidth, sy, sx)
       {
@@ -177,6 +195,7 @@ Function getOnDecline(RequestType requestType){
           TableBoardSubScreen(
             boardState: boardState,
             controller: ScrollController(),
+            onRequest:  Provider.of<GameProvider>(context)?.game != null ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
             height: gameTableHeightFraction * screenHeight,
               iconBarFraction: iconBarFractionOfTable),
         ];

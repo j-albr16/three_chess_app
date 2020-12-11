@@ -24,22 +24,17 @@ class TableBoardSubScreen extends StatefulWidget {
   final ScrollController controller;
   final double height;
   final double iconBarFraction;
+  final Map<RequestType, Function> onRequest;
 
-  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction});
+  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction, this.onRequest});
   @override
   _TableBoardSubScreenState createState() => _TableBoardSubScreenState();
 }
 
 class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
 
-Function getOnRequest(RequestType requestType){
-Map<RequestType, Function> onRequest = {
-    RequestType.Surrender : () => gameProvider.requestSurrender(),
-    RequestType.Remi :() =>  gameProvider.requestRemi(),
-    RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
-  };
-  return onRequest[requestType];
-}
+  RequestType confirmation;
+  List<RequestType> pendingActions = [];
 
 GameProvider gameProvider;
 
@@ -73,7 +68,7 @@ void initState() {
           setState(() {
             pendingActions.add(requestType);
             confirmation = null;
-            getOnRequest(requestType);
+            widget.onRequest[requestType]();
           });
         },
         onRequestCancel: (cancelPending) {
@@ -86,8 +81,6 @@ void initState() {
       );
     });
   }
-RequestType confirmation;
-List<RequestType> pendingActions = [];
   }
    
 

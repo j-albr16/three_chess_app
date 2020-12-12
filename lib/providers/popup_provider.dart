@@ -89,7 +89,7 @@ class PopupProvider with ChangeNotifier {
 
   SnackBar basicSnackbar(String text) {
     return SnackBar(
-      content: Text(text),
+      content: Text(text ?? 'Could not get Text'),
       duration: Duration(seconds: 2),
     );
   }

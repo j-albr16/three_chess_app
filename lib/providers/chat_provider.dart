@@ -59,11 +59,11 @@ class ChatProvider with ChangeNotifier {
     gameInvitationCallback,
   }) {
     _serverProvider.subscribeToAuthUserChannel(
-      friendRemovedCallback: (userId) => friendRemovedCallback(userId),
-      friendDeclinedCallback: (userId) => friendDeclinedCallback(userId),
-      friendAcceptedCallback: (userId) => friendAcceptedCallback(userId),
-      friendRequestCallback: (friendData, chatId) =>
-          friendRequestCallback(friendData, chatId),
+      friendRemovedCallback: (String userId,String message) => friendRemovedCallback(userId, message),
+      friendDeclinedCallback: (message) => friendDeclinedCallback(message),
+      friendAcceptedCallback: (data) => friendAcceptedCallback(data),
+      friendRequestCallback: (friendData, message) =>
+          friendRequestCallback(friendData, message),
           friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
           friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
           friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),

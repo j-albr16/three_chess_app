@@ -16,6 +16,7 @@ import '../widgets/move_table.dart';
 import '../providers/friends_provider.dart';
 import '../widgets/chat.dart';
 import '../providers/popup_provider.dart';
+import '../screens/screen_bone.dart';
 
 class DesignTestScreen extends StatefulWidget {
   static const routeName = '/design-test';
@@ -24,19 +25,8 @@ class DesignTestScreen extends StatefulWidget {
   _DesignTestScreenState createState() => _DesignTestScreenState();
 }
 
-class _DesignTestScreenState extends State<DesignTestScreen> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    bool hasPopup = Provider.of<PopupProvider>(context).hasPopup;
-    WidgetsBinding.instance.addPostFrameCallback((t) {
-      if (hasPopup) {
-        Provider.of<PopupProvider>(context, listen: false)
-            .displayPopup(context);
-        hasPopup = false;
-      }
-    });
-  }
+class _DesignTestScreenState extends State<DesignTestScreen> with notificationPort<DesignTestScreen> {
+
 
   @override
   Widget build(BuildContext context) {

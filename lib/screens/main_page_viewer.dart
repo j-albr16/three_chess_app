@@ -9,6 +9,7 @@ import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lobby_screen.dart';
 import '../providers/online_provider.dart';
+import '../screens/screen_bone.dart';
 import '../providers/user_provider.dart';
 //
 
@@ -25,7 +26,7 @@ class MainPageViewer extends StatefulWidget {
   State createState() => new MainPageViewerState();
 }
 
-class MainPageViewerState extends State<MainPageViewer> {
+class MainPageViewerState extends State<MainPageViewer> with notificationPort<MainPageViewer> {
   PageController _controller;
 
   static const _kDuration = const Duration(milliseconds: 300);

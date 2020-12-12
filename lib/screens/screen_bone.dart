@@ -3,19 +3,10 @@ import 'package:flutter/material.dart';
 import '../providers/popup_provider.dart';
 import 'package:provider/provider.dart';
 
-
-abstract class ScreenBone extends StatefulWidget {
-  ScreenBone({Key key}) : super(key: key);
-
+mixin notificationPort<T extends StatefulWidget> on State<T> {
   @override
-  _ScreenBoneState createState() => _ScreenBoneState();
-}
-
-class _ScreenBoneState extends State<ScreenBone> {
-
-@override
   void didChangeDependencies() {
-   super.didChangeDependencies();
+    super.didChangeDependencies();
     bool hasPopup = Provider.of<PopupProvider>(context).hasPopup;
     WidgetsBinding.instance.addPostFrameCallback((t) {
       if (hasPopup) {
@@ -24,9 +15,5 @@ class _ScreenBoneState extends State<ScreenBone> {
         hasPopup = false;
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
   }
 }

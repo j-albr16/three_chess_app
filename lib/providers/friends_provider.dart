@@ -48,6 +48,11 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void makeNewNotification(String message){
+    notification = message;
+    newNotification = true;
+  }
+
   void subscribeToAuthUserChannel() {
     print('Did Subscribe to Auth User Channel');
     _chatProvider.subsribeToAuthUserChannel(
@@ -198,8 +203,7 @@ class FriendsProvider with ChangeNotifier {
     // add new Friend to _friends
     print(message);
     _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData));
-    newNotification = true;
-    notification = message;
+    makeNewNotification(message);
     notifyListeners();
   }
 
@@ -207,23 +211,20 @@ class FriendsProvider with ChangeNotifier {
       Map<String, dynamic> userData, String chatId, String message) {
     print(message);
     _friends.add(FriendConversion.rebaseOneFriend(userData, chatId: chatId));
-    newNotification = true;
-    notification = message;
+    makeNewNotification(message);
     notifyListeners();
   }
 
   void _handleFriendDeclined(String message) {
     print(message);
-    newNotification = true;
-    notification = message;
+    makeNewNotification(message);
     notifyListeners();
   }
 
   void _handleFriendRemove(String userId, String message) {
     _friends.removeWhere((friend) => friend.user.id == userId);
     print(message);
-    newNotification = true;
-    notification = message;
+    makeNewNotification(message);
     notifyListeners();
   }
 

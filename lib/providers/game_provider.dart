@@ -37,16 +37,12 @@ class GameProvider with ChangeNotifier {
   );
 
   Player get player {
-    PlayerColor yourPlayerColor;
+    Player player;
     if (_game != null) {
-      yourPlayerColor = _game?.player
-          ?.firstWhere((e) => e?.user?.id == _userId, orElse: () => null)
-          ?.playerColor;
+      player = _game?.player
+          ?.firstWhere((e) => e?.user?.id == _userId, orElse: () => null);
     }
-    return new Player(
-      playerColor: yourPlayerColor,
-      user: _player.user,
-    );
+    return player;
   }
 
   List<Game> _games = [];

@@ -11,16 +11,23 @@ import '../models/user.dart';
 import '../widgets/invitations.dart';
 import '../models/game.dart';
 import '../models/chess_move.dart';
+import '../widgets/end_game.dart';
 import '../widgets/move_table.dart';
 import '../providers/friends_provider.dart';
 import '../widgets/chat.dart';
 import '../providers/popup_provider.dart';
 
-class DesignTestScreen extends StatelessWidget {
+class DesignTestScreen extends StatefulWidget {
   static const routeName = '/design-test';
 
   @override
-  Widget build(BuildContext context) {
+  _DesignTestScreenState createState() => _DesignTestScreenState();
+}
+
+class _DesignTestScreenState extends State<DesignTestScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     bool hasPopup = Provider.of<PopupProvider>(context).hasPopup;
     WidgetsBinding.instance.addPostFrameCallback((t) {
       if (hasPopup) {
@@ -29,12 +36,25 @@ class DesignTestScreen extends StatelessWidget {
         hasPopup = false;
       }
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     GameProvider _gameProvider =
         Provider.of<GameProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
+          // testButtonBar(
+          //   color: Colors.red,
+          //   text: 'Show Finished Game Popup',
+          //   callback: () => showDialog(context: context, builder: (context){
+          //     return EndGameAlertDialog(
+
+          //     );
+          //   })
+          // ),
           Invitations(
             acceptInvitation: (String gameId) =>
                 print('Accept Invitation to ' + gameId),

@@ -5,16 +5,17 @@ import '../models/user.dart';
 import '../models/player.dart';
 import '../models/enums.dart';
 
-class FinishedGame extends StatelessWidget {
+class EndGameAlertDialog extends StatelessWidget {
   Size size;
   Game game;
   Player you;
 
-  FinishedGame({
-    this.size,
-    this.game,
-    this.you,
-  });
+  Function rematch;
+  Function leave;
+  Function inspect;
+
+  EndGameAlertDialog(
+      {this.size, this.game, this.you, this.inspect, this.leave, this.rematch});
 
   String get title {
     if (game.finishedGameData['winner'] == you.playerColor) {
@@ -38,38 +39,53 @@ class FinishedGame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: size.height,
-      width: size.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(
-            width: size.width,
-            height: size.height,
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+    return AlertDialog(
+      title: Text(title),
+      titlePadding: EdgeInsets.all(7),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+      elevation: 10,
+      contentPadding: EdgeInsets.all(13),
+      actionsPadding: EdgeInsets.all(7),
+      actions: actionButtons(),
+      content: Container(
+        height: size.height,
+        width: size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text('Win Type :  ' + winType),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: game.player.map((player) => updatedPlayerTile(
+                  player.user.userName,
+                  player.user.score,
+                  game.finishedGameData[player.playerColor])),
             ),
-          ),
-          Text('Win Type :  ' + winType),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: game.player.map((player) => updatedPlayerTile(
-                player.user.userName,
-                player.user.score,
-                game.finishedGameData[player.playerColor])),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  List<Widget> actionButtons(){
+    return  [
+        actionButton(
+          action: rematch,
+          size: Size(size.width * 0.25, size.height * 0.2),
+          title: 'Rematch',
+        ),
+        actionButton(
+          action: leave,
+          size: Size(size.width * 0.25, size.height * 0.2),
+          title: 'Leave',
+        ),
+        actionButton(
+          action: inspect,
+          size: Size(size.width * 0.25, size.height * 0.2),
+          title: 'Inspect',
+        )
+      ];
   }
 
   static Widget updatedPlayerTile(String userName, int oldScore, int newScore) {
@@ -93,6 +109,16 @@ class FinishedGame extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  static Widget actionButton({Size size, String title, Function action}) {
+    return FlatButton(
+      onPressed: action,
+      child: Text(title),
+      height: size.height,
+      minWidth: size.width,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
     );
   }
 }

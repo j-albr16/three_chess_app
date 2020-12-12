@@ -66,10 +66,13 @@ class GameProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
 // providing game data for screen
   Game get game {
     return _game;
   }
+
+  bool hasPopup = false;
 
 // providing games data for lobby
   List<Game> get games {
@@ -126,6 +129,11 @@ class GameProvider with ChangeNotifier {
       newGameCallback: (gameData) => _handleNewGameData(gameData),
       playerJoinedCallback: (gameData) => _handlePlayerJoinedData(gameData),
     );
+  }
+
+  void removeGame(){
+    _game = null;
+    notifyListeners();
   }
   
 

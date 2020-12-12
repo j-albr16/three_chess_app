@@ -6,6 +6,7 @@ import 'package:three_chess/board/PieceMover.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/board/TileSelect.dart';
 import 'package:three_chess/board/Tiles.dart';
+import 'package:three_chess/board/chess_move_info.dart';
 import 'package:three_chess/board/timeCounter.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
@@ -89,6 +90,11 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
         widget.boardState.transformTo(widget.syncChessMoves);
         if(widget.boardState.chessMoves.length != previousLength){
           highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
+        if(widget.boardState.chessMoves.length > previousLength){
+          if(widget.boardState.infoChessMoves.last.specialMoves.contains(SpecialMove.CheckMate) && widget.boardState.infoChessMoves.last.targetedPlayer[SpecialMove.CheckMate].contains(widget.whoIsPlaying)){
+            _makeAMove("", "");
+          }
+        }
         }
       });
     }

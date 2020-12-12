@@ -81,8 +81,12 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   void updateGame() {
     //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
     if (!waitingForResponse) {
+      int previousLength = widget.boardState.chessMoves.length;
       setState(() {
         widget.boardState.transformTo(widget.syncChessMoves.value);
+        if(widget.boardState.chessMoves.length != previousLength){
+          highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
+        }
       });
     }
   }
@@ -99,6 +103,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       waitingForResponse = false;
     });
   }
+
+  String possibleDeselect; //This makes deselecting by clicking on the same piece again possible
 
   doHitDown(String whatsHit, details) {
 
@@ -151,8 +157,12 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           }
           else if(widget.boardState.pieces[whatsHit].playerColor == myColor){
             //if whatsHit is myPiece.
+            if(whatsHit == highlighted.key) {
+              possibleDeselect = whatsHit;
+            }
             highlighted = null;
             _startAMove();
+
           }
           else {
             //if whatsHit is not a Highlight or one of your pieces
@@ -192,7 +202,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
         } else if(whatsHit == draggedPiece){
           //Basically means when piece is tapped and not dragged
           // (tho you can drag and still stop at the same location)
-          _cleanDrag();
+
+          possibleDeselect == whatsHit ?
+            _cleanMove() : _cleanDrag();
+
         } else { //if you neither drag to start or to highlight
           _cleanMove();
         }
@@ -206,7 +219,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Widget build(BuildContext context) {
 
     return Listener(
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
       onPointerDown: (details) {
         String whatsHit =
             tileKeeper.getTilePositionOf(details.localPosition);

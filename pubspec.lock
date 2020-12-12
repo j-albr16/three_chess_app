@@ -268,6 +268,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.2"
+<<<<<<< HEAD
   responsive_framework:
     dependency: "direct main"
     description:
@@ -282,6 +283,8 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.6"
+=======
+>>>>>>> 8bd1a09ce4c2fd4bd53cc8c3b71ef0b6df002f13
   shared_preferences:
     dependency: "direct main"
     description:

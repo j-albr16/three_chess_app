@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 
 import './screens/home_screen.dart';

@@ -24,22 +24,18 @@ class TableBoardSubScreen extends StatefulWidget {
   final ScrollController controller;
   final double height;
   final double iconBarFraction;
+  final Map<RequestType, Function> onRequest;
+  final bool isLocal;
 
-  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction});
+  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction, this.onRequest, this.isLocal});
   @override
   _TableBoardSubScreenState createState() => _TableBoardSubScreenState();
 }
 
 class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
 
-Function getOnRequest(RequestType requestType){
-Map<RequestType, Function> onRequest = {
-    RequestType.Surrender : () => gameProvider.requestSurrender(),
-    RequestType.Remi :() =>  gameProvider.requestRemi(),
-    RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
-  };
-  return onRequest[requestType];
-}
+  RequestType confirmation;
+  List<RequestType> pendingActions = [];
 
 GameProvider gameProvider;
 
@@ -71,9 +67,11 @@ void initState() {
         onRequest: (requestType) {
           print("i demand a $requestType");
           setState(() {
-            pendingActions.add(requestType);
+            if(!widget.isLocal) {
+              pendingActions.add(requestType);
+            }
             confirmation = null;
-            getOnRequest(requestType);
+            widget.onRequest[requestType]();
           });
         },
         onRequestCancel: (cancelPending) {
@@ -82,12 +80,10 @@ void initState() {
             pendingActions.remove(cancelPending);
           });
         },
-        pendingActions: pendingActions,
+        pendingActions: widget.isLocal ? [] : pendingActions,
       );
     });
   }
-RequestType confirmation;
-List<RequestType> pendingActions = [];
   }
    
 

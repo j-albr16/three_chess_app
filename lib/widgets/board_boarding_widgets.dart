@@ -9,8 +9,9 @@ class CornerTile extends StatelessWidget {
   final double cutOfLength;
   final Widget child;
   final bool alignCenter;
+  final Function onTap;
 
-  CornerTile({this.alignCenter = false, this.startY, this.whereIsCorner, this.cutOfLength, this.borderWidth = 1, this.child});
+  CornerTile({this.alignCenter = false, this.startY, this.whereIsCorner, this.cutOfLength, this.borderWidth = 1, this.child, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -63,18 +64,22 @@ class CornerTile extends StatelessWidget {
     return Stack(
       children: [
 
-        ClipPath(
-          child:
+        GestureDetector(
+          behavior: HitTestBehavior.deferToChild,
+          onTap: onTap ?? () {},
+          child: ClipPath(
+            child:
 
-          Container(
-          width: longSideLength,
-          height: shortSideLength,
-          //decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2)),
-          color: Colors.transparent,
-          child: Align(
-            alignment: alignment,
-            child: child,)),
-          clipper: PathClipper(path: path),
+            Container(
+            width: longSideLength,
+            height: shortSideLength,
+            //decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2)),
+            color: Colors.transparent,
+            child: Align(
+              alignment: alignment,
+              child: child,)),
+            clipper: PathClipper(path: path),
+          ),
         ),
         CustomPaint(
           painter: BorderPainter(path: path, width: borderWidth, color: Colors.black),
@@ -144,9 +149,8 @@ class PlayerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: CornerTile(
+    return CornerTile(
+      onTap: onTap,
         alignCenter: false,
           cutOfLength: cutOfLength,
               borderWidth: borderWidth,
@@ -155,8 +159,7 @@ class PlayerTile extends StatelessWidget {
                 child: Container(
                     child: IgnorePointer(child: icon,),
                   ),
-                ),
-    );
+                );
   }
 }
 

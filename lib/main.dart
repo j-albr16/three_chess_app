@@ -87,10 +87,14 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider<ScrollProvider>(
             create: (_) => ScrollProvider(),
           ),
-          ChangeNotifierProxyProvider<FriendsProvider, PopupProvider>(
+          ChangeNotifierProxyProvider2<GameProvider, FriendsProvider,
+                  PopupProvider>(
               create: (_) => PopupProvider(),
-              update: (_, friendsProvider, popUpProvider) =>
-                  popUpProvider..update(friendsProvider: friendsProvider))
+              update: (_, gameProvider, friendsProvider, popUpProvider) =>
+                  popUpProvider
+                    ..update(
+                        friendsProvider: friendsProvider,
+                        gameProvider: gameProvider))
         ],
         child: MaterialApp(
           theme: ThemeData(

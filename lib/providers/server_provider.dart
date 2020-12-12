@@ -17,7 +17,12 @@ import '../models/user.dart';
 import '../providers/game_provider.dart';
 
 class ServerProvider with ChangeNotifier {
-  IO.Socket _socket = IO.io(SERVER_ADRESS);
+  IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic> {
+    'transports': ['websocket'],
+    'autoConnect': true,
+  });
+
+
 
   String _token = constToken;
   String _userId = constUserId;

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import './friends_provider.dart';
 import '../models/game.dart';
+import '../widgets/end_game.dart';
 import '../models/player.dart';
 import '../widgets/invitations.dart';
 import './game_provider.dart';
@@ -15,8 +16,10 @@ typedef PopUp(BuildContext context);
 
 class PopupProvider with ChangeNotifier {
   FriendsProvider _friendsProvider;
+  GameProvider _gameProvider;
 
-  void update({friendsProvider}) {
+  void update({friendsProvider, gameProvider}) {
+    _gameProvider = gameProvider;
     _friendsProvider = friendsProvider;
     _checklForPopUps();
   }
@@ -30,9 +33,20 @@ class PopupProvider with ChangeNotifier {
 
   void _checklForPopUps() {
     // Invitation PopUps
-    if (_friendsProvider.newInvitation) {
+  if(_gameProvider.hasPopup){
+    _gameProvider.hasPopup = false;
+    makeEndGamePopup(_gameProvider);
+    notifyListeners();
+  }
+    else if (_friendsProvider.newInvitation) {
       _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
+      notifyListeners();
+    }
+    else if (_friendsProvider.newNotification) {
+      makeSnackBar(_friendsProvider.notification);
+      _friendsProvider.notification = null;
+      _friendsProvider.newNotification = false;
       notifyListeners();
     }
   }
@@ -44,7 +58,41 @@ class PopupProvider with ChangeNotifier {
       hasPopup = false;
     }
   }
+   void makeEndGamePopup(GameProvider gameProvider){
+    _popUp = (BuildContext context) => showDialog(context: context,
+    builder: (context){
+      Size size = MediaQuery.of(context).size;
+      return EndGameAlertDialog(
+        game: gameProvider.game,
+        inspect: (){},
+        leave: (){
+          gameProvider.removeGame();
+          Navigator.of(context).pop();
+        },
+        rematch: (){},
+        size: Size(size.width * 0.75, size.height * 0.75),
+        you: gameProvider.player,
+      );
+    });
+    hasPopup = true;
+  }
 
+
+  void makeSnackBar(String message) {
+    _popUp = (BuildContext context) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(basicSnackbar(message));
+    };
+    hasPopup = true;
+  }
+
+  SnackBar basicSnackbar(String text) {
+    return SnackBar(
+      content: Text(text),
+      duration: Duration(seconds: 2),
+    );
+  }
 
   void makeInvitationPopup(Game game) {
     _popUp = (BuildContext context) => showDialog(
@@ -52,25 +100,22 @@ class PopupProvider with ChangeNotifier {
           builder: (context) {
             Size size = MediaQuery.of(context).size;
             new Timer(Duration(seconds: 20), () => Navigator.of(context).pop());
-            return invitationWidget(game, size, context);
+            return invitationDialog(game, size, context);
           },
         );
     hasPopup = true;
   }
 
-  invitationWidget(Game game, Size size, BuildContext context) {
+  invitationDialog(Game game, Size size, BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      elevation: 0,
-      clipBehavior: Clip.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       child: Stack(
         children: [
           Positioned(
             top: 1,
             left: 1,
             child: Container(
-            width: size.width - 3,
+              width: size.width - 3,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(13),

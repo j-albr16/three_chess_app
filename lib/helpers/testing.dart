@@ -27,7 +27,7 @@ mixin testMix<T extends StatefulWidget> on State<T> {
 
 class ScreenWrap extends StatelessWidget{
   final Widget child;
-  
+
   ScreenWrap(this.child);
   @override
   Widget build(BuildContext context){

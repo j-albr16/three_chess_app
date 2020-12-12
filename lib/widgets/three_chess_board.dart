@@ -22,12 +22,14 @@ class ThreeChessBoard extends StatefulWidget {
   final double height;
   final double width;
   final ResponseMove sendMove;
-  final ValueNotifier<List<ChessMove>> syncChessMoves;
+  final List<ChessMove> syncChessMoves;
   final PlayerColor whoIsPlaying;
   final ValueNotifier<bool> didStart;
+  final Listenable newMove;
 
   ThreeChessBoard(
-      {this.tileKeeper,
+      {this.newMove,
+        this.tileKeeper,
         this.boardState,
       this.height,
       this.width,
@@ -68,7 +70,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   void initState() {
       playingPlayer = widget.whoIsPlaying;
       tileKeeper = widget.tileKeeper ?? Tiles();
-      widget.syncChessMoves?.addListener(() => updateGame());
+      widget.newMove?.addListener(() => updateGame());
       if (playingPlayer != null) {
         setState(() {
           widget.tileKeeper.rotateTilesTo(playingPlayer);
@@ -83,7 +85,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     if (!waitingForResponse) {
       int previousLength = widget.boardState.chessMoves.length;
       setState(() {
-        widget.boardState.transformTo(widget.syncChessMoves.value);
+        widget.boardState.transformTo(widget.syncChessMoves);
         if(widget.boardState.chessMoves.length != previousLength){
           highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
         }

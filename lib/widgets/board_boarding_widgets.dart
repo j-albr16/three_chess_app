@@ -121,7 +121,7 @@ class PlayerTile extends StatelessWidget {
                     isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
                     color: Colors.green,
                   ),
-                  Text(username),
+                  Text(username.toString()),
                 ],),
                 Text(score.toString()),
               ],

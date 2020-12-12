@@ -89,13 +89,14 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
       didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
       sendMove: (ChessMove chessMove) => _sendMove(chessMove, gameProvider),
       whoIsPlaying: local ? null : gameProviderListen.player.playerColor,
-      syncChessMoves: local ? null : ValueNotifier(gameProviderListen.game.chessMoves),
+      syncChessMoves: local ? null : gameProvider.game.chessMoves,
+      newMove: local ? null : gameProviderListen,
       tileKeeper: widget.tileKeeper,
       boardState: widget.boardState,
     );
 
     Player getPlayer(PlayerColor playerColor) {
-      return gameProvider.game?.player?.firstWhere(
+      return gameProviderListen?.game?.player?.firstWhere(
               (element) => element.playerColor == playerColor,
           orElse: null);
     }

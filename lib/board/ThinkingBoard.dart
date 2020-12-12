@@ -6,6 +6,7 @@ import '../board/Tiles.dart';
 import '../board/BoardState.dart';
 import '../data/board_data.dart';
 import '../board/PieceMover.dart';
+import 'BoardStateBone.dart';
 
 class ThinkingBoard {
 
@@ -16,7 +17,7 @@ class ThinkingBoard {
     return null;
   }
 
-  static PlayerColor _getCurrentPlayer(BoardState boardState){
+  static PlayerColor _getCurrentPlayer(BoardStateBone boardState){
     return PlayerColor.values[boardState.chessMoves.length % 3];
   }
 
@@ -24,7 +25,7 @@ class ThinkingBoard {
   static List<List<Direction>> _directionListKnight2 = [[Direction.top, Direction.top, Direction.left], [Direction.top, Direction.top, Direction.right], [Direction.left, Direction.left, Direction.top], [Direction.left, Direction.left, Direction.bottom], [Direction.bottom, Direction.bottom, Direction.left], [Direction.bottom, Direction.bottom, Direction.right], [Direction.right, Direction.right, Direction.top], [Direction.right, Direction.right, Direction.bottom]];
 
   static List<String> getLegalMove(
-      String selectedTile, BoardState boardState,) {
+      String selectedTile, BoardStateBone boardState,) {
     if(selectedTile == null){
       return null;
     }
@@ -265,10 +266,10 @@ class ThinkingBoard {
     //print(result.toString());
     result.removeWhere((element) {
       bool resultRemove = false;
-      BoardState virtualState = boardState.clone();
+      BoardStateBone virtualState = boardState.cloneBones();
 
       if (virtualState.pieces[element]?.pieceType != PieceType.King) {
-        virtualState.movePieceTo(piece.position, element, noInfo: true);
+        virtualState.movePieceTo(piece.position, element);
       }
 
       resultRemove = isCheck(piece.playerColor, virtualState);
@@ -277,7 +278,7 @@ class ThinkingBoard {
     return result;
   }
 
-  static bool isCheck(PlayerColor toBeChecked, BoardState boardState) {
+  static bool isCheck(PlayerColor toBeChecked, BoardStateBone boardState) {
     return isTileCovered(
       boardState: boardState,
       requestingPlayer: toBeChecked,
@@ -287,13 +288,13 @@ class ThinkingBoard {
           .position);
   }
 
-  static bool anyLegalMove(PlayerColor toBeChecked, BoardState boardState){
+  static bool anyLegalMove(PlayerColor toBeChecked, BoardStateBone boardState){
     bool result = false;
     for (Piece piece in boardState.pieces.values.where((element) => element.playerColor == toBeChecked).toList()) {
       for (String legalMove in getLegalMove(piece.position, boardState)) {
 
-        BoardState virtualState = boardState.clone();
-        virtualState.movePieceTo(piece.position, legalMove, noInfo: true);
+        BoardStateBone virtualState = boardState.cloneBones();
+        virtualState.movePieceTo(piece.position, legalMove);
 
         if (!isCheck(toBeChecked, virtualState)) {
           result = true;
@@ -307,15 +308,15 @@ class ThinkingBoard {
   }
 
   static bool isCheckMate(
-      PlayerColor toBeChecked, BoardState boardState) {
+      PlayerColor toBeChecked, BoardStateBone boardState) {
     bool result = false;
     if (isCheck(toBeChecked, boardState)) {
       result = true;
       for (Piece piece in boardState.pieces.values.where((element) => element.playerColor == toBeChecked).toList()) {
         for (String legalMove in getLegalMove(piece.position, boardState)) {
 
-          BoardState virtualState = boardState.clone();
-          virtualState.movePieceTo(piece.position, legalMove, noInfo: true);
+          BoardStateBone virtualState = boardState.cloneBones();
+          virtualState.movePieceTo(piece.position, legalMove);
 
           if (!isCheck(toBeChecked, virtualState)) {
             result = false;
@@ -332,7 +333,7 @@ class ThinkingBoard {
   static bool isTileCovered(
       {String toBeCheckedTile,
       PlayerColor requestingPlayer,
-      BoardState boardState}) {
+        BoardStateBone boardState}) {
     //Bishop, 1/2Queen
     for (Direction direction in Direction.values.where((element) => element.index % 2 == 0)) {
       if (_getPossibleLine(
@@ -422,7 +423,7 @@ class ThinkingBoard {
     return false;
   }
 
-  static Function _canMoveOn(PlayerColor requestingPlayer, BoardState boardState,
+  static Function _canMoveOn(PlayerColor requestingPlayer, BoardStateBone boardState,
       {bool checkAttacked = false}) {
     return (String toBeCheckedTile) {
       bool result = false;
@@ -446,7 +447,7 @@ class ThinkingBoard {
 
   ///Returns true if given Tile is occupied by one of the given PieceTypes of opposing PlayerColor
   static Function _occupiedBy(
-      {BoardState boardState,
+      {BoardStateBone boardState,
       List<PieceType> typesToLookFor,
       PlayerColor requestingPlayer}) {
     return (String toBeCheckedTile, ) {
@@ -463,7 +464,7 @@ class ThinkingBoard {
     };
   }
 
-  static List<String> _getComplexStep({BoardState boardState, List<Direction> directions, String startingTile, bool func(String tile), PlayerColor startingColor}) {
+  static List<String> _getComplexStep({BoardStateBone boardState, List<Direction> directions, String startingTile, bool func(String tile), PlayerColor startingColor}) {
     startingColor ??= BoardData.sideData[startingTile];
     void _nextSteps(List<String> allMoves, int index, String currentTile) {
       List<String> nextTiles =
@@ -485,7 +486,7 @@ class ThinkingBoard {
   }
 
   static List<String> _getPossibleLine(
-      {BoardState boardState, Direction direction, String startingTile, bool func(String tile), bool stopOnFirst = false, PlayerColor startingColor}) {
+      {BoardStateBone boardState, Direction direction, String startingTile, bool func(String tile), bool stopOnFirst = false, PlayerColor startingColor}) {
     startingColor ??= BoardData.sideData[startingTile];
     void _nextStep(List<String> allMoves, String currentTile) {
       List<String> nextTiles =
@@ -511,7 +512,7 @@ class ThinkingBoard {
   }
 
   static _getPossibleStep(
-      {BoardState boardState,
+      {BoardStateBone boardState,
       Direction direction,
       String startingTile,
       bool func(String tile),

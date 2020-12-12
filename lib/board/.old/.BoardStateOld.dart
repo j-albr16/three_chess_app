@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/board/BoardStateBone.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/data/board_data.dart';
 
@@ -11,8 +10,11 @@ import 'package:collection/collection.dart';
 import 'PieceMover.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
-class BoardState extends BoardStateBone{
+class BoardState{
   List<SubBoardState> subStates;
+  Map<String, Piece> pieces;
+  Map<PlayerColor, String> enpassent;
+  List<ChessMove> chessMoves;
   List<ChessMoveInfo> infoChessMoves;
   bool gameWon = false;
 
@@ -36,37 +38,33 @@ class BoardState extends BoardStateBone{
     return _selectedMove == null ? pieces : subStates[selectedMove+1].pieces;
   }
 
-  BoardState() : super() {
-    super.chessMoves = [];
-    super.pieces = {};
-    super.enpassent = {};
+  BoardState() {
+    chessMoves = [];
+    pieces = {};
+    enpassent = {};
     infoChessMoves = [];
-    newGame();
+    _newGame();
   }
 
-  BoardState._takeOver({Map<String, Piece> pieces, Map<PlayerColor, String> enpassent, List<ChessMove> chessMoves, this.infoChessMoves, this.subStates, int selectedMove}) : super(chessMoves: chessMoves, pieces: pieces, enpassent: enpassent){
+  BoardState._takeOver({this.pieces, this.enpassent, this.chessMoves, this.infoChessMoves, this.subStates, int selectedMove}){
     if(pieces.values.where((element) => element.pieceType == PieceType.King).toList().length != 3){
       gameWon = true;
     }
   }
 
-  BoardState.generate({List<ChessMove>chessMoves}){
+  BoardState.generate({this.chessMoves}){
     _generate(chessMoves);
   }
 
   void _generate(List<ChessMove> chessMoves){
     infoChessMoves = [];
-    super.pieces = {};
-    super.enpassent = {};
+    pieces = {};
+    enpassent = {};
     subStates = [];
-    newGame();
+    _newGame();
     for(ChessMove chessMove in chessMoves){
       movePieceTo(chessMove.initialTile, chessMove.nextTile);
     }
-  }
-
-  BoardStateBone cloneBones(){
-    return super.clone();
   }
 
   BoardState clone(){
@@ -78,7 +76,7 @@ class BoardState extends BoardStateBone{
       clonePassent[potEnPass.key] = potEnPass.value;
     }
 
-    for (Piece piece in super.pieces.values) {
+    for (Piece piece in pieces.values) {
       clonePieces[piece.position] = Piece(
         pieceType: piece.pieceType,
         playerColor: piece.playerColor,
@@ -101,28 +99,28 @@ class BoardState extends BoardStateBone{
 
   void transformTo(List<ChessMove> newChessMoves){
     bool isSame = true;
-    int smallerLength = newChessMoves.length < super.chessMoves.length ? newChessMoves.length : super.chessMoves.length;
+    int smallerLength = newChessMoves.length < chessMoves.length ? newChessMoves.length : chessMoves.length;
     for(int i = 0; i < smallerLength; i++){
-      if(!super.chessMoves[i].equalMove(newChessMoves[i])){
+      if(!chessMoves[i].equalMove(newChessMoves[i])){
         isSame = false;
       }
     }
 
     if(isSame && newChessMoves.length > 0) {
-      if (newChessMoves.length < super.chessMoves.length) {
+      if (newChessMoves.length < chessMoves.length) {
         if (selectedMove != null && selectedMove >= newChessMoves.length) {
           selectedMove = newChessMoves.length-1;
         }
         gameWon = false;
-        super.pieces = subStates[newChessMoves.length].pieces;
-        super.enpassent = subStates[newChessMoves.length].enpassent;
+        pieces = subStates[newChessMoves.length].pieces;
+        enpassent = subStates[newChessMoves.length].enpassent;
         subStates = subStates.sublist(0, newChessMoves.length+1);
         infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length);
-        super.chessMoves = newChessMoves;
+        chessMoves = newChessMoves;
       }
-      else if(newChessMoves.length > super.chessMoves.length){
+      else if(newChessMoves.length > chessMoves.length){
           int difference =
-              newChessMoves.length - super.chessMoves.length;
+              newChessMoves.length - chessMoves.length;
           for (int i = newChessMoves.length-difference;  i < newChessMoves.length ; i ++) {
             movePieceTo(
                 newChessMoves[i].initialTile, newChessMoves[i].nextTile);
@@ -135,8 +133,7 @@ class BoardState extends BoardStateBone{
     }
   }
 
-  @override
-  void movePieceTo(String start, String end){
+  void movePieceTo(String start, String end, {noInfo = false}){
     List<SpecialMove> specialMoves =[];
     PieceKey takenPiece;
     Map<SpecialMove, List<PlayerColor>> chessInfoTargetPlayer = {};
@@ -152,22 +149,22 @@ class BoardState extends BoardStateBone{
 
         }
         else{
-        if (super.pieces[end] != null) {
+        if (pieces[end] != null) {
           //boardState.pieces.firstWhere(()) = boardState.pieces[String]
-          takenPiece = super.pieces[end].pieceKey;
+          takenPiece = pieces[end].pieceKey;
           specialMoves.add(SpecialMove.Take);
           chessInfoTargetPlayer[SpecialMove.Take] = [
             PieceKeyGen.getPlayerColor(takenPiece)
           ];
-          super.pieces.remove(end);
+          pieces.remove(end);
         }
-        movedPiece = super.pieces[start];
+        movedPiece = pieces[start];
         if (movedPiece != null) {
           enpassent.removeWhere((key, value) => key == movedPiece.playerColor);
 
-          super.pieces.remove(start); // removes entry of old piece with old position
+          pieces.remove(start); // removes entry of old piece with old position
           movedPiece.position = end;
-          super.pieces.putIfAbsent(
+          pieces.putIfAbsent(
               end, () => movedPiece); // adds new entry for piece with new pos
           // moves the selectedPieces
 
@@ -187,12 +184,12 @@ class BoardState extends BoardStateBone{
                       [7] +
                   Tiles.numCoordinatesOf[movedPiece.playerColor][0];
 
-              Piece rook = super.pieces[rookPos];
+              Piece rook = pieces[rookPos];
               String newRookPos =
                   BoardData.adjacentTiles[movedPiece.position].left[0];
               rook.position = newRookPos;
-              super.pieces.remove(rookPos);
-              super.pieces.putIfAbsent(newRookPos, () => rook);
+              pieces.remove(rookPos);
+              pieces.putIfAbsent(newRookPos, () => rook);
               // pieces.firstWhere((e) => e.position == rookPos, orElse: () => null)?.position =
               //     BoardData.adjacentTiles[movedPiece.position].left[0]; //Places the rook to the right of the King
 
@@ -202,12 +199,12 @@ class BoardState extends BoardStateBone{
                       [0] +
                   Tiles.numCoordinatesOf[movedPiece.playerColor][0];
 
-              Piece rook = super.pieces[rookPos];
+              Piece rook = pieces[rookPos];
               String newRookPos =
                   BoardData.adjacentTiles[movedPiece.position].right[0];
               rook.position = newRookPos;
-              super.pieces.remove(rookPos);
-              super.pieces.putIfAbsent(newRookPos, () => rook);
+              pieces.remove(rookPos);
+              pieces.putIfAbsent(newRookPos, () => rook);
               //Places the rook to the right of the King
             }
           }
@@ -228,20 +225,20 @@ class BoardState extends BoardStateBone{
             else if ((charIndexOld - charIndexNew).abs() == 1 &&
                 numIndexOld - numIndexNew == 1 &&
                 numIndexNew == 2 &&
-                super.pieces[BoardData.adjacentTiles[end].top[0]] != null) {
+                pieces[BoardData.adjacentTiles[end].top[0]] != null) {
               // print("im in boardState movePieceTo enpassent");
               // print(BoardData.adjacentTiles[end].top[0]);
               // print(enpassent[BoardData.sideData[end]].toString() + "this is the enpassent");
 
               PieceKey possTakenPiece =
-                  super.pieces[BoardData.adjacentTiles[end].top[0]].pieceKey;
+                  pieces[BoardData.adjacentTiles[end].top[0]].pieceKey;
               if (enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] !=
                       null &&
-                  super.enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] ==
+                  enpassent[PieceKeyGen.getPlayerColor(possTakenPiece)] ==
                       ThinkingBoard.checkEmpty(
                           BoardData.adjacentTiles[end].top, 0)) {
                 specialMoves.add(SpecialMove.Take);
-                super.pieces.remove(BoardData.adjacentTiles[end].top[0]);
+                pieces.remove(BoardData.adjacentTiles[end].top[0]);
                 specialMoves.add(SpecialMove.Enpassant);
                 takenPiece = possTakenPiece;
                 chessInfoTargetPlayer[SpecialMove.Take] =
@@ -252,8 +249,8 @@ class BoardState extends BoardStateBone{
         }
       }
       ChessMove chessMove = ChessMove(initialTile: start, nextTile: end);
-        super.chessMoves.add(chessMove);
-        if(!specialMoves.contains(SpecialMove.NoMove)){
+        chessMoves.add(chessMove);
+        if(!specialMoves.contains(SpecialMove.NoMove) && !noInfo){
         bool check = false;
         bool checkMated = false;
         List<PlayerColor> checked = [];
@@ -293,16 +290,279 @@ class BoardState extends BoardStateBone{
   }
 
   void checkAndExecuteNoMove(){
-    if(super.chessMoves.length > 0 && !ThinkingBoard.anyLegalMove(PlayerColor.values[super.chessMoves.length % 3], this)){
+    if(chessMoves.length > 0 && !ThinkingBoard.anyLegalMove(PlayerColor.values[chessMoves.length % 3], this)){
       movePieceTo("", "");
     }
   }
 
-  @override
-  void newGame() {
-    super.newGame();
+
+  void _newGame() {
+    pieces = {};
+    [
+      //White
+      //#region White
+      //#region pawns
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'A2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'B2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'C2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'D2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'E2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'F2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'G2',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.white,
+        position: 'H2',
+      ),
+      //#endregion
+      //#region noPawns
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.white,
+        position: 'A1',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.white,
+        position: 'B1',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.white,
+        position: 'C1',
+      ),
+      Piece(
+        pieceType: PieceType.Queen,
+        playerColor: PlayerColor.white,
+        position: 'D1',
+      ),
+      Piece(
+        pieceType: PieceType.King,
+        playerColor: PlayerColor.white,
+        position: 'E1',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.white,
+        position: 'F1',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.white,
+        position: 'G1',
+      ),
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.white,
+        position: 'H1',
+      ),
+      //#endregion
+      //#endregion
+      //#region Black
+      //#region pawns
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'L7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'K7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'J7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'I7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'D7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'C7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'B7',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.black,
+        position: 'A7',
+      ),
+      //#endregion
+      //#region noPawns
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.black,
+        position: 'L8',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.black,
+        position: 'K8',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.black,
+        position: 'J8',
+      ),
+      Piece(
+        pieceType: PieceType.Queen,
+        playerColor: PlayerColor.black,
+        position: 'I8',
+      ),
+      Piece(
+        pieceType: PieceType.King,
+        playerColor: PlayerColor.black,
+        position: 'D8',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.black,
+        position: 'C8',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.black,
+        position: 'B8',
+      ),
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.black,
+        position: 'A8',
+      ),
+      //#endregion
+      //#endregion
+      //#region red
+      //#region pawns
+      //Pawns
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'H11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'G11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'F11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'E11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'I11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'J11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'K11',
+      ),
+      Piece(
+        pieceType: PieceType.Pawn,
+        playerColor: PlayerColor.red,
+        position: 'L11',
+      ),
+      //#endregion
+      //#region noPawns
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.red,
+        position: 'H12',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.red,
+        position: 'G12',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.red,
+        position: 'F12',
+      ),
+      Piece(
+        pieceType: PieceType.Queen,
+        playerColor: PlayerColor.red,
+        position: 'E12',
+      ),
+      Piece(
+        pieceType: PieceType.King,
+        playerColor: PlayerColor.red,
+        position: 'I12',
+      ),
+      Piece(
+        pieceType: PieceType.Bishop,
+        playerColor: PlayerColor.red,
+        position: 'J12',
+      ),
+      Piece(
+        pieceType: PieceType.Knight,
+        playerColor: PlayerColor.red,
+        position: 'K12',
+      ),
+      Piece(
+        pieceType: PieceType.Rook,
+        playerColor: PlayerColor.red,
+        position: 'L12',
+      ),
+      //#endregions
+      //#endregion
+    ].forEach((piece) {pieces[piece.position] = piece;});
+        enpassent = {};
     subStates = [];
-    subStates.add(SubBoardState(enpassent: super.enpassent, pieces: super.pieces).clone());
+    subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
     chessMoves = [];
     infoChessMoves = [];
   }

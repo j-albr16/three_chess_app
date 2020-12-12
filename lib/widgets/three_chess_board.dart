@@ -71,6 +71,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       playingPlayer = widget.whoIsPlaying;
       tileKeeper = widget.tileKeeper ?? Tiles();
       widget.newMove?.addListener(() => updateGame());
+      updateGame();
       if (playingPlayer != null) {
         setState(() {
           widget.tileKeeper.rotateTilesTo(playingPlayer);

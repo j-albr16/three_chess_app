@@ -89,7 +89,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
       didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
       sendMove: (ChessMove chessMove) => _sendMove(chessMove, gameProvider),
       whoIsPlaying: local ? null : gameProviderListen.player.playerColor,
-      syncChessMoves: local ? null : gameProvider.game.chessMoves,
+      syncChessMoves: local ? null : gameProviderListen.game.chessMoves,
       newMove: local ? null : gameProviderListen,
       tileKeeper: widget.tileKeeper,
       boardState: widget.boardState,

@@ -92,8 +92,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
         if(widget.boardState.chessMoves.length > previousLength){
           if(widget.boardState.infoChessMoves.last.specialMoves.contains(SpecialMove.CheckMate) && widget.boardState.infoChessMoves.last.targetedPlayer[SpecialMove.CheckMate].contains(widget.whoIsPlaying)){
-            _makeAMove("", "");
-          }
+            if(widget.boardState.chessMoves.length%3 == widget?.whoIsPlaying?.index) {
+                _makeAMove("", "");
+              }
+            }
         }
         }
       });

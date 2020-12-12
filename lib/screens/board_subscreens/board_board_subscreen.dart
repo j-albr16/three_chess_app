@@ -63,7 +63,8 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
           });
         }
 
-          return true;});
+          return true;
+      });
     }
     return gameProvider.sendMove(chessMove);
   }

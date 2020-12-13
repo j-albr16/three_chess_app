@@ -46,8 +46,8 @@ Sounds sounds = Sounds();
             size: Size(400, 300),
           ),
           testButtonBar(
-            callback: (){
-              sounds.playSound(Sound.SocialNotify, () => setState((){}));
+            callback: ()async {
+             await sounds.playSound(Sound.Capture);
             },
             color: Colors.pink,
             text: 'Player Sound',

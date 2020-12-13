@@ -25,12 +25,12 @@ dependencies:
     sdk: flutter
   provider: ^4.3.2+2
   image: ^2.1.17
-  flutter_sound: ^6.4.7+1
   equatable: ^1.2.3
   http: ^0.12.2
   shared_preferences: ^0.5.12+2
   socket_io_client: ^0.9.11
   reorderables: ^0.3.2
+  audioplayers: ^0.17.0
   intl: ^0.16.1
   relative_scale: ^1.1.0
 

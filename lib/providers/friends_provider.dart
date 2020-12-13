@@ -48,7 +48,7 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void makeNewNotification(String message){
+  void makeNewNotification(String message) {
     notification = message;
     newNotification = true;
   }
@@ -82,6 +82,7 @@ class FriendsProvider with ChangeNotifier {
           .add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
       data['pendingFriends'].forEach((pendingFriend) =>
           _pendingFriends.add(FriendConversion.rebaseOneFriend(pendingFriend)));
+      print('YOu have ${_friends.length} Friends');
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Friends', error);

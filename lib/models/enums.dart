@@ -1,5 +1,5 @@
 enum Direction{bottomRight, bottom, bottomLeft, left, leftTop, top, topRight, right}
-
+enum SpecialMove{Castling, Enpassant, Check, CheckMate, Take, NoMove, Win}
 enum RequestType {
   Remi,
   Surrender,

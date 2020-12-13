@@ -6,39 +6,39 @@ class ChessButtonBar extends StatelessWidget {
   int currentValue;
   Function updateValue;
 
-  ChessButtonBar({this.currentValue,this.buttonBarData, this.size, this.updateValue});
+  ChessButtonBar(
+      {this.currentValue, this.buttonBarData, this.size, this.updateValue});
   @override
   Widget build(BuildContext context) {
     return ButtonBar(
-        buttonHeight: size.height,
-        buttonMinWidth: size.width * 0.7 / buttonBarData.length,
-        buttonPadding: EdgeInsets.all(25),
         alignment: MainAxisAlignment.center,
         children: buttonBarData.asMap().entries.map((label) {
-          int index =label.key;
-          if(label.value == null){
-            return Spacer();
+          int index = label.key;
+          if (label.value == null) {
+            return SizedBox(
+              width: size.width * 0.1,
+            );
           }
-          return buttonItem(index ,label.value);
+          return buttonItem(index, label.value);
         }).toList());
   }
 
   Widget buttonItem(int index, Widget label) {
     Color color;
-    if(currentValue == index){
+    if (currentValue == index) {
       color = Colors.blueAccent;
-    }else{
+    } else {
       color = Colors.black45;
     }
     return FlatButton(
       height: size.height,
-      minWidth: size.width * 0.7/ buttonBarData.length,
+      minWidth: size.width * 0.5 / buttonBarData.length,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(7),
       ),
       color: color,
       onPressed: () => updateValue(index),
-      child:  label,
+      child: label,
     );
   }
 }

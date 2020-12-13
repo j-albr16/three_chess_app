@@ -34,16 +34,22 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     super.initState();
     Future.delayed(Duration.zero).then((_) {
       _gameProvider = Provider.of<GameProvider>(context, listen: false);
-      Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+      Provider.of<FriendsProvider>(context, listen: false)
+          .fetchFriends()
+          .then((_) => setState(() {
+                _friendsInit = true;
+              }));
       Provider.of<UserProvider>(context, listen: false)
           .fetchUser()
           .then((_) => setState(() {
-                _isInit = true;
+                _userInit = true;
               }));
     });
   }
 
-  bool _isInit = false;
+  bool _userInit = false;
+  bool _friendsInit = false;
+
   GameProvider _gameProvider;
 
   Size size;
@@ -194,11 +200,16 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
     final String friendId = args['friend'];
+    print(friends.length);
+    print('friendId');
+    print(friendId);
     if (friendId != null) {
       Friend friend = friends.firstWhere((friend) => friend.user.id == friendId,
           orElse: () => null);
       if (friend != null) {
         selectedFriends.add(friend);
+        print('Added ${selectedFriends.length} Friends');
+        print(friendId);
       }
     }
     didCheckForPreInvites = true;
@@ -206,9 +217,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInit) {
-      return Center(child: CircularProgressIndicator());
-    }
     size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -216,8 +224,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       ),
       body: Consumer2<UserProvider, FriendsProvider>(
           builder: (context, userProvider, friendsProvider, child) {
+        if (!_userInit || !_friendsInit) {
+          return Center(child: CircularProgressIndicator());
+        }
         user = userProvider.user;
         friends = friendsProvider.friends;
+        print(friends);
         if (!didCheckForPreInvites) {
           checkForPreInvites();
         }

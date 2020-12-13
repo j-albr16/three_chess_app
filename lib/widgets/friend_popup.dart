@@ -58,22 +58,25 @@ class FriendPopup extends StatelessWidget {
             updateFriendSelectionStatus(value, friend.user.id));
   }
 
-  static Widget friendTile(Friend friend, Size size, {bool remove = false, Function removeCallback} ) {
+  static Widget friendTile(Friend friend, Size size,
+      {bool remove = false, Function removeCallback}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         FriendTile.onlineIcon(friend.isOnline),
-        SizedBox(width: 7),
+        // SizedBox(width: size.width * 0.1),
         FriendTile.usernameText(friend.user.userName),
         Spacer(),
         Text(friend.user.score.toString()),
-        SizedBox(
-          width: size.width * 0.06,
-        ),
-        if(remove)IconButton(
-          icon: Icon(Icons.remove, color: Colors.red,),
-          onPressed: () => removeCallback(friend.user.id),
-        )
+        // SizedBox(width: size.width * 0.06),
+        if (remove)
+          IconButton(
+            icon: Icon(
+              Icons.remove,
+              color: Colors.red,
+            ),
+            onPressed: () => removeCallback(friend.user.id),
+          )
       ],
     );
   }
@@ -91,7 +94,7 @@ class FriendPopup extends StatelessWidget {
           ),
           height: size.height * 0.12,
           minWidth: size.width * 0.35,
-          onPressed:() => confirmFriendSelection(selectedFriendIds),
+          onPressed: () => confirmFriendSelection(selectedFriendIds),
         ),
         FlatButton(
           padding: EdgeInsets.all(15),

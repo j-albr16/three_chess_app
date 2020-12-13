@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 
-enum SpecialMove{Castling, Enpassant, Check, CheckMate, Take, NoMove, Win}
 
 class ChessMoveInfo {
   ChessMove chessMove;

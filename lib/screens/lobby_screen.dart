@@ -62,7 +62,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             icon: Icon(Icons.add),
             onPressed: () {
               return Navigator.of(context)
-                  .pushNamed(CreateGameScreen.routeName);
+                  .pushNamed(CreateGameScreen.routeName, arguments: {'friend': ''});
             },
           ),
           SizedBox(width: 20)

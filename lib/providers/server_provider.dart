@@ -328,10 +328,9 @@ class ServerProvider with ChangeNotifier {
     final String url = SERVER_ADRESS + 'fetch-friends' + _authString;
     // http get request
     final encodedResponse = await http.get(url);
-    print(encodedResponse.body);
     // decoding
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
+    // _printRawData(data);
     // validation
     _validation(data);
     return data;
@@ -401,7 +400,7 @@ class ServerProvider with ChangeNotifier {
         '&id=$id&isGameChat=$isGameChat';
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
+    // _printRawData(data);
     // validation
     _validation(data);
     return data;
@@ -414,7 +413,7 @@ class ServerProvider with ChangeNotifier {
     final String url = SERVER_ADRESS + 'invitations' + _authString;
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
+    // _printRawData(data);
     _validation(data);
     return data;
   }
@@ -519,7 +518,7 @@ class ServerProvider with ChangeNotifier {
     final encodedResponse = await http.get(url);
     // decoding JSON
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
+    // _printRawData(data);
     // validation
     _validation(data);
     return data;
@@ -535,7 +534,7 @@ class ServerProvider with ChangeNotifier {
     final encodedResponse = await http.get(url);
     // decodes received Data
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
+    // _printRawData(data);
     // validates Data
     _validation(data);
     // Game Provider Fetch Games

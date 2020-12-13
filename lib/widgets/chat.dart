@@ -124,11 +124,11 @@ AlignmentGeometry getAlignment(MessageOwner owner){
       alignment: getAlignment(owner),
       child: Container(
         margin: EdgeInsets.all(8),
-        padding: EdgeInsets.all(13),
+        padding: EdgeInsets.all(8),
         constraints: BoxConstraints(maxWidth: size.width * 0.7),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.black26,
+          color: Colors.black54,
         ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,

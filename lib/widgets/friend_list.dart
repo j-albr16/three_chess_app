@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
+import './message_count.dart';
 
 typedef void FriendDialog(FriendTileModel model);
 
@@ -28,19 +29,19 @@ class FriendTile extends StatelessWidget {
 
   FriendTile({this.onLongTap, this.onTap, this.height, this.model});
 
- static Widget onlineIcon(bool isOnline) {
+  static Widget onlineIcon(bool isOnline) {
     return Icon(
       isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
       color: Colors.green,
     );
   }
 
- static Widget playingIcon(bool isPlaying) {
+  static Widget playingIcon(bool isPlaying) {
     return Icon(isPlaying ? Icons.live_tv : Icons.tv_off,
         color: isPlaying ? Colors.red : Colors.black);
   }
 
- static Widget usernameText(String username) {
+  static Widget usernameText(String username) {
     return Text(
       username,
       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -52,25 +53,33 @@ class FriendTile extends StatelessWidget {
     return Container(
       height: height,
       margin: EdgeInsets.only(top: 5, bottom: 5),
-      child: ListTile(
-        leading: FittedBox(
-          child: Padding(
-            padding: EdgeInsets.only(top: 2, bottom: 5),
-            child: Row(
-              children: [
-                onlineIcon(model.isOnline),
-                Container(width: 10, color: Colors.transparent),
-                playingIcon(model.isPlaying),
-                // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
-                Text(model.newMessages.toString()),
-              ],
+      child: Stack(
+        children: [
+          ListTile(
+            leading: FittedBox(
+              child: Padding(
+                padding: EdgeInsets.only(top: 2, bottom: 5),
+                child: Row(
+                  children: [
+                    onlineIcon(model.isOnline),
+                    Container(width: 10, color: Colors.transparent),
+                    playingIcon(model.isPlaying),
+                    // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
+                  ],
+                ),
+              ),
             ),
+            title: usernameText(model.username),
+            onTap: () => onTap(model),
+            onLongPress: () => onLongTap(model),
+            hoverColor: Colors.grey,
           ),
-        ),
-        title: usernameText(model.username),
-        onTap: () => onTap(model),
-        onLongPress: () => onLongTap(model),
-        hoverColor: Colors.grey,
+          if(model.newMessages > 0)
+          Align(
+            alignment: Alignment.topRight,
+            child: MessageCount(model.newMessages),
+          )
+        ],
       ),
     );
   }
@@ -227,6 +236,7 @@ class FriendList extends StatelessWidget {
               child: child,
             );
     }
+
     return Container(
         padding: EdgeInsets.only(bottom: 5, top: 5),
         decoration:
@@ -235,7 +245,12 @@ class FriendList extends StatelessWidget {
           width: width,
           child: Stack(
             children: [
-              if(isPendingFriendsOpen) Container(width: double.infinity, height: double.infinity, color: Colors.grey,),
+              if (isPendingFriendsOpen)
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.grey,
+                ),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -246,7 +261,8 @@ class FriendList extends StatelessWidget {
                           ? pendingFriendTiles
                               .map((model) => Container(
                                     child: PendingFriendTile(
-                                      isSelected: selectedFriend?.userId == (model?.userId ?? "")
+                                      isSelected: selectedFriend?.userId ==
+                                              (model?.userId ?? "")
                                           ? true
                                           : false,
                                       onSelected: onPendingSelect,
@@ -296,7 +312,9 @@ class FriendList extends StatelessWidget {
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold),
                               ),
-                              Icon( isPendingFriendsOpen ? Icons.arrow_upward : Icons.arrow_downward),
+                              Icon(isPendingFriendsOpen
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward),
                             ],
                           ),
                         ),
@@ -329,7 +347,7 @@ class AddFriendArea extends StatelessWidget {
 
   AddFriendArea({this.addFriend, this.isTyping = false, this.switchTyping});
 
-  void _submit(submitted){
+  void _submit(submitted) {
     switchTyping();
     addFriend(submitted);
   }

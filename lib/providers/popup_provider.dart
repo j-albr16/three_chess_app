@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:three_chess/screens/board_screen.dart';
 
 import './friends_provider.dart';
 import '../models/game.dart';
@@ -33,17 +34,15 @@ class PopupProvider with ChangeNotifier {
 
   void _checklForPopUps() {
     // Invitation PopUps
-  if(_gameProvider.hasPopup){
-    _gameProvider.hasPopup = false;
-    makeEndGamePopup(_gameProvider);
-    notifyListeners();
-  }
-    else if (_friendsProvider.newInvitation) {
+    if (_gameProvider.hasPopup) {
+      _gameProvider.hasPopup = false;
+      makeEndGamePopup(_gameProvider);
+      notifyListeners();
+    } else if (_friendsProvider.newInvitation) {
       _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
-    }
-    else if (_friendsProvider.newNotification) {
+    } else if (_friendsProvider.newNotification) {
       makeSnackBar(_friendsProvider.notification);
       _friendsProvider.notification = null;
       _friendsProvider.newNotification = false;
@@ -58,31 +57,31 @@ class PopupProvider with ChangeNotifier {
       hasPopup = false;
     }
   }
-   void makeEndGamePopup(GameProvider gameProvider){
-    _popUp = (BuildContext context) => showDialog(context: context,
-    builder: (context){
-      Size size = MediaQuery.of(context).size;
-      return EndGameAlertDialog(
-        game: gameProvider.game,
-        inspect: (){},
-        leave: (){
-          gameProvider.removeGame();
-          Navigator.of(context).pop();
-        },
-        rematch: (){},
-        size: Size(size.width * 0.75, size.height * 0.75),
-        you: gameProvider.player,
-      );
-    });
+
+  void makeEndGamePopup(GameProvider gameProvider) {
+    _popUp = (BuildContext context) => showDialog(
+        context: context,
+        builder: (context) {
+          Size size = MediaQuery.of(context).size;
+          return EndGameAlertDialog(
+            game: gameProvider.game,
+            inspect: () {},
+            leave: () {
+              gameProvider.removeGame();
+              Navigator.of(context).pop();
+            },
+            rematch: () {},
+            size: Size(size.width * 0.75, size.height * 0.75),
+            you: gameProvider.player,
+          );
+        });
     hasPopup = true;
   }
-
 
   void makeSnackBar(String message) {
     _popUp = (BuildContext context) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(basicSnackbar(message));
+      ScaffoldMessenger.of(context).showSnackBar(basicSnackbar(message));
     };
     hasPopup = true;
   }
@@ -97,6 +96,7 @@ class PopupProvider with ChangeNotifier {
   void makeInvitationPopup(Game game) {
     _popUp = (BuildContext context) => showDialog(
           context: context,
+          barrierDismissible: true,
           builder: (context) {
             Size size = MediaQuery.of(context).size;
             new Timer(Duration(seconds: 20), () => Navigator.of(context).pop());
@@ -122,8 +122,13 @@ class PopupProvider with ChangeNotifier {
               ),
               child: Invitations.invitationTile(
                 accept: () {
-                  print('Here You will join the Game');
-                  Navigator.of(context).pop();
+                  GameProvider gProvider =
+                      Provider.of<GameProvider>(context, listen: false);
+                  gProvider.joinGame(game.id).then((_) {
+                    if (gProvider.game != null) {
+                      Navigator.of(context).pushNamed(BoardScreen.routeName);
+                    }
+                  });
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,

@@ -119,7 +119,7 @@ class CreateGame extends StatelessWidget {
           isPublicSwitch(),
           allowPremadeSwitch(),
           isRatedButtonBar(),
-          // playerColorButtonBar(),
+          playerColorButtonBar(),
           timeSlider(),
           incrementSlider(),
           ratingRangeSlider(),
@@ -300,7 +300,7 @@ class CreateGame extends StatelessWidget {
             ),
             child: SizedBox(
                 height: size.height * 0.08,
-                width: size.width / 3,
+                width: size.width / 2.5,
                 child: FriendPopup.friendTile(e, size,
                     remove: true,
                     removeCallback: (String id) => removeFriend(id))),

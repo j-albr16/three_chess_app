@@ -60,7 +60,7 @@ flutter:
   assets:
     - assets/pieces/
     - assets/auth-image.jpg
-    - assets/sound/
+    - assets/sound/favs/
 
 
 

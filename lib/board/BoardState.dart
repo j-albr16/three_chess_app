@@ -11,7 +11,7 @@ import 'package:collection/collection.dart';
 import 'PieceMover.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
-class BoardState extends BoardStateBone{
+class BoardState extends BoardStateBone with ChangeNotifier{
   List<SubBoardState> subStates;
   List<ChessMoveInfo> infoChessMoves;
   bool gameWon = false;
@@ -30,6 +30,7 @@ class BoardState extends BoardStateBone{
     } else {
       _selectedMove = newIndex;
     }
+    notifyListeners();
   }
 
   Map<String, Piece> get selectedPieces{
@@ -288,7 +289,7 @@ class BoardState extends BoardStateBone{
         subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
         infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: movedPiece?.pieceKey, specialMoves: specialMoves, takenPiece: takenPiece, targetedPlayer: chessInfoTargetPlayer));
 
-
+        notifyListeners();
       }
   }
 
@@ -305,6 +306,8 @@ class BoardState extends BoardStateBone{
     subStates.add(SubBoardState(enpassent: super.enpassent, pieces: super.pieces).clone());
     chessMoves = [];
     infoChessMoves = [];
+
+    notifyListeners();
   }
 
   @override

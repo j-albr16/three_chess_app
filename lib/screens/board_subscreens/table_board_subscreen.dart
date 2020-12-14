@@ -20,14 +20,14 @@ import 'package:relative_scale/relative_scale.dart';
 import '../../providers/game_provider.dart';
 
 class TableBoardSubScreen extends StatefulWidget {
-  final BoardState boardState;
+  final BoardState boardStateListen;
   final ScrollController controller;
   final double height;
   final double iconBarFraction;
   final Map<RequestType, Function> onRequest;
   final bool isLocal;
 
-  TableBoardSubScreen({this.boardState, this.controller, this.height, this.iconBarFraction, this.onRequest, this.isLocal});
+  TableBoardSubScreen({this.boardStateListen, this.controller, this.height, this.iconBarFraction, this.onRequest, this.isLocal});
   @override
   _TableBoardSubScreenState createState() => _TableBoardSubScreenState();
 }
@@ -54,7 +54,7 @@ void initState() {
     {
       return GameTable(
         iconBarFraction: widget.iconBarFraction,
-        boardState: widget.boardState,
+        boardStateListen: widget.boardStateListen,
         size: Size(screenWidth * 0.8, widget.height),
         controller: widget.controller,
         confirmation: confirmation,

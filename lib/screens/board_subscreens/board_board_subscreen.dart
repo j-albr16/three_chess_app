@@ -20,9 +20,10 @@ import 'package:relative_scale/relative_scale.dart';
 
 class BoardBoardSubScreen extends StatefulWidget {
   final BoardState boardState;
+  final BoardState boardStateListen;
   final Tiles tileKeeper;
 
-  BoardBoardSubScreen({this.boardState, this.tileKeeper});
+  BoardBoardSubScreen({this.boardState, this.tileKeeper, this.boardStateListen});
 
   @override
   _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
@@ -40,15 +41,11 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
 
   _moveLeft(){
 
-      setState(() {
         widget.boardState.selectedMove -= 1;
-      });
   }
 
   _moveRight(){
-      setState(() {
       widget.boardState.selectedMove += 1;
-      });
 
   }
 
@@ -58,9 +55,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
         if(!ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
 
           print("No Move detechted in movePieceTo");
-          setState(() {
-            widget.boardState.movePieceTo("", "");
-          });
+            widget.boardStateListen.movePieceTo("", "");
         }
 
           return true;
@@ -93,6 +88,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
       newMove: local ? null : gameProviderListen,
       tileKeeper: widget.tileKeeper,
       boardState: widget.boardState,
+      boardStateListen: widget.boardStateListen,
     );
 
     Player getPlayer(PlayerColor playerColor) {
@@ -182,8 +178,8 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                                         child: FittedBox(
                                           child: Text(
                                             widget.boardState.selectedMove+1 == widget.boardState.chessMoves.length ?
-                                                "Move ${widget.boardState.chessMoves.length}":
-                                            "Move ${widget.boardState.selectedMove+1} of ${widget.boardState.chessMoves.length}",
+                                                "Move ${widget.boardStateListen.chessMoves.length}":
+                                            "Move ${widget.boardStateListen.selectedMove+1} of ${widget.boardStateListen.chessMoves.length}",
                                             style: TextStyle(
                                                 fontSize: 24,
                                                 fontWeight: FontWeight.bold,

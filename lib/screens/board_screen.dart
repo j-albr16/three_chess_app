@@ -25,6 +25,7 @@ import 'board_subscreens/board_board_subscreen.dart';
 import 'board_subscreens/chat_board_subscreen.dart';
 import 'board_subscreens/table_board_subscreen.dart';
 
+
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
 
@@ -190,11 +191,12 @@ Function getOnDecline(RequestType requestType){
           ChatBoardSubScreen(
               height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
-            boardState: boardState,
+            boardState: Provider.of<BoardState>(context, listen:false),
+            boardStateListen: Provider.of<BoardState>(context),
           tileKeeper: tileKeeper,),
           ...votes,
           TableBoardSubScreen(
-            boardState: boardState,
+            boardStateListen: Provider.of<BoardState>(context),
             controller: ScrollController(),
             isLocal: isLocal,
             onRequest:  isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
@@ -203,25 +205,25 @@ Function getOnDecline(RequestType requestType){
         ];
 
         return Scaffold(
-          appBar: AppBar(
-            actions: [
-              IconButton(
-              icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
-              onPressed: () => switchIsLocked(),),
-            ],
-          ),
-          body: NotificationListener<ScrollEndNotification>(
-            onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
-            child: SingleChildScrollView(
-              physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-              controller: controller,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: _subScreens,
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
+                onPressed: () => switchIsLocked(),),
+              ],
+            ),
+            body: NotificationListener<ScrollEndNotification>(
+              onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
+              child: SingleChildScrollView(
+                physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                controller: controller,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _subScreens,
+                ),
               ),
             ),
-          ),
-        );},
+          );},
     );
         }
 }

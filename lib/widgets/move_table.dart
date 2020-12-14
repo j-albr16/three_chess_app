@@ -10,7 +10,7 @@ import '../models/enums.dart';
 typedef void RequestAction(RequestType requestType);
 
 class GameTable extends StatelessWidget {
-  final BoardState boardState;
+  final BoardState boardStateListen;
   final Size size;
   final List<RequestType> pendingActions;
   final RequestType confirmation;
@@ -22,7 +22,7 @@ class GameTable extends StatelessWidget {
   final double iconBarFraction;
 
   GameTable(
-      {this.boardState,
+      {this.boardStateListen,
         this.iconBarFraction,
       this.onRequestCancel,
       this.onConfirmation,
@@ -51,7 +51,7 @@ class GameTable extends StatelessWidget {
           iconBar(),
           Stack(children: [
 
-            moveTable(boardState),
+            moveTable(boardStateListen),
             if (pendingActions != null && pendingActions.isNotEmpty)
               Column(
                   mainAxisSize: MainAxisSize.min,

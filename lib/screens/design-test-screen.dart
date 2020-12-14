@@ -29,7 +29,6 @@ class DesignTestScreen extends StatefulWidget {
 class _DesignTestScreenState extends State<DesignTestScreen> with notificationPort<DesignTestScreen> {
 
 
-Sounds sounds = Sounds();
   @override
   Widget build(BuildContext context) {
     GameProvider _gameProvider =
@@ -47,7 +46,7 @@ Sounds sounds = Sounds();
           ),
           testButtonBar(
             callback: ()async {
-             await sounds.playSound(Sound.Capture);
+             await Sounds.playSound(Sound.Capture);
             },
             color: Colors.pink,
             text: 'Player Sound',

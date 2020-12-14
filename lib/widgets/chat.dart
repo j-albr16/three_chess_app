@@ -35,7 +35,9 @@ class Chat extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
     Provider.of<FriendsProvider>(context, listen: false).resetNewMessages(chat.id);
+    });
     return Container(
       alignment: Alignment.center,
       width:size.width,

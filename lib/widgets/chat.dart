@@ -35,7 +35,7 @@ class Chat extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<FriendsProvider>(context).resetNewMessages(chat.id);
+    Provider.of<FriendsProvider>(context, listen: false).resetNewMessages(chat.id);
     return Container(
       alignment: Alignment.center,
       width:size.width,

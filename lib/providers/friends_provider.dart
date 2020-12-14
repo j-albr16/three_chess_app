@@ -243,6 +243,15 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void resetNewMessages(String chatId) {
+    Friend friend = _friends.firstWhere((friend) => friend.chatId == chatId,
+        orElse: () => null);
+    if (friend != null) {
+      friend.newMessages = 0;
+      notifyListeners();
+    }
+  }
+
   void _handleNewMessage(String userId) {
     Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
         orElse: () => null);

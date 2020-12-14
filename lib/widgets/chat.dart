@@ -6,6 +6,7 @@ import '../providers/chat_provider.dart';
 import '../models/enums.dart';
 import '../models/message.dart';
 import '../models/user.dart';
+import '../providers/friends_provider.dart';
 import '../models/chat_model.dart' as mod;
 import '../screens/auth_test_screen.dart' as DEC;
 
@@ -34,6 +35,7 @@ class Chat extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<FriendsProvider>(context).resetNewMessages(chat.id);
     return Container(
       alignment: Alignment.center,
       width:size.width,

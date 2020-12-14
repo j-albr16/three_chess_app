@@ -129,7 +129,6 @@ class ChatProvider with ChangeNotifier {
       //TODO : What should happen if message was received and current chat is not the Chat the Message was sent to
       print(messageData['userId']);
       increaseNewMessageCounterCallback(messageData['userId']);
-      
     }
     if (chatIndex != -1) {
       _chats[chatIndex].messages.add(ChatConversion.rebaseOneMessage(messageData, _userId));

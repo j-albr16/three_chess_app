@@ -14,6 +14,7 @@ import '../models/chess_move.dart';
 import '../widgets/end_game.dart';
 import '../widgets/move_table.dart';
 import '../providers/friends_provider.dart';
+import '../helpers/sound_player.dart';
 import '../widgets/chat.dart';
 import '../providers/popup_provider.dart';
 import '../screens/screen_bone.dart';
@@ -28,6 +29,7 @@ class DesignTestScreen extends StatefulWidget {
 class _DesignTestScreenState extends State<DesignTestScreen> with notificationPort<DesignTestScreen> {
 
 
+Sounds sounds = Sounds();
   @override
   Widget build(BuildContext context) {
     GameProvider _gameProvider =
@@ -36,21 +38,28 @@ class _DesignTestScreenState extends State<DesignTestScreen> with notificationPo
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
-          // testButtonBar(
-          //   color: Colors.red,
-          //   text: 'Show Finished Game Popup',
-          //   callback: () => showDialog(context: context, builder: (context){
-          //     return EndGameAlertDialog(
-
-          //     );
-          //   })
-          // ),
           Invitations(
             acceptInvitation: (String gameId) =>
                 print('Accept Invitation to ' + gameId),
             declineInvitation: () => print('Declined Invitation'),
             invitations: Provider.of<FriendsProvider>(context).invitations,
-            size: Size(400, 600),
+            size: Size(400, 300),
+          ),
+          testButtonBar(
+            callback: ()async {
+             await sounds.playSound(Sound.Capture);
+            },
+            color: Colors.pink,
+            text: 'Player Sound',
+          ),
+          testButtonBar(
+            callback: () => _gameProvider.sendMove(new ChessMove(
+              initialTile: 'A2',
+              nextTile: 'A4',
+              remainingTime: 10,
+            )),
+            color: Colors.green,
+            text: 'Make move',
           ),
           testButtonBar(
               callback: () => _gameProvider.createTestGame(),
@@ -125,8 +134,8 @@ class _DesignTestScreenState extends State<DesignTestScreen> with notificationPo
   Widget testButtonBar({String text, callback, Color color}) {
     return FlatButton(
       color: color,
-      height: 200,
-      minWidth: 400,
+      height: 50,
+      minWidth: 100,
       padding: EdgeInsets.all(13),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
       onPressed: callback,

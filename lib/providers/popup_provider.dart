@@ -8,6 +8,7 @@ import 'package:three_chess/screens/board_screen.dart';
 import './friends_provider.dart';
 import '../models/game.dart';
 import '../widgets/end_game.dart';
+import '../helpers/sound_player.dart';
 import '../models/player.dart';
 import '../widgets/invitations.dart';
 import './game_provider.dart';
@@ -103,6 +104,7 @@ class PopupProvider with ChangeNotifier {
             return invitationDialog(game, size, context);
           },
         );
+    Sounds.playSound(Sound.SocialNotify);
     hasPopup = true;
   }
 

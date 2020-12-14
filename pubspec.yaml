@@ -30,6 +30,7 @@ dependencies:
   shared_preferences: ^0.5.12+2
   socket_io_client: ^0.9.11
   reorderables: ^0.3.2
+  audioplayers: ^0.17.0
   intl: ^0.16.1
   relative_scale: ^1.1.0
 
@@ -59,6 +60,7 @@ flutter:
   assets:
     - assets/pieces/
     - assets/auth-image.jpg
+    - assets/sound/favs/
 
 
 

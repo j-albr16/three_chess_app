@@ -353,6 +353,8 @@ _games.add(GameConversion.rebaseLobbyGame(
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
     print('Handle New Game Data');
+    // TODO unite filter somewhere specific
+    if(gameData['_id'] != _game.id){
     _games.add(GameConversion.rebaseLobbyGame(
       gameData: gameData,
       playerData: gameData['player'],
@@ -363,6 +365,7 @@ _games.add(GameConversion.rebaseLobbyGame(
       GameConversion.printEverything(_game, player, _games);
     }
     notifyListeners();
+    }
   }
 
   void _handlePlayerIsOnline(String userId){

@@ -102,6 +102,7 @@ class BoardState extends BoardStateBone with ChangeNotifier{
 
   void transformTo(List<ChessMove> newChessMoves){
     bool isSame = true;
+    newChessMoves ??= [];
     int smallerLength = newChessMoves.length < super.chessMoves.length ? newChessMoves.length : super.chessMoves.length;
     for(int i = 0; i < smallerLength; i++){
       if(!super.chessMoves[i].equalMove(newChessMoves[i])){

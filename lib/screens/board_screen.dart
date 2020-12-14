@@ -35,7 +35,6 @@ class BoardScreen extends StatefulWidget {
 
 class _BoardScreenState extends State<BoardScreen> {
   ThreeChessBoard threeChessBoard;
-  BoardState boardState;
   ScrollController controller;
   double iconBarFractionOfTable = 0.1;
   double gameTableHeightFraction = 0.7;
@@ -46,10 +45,11 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   void initState() {
-    boardState = BoardState();
     controller = ScrollController();
     tileKeeper = Tiles();
-    Future.delayed(Duration.zero).then((_) => gameProvider = Provider.of(context, listen: false));
+    Future.delayed(Duration.zero).then((_) {
+      gameProvider = Provider.of(context, listen: false);
+    });
 
     // threeChessBoard = ThreeChessBoard(
     //     boardState: BoardState.newGame(), height: 1000, width: 1000);
@@ -144,16 +144,17 @@ Function getOnDecline(RequestType requestType){
       RequestType.Remi :() =>  gameProvider.requestRemi(),
       RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
     };
+    BoardState boardState = Provider.of<BoardState>(context, listen: false);
+    BoardState boardStateListen = Provider.of<BoardState>(context);
 
     Map<RequestType, Function> onLocalRequest = {
-      RequestType.Surrender : () =>setState( () => boardState = BoardState()), //TODO TESTING PHASE ONLY
-      RequestType.Remi :() => setState( () => boardState = BoardState()),  //TODO TESTING PHASE ONLY
-      RequestType.TakeBack :() =>  setState( () {
+      RequestType.Surrender : () => boardState.newGame(), //TODO TESTING PHASE ONLY
+      RequestType.Remi :() => boardState.newGame(),  //TODO TESTING PHASE ONLY
+      RequestType.TakeBack :() {
 
         if (boardState.chessMoves.length != null && boardState.chessMoves.length > 1) {
           boardState.transformTo(boardState.chessMoves.sublist(0, boardState.chessMoves.length-1));
-        }
-      }),
+        }},
     };
 
     return RelativeBuilder(
@@ -186,20 +187,21 @@ Function getOnDecline(RequestType requestType){
           onDecline: () => getOnDecline(request.requestType),
           movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
         ));});
-        bool isLocal = Provider.of<GameProvider>(context)?.game != null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+        bool isLocal = Provider.of<GameProvider>(context)?.game == null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+        print(isLocal ? "This is Local" : "this is online (not local)");
         _subScreens = [
           ChatBoardSubScreen(
               height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
-            boardState: Provider.of<BoardState>(context, listen:false),
-            boardStateListen: Provider.of<BoardState>(context),
+            boardState: boardState,
+            boardStateListen: boardStateListen,
           tileKeeper: tileKeeper,),
           ...votes,
           TableBoardSubScreen(
             boardStateListen: Provider.of<BoardState>(context),
             controller: ScrollController(),
             isLocal: isLocal,
-            onRequest:  isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+            onRequest:  !isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
             height: gameTableHeightFraction * screenHeight,
               iconBarFraction: iconBarFractionOfTable),
         ];

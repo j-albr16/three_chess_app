@@ -117,6 +117,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       }
       waitingForResponse = false;
     });
+    // if(widget.whoIsPlaying == null && !ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
+    //   widget.boardState.movePieceTo("", "");
+    // }
   }
 
   String possibleDeselect; //This makes deselecting by clicking on the same piece again possible

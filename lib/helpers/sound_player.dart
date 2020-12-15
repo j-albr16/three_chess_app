@@ -13,15 +13,15 @@ const Map<Sound, String> soundLinks = {
 };
 
 class Sounds {
-  static final _audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+
+static final _audioPlayer = AudioCache();
 
   static Future<void> playSound(Sound sound) async {
     // audio session needs to opened AND cosed
     if (kIsWeb) {
       js.context.callMethod('playAudio', [soundLinks[sound]]);
     } else {
-      await _audioPlayer.play(soundLinks[sound],
-          isLocal: true, stayAwake: true);
+      await _audioPlayer.play(soundLinks[sound], mode: PlayerMode.LOW_LATENCY);
     }
   }
 }

@@ -1,5 +1,7 @@
 import 'package:audioplayers/audio_cache.dart';
+import 'dart:js' as js;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum Sound { Capture, LowTime, Move, SocialNotify, Check }
 
@@ -15,6 +17,11 @@ class Sounds {
 
   static Future<void> playSound(Sound sound) async {
     // audio session needs to opened AND cosed
-    await _audioPlayer.play(soundLinks[sound], isLocal: true, stayAwake: true);
+    if (kIsWeb) {
+      js.context.callMethod('playAudio', [soundLinks[sound]]);
+    } else {
+      await _audioPlayer.play(soundLinks[sound],
+          isLocal: true, stayAwake: true);
+    }
   }
 }

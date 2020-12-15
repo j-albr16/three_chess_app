@@ -1,7 +1,7 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-enum Sound { Capture, LowTime, Move, SocialNotify }
+enum Sound { Capture, LowTime, Move, SocialNotify, Check }
 
 const Map<Sound, String> soundLinks = {
   Sound.Capture: 'sound/favs/Capture.mp3',

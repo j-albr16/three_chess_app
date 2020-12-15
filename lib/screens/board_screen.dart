@@ -25,6 +25,7 @@ import 'board_subscreens/board_board_subscreen.dart';
 import 'board_subscreens/chat_board_subscreen.dart';
 import 'board_subscreens/table_board_subscreen.dart';
 
+
 class BoardScreen extends StatefulWidget {
   static const routeName = '/board-screen';
 
@@ -34,7 +35,6 @@ class BoardScreen extends StatefulWidget {
 
 class _BoardScreenState extends State<BoardScreen> {
   ThreeChessBoard threeChessBoard;
-  BoardState boardState;
   ScrollController controller;
   double iconBarFractionOfTable = 0.1;
   double gameTableHeightFraction = 0.7;
@@ -45,10 +45,11 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   void initState() {
-    boardState = BoardState();
     controller = ScrollController();
     tileKeeper = Tiles();
-    Future.delayed(Duration.zero).then((_) => gameProvider = Provider.of(context, listen: false));
+    Future.delayed(Duration.zero).then((_) {
+      gameProvider = Provider.of(context, listen: false);
+    });
 
     // threeChessBoard = ThreeChessBoard(
     //     boardState: BoardState.newGame(), height: 1000, width: 1000);
@@ -112,6 +113,10 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   Widget build(BuildContext context) {
 
+    BoardState boardState = Provider.of<BoardState>(context, listen: false);
+    BoardState boardStateListen = Provider.of<BoardState>(context);
+
+
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
 
     switchIsLocked(){
@@ -145,14 +150,13 @@ Function getOnDecline(RequestType requestType){
     };
 
     Map<RequestType, Function> onLocalRequest = {
-      RequestType.Surrender : () =>setState( () => boardState = BoardState()), //TODO TESTING PHASE ONLY
-      RequestType.Remi :() => setState( () => boardState = BoardState()),  //TODO TESTING PHASE ONLY
-      RequestType.TakeBack :() =>  setState( () {
+      RequestType.Surrender : () => boardState.newGame(), //TODO TESTING PHASE ONLY
+      RequestType.Remi :() => boardState.newGame(),  //TODO TESTING PHASE ONLY
+      RequestType.TakeBack :() {
 
         if (boardState.chessMoves.length != null && boardState.chessMoves.length > 1) {
           boardState.transformTo(boardState.chessMoves.sublist(0, boardState.chessMoves.length-1));
-        }
-      }),
+        }},
     };
 
     return RelativeBuilder(
@@ -185,43 +189,45 @@ Function getOnDecline(RequestType requestType){
           onDecline: () => getOnDecline(request.requestType),
           movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
         ));});
-        bool isLocal = Provider.of<GameProvider>(context)?.game != null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+        bool isLocal = Provider.of<GameProvider>(context)?.game == null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+        print(isLocal ? "This is Local" : "this is online (not local)");
         _subScreens = [
           ChatBoardSubScreen(
               height: chatScreenHeight ?? screenHeight,),
           BoardBoardSubScreen(
             boardState: boardState,
+            boardStateListen: boardStateListen,
           tileKeeper: tileKeeper,),
           ...votes,
           TableBoardSubScreen(
-            boardState: boardState,
+            boardStateListen: boardStateListen,
             controller: ScrollController(),
             isLocal: isLocal,
-            onRequest:  isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
+            onRequest:  !isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
             height: gameTableHeightFraction * screenHeight,
               iconBarFraction: iconBarFractionOfTable),
         ];
 
         return Scaffold(
-          appBar: AppBar(
-            actions: [
-              IconButton(
-              icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
-              onPressed: () => switchIsLocked(),),
-            ],
-          ),
-          body: NotificationListener<ScrollEndNotification>(
-            onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
-            child: SingleChildScrollView(
-              physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-              controller: controller,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: _subScreens,
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
+                onPressed: () => switchIsLocked(),),
+              ],
+            ),
+            body: NotificationListener<ScrollEndNotification>(
+              onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
+              child: SingleChildScrollView(
+                physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                controller: controller,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _subScreens,
+                ),
               ),
             ),
-          ),
-        );},
+          );},
     );
         }
 }

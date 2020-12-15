@@ -6,6 +6,7 @@ import 'package:three_chess/board/PieceMover.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/board/TileSelect.dart';
 import 'package:three_chess/board/Tiles.dart';
+import 'package:three_chess/board/chess_move_info.dart';
 import 'package:three_chess/board/timeCounter.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
@@ -26,6 +27,7 @@ class ThreeChessBoard extends StatefulWidget {
   final PlayerColor whoIsPlaying;
   final ValueNotifier<bool> didStart;
   final Listenable newMove;
+  final BoardState boardStateListen;
 
   ThreeChessBoard(
       {this.newMove,
@@ -36,7 +38,8 @@ class ThreeChessBoard extends StatefulWidget {
       this.sendMove,
       this.syncChessMoves,
       this.whoIsPlaying,
-      this.didStart});
+      this.didStart,
+      this.boardStateListen});
 
   @override
   _ThreeChessBoardState createState() => _ThreeChessBoardState();
@@ -71,7 +74,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       playingPlayer = widget.whoIsPlaying;
       tileKeeper = widget.tileKeeper ?? Tiles();
       widget.newMove?.addListener(() => updateGame());
-      updateGame();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        updateGame();
+      });
       if (playingPlayer != null) {
         setState(() {
           widget.tileKeeper.rotateTilesTo(playingPlayer);
@@ -89,6 +94,13 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
         widget.boardState.transformTo(widget.syncChessMoves);
         if(widget.boardState.chessMoves.length != previousLength){
           highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
+        if(widget.boardState.chessMoves.length > previousLength){
+          if(widget.boardState.infoChessMoves.last.specialMoves.contains(SpecialMove.CheckMate) && widget.boardState.infoChessMoves.last.targetedPlayer[SpecialMove.CheckMate].contains(widget.whoIsPlaying)){
+            if(widget.boardState.chessMoves.length%3 == widget?.whoIsPlaying?.index) {
+                _makeAMove("", "");
+              }
+            }
+        }
         }
       });
     }
@@ -105,6 +117,9 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       }
       waitingForResponse = false;
     });
+    // if(widget.whoIsPlaying == null && !ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
+    //   widget.boardState.movePieceTo("", "");
+    // }
   }
 
   String possibleDeselect; //This makes deselecting by clicking on the same piece again possible
@@ -208,6 +223,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
           possibleDeselect == whatsHit ?
             _cleanMove() : _cleanDrag();
+          possibleDeselect = null;
 
         } else { //if you neither drag to start or to highlight
           _cleanMove();
@@ -252,7 +268,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       },
       child: BoardPainter(
         key: painterKey,
-        pieces: widget.boardState.selectedPieces,
+        pieces: widget.boardStateListen.selectedPieces,
         tiles: tileKeeper.tiles,
         height: widget.height,
         width: widget.width,

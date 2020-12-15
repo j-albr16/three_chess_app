@@ -206,7 +206,7 @@ class GameProvider with ChangeNotifier {
   Future<bool> sendMove(ChessMove chessMove) async {
     try {
      final data = await _serverProvider.sendMove(chessMove);
-     return data['valid'];
+     return data['moveValid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating Game', error);
     }

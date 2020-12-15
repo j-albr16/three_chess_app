@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:three_chess/board/BoardStateBone.dart';
 import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/data/board_data.dart';
+import 'package:three_chess/helpers/sound_player.dart';
 
 import '../models/enums.dart';
 import '../models/piece.dart';
@@ -11,30 +12,31 @@ import 'package:collection/collection.dart';
 import 'PieceMover.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
-class BoardState extends BoardStateBone with ChangeNotifier{
+
+class BoardState extends BoardStateBone with ChangeNotifier {
   List<SubBoardState> subStates;
   List<ChessMoveInfo> infoChessMoves;
   bool gameWon = false;
 
   int _selectedMove;
 
-  int get selectedMove{
-    return _selectedMove ?? chessMoves.length-1;
+  int get selectedMove {
+    return _selectedMove ?? chessMoves.length - 1;
   }
 
-  set selectedMove(int newIndex){
-    if(newIndex < 0){
+  set selectedMove(int newIndex) {
+    if (newIndex < 0) {
       _selectedMove = -1;
-    } else if(newIndex >= chessMoves.length){
-      _selectedMove = chessMoves.length-1;
+    } else if (newIndex >= chessMoves.length) {
+      _selectedMove = chessMoves.length - 1;
     } else {
       _selectedMove = newIndex;
     }
     notifyListeners();
   }
 
-  Map<String, Piece> get selectedPieces{
-    return _selectedMove == null ? pieces : subStates[selectedMove+1].pieces;
+  Map<String, Piece> get selectedPieces {
+    return _selectedMove == null ? pieces : subStates[selectedMove + 1].pieces;
   }
 
   BoardState() : super() {
@@ -45,32 +47,47 @@ class BoardState extends BoardStateBone with ChangeNotifier{
     newGame();
   }
 
-  BoardState._takeOver({Map<String, Piece> pieces, Map<PlayerColor, String> enpassent, List<ChessMove> chessMoves, this.infoChessMoves, this.subStates, int selectedMove}) : super(chessMoves: chessMoves, pieces: pieces, enpassent: enpassent){
-    if(pieces.values.where((element) => element.pieceType == PieceType.King).toList().length != 3){
+  BoardState._takeOver(
+      {Map<String, Piece> pieces,
+      Map<PlayerColor, String> enpassent,
+      List<ChessMove> chessMoves,
+      this.infoChessMoves,
+      this.subStates,
+      int selectedMove})
+      : super(chessMoves: chessMoves, pieces: pieces, enpassent: enpassent) {
+    if (pieces.values
+            .where((element) => element.pieceType == PieceType.King)
+            .toList()
+            .length !=
+        3) {
       gameWon = true;
     }
   }
 
-  BoardState.generate({List<ChessMove>chessMoves}){
+  BoardState.generate({List<ChessMove> chessMoves}) {
     _generate(chessMoves);
   }
 
-  void _generate(List<ChessMove> chessMoves){
+  void _generate(List<ChessMove> chessMoves) {
     infoChessMoves = [];
     super.pieces = {};
     super.enpassent = {};
     subStates = [];
     newGame();
-    for(ChessMove chessMove in chessMoves){
-      movePieceTo(chessMove.initialTile, chessMove.nextTile);
+    bool isSilent = true;
+    for (ChessMove chessMove in chessMoves) {
+      if(chessMove == chessMoves.last){
+        isSilent = false;
+      }
+      movePieceTo(chessMove.initialTile, chessMove.nextTile, silent: isSilent);
     }
   }
 
-  BoardStateBone cloneBones(){
+  BoardStateBone cloneBones() {
     return super.clone();
   }
 
-  BoardState clone(){
+  BoardState clone() {
     Map<String, Piece> clonePieces = {};
     Map<PlayerColor, String> clonePassent = {};
     List<SubBoardState> cloneSubStates = [];
@@ -86,7 +103,7 @@ class BoardState extends BoardStateBone with ChangeNotifier{
         position: piece.position,
       );
     }
-    for(SubBoardState subState in subStates){
+    for (SubBoardState subState in subStates) {
       cloneSubStates.add(subState.clone());
     }
 
@@ -100,60 +117,77 @@ class BoardState extends BoardStateBone with ChangeNotifier{
     );
   }
 
-  void transformTo(List<ChessMove> newChessMoves){
+  void transformTo(List<ChessMove> newChessMoves) {
+    bool isSilent = true;
     bool isSame = true;
     newChessMoves ??= [];
-    int smallerLength = newChessMoves.length < super.chessMoves.length ? newChessMoves.length : super.chessMoves.length;
-    for(int i = 0; i < smallerLength; i++){
-      if(!super.chessMoves[i].equalMove(newChessMoves[i])){
+    int smallerLength = newChessMoves.length < super.chessMoves.length
+        ? newChessMoves.length
+        : super.chessMoves.length;
+    for (int i = 0; i < smallerLength; i++) {
+      if (!super.chessMoves[i].equalMove(newChessMoves[i])) {
         isSame = false;
       }
     }
 
-    if(isSame && newChessMoves.length > 0) {
+    if (isSame && newChessMoves.length > 0) {
       if (newChessMoves.length < super.chessMoves.length) {
         if (selectedMove != null && selectedMove >= newChessMoves.length) {
-          selectedMove = newChessMoves.length-1;
+          selectedMove = newChessMoves.length - 1;
         }
         gameWon = false;
         super.pieces = subStates[newChessMoves.length].pieces;
         super.enpassent = subStates[newChessMoves.length].enpassent;
-        subStates = subStates.sublist(0, newChessMoves.length+1);
+        subStates = subStates.sublist(0, newChessMoves.length + 1);
         infoChessMoves = infoChessMoves.sublist(0, newChessMoves.length);
         super.chessMoves = newChessMoves;
-      }
-      else if(newChessMoves.length > super.chessMoves.length){
-          int difference =
-              newChessMoves.length - super.chessMoves.length;
-          for (int i = newChessMoves.length-difference;  i < newChessMoves.length ; i ++) {
-            movePieceTo(
-                newChessMoves[i].initialTile, newChessMoves[i].nextTile);
+      } else if (newChessMoves.length > super.chessMoves.length) {
+        int difference = newChessMoves.length - super.chessMoves.length;
+        for (int i = newChessMoves.length - difference;
+            i < newChessMoves.length;
+            i++) {
+          if(i == newChessMoves.length -1){
+            isSilent = false;
           }
-
+          movePieceTo(newChessMoves[i].initialTile, newChessMoves[i].nextTile, silent: isSilent);
+        }
       }
-    }
-    else{
+    } else {
       _generate(newChessMoves);
     }
   }
 
+  _makeASound(ChessMoveInfo chessMoveInfo) {
+    if (chessMoveInfo.specialMoves.contains(SpecialMove.NoMove)) {
+      Sounds.playSound(Sound.Move);
+    } else if (chessMoveInfo.specialMoves.contains(SpecialMove.Check)) {
+      Sounds.playSound(Sound.Check);
+    }
+    else if (chessMoveInfo.specialMoves.contains(SpecialMove.Take)) {
+
+        Sounds.playSound(Sound.Capture);
+
+    } else {
+      Sounds.playSound(Sound.Move);
+    }
+  }
+
   @override
-  void movePieceTo(String start, String end){
-    List<SpecialMove> specialMoves =[];
+  void movePieceTo(String start, String end, {bool silent = false}) {
+    List<SpecialMove> specialMoves = [];
     PieceKey takenPiece;
     Map<SpecialMove, List<PlayerColor>> chessInfoTargetPlayer = {};
     Piece movedPiece;
-    if(gameWon){
+    if (gameWon) {
       return;
     }
-    
-      if (end != null && start != null) {
-        if(end == "" && start == ""){ //Special No Move Call
-         // assert(!ThinkingBoard.anyLegalMove(PlayerColor.values[chessMoves.length % 3], this));
-          specialMoves.add(SpecialMove.NoMove);
 
-        }
-        else{
+    if (end != null && start != null) {
+      if (end == "" && start == "") {
+        //Special No Move Call
+        // assert(!ThinkingBoard.anyLegalMove(PlayerColor.values[chessMoves.length % 3], this));
+        specialMoves.add(SpecialMove.NoMove);
+      } else {
         if (super.pieces[end] != null) {
           //boardState.pieces.firstWhere(()) = boardState.pieces[String]
           takenPiece = super.pieces[end].pieceKey;
@@ -167,7 +201,9 @@ class BoardState extends BoardStateBone with ChangeNotifier{
         if (movedPiece != null) {
           enpassent.removeWhere((key, value) => key == movedPiece.playerColor);
 
-          super.pieces.remove(start); // removes entry of old piece with old position
+          super
+              .pieces
+              .remove(start); // removes entry of old piece with old position
           movedPiece.position = end;
           super.pieces.putIfAbsent(
               end, () => movedPiece); // adds new entry for piece with new pos
@@ -254,8 +290,8 @@ class BoardState extends BoardStateBone with ChangeNotifier{
         }
       }
       ChessMove chessMove = ChessMove(initialTile: start, nextTile: end);
-        super.chessMoves.add(chessMove);
-        if(!specialMoves.contains(SpecialMove.NoMove)){
+      super.chessMoves.add(chessMove);
+      if (!specialMoves.contains(SpecialMove.NoMove)) {
         bool check = false;
         bool checkMated = false;
         List<PlayerColor> checked = [];
@@ -282,20 +318,31 @@ class BoardState extends BoardStateBone with ChangeNotifier{
           }
         }
       }
-        if(takenPiece != null && PieceKeyGen.getPieceType(takenPiece) == PieceType.King){
-          specialMoves.add(SpecialMove.Win);
-          gameWon = true;
-        }
-      _selectedMove = null;
-        subStates.add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
-        infoChessMoves.add(ChessMoveInfo(chessMove: chessMove, movedPiece: movedPiece?.pieceKey, specialMoves: specialMoves, takenPiece: takenPiece, targetedPlayer: chessInfoTargetPlayer));
-
-        notifyListeners();
+      if (takenPiece != null &&
+          PieceKeyGen.getPieceType(takenPiece) == PieceType.King) {
+        specialMoves.add(SpecialMove.Win);
+        gameWon = true;
       }
+      _selectedMove = null;
+      subStates
+          .add(SubBoardState(enpassent: enpassent, pieces: pieces).clone());
+      infoChessMoves.add(ChessMoveInfo(
+          chessMove: chessMove,
+          movedPiece: movedPiece?.pieceKey,
+          specialMoves: specialMoves,
+          takenPiece: takenPiece,
+          targetedPlayer: chessInfoTargetPlayer));
+      if(!silent){
+        _makeASound(infoChessMoves.last);
+      }
+      notifyListeners();
+    }
   }
 
-  void checkAndExecuteNoMove(){
-    if(super.chessMoves.length > 0 && !ThinkingBoard.anyLegalMove(PlayerColor.values[super.chessMoves.length % 3], this)){
+  void checkAndExecuteNoMove() {
+    if (super.chessMoves.length > 0 &&
+        !ThinkingBoard.anyLegalMove(
+            PlayerColor.values[super.chessMoves.length % 3], this)) {
       movePieceTo("", "");
     }
   }
@@ -304,7 +351,9 @@ class BoardState extends BoardStateBone with ChangeNotifier{
   void newGame() {
     super.newGame();
     subStates = [];
-    subStates.add(SubBoardState(enpassent: super.enpassent, pieces: super.pieces).clone());
+    subStates.add(
+        SubBoardState(enpassent: super.enpassent, pieces: super.pieces)
+            .clone());
     chessMoves = [];
     infoChessMoves = [];
 
@@ -325,10 +374,10 @@ class SubBoardState {
   Map<PlayerColor, String> enpassent;
   SubBoardState({@required this.enpassent, @required this.pieces});
 
-  SubBoardState clone(){
+  SubBoardState clone() {
     Map<PlayerColor, String> newEn = {};
     Map<String, Piece> newPieces = {};
-    for(MapEntry entry in enpassent.entries){
+    for (MapEntry entry in enpassent.entries) {
       newEn[entry.key] = entry.value;
     }
     for (Piece piece in pieces.values) {

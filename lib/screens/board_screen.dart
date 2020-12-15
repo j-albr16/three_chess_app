@@ -113,6 +113,10 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   Widget build(BuildContext context) {
 
+    BoardState boardState = Provider.of<BoardState>(context, listen: false);
+    BoardState boardStateListen = Provider.of<BoardState>(context);
+
+
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
 
     switchIsLocked(){
@@ -144,8 +148,6 @@ Function getOnDecline(RequestType requestType){
       RequestType.Remi :() =>  gameProvider.requestRemi(),
       RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
     };
-    BoardState boardState = Provider.of<BoardState>(context, listen: false);
-    BoardState boardStateListen = Provider.of<BoardState>(context);
 
     Map<RequestType, Function> onLocalRequest = {
       RequestType.Surrender : () => boardState.newGame(), //TODO TESTING PHASE ONLY
@@ -198,7 +200,7 @@ Function getOnDecline(RequestType requestType){
           tileKeeper: tileKeeper,),
           ...votes,
           TableBoardSubScreen(
-            boardStateListen: Provider.of<BoardState>(context),
+            boardStateListen: boardStateListen,
             controller: ScrollController(),
             isLocal: isLocal,
             onRequest:  !isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null

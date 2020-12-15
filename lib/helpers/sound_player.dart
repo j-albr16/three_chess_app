@@ -11,10 +11,10 @@ const Map<Sound, String> soundLinks = {
 };
 
 class Sounds {
-  static final _audioPlayer = AudioCache();
+  static final _audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
 
   static Future<void> playSound(Sound sound) async {
     // audio session needs to opened AND cosed
-    await _audioPlayer.play(soundLinks[sound], mode: PlayerMode.LOW_LATENCY);
+    await _audioPlayer.play(soundLinks[sound], isLocal: true, stayAwake: true);
   }
 }

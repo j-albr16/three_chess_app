@@ -21,14 +21,14 @@ const String SERVER_URL = SERVER_ADRESS;
 
 const printCreateGame = true;
 const printjoinGame = true;
-const printFetchGame = false;
+const printFetchGame = true;
+const printFetchGameRawData = true;
 const printFetchGames = false;
 const printGameSocket = true;
 const printGameMove = true;
 
 class GameProvider with ChangeNotifier {
   String _userId = constUserId;
-
 
   Player _player = new Player(
     user: new User(
@@ -61,7 +61,6 @@ class GameProvider with ChangeNotifier {
     }
     notifyListeners();
   }
-
 
 // providing game data for screen
   Game get game {
@@ -113,7 +112,8 @@ class GameProvider with ChangeNotifier {
       gameFinishedcallback: (data) => _handleGameFinished(data),
       surrenderFailedCallback: () => _handleSurrenderFailed(),
       playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
-      playerIsOfflineCallback: (userId, expiryDate) => _handlePlayerIsOffline(userId, expiryDate),
+      playerIsOfflineCallback: (userId, expiryDate) =>
+          _handlePlayerIsOffline(userId, expiryDate),
     );
   }
 
@@ -127,11 +127,10 @@ class GameProvider with ChangeNotifier {
     );
   }
 
-  void removeGame(){
+  void removeGame() {
     _game = null;
     notifyListeners();
   }
-  
 
   Future<void> createGame(
       {bool isPublic,
@@ -144,11 +143,11 @@ class GameProvider with ChangeNotifier {
       int posRatingRange}) async {
     try {
       final Map<String, dynamic> data = await _serverProvider.createGame(
-        allowPremades : allowPremades,
+        allowPremades: allowPremades,
         isPublic: isPublic,
         increment: increment,
         isRated: isRated,
-        invitations : invitations,
+        invitations: invitations,
         negRatingRange: negRatingRange,
         posRatingRange: posRatingRange,
         time: time,
@@ -205,8 +204,8 @@ class GameProvider with ChangeNotifier {
 
   Future<bool> sendMove(ChessMove chessMove) async {
     try {
-     final data = await _serverProvider.sendMove(chessMove);
-     return data['moveValid'];
+      final data = await _serverProvider.sendMove(chessMove);
+      return data['moveValid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating Game', error);
     }
@@ -218,6 +217,10 @@ class GameProvider with ChangeNotifier {
     try {
       // make http request
       final Map<String, dynamic> data = await _serverProvider.fetchGame();
+      if (printFetchGameRawData) {
+        print('Fetch Game Raw Data ' + '-' * 20);
+        print(data);
+      }
       _game = GameConversion.rebaseWholeGame(data['gameData']);
       // starts listening to Game Lobby Websoket (Message on player who joined Game or made a Chess move etc....)
       // prints all Data if option is set on true
@@ -244,20 +247,22 @@ class GameProvider with ChangeNotifier {
     // output: sends fetch Games request to Server. Receives all Lobby Games a JSON From Server. Returns List of Lobby Games
     try {
       // make http request
-      final  data = await _serverProvider.fetchGames();
+      final data = await _serverProvider.fetchGames();
       _games = [];
       // Convert Data to existing Models
       data['gameData']['games'].forEach((game) {
-        final playerData = data['gameData']['player']?.where((player) => player['gameId'] == game['_id']);
+        final playerData = data['gameData']['player']
+            ?.where((player) => player['gameId'] == game['_id']);
         print(playerData);
-        final userData= data['gameData']['user']?.where((user) =>user['gameId'] == game['_id']);
+        final userData = data['gameData']['user']
+            ?.where((user) => user['gameId'] == game['_id']);
         print(userData);
-_games.add(GameConversion.rebaseLobbyGame(
-            gameData: game,
-            playerData: playerData,
-            userData: userData,
-          ));
-      } );
+        _games.add(GameConversion.rebaseLobbyGame(
+          gameData: game,
+          playerData: playerData,
+          userData: userData,
+        ));
+      });
       notifyListeners();
       // printsa all game Provider Data if option is set on true
       if (printFetchGames) {
@@ -342,39 +347,41 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   // TODO Remove
   Future<void> createTestGame() async {
-    try{
+    try {
       await _serverProvider.createTestGame();
-    }catch(error){
+    } catch (error) {
       _serverProvider.handleError('Error while declining Take Bakc', error);
     }
   }
-   
 
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
     print('Handle New Game Data');
     // TODO unite filter somewhere specific
-    if(gameData['_id'] != _game.id){
-    _games.add(GameConversion.rebaseLobbyGame(
-      gameData: gameData,
-      playerData: gameData['player'],
-      userData: gameData['user'],
-    ));
-    // print all Game Data if option is set on true
-    if (printGameSocket) {
-      GameConversion.printEverything(_game, player, _games);
-    }
-    notifyListeners();
+    if (gameData['_id'] != _game.id) {
+      _games.add(GameConversion.rebaseLobbyGame(
+        gameData: gameData,
+        playerData: gameData['player'],
+        userData: gameData['user'],
+      ));
+      // print all Game Data if option is set on true
+      if (printGameSocket) {
+        GameConversion.printEverything(_game, player, _games);
+      }
+      notifyListeners();
     }
   }
 
-  void _handlePlayerIsOnline(String userId){
-    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null);
+  void _handlePlayerIsOnline(String userId) {
+    Player player = _game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
     player?.isOnline = true;
     notifyListeners();
   }
-  void _handlePlayerIsOffline(String userId , String expiryDate){
-    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null );
+
+  void _handlePlayerIsOffline(String userId, String expiryDate) {
+    Player player = _game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
     player?.isOnline = false;
     _game.endGameExpiry = DateTime.parse(expiryDate);
     notifyListeners();
@@ -384,11 +391,11 @@ _games.add(GameConversion.rebaseLobbyGame(
     print('Handle Player Joined');
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
-    if(gameIndex != -1){
-    _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
-          playerData: gameData['player'],
-          userData: gameData['user'],
-        ));
+    if (gameIndex != -1) {
+      _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
+            playerData: gameData['player'],
+            userData: gameData['user'],
+          ));
     }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
@@ -416,7 +423,7 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleMoveData(Map<String, dynamic> moveData) {
     print('Handle Move Data');
-    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3 ];
+    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3];
     moveData['playerColor'] = playerColor;
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
@@ -429,7 +436,8 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleSurrenderRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -440,7 +448,8 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleSurrenderDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Surrender, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     notifyListeners();
@@ -454,7 +463,8 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleRemiRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -465,14 +475,16 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleRemiAccept(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleRemiDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
@@ -482,7 +494,8 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleTakeBackRequest(String userId, int chessMove) {
     Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
@@ -493,14 +506,16 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleTakeBackAccept(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleTakeBackDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
@@ -516,8 +531,9 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleGameFinished(Map<String, dynamic> data) {
-    PlayerColor winnerPlayerColor = GameConversion.getPlayerColorFromUserId(data['winnerId'],_game);
-    List<Map<String, dynamic>>  convertedPlayer = data['convertedPlayer'];
+    PlayerColor winnerPlayerColor =
+        GameConversion.getPlayerColorFromUserId(data['winnerId'], _game);
+    List<Map<String, dynamic>> convertedPlayer = data['convertedPlayer'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,
     };

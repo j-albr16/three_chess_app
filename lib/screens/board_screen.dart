@@ -165,7 +165,7 @@ Function getOnDecline(RequestType requestType){
         builder: (context, screenHeight, screenWidth, sy, sx)
       {
         double usableHeight = screenHeight - unusableHeight;
-        List<Request> requests = Provider.of<GameProvider>(context).game.requests ?? [];
+        List<Request> requests = Provider.of<GameProvider>(context).game?.requests ?? [];
 
         /* Example Request:
 

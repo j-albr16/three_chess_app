@@ -31,3 +31,9 @@ enum MessageOwner{
   Server,
   Mate,
 }
+
+const Map<PlayerColor, String> playerColorString = {
+  PlayerColor.white: "White",
+  PlayerColor.black: "Black",
+  PlayerColor.red: "Red",
+};

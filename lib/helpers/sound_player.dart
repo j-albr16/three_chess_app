@@ -15,10 +15,10 @@ const Map<Sound, String> soundLinks = {
 
 class Sounds {
   static final Map<Sound, Audio> soundAudio = {
-    Sound.Capture: Audio('sound/favs/Capture.mp3'),
-    Sound.LowTime:  Audio('sound/favs/LowTime.mp3'),
-    Sound.Move:  Audio('sound/favs/Move.mp3'),
-    Sound.SocialNotify:  Audio('sound/favs/SocialNotify.mp3'),
+    Sound.Capture: Audio('assets/sound/favs/Capture.mp3'),
+    Sound.LowTime:  Audio('assets/sound/favs/LowTime.mp3'),
+    Sound.Move:  Audio('assets/sound/favs/Move.mp3'),
+    Sound.SocialNotify:  Audio('assets/sound/favs/SocialNotify.mp3'),
   };
 
   static playSound(Sound sound){

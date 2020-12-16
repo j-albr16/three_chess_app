@@ -104,7 +104,7 @@ class PopupProvider with ChangeNotifier {
             return invitationDialog(game, size, context);
           },
         );
-    Sounds.playSound(Sound.SocialNotify);
+    // Sounds.playSound(Sound.SocialNotify);
     hasPopup = true;
   }
 

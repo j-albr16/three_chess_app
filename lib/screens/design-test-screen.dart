@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:three_chess/models/chess_move.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/piece.dart';
 import 'package:three_chess/models/user.dart';
@@ -26,8 +27,9 @@ class DesignTestScreen extends StatefulWidget {
   _DesignTestScreenState createState() => _DesignTestScreenState();
 }
 
-class _DesignTestScreenState extends State<DesignTestScreen> with notificationPort<DesignTestScreen> {
-
+class _DesignTestScreenState extends State<DesignTestScreen>
+    with notificationPort<DesignTestScreen> {
+  bool _play = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,15 @@ class _DesignTestScreenState extends State<DesignTestScreen> with notificationPo
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
+          AudioWidget.assets(
+            play: _play,
+              child: RaisedButton(
+                child: Text('Play Sound'),
+                onPressed: () => setState(() {
+                  _play = !_play;
+                }),
+              ),
+              path: soundLinks[Sound.Capture]),
           Invitations(
             acceptInvitation: (String gameId) =>
                 print('Accept Invitation to ' + gameId),
@@ -45,8 +56,8 @@ class _DesignTestScreenState extends State<DesignTestScreen> with notificationPo
             size: Size(400, 300),
           ),
           testButtonBar(
-            callback: ()async {
-             await Sounds.playSound(Sound.Capture);
+            callback: () async {
+              // await sounds.playSound(Sound.Capture);
             },
             color: Colors.pink,
             text: 'Player Sound',

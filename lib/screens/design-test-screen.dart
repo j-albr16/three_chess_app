@@ -29,8 +29,6 @@ class DesignTestScreen extends StatefulWidget {
 
 class _DesignTestScreenState extends State<DesignTestScreen>
     with notificationPort<DesignTestScreen> {
-  bool _play = false;
-
   @override
   Widget build(BuildContext context) {
     GameProvider _gameProvider =
@@ -39,15 +37,6 @@ class _DesignTestScreenState extends State<DesignTestScreen>
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
-          AudioWidget.assets(
-            play: _play,
-              child: RaisedButton(
-                child: Text('Play Sound'),
-                onPressed: () => setState(() {
-                  _play = !_play;
-                }),
-              ),
-              path: soundLinks[Sound.Capture]),
           Invitations(
             acceptInvitation: (String gameId) =>
                 print('Accept Invitation to ' + gameId),
@@ -57,10 +46,38 @@ class _DesignTestScreenState extends State<DesignTestScreen>
           ),
           testButtonBar(
             callback: () async {
-              // await sounds.playSound(Sound.Capture);
+              await Sounds.playSound(Sound.Capture);
             },
             color: Colors.pink,
-            text: 'Player Sound',
+            text: 'Capture',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.Check);
+            },
+            color: Colors.pink,
+            text: 'Check',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.LowTime);
+            },
+            color: Colors.pink,
+            text: 'Low Time',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.SocialNotify);
+            },
+            color: Colors.pink,
+            text: 'Social Notify',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.Move);
+            },
+            color: Colors.pink,
+            text: 'Move',
           ),
           testButtonBar(
             callback: () => _gameProvider.sendMove(new ChessMove(

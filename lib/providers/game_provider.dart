@@ -283,6 +283,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> acceptSurrender() async {
     try {
+      print('Accept Surrender ');
       await _serverProvider.acceptSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
@@ -291,6 +292,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> declineSurrender() async {
     try {
+      print('Decline Surrender');
       await _serverProvider.declineSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
@@ -307,6 +309,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> acceptRemi() async {
     try {
+      print('Accept Remi');
       await _serverProvider.acceptRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
@@ -315,6 +318,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> declineRemi() async {
     try {
+      print('Decline Remi');
       await _serverProvider.declineRemi();
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
@@ -331,6 +335,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> acceptTakeBack() async {
     try {
+      print('Accept Take Back');
       await _serverProvider.acceptTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while accepting Take Back', error);
@@ -339,6 +344,7 @@ class GameProvider with ChangeNotifier {
 
   Future<void> declineTakeBack() async {
     try {
+      print('Decline Take Back');
       await _serverProvider.declineTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);

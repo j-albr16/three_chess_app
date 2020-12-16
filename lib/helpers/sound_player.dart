@@ -7,38 +7,47 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 enum Sound { Capture, LowTime, Move, SocialNotify, Check }
 
 const Map<Sound, String> soundLinks = {
-  Sound.Capture: 'sound/favs/Capture.mp3',
+  Sound.Capture: ('sound/favs/Capture.mp3'),
   Sound.LowTime: 'sound/favs/LowTime.mp3',
   Sound.Move: 'sound/favs/Move.mp3',
   Sound.SocialNotify: 'sound/favs/SocialNotify.mp3',
 };
 
 class Sounds {
-  Map<Sound, AssetsAudioPlayer> loadedSounds = {};
+  static final Map<Sound, Audio> soundAudio = {
+    Sound.Capture: Audio('sound/favs/Capture.mp3'),
+    Sound.LowTime:  Audio('sound/favs/LowTime.mp3'),
+    Sound.Move:  Audio('sound/favs/Move.mp3'),
+    Sound.SocialNotify:  Audio('sound/favs/SocialNotify.mp3'),
+  };
 
-  AssetsAudioPlayer _assetsAudioPlayer;
-
-  Future<void> loadSounds() async {
-    _assetsAudioPlayer = AssetsAudioPlayer();
-    _assetsAudioPlayer.open(Audio(soundLinks[Sound.Capture]));
-    // await soundLinks.forEach((key, value) async{
-    //   await loadedSounds.putIfAbsent(key,() {
-    //     AssetsAudioPlayer _assetsAudioPlayer = new AssetsAudioPlayer();
-    //    _assetsAudioPlayer.open(Audio(
-    //       value
-    //     ));
-    //     return _assetsAudioPlayer;
-    //   });
-    // });
+  static playSound(Sound sound){
+    AssetsAudioPlayer.playAndForget(soundAudio[sound]);
   }
 
-  Future<void> playSound(Sound sound) async {
-    try {
-      await _assetsAudioPlayer.play();
-    } catch (error) {
-      throw (error);
-    }
-  }
+  // AssetsAudioPlayer _assetsAudioPlayer;
+  //
+  // Future<void> loadSounds() async {
+  //   _assetsAudioPlayer = AssetsAudioPlayer();
+  //   _assetsAudioPlayer.open(Audio(soundLinks[Sound.Capture]));
+  //   // await soundLinks.forEach((key, value) async{
+  //   //   await loadedSounds.putIfAbsent(key,() {
+  //   //     AssetsAudioPlayer _assetsAudioPlayer = new AssetsAudioPlayer();
+  //   //    _assetsAudioPlayer.open(Audio(
+  //   //       value
+  //   //     ));
+  //   //     return _assetsAudioPlayer;
+  //   //   });
+  //   // });
+  // }
+  //
+  // Future<void> playSound(Sound sound) async {
+  //   try {
+  //     await _assetsAudioPlayer.play();
+  //   } catch (error) {
+  //     throw (error);
+  //   }
+  // }
 
   // FlutterSound _flutterSound;
 

@@ -160,16 +160,16 @@ class BoardState extends BoardStateBone with ChangeNotifier {
   _makeASound(ChessMoveInfo chessMoveInfo) {
     // TODO sound
     if (chessMoveInfo.specialMoves.contains(SpecialMove.NoMove)) {
-      // Sounds.playSound(Sound.Move);
+       Sounds.playSound(Sound.Move);
     }  else if (chessMoveInfo.specialMoves.contains(SpecialMove.Check)) {
-      // Sounds.playSound(Sound.Check);
+       Sounds.playSound(Sound.Check);
     }
     else if (chessMoveInfo.specialMoves.contains(SpecialMove.Take)) {
 
-        // Sounds.playSound(Sound.Capture);
+         Sounds.playSound(Sound.Capture);
 
     } else {
-      // Sounds.playSound(Sound.Move);
+       Sounds.playSound(Sound.Move);
     }
   }
 

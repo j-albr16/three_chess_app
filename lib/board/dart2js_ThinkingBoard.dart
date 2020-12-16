@@ -3,7 +3,6 @@
 import 'package:collection/collection.dart';
 import 'dart:ui';
 import 'dart:math';
-import 'dart:js';
 
 main(){
   return ThinkingBoard;

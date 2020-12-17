@@ -232,12 +232,7 @@ class GameProvider with ChangeNotifier {
         GameConversion.printEverything(_game, player, _games);
       }
       if (_game != null) {
-        _serverProvider.subscribeToGameLobbyChannel(
-          gameId: _game.id,
-          moveMadeCallback: (moveData) => _handleMoveData(moveData),
-          playerJoinedLobbyCallback: (gameData) =>
-              _handlePlayerJoinedLobbyData(gameData),
-        );
+        subscribeToGameLobbyChannel();
         _serverProvider.subscribeToLobbyChannel();
       }
       notifyListeners();

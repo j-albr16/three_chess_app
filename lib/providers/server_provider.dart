@@ -66,38 +66,38 @@ class ServerProvider with ChangeNotifier {
     gameInvitationsCallback,
   }) {
     print('Subscribe to Auth USer Channel');
-    try {
-      _socket.on(_userId, (jsonData) {
-        final Map<String, dynamic> data = json.decode(jsonData);
-        _handleAuthUserChannelSocketData(
-            data: data,
-            messageCallback: messageCallback,
-            friendRequestCallback: friendRequestCallback,
-            friendAcceptedCallback: friendAcceptedCallback,
-            friendDeclinedCallback: friendDeclinedCallback,
-            friendRemovedCallback: friendRemovedCallback,
-            friendIsOnlineCallback: friendIsOnlineCallback,
-            friendIsAfkCallback: friendIsAfkCallback,
-            friendIsPlayingCallback: friendIsAfkCallback,
-            friendIsNotPlayingCallback: friendIsNotPlayingCallback,
-            gameInvitationCallback: gameInvitationsCallback);
-      });
-    } catch (error) {
-      print('Connection Socket Failed');
-    }
+    // try {
+    _socket.on(_userId, (jsonData) {
+      final Map<String, dynamic> data = json.decode(jsonData);
+      _handleAuthUserChannelSocketData(
+          data: data,
+          messageCallback: messageCallback,
+          friendRequestCallback: friendRequestCallback,
+          friendAcceptedCallback: friendAcceptedCallback,
+          friendDeclinedCallback: friendDeclinedCallback,
+          friendRemovedCallback: friendRemovedCallback,
+          friendIsOnlineCallback: friendIsOnlineCallback,
+          friendIsAfkCallback: friendIsAfkCallback,
+          friendIsPlayingCallback: friendIsAfkCallback,
+          friendIsNotPlayingCallback: friendIsNotPlayingCallback,
+          gameInvitationCallback: gameInvitationsCallback);
+    });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
 
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     print('Did Subscribe to Lobby Channel');
-    try {
-      _socket.on('lobby', (jsonData) {
-        print('New Socket Message');
-        final Map<String, dynamic> data = json.decode(jsonData);
-        _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
-      });
-    } catch (error) {
-      print('Connection Socket Failed');
-    }
+    // try {
+    _socket.on('lobby', (jsonData) {
+      print('New Socket Message');
+      final Map<String, dynamic> data = json.decode(jsonData);
+      _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
+    });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
 
   void subscribeToGameLobbyChannel({
@@ -119,31 +119,31 @@ class ServerProvider with ChangeNotifier {
     Function playerIsOfflineCallback,
   }) {
     print('Ddi Subscribe to Game Lobby Channel');
-    try {
-      _socket.on(gameId, (jsonData) {
-        final Map<String, dynamic> data = json.decode(jsonData);
-        _handleGameLobbyChannelData(
-          data: data,
-          moveMadeCallback: moveMadeCallback,
-          playerJoinedLobbyCallback: playerJoinedLobbyCallback,
-          surrenderRequestCallback: surrenderRequestCallback,
-          surrenderDeclineCallback: surrenderDeclineCallback,
-          remiRequestCallback: remiRequestCallback,
-          remiAcceptCallback: remiAcceptCallback,
-          remiDeclineCallback: remiDeclineCallback,
-          takeBackRequestCallback: takeBackRequestCallback,
-          takeBackAcceptCallback: takeBackAcceptCallback,
-          takenBackCallback: takenBackCallback,
-          takeBackDeclineCallback: takeBackDeclineCallback,
-          gameFinishedCallback: gameFinishedcallback,
-          surrenderFailedCallback: surrenderFailedCallback,
-          playerIsOnlineCallback: playerIsOfflineCallback,
-          playerIsOfflineCallback: playerIsOfflineCallback,
-        );
-      });
-    } catch (error) {
-      print('Connection Socket Failed');
-    }
+    // try {
+    _socket.on(gameId, (jsonData) {
+      final Map<String, dynamic> data = json.decode(jsonData);
+      _handleGameLobbyChannelData(
+        data: data,
+        moveMadeCallback: moveMadeCallback,
+        playerJoinedLobbyCallback: playerJoinedLobbyCallback,
+        surrenderRequestCallback: surrenderRequestCallback,
+        surrenderDeclineCallback: surrenderDeclineCallback,
+        remiRequestCallback: remiRequestCallback,
+        remiAcceptCallback: remiAcceptCallback,
+        remiDeclineCallback: remiDeclineCallback,
+        takeBackRequestCallback: takeBackRequestCallback,
+        takeBackAcceptCallback: takeBackAcceptCallback,
+        takenBackCallback: takenBackCallback,
+        takeBackDeclineCallback: takeBackDeclineCallback,
+        gameFinishedCallback: gameFinishedcallback,
+        surrenderFailedCallback: surrenderFailedCallback,
+        playerIsOnlineCallback: playerIsOfflineCallback,
+        playerIsOfflineCallback: playerIsOfflineCallback,
+      );
+    });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
   //#########################################################################################################
 
@@ -265,9 +265,6 @@ class ServerProvider with ChangeNotifier {
         surrenderFailedCallback();
         break;
       case 'remi-request':
-        print(data['userId']);
-        print(data['chessMove']);
-        print(remiRequestCallback(data['userId'], data['chessMove']));
         remiRequestCallback(data['userId'], data['chessMove']);
         break;
       case 'remi-accept':

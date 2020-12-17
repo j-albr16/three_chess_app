@@ -70,18 +70,17 @@ class ServerProvider with ChangeNotifier {
       _socket.on(_userId, (jsonData) {
         final Map<String, dynamic> data = json.decode(jsonData);
         _handleAuthUserChannelSocketData(
-          data,
-          messageCallback,
-          friendRequestCallback,
-          friendAcceptedCallback,
-          friendDeclinedCallback,
-          friendRemovedCallback,
-          friendIsOnlineCallback,
-          friendIsAfkCallback,
-          friendIsPlayingCallback,
-          friendIsNotPlayingCallback,
-          gameInvitationsCallback,
-        );
+            data: data,
+            messageCallback: messageCallback,
+            friendRequestCallback: friendRequestCallback,
+            friendAcceptedCallback: friendAcceptedCallback,
+            friendDeclinedCallback: friendDeclinedCallback,
+            friendRemovedCallback: friendRemovedCallback,
+            friendIsOnlineCallback: friendIsOnlineCallback,
+            friendIsAfkCallback: friendIsAfkCallback,
+            friendIsPlayingCallback: friendIsAfkCallback,
+            friendIsNotPlayingCallback: friendIsNotPlayingCallback,
+            gameInvitationCallback: gameInvitationsCallback);
       });
     } catch (error) {
       print('Connection Socket Failed');
@@ -124,22 +123,22 @@ class ServerProvider with ChangeNotifier {
       _socket.on(gameId, (jsonData) {
         final Map<String, dynamic> data = json.decode(jsonData);
         _handleGameLobbyChannelData(
-          data,
-          moveMadeCallback,
-          playerJoinedLobbyCallback,
-          surrenderRequestCallback,
-          surrenderDeclineCallback,
-          remiRequestCallback,
-          remiAcceptCallback,
-          remiDeclineCallback,
-          takeBackRequestCallback,
-          takeBackAcceptCallback,
-          takenBackCallback,
-          takeBackDeclineCallback,
-          gameFinishedcallback,
-          surrenderFailedCallback,
-          playerIsOnlineCallback,
-          playerIsOfflineCallback,
+          data: data,
+          moveMadeCallback: moveMadeCallback,
+          playerJoinedLobbyCallback: playerJoinedLobbyCallback,
+          surrenderRequestCallback: surrenderRequestCallback,
+          surrenderDeclineCallback: surrenderDeclineCallback,
+          remiRequestCallback: remiRequestCallback,
+          remiAcceptCallback: remiAcceptCallback,
+          remiDeclineCallback: remiDeclineCallback,
+          takeBackRequestCallback: takeBackRequestCallback,
+          takeBackAcceptCallback: takeBackAcceptCallback,
+          takenBackCallback: takenBackCallback,
+          takeBackDeclineCallback: takeBackDeclineCallback,
+          gameFinishedCallback: gameFinishedcallback,
+          surrenderFailedCallback: surrenderFailedCallback,
+          playerIsOnlineCallback: playerIsOfflineCallback,
+          playerIsOfflineCallback: playerIsOfflineCallback,
         );
       });
     } catch (error) {
@@ -165,7 +164,7 @@ class ServerProvider with ChangeNotifier {
 
   //#########################################################################################################
 // Handle Socket Messages of different Channels -----------------------------------------------------------
-  void _handleAuthUserChannelSocketData(
+  void _handleAuthUserChannelSocketData({
     Map<String, dynamic> data,
     Function messageCallback,
     Function friendRequestCallback,
@@ -177,7 +176,7 @@ class ServerProvider with ChangeNotifier {
     Function friendIsPlayingCallback,
     Function friendIsNotPlayingCallback,
     Function gameInvitationCallback,
-  ) {
+  }) {
     _printRawData(data);
     _handleSocketServerMessage(data['action'], data['message']);
     switch (data['action']) {
@@ -228,7 +227,7 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleGameLobbyChannelData(
+  void _handleGameLobbyChannelData({
     Map<String, dynamic> data,
     Function moveMadeCallback,
     Function playerJoinedLobbyCallback,
@@ -245,7 +244,7 @@ class ServerProvider with ChangeNotifier {
     Function surrenderFailedCallback,
     Function playerIsOnlineCallback,
     Function playerIsOfflineCallback,
-  ) {
+  }) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
     switch (data['action']) {
@@ -266,8 +265,9 @@ class ServerProvider with ChangeNotifier {
         surrenderFailedCallback();
         break;
       case 'remi-request':
-      print(data['userId']);
-      print(data['chessMove']);
+        print(data['userId']);
+        print(data['chessMove']);
+        print(remiRequestCallback(data['userId'], data['chessMove']));
         remiRequestCallback(data['userId'], data['chessMove']);
         break;
       case 'remi-accept':

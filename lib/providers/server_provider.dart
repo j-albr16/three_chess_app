@@ -266,6 +266,8 @@ class ServerProvider with ChangeNotifier {
         surrenderFailedCallback();
         break;
       case 'remi-request':
+      print(data['userId']);
+      print(data['chessMove']);
         remiRequestCallback(data['userId'], data['chessMove']);
         break;
       case 'remi-accept':

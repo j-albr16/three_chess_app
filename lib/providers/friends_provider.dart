@@ -42,8 +42,12 @@ class FriendsProvider with ChangeNotifier {
     _serverProvider = serverProvider;
     _chatProvider = chatProvider;
     if (!_didSubscibe) {
-      subscribeToAuthUserChannel();
-      _didSubscibe = true;
+      try {
+        subscribeToAuthUserChannel();
+        _didSubscibe = true;
+      } catch (error) {
+        print('Failed to Connect TO Socekt');
+      }
     }
     notifyListeners();
   }

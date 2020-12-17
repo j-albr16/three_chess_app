@@ -17,12 +17,10 @@ import '../models/user.dart';
 import '../providers/game_provider.dart';
 
 class ServerProvider with ChangeNotifier {
-  IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic> {
+  IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': true,
   });
-
-
 
   String _token = constToken;
   String _userId = constUserId;
@@ -68,31 +66,39 @@ class ServerProvider with ChangeNotifier {
     gameInvitationsCallback,
   }) {
     print('Subscribe to Auth USer Channel');
-    _socket.on(_userId, (jsonData) {
-      final Map<String, dynamic> data = json.decode(jsonData);
-      _handleAuthUserChannelSocketData(
-        data,
-        messageCallback,
-        friendRequestCallback,
-        friendAcceptedCallback,
-        friendDeclinedCallback,
-        friendRemovedCallback,
-        friendIsOnlineCallback,
-        friendIsAfkCallback,
-        friendIsPlayingCallback,
-        friendIsNotPlayingCallback,
-        gameInvitationsCallback,
-      );
-    });
+    try {
+      _socket.on(_userId, (jsonData) {
+        final Map<String, dynamic> data = json.decode(jsonData);
+        _handleAuthUserChannelSocketData(
+          data,
+          messageCallback,
+          friendRequestCallback,
+          friendAcceptedCallback,
+          friendDeclinedCallback,
+          friendRemovedCallback,
+          friendIsOnlineCallback,
+          friendIsAfkCallback,
+          friendIsPlayingCallback,
+          friendIsNotPlayingCallback,
+          gameInvitationsCallback,
+        );
+      });
+    } catch (error) {
+      print('Connection Socket Failed');
+    }
   }
 
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     print('Did Subscribe to Lobby Channel');
-    _socket.on('lobby', (jsonData) {
-      print('New Socket Message');
-      final Map<String, dynamic> data = json.decode(jsonData);
-      _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
-    });
+    try {
+      _socket.on('lobby', (jsonData) {
+        print('New Socket Message');
+        final Map<String, dynamic> data = json.decode(jsonData);
+        _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
+      });
+    } catch (error) {
+      print('Connection Socket Failed');
+    }
   }
 
   void subscribeToGameLobbyChannel({
@@ -114,27 +120,31 @@ class ServerProvider with ChangeNotifier {
     Function playerIsOfflineCallback,
   }) {
     print('Ddi Subscribe to Game Lobby Channel');
-    _socket.on(gameId, (jsonData) {
-      final Map<String, dynamic> data = json.decode(jsonData);
-      _handleGameLobbyChannelData(
-        data,
-        moveMadeCallback,
-        playerJoinedLobbyCallback,
-        surrenderRequestCallback,
-        surrenderDeclineCallback,
-        remiRequestCallback,
-        remiAcceptCallback,
-        remiDeclineCallback,
-        takeBackRequestCallback,
-        takeBackAcceptCallback,
-        takenBackCallback,
-        takeBackDeclineCallback,
-        gameFinishedcallback,
-        surrenderFailedCallback,
-        playerIsOnlineCallback,
-        playerIsOfflineCallback,
-      );
-    });
+    try {
+      _socket.on(gameId, (jsonData) {
+        final Map<String, dynamic> data = json.decode(jsonData);
+        _handleGameLobbyChannelData(
+          data,
+          moveMadeCallback,
+          playerJoinedLobbyCallback,
+          surrenderRequestCallback,
+          surrenderDeclineCallback,
+          remiRequestCallback,
+          remiAcceptCallback,
+          remiDeclineCallback,
+          takeBackRequestCallback,
+          takeBackAcceptCallback,
+          takenBackCallback,
+          takeBackDeclineCallback,
+          gameFinishedcallback,
+          surrenderFailedCallback,
+          playerIsOnlineCallback,
+          playerIsOfflineCallback,
+        );
+      });
+    } catch (error) {
+      print('Connection Socket Failed');
+    }
   }
   //#########################################################################################################
 
@@ -666,14 +676,14 @@ class ServerProvider with ChangeNotifier {
     if (data == null) {
       throw ('No Data was Received. Data is null');
     }
-    if(!data['valid']){
-   if (data['problem']) {
-      throw ('Data is not Valid. This is the Message sent from Server: ' +
-          data['message']);
-    }else {
-      throw (data['message']);
+    if (!data['valid']) {
+      if (data['problem']) {
+        throw ('Data is not Valid. This is the Message sent from Server: ' +
+            data['message']);
+      } else {
+        throw (data['message']);
+      }
     }
-  }
   }
 
 //############################################################################################################
@@ -689,32 +699,33 @@ class ServerProvider with ChangeNotifier {
         '------------------------------------------------------------------------------------------------');
   }
 
-void _handleSocketServerMessage(String action, String message) {
-  if (action != 'friend-online') {
-    print(
-        '-------------------------------------------------------------------------------------------------');
-    print(
-        'Received Socket Data------------------------------------------------------------------------------');
-    print(
-        'Socket Message ... :   ---------------------------------------------------------------------------');
-    print('$message   ');
-    print(
-        'Action Key String   ------------------------------------------------------------------------------');
-    print(action);
-    print(
-        '-------------------------------------------------------------------------------------------------');
+  void _handleSocketServerMessage(String action, String message) {
+    if (action != 'friend-online') {
+      print(
+          '-------------------------------------------------------------------------------------------------');
+      print(
+          'Received Socket Data------------------------------------------------------------------------------');
+      print(
+          'Socket Message ... :   ---------------------------------------------------------------------------');
+      print('$message   ');
+      print(
+          'Action Key String   ------------------------------------------------------------------------------');
+      print(action);
+      print(
+          '-------------------------------------------------------------------------------------------------');
+    }
   }
-}
 
-void _printRawData(dynamic data) {
-  if (data['action'] != 'friend-online' && data['valid'] == true) {
-    print(
-        '-------------------------------------------------------------------------------------------------');
-    print(
-        'RAW DATA     ------------------------------------------------------------------------------------');
-    print(data);
-    print(
-        '-------------------------------------------------------------------------------------------------');
+  void _printRawData(dynamic data) {
+    // if (data['action'] != 'friend-online' && data['valid'] == true) {
+    if (data['action'] != 'friend-online') {
+      print(
+          '-------------------------------------------------------------------------------------------------');
+      print(
+          'RAW DATA     ------------------------------------------------------------------------------------');
+      print(data);
+      print(
+          '-------------------------------------------------------------------------------------------------');
+    }
   }
-}
 }

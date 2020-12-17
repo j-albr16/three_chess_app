@@ -56,8 +56,12 @@ class GameProvider with ChangeNotifier {
     _game = game;
     _serverProvider = serverProvider;
     if (!_didInitLobby) {
-      subscribeToLobbychannel();
-      _didInitLobby = true;
+      try {
+        subscribeToLobbychannel();
+        _didInitLobby = true;
+      } catch (error) {
+        print('Could not Connect Socket');
+      }
     }
     notifyListeners();
   }
@@ -468,6 +472,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRemiRequest(String userId, int chessMove) {
+    print('Handle Remi request');
     Map<ResponseRole, PlayerColor> playerResponse;
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, _game);

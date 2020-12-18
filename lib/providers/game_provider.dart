@@ -543,17 +543,20 @@ class GameProvider with ChangeNotifier {
   void _handleGameFinished(Map<String, dynamic> data) {
     PlayerColor winnerPlayerColor =
         GameConversion.getPlayerColorFromUserId(data['winnerId'], _game);
-    List<Map<String, dynamic>> convertedPlayer = data['convertedPlayer'];
+    List<dynamic> newUsers = data['newUsers'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,
     };
-    convertedPlayer.forEach((convPlayer) {
-      _game.finishedGameData[PlayerColor.values[convPlayer['playerColor']]] =
-          convPlayer['scoreAfter'];
+    _game.finishedGameData = {};
+    newUsers.forEach((newUser) {
+      _game.finishedGameData[
+          GameConversion.getPlayerColorFromUserId(newUser['_id'], _game) ??
+              PlayerColor.none] = newUser['scoreAfter'];
     });
     finishedGameData['howGameEnded'] =
         HowGameEnded.values[data['howGameEnded']];
     _game.finishedGameData = finishedGameData;
+    hasPopup = true;
     notifyListeners();
   }
 }

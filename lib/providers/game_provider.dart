@@ -470,7 +470,7 @@ class GameProvider with ChangeNotifier {
     print('Handle Remi request');
     print(userId);
     print(chessMove);
-    Map<ResponseRole, PlayerColor> playerResponse;
+    Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, _game) ??
             PlayerColor.none;

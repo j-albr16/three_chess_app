@@ -549,12 +549,16 @@ class GameProvider with ChangeNotifier {
     };
     _game.finishedGameData = {};
     newUsers.forEach((newUser) {
-      _game.finishedGameData[
+      PlayerColor playerColor =
           GameConversion.getPlayerColorFromUserId(newUser['_id'], _game) ??
-              PlayerColor.none] = newUser['score'];
+              PlayerColor.none;
+      print(playerColor);
+      print(newUser);
+      finishedGameData.putIfAbsent(playerColor, () => newUser['score']);
     });
     finishedGameData['howGameEnded'] =
         HowGameEnded.values[data['howGameEnded']];
+    print(finishedGameData);
     _game.finishedGameData = finishedGameData;
     hasPopup = true;
     notifyListeners();

@@ -114,7 +114,7 @@ class GameConversion {
     print('Getting Player Color from UserId');
     Player player = game.player
         .firstWhere((player) => player.user.id == userId, orElse: () => null);
-    PlayerColor playerColor = player.playerColor;
+    PlayerColor playerColor = player?.playerColor;
     print(playerColor);
     return playerColor;
   }

@@ -39,6 +39,8 @@ class EndGameAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(game.finishedGameData);
+    print(you);
     return AlertDialog(
       title: Text(title),
       titlePadding: EdgeInsets.all(7),
@@ -60,7 +62,7 @@ class EndGameAlertDialog extends StatelessWidget {
               children: game.player.map((player) => updatedPlayerTile(
                   player.user.userName,
                   player.user.score,
-                  game.finishedGameData[player.playerColor])),
+                  game.finishedGameData[player.playerColor])).toList(),
             ),
           ],
         ),

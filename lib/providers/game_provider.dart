@@ -551,7 +551,7 @@ class GameProvider with ChangeNotifier {
     newUsers.forEach((newUser) {
       _game.finishedGameData[
           GameConversion.getPlayerColorFromUserId(newUser['_id'], _game) ??
-              PlayerColor.none] = newUser['scoreAfter'];
+              PlayerColor.none] = newUser['score'];
     });
     finishedGameData['howGameEnded'] =
         HowGameEnded.values[data['howGameEnded']];

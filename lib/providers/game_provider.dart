@@ -440,7 +440,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleSurrenderRequest(String userId, int chessMove) {
-    Map<ResponseRole, PlayerColor> playerResponse;
+    Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
@@ -503,7 +503,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakeBackRequest(String userId, int chessMove) {
-    Map<ResponseRole, PlayerColor> playerResponse;
+    Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;

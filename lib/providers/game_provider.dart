@@ -56,12 +56,12 @@ class GameProvider with ChangeNotifier {
     _game = game;
     _serverProvider = serverProvider;
     if (!_didInitLobby) {
-      try {
-        subscribeToLobbychannel();
-        _didInitLobby = true;
-      } catch (error) {
-        print('Could not Connect Socket');
-      }
+      // try {
+      subscribeToLobbychannel();
+      _didInitLobby = true;
+      // } catch (error) {
+      //   print('Could not Connect Socket');
+      // }
     }
     notifyListeners();
   }
@@ -95,6 +95,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void subscribeToGameLobbyChannel() {
+    print('Did Subscribe to Game Lobby Channel');
     _serverProvider.subscribeToGameLobbyChannel(
       gameId: _game.id,
       moveMadeCallback: (moveData) => _handleMoveData(moveData),
@@ -233,7 +234,6 @@ class GameProvider with ChangeNotifier {
       }
       if (_game != null) {
         subscribeToGameLobbyChannel();
-        _serverProvider.subscribeToLobbyChannel();
       }
       notifyListeners();
     } catch (error) {
@@ -468,10 +468,14 @@ class GameProvider with ChangeNotifier {
 
   void _handleRemiRequest(String userId, int chessMove) {
     print('Handle Remi request');
+    print(userId);
+    print(chessMove);
     Map<ResponseRole, PlayerColor> playerResponse;
     PlayerColor playerColor =
-        GameConversion.getPlayerColorFromUserId(userId, _game);
+        GameConversion.getPlayerColorFromUserId(userId, _game) ??
+            PlayerColor.none;
     playerResponse[ResponseRole.Create] = playerColor;
+    print(playerResponse[ResponseRole.Create]);
     _game.requests.add(new Request(
       moveIndex: chessMove,
       playerResponse: playerResponse,

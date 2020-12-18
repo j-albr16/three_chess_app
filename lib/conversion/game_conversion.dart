@@ -111,9 +111,12 @@ class GameConversion {
   }
 
   static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
-    return game.player
-        .firstWhere((player) => player.user.id == userId, orElse: () => null)
-        ?.playerColor;
+    print('Getting Player Color from UserId');
+    Player player = game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
+    PlayerColor playerColor = player.playerColor;
+    print(playerColor);
+    return playerColor;
   }
 
   static Request getRequestFromRequestType(RequestType requestType, Game game) {

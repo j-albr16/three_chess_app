@@ -20,7 +20,7 @@ class ChessTheme {
     // iconTheme: iconTheme,
     colorScheme: colorScheme,
     // dividerTheme: dividerTheme,
-    // inputDecorationTheme: inputDecoration,
+    inputDecorationTheme: inputDecoration,
     // snackBarTheme: snackBarTheme,
     // sliderTheme: sliderTheme,
   );

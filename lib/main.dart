@@ -94,31 +94,33 @@ class ThreeChessApp extends StatelessWidget {
                   popUpProvider
                     ..update(
                         friendsProvider: friendsProvider,
-                        gameProvider: gameProvider))
+                        gameProvider: gameProvider)),
+          ChangeNotifierProvider<ChessTheme>(create: (_) => ChessTheme()),
         ],
-        child: MaterialApp(
-          theme: ChessTheme.theme,
-          title: 'three chess app',
-          home: MainPageViewer(),
-          routes: {
-            MainPageViewer.routeName: (ctx) => MainPageViewer(),
-            BoardScreen.routeName: (ctx) => BoardScreen(),
-            DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
-            AuthScreen.routeName: (ctx) => AuthScreen(),
-            CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
-            LobbyScreen.routeName: (ctx) => LobbyScreen(),
-            GameTestScreen.routeName: (ctx) => GameTestScreen(),
-            FriendsScreen.routeName: (ctx) => FriendsScreen(),
-            ChatScreen.routeName: (ctx) => ChatScreen(),
-          },
-          // builder: (context, widget) => ResponsiveWrapper.builder(
-          //     BouncingScrollWrapper.builder(context, widget),
-          //     maxWidth: 2400,
-          //     minWidth: 300,
-          //     defaultScaleFactor: 0.212,
-          //     defaultScale: true,
-          //     breakpoints: [],
-          //     background: Container(color: Color(0xFFF5F5F5))),
-        ));
+        child: Consumer<ChessTheme>(
+            builder: (_, themeProvider, __) => MaterialApp(
+                  theme: themeProvider.theme,
+                  title: 'three chess app',
+                  home: MainPageViewer(),
+                  routes: {
+                    MainPageViewer.routeName: (ctx) => MainPageViewer(),
+                    BoardScreen.routeName: (ctx) => BoardScreen(),
+                    DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
+                    AuthScreen.routeName: (ctx) => AuthScreen(),
+                    CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
+                    LobbyScreen.routeName: (ctx) => LobbyScreen(),
+                    GameTestScreen.routeName: (ctx) => GameTestScreen(),
+                    FriendsScreen.routeName: (ctx) => FriendsScreen(),
+                    ChatScreen.routeName: (ctx) => ChatScreen(),
+                  },
+                  // builder: (context, widget) => ResponsiveWrapper.builder(
+                  //     BouncingScrollWrapper.builder(context, widget),
+                  //     maxWidth: 2400,
+                  //     minWidth: 300,
+                  //     defaultScaleFactor: 0.212,
+                  //     defaultScale: true,
+                  //     breakpoints: [],
+                  //     background: Container(color: Color(0xFFF5F5F5))),
+                )));
   }
 }

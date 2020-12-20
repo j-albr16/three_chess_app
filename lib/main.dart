@@ -18,6 +18,7 @@ import './screens/friends_screen.dart';
 import './providers/online_provider.dart';
 import './screens/chat_screen.dart';
 import './providers/friends_provider.dart';
+import './helpers/theme.dart';
 import './providers/server_provider.dart';
 import './providers/user_provider.dart';
 import './screens/main_page_viewer.dart';
@@ -96,48 +97,7 @@ class ThreeChessApp extends StatelessWidget {
                         gameProvider: gameProvider))
         ],
         child: MaterialApp(
-          theme: ThemeData(
-            primarySwatch: Colors.deepPurpleAccent[300],
-            errorColor: Colors.red[800],
-            disabledColor: Colors.grey[800],
-            primaryColorDark: Colors.black87,
-            backgroundColor: Colors.white24,
-            primaryColorLight: Colors.white70,
-            focusColor: Colors.deepPurpleAccent[800],
-            primaryTextTheme: TextTheme(
-              bodyText1: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 11,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.normal),
-              bodyText2: TextStyle(
-                color: Colors.white70,
-                fontSize: 11,
-                fontWeight: FontWeight.normal,
-              ),
-              headline1: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.bold),
-              headline2: TextStyle(
-                color: Colors.white70,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-              subtitle1: TextStyle(
-                color: Colors.black87,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
-              ),
-              subtitle2: TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
-          ),
+          theme: ChessTheme.theme,
           title: 'three chess app',
           home: MainPageViewer(),
           routes: {

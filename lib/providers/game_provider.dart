@@ -543,6 +543,7 @@ class GameProvider with ChangeNotifier {
   void _handleGameFinished(Map<String, dynamic> data) {
     PlayerColor winnerPlayerColor =
         GameConversion.getPlayerColorFromUserId(data['winnerId'], _game);
+    print(winnerPlayerColor);
     List<dynamic> newUsers = data['newUsers'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,

@@ -149,8 +149,6 @@ class GameTable extends StatelessWidget {
   
   List<Widget> _confirmationBar(RequestType requestType) {
     List<Widget> result = [];
-
-    
     Widget iconButtonTake = _noPressWrapper(
         requestType: RequestType.TakeBack,
         child: Container(

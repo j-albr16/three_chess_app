@@ -65,7 +65,8 @@ class PopupProvider with ChangeNotifier {
         builder: (context) {
           Size size = MediaQuery.of(context).size;
           return EndGameAlertDialog(
-            game: gameProvider.game,
+            finishedGameData: _gameProvider.game.finishedGameData,
+            player : _gameProvider.game.player,
             inspect: () {},
             leave: () {
               gameProvider.removeGame();

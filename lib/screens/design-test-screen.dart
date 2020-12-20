@@ -17,6 +17,7 @@ import '../widgets/move_table.dart';
 import '../providers/friends_provider.dart';
 import '../helpers/sound_player.dart';
 import '../widgets/chat.dart';
+import '../widgets/end_game.dart';
 import '../providers/popup_provider.dart';
 import '../screens/screen_bone.dart';
 
@@ -37,12 +38,37 @@ class _DesignTestScreenState extends State<DesignTestScreen>
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
-          Invitations(
-            acceptInvitation: (String gameId) =>
-                print('Accept Invitation to ' + gameId),
-            declineInvitation: () => print('Declined Invitation'),
-            invitations: Provider.of<FriendsProvider>(context).invitations,
-            size: Size(400, 300),
+          // Invitations(
+          //   acceptInvitation: (String gameId) =>
+          //       print('Accept Invitation to ' + gameId),
+          //   declineInvitation: () => print('Declined Invitation'),
+          //   invitations: Provider.of<FriendsProvider>(context).invitations,
+          //   size: Size(400, 300),
+          // ),
+          testButtonBar(
+            text: 'Show fnished Game Popup',
+            color: Colors.blue,
+            callback: () => showDialog(
+                context: context,
+                builder: (context) {
+                  Map finishedGameData = {
+                    'winner': PlayerColor.white,
+                    'howGameEnded': HowGameEnded.Surrender,
+                    PlayerColor.white: 1300,
+                    PlayerColor.black: 800,
+                    PlayerColor.red: 800,
+                  };
+                  Size size = MediaQuery.of(context).size;
+                  return EndGameAlertDialog(
+                    finishedGameData: finishedGameData,
+                    inspect: () {},
+                    leave: () => Navigator.of(context).pop(),
+                    player: Provider.of<GameProvider>(context).game.player,
+                    rematch: () {},
+                    size: size,
+                    you: Provider.of<GameProvider>(context).player,
+                  );
+                }),
           ),
           testButtonBar(
             callback: () async {

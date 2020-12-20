@@ -127,20 +127,22 @@ class _BoardScreenState extends State<BoardScreen> {
 
 
 Function getOnAccept(RequestType requestType){
+  print('Getting on Accept');
   Map<RequestType, Function> onAccept = {
     RequestType.Surrender :() =>  gameProvider.acceptSurrender(),
     RequestType.Remi : ()  => gameProvider.acceptRemi(),
     RequestType.TakeBack : () => gameProvider.acceptTakeBack(),
   };
-  return onAccept[requestType];
+  onAccept[requestType]();
 }
 Function getOnDecline(RequestType requestType){
+  print('Getting on Decline');
   Map<RequestType, Function> onDecline= {
-    RequestType.Surrender : () => gameProvider.declineSurrender(),
+    RequestType.Surrender :() =>  gameProvider.declineSurrender(),
     RequestType.Remi : ()  => gameProvider.declineRemi(),
     RequestType.TakeBack : ()  => gameProvider.declineTakeBack(),
   };
-  return onDecline[requestType];
+  onDecline[requestType]();
 }
 
     Map<RequestType, Function> onRequest = {

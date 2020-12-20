@@ -8,72 +8,86 @@ class AcceptRequestType extends StatelessWidget {
   final Function onAccept;
   final Function onDecline;
   final int movesLeftToVote;
+  final ThemeData theme;
   final RequestType requestType;
   final double height;
   final PlayerColor whosAsking;
 
   AcceptRequestType(
-      {this.onAccept, this.onDecline, this.movesLeftToVote, this.requestType, this.whosAsking, this.height});
+      {this.onAccept,
+      this.theme,
+      this.onDecline,
+      this.movesLeftToVote,
+      this.requestType,
+      this.whosAsking,
+      this.height});
 
   String voteText(RequestType requestType) {
     Map<RequestType, String> text = {
-      RequestType.TakeBack: "Do you agree to let $whosAsking take back?",
-      RequestType.Remi: "Do you agree to a draw?",
-      RequestType.Surrender: "Do you want to Surrender with $whosAsking",
+      RequestType.TakeBack: "Take Back Request by $whosAsking",
+      RequestType.Remi: "Draw Request by $whosAsking",
+      RequestType.Surrender: "Surrender Request by $whosAsking",
     };
     return text[requestType];
   }
 
-
   Widget decideRow(double screenWidth) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Stack(
-        children: [
+      child:
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(width: screenWidth * 0.04),
+              SizedBox(
+                width: screenWidth * 0.3,
+                child: Text(voteText(requestType), style: theme.textTheme.bodyText2.copyWith(color: Colors.white),),
+              ),
+              Spacer(),
               Container(
-                width: screenWidth * 0.4,
+                padding: EdgeInsets.symmetric(vertical: 7),
+                width: screenWidth * 0.3,
                 child: InkWell(
                   child: Card(
+                    elevation: 3,
+                    color: Colors.green,
                     child: Icon(
                       Icons.check,
-                      color: Colors.green,
+                      color: Colors.white,
                     ),
                   ),
                   onTap: () => onAccept(),
                 ),
               ),
-              Container(
-                width: screenWidth * 0.1,
-                color: Colors.transparent,
+              SizedBox(
+                width: screenWidth * 0.04,
               ),
               Container(
-                width: screenWidth * 0.4,
+                padding: EdgeInsets.symmetric(vertical: 7),
+                width: screenWidth * 0.3,
                 child: InkWell(
                   child: Card(
-                    child: Center(
-                        child: Text("X",
-                            style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold))),
-                  ),
+                    elevation: 3,
+                      color: theme.colorScheme.error,
+                      child: Text(
+                        "X",
+                        style: theme.textTheme.subtitle2
+                            .copyWith(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      )),
                   onTap: () => onDecline(),
                 ),
               )
             ],
           ),
-          Positioned.fill(
-            child: Container(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text("Move till vote expires: $movesLeftToVote    "),
-              ),
-            ),
-          )
-        ],
-      ),
+          // Positioned.fill(
+          //   child: Container(
+          //     child: Align(
+          //       alignment: Alignment.centerRight,
+          //       child: Text("Move till vote expires: $movesLeftToVote    "),
+          //     ),
+          //   ),
+          // )
     );
     //TODO THIS IS ALSO IN FRIENDLIST, CAN BE IMPORTED FROM THE SAME GENERALIZATION
   }
@@ -82,19 +96,14 @@ class AcceptRequestType extends StatelessWidget {
   Widget build(BuildContext context) {
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
-          return Container(
-            color: Colors.black45,
-            height: height,
-            child: FittedBox(
-              child: Column(
-                children: [
-                  Text(voteText(requestType)),
-                  decideRow(screenWidth)
-                ],
-              ),
-            ),
-          );
-        }
-    );
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color:Colors.black54,
+        ),
+        // height: height,
+        child: decideRow(screenWidth),
+      );
+    });
   }
 }

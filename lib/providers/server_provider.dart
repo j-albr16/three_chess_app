@@ -562,109 +562,131 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<void> requestSurrender() async {
+  Future<String> requestSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'request-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptSurrender() async {
+  Future<String> acceptSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'accept-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineSurrender() async {
+  Future<String> declineSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'decline-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> requestRemi() async {
+  Future<String> requestRemi() async {
     try {
       final String url = SERVER_ADRESS + 'request-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptRemi() async {
+  Future<String> acceptRemi() async {
     try {
       final String url = SERVER_ADRESS + 'accept-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineRemi() async {
+  Future<String> declineRemi() async {
     try {
       final String url = SERVER_ADRESS + 'decline-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> requestTakeBack() async {
+  Future<String> requestTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'request-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptTakeBack() async {
+  Future<String> acceptTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'accept-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineTakeBack() async {
+  Future<String> declineTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'decline-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<String> cancelRequest(int requestType) async {
+    try {
+      final String url = SERVER_ADRESS + 'cancel-request' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }

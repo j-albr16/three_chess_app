@@ -55,7 +55,7 @@ void initState() {
       return GameTable(
         iconBarFraction: widget.iconBarFraction,
         boardStateListen: widget.boardStateListen,
-        size: Size(screenWidth * 0.8, widget.height),
+        size: Size(screenWidth, widget.height),
         controller: widget.controller,
         confirmation: confirmation,
         onConfirmation: (requestType) {

@@ -184,6 +184,7 @@ Function getOnDecline(RequestType requestType){
          */
         List<Widget> votes = [];
         requests.forEach((request) { votes.add(AcceptRequestType(
+          theme: Theme.of(context),
           height: screenHeight * voteHeightFraction,
           requestType: request.requestType,
           whosAsking: request.playerResponse[ResponseRole.Create],

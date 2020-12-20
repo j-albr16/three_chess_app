@@ -72,6 +72,8 @@ class GameProvider with ChangeNotifier {
   }
 
   bool hasPopup = false;
+  bool hasMessage = false;
+  String message;
 
 // providing games data for lobby
   List<Game> get games {
@@ -273,80 +275,116 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> requestSurrender() async {
+    message = 'Could not send Surrender Request';
     try {
-      await _serverProvider.requestSurrender();
+       message = await _serverProvider.requestSurrender();
     } catch (error) {
       _serverProvider.handleError('Error While Requesting Surrender', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> acceptSurrender() async {
+    message = 'Could not Accept Surrender';
     try {
       print('Accept Surrender ');
-      await _serverProvider.acceptSurrender();
+       message = await _serverProvider.acceptSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> declineSurrender() async {
+    message = 'Could not Decline Surrender';
     try {
       print('Decline Surrender');
-      await _serverProvider.declineSurrender();
+      message = await _serverProvider.declineSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> requestRemi() async {
+    message = 'Could not send Remi Request';
     try {
-      await _serverProvider.requestRemi();
+      message = await _serverProvider.requestRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Requesting Remi', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> acceptRemi() async {
+    message = 'Could not Accept Remi';
     try {
       print('Accept Remi');
-      await _serverProvider.acceptRemi();
+       message = await _serverProvider.acceptRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> declineRemi() async {
+    message = 'Could not Decline Remi';
     try {
       print('Decline Remi');
-      await _serverProvider.declineRemi();
+      message = await _serverProvider.declineRemi();
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> requestTakeBack() async {
+    String message = 'Could not send Take Back Request';
     try {
-      await _serverProvider.requestTakeBack();
+       message = await _serverProvider.requestTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while Declining Take Back', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> acceptTakeBack() async {
+    message = 'Could not Accept Take Back';
     try {
       print('Accept Take Back');
-      await _serverProvider.acceptTakeBack();
+      message = await _serverProvider.acceptTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while accepting Take Back', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
   Future<void> declineTakeBack() async {
+    message = 'Could not Decline Take Back';
     try {
       print('Decline Take Back');
-      await _serverProvider.declineTakeBack();
+     message = await _serverProvider.declineTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 
@@ -356,6 +394,20 @@ class GameProvider with ChangeNotifier {
       await _serverProvider.createTestGame();
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Bakc', error);
+    }
+  }
+
+  Future<void> cancelRequest(RequestType requestType) async {
+    message = 'Could not Cancel Request';
+    try {
+       message =
+          await _serverProvider.cancelRequest(requestType.index);
+    } catch (error) {
+      _serverProvider.handleError(
+          'Error while Canceling Request of request Type $requestType', error);
+    } finally {
+      hasMessage = true;
+      notifyListeners();
     }
   }
 

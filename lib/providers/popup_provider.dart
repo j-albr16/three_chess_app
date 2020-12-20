@@ -43,6 +43,11 @@ class PopupProvider with ChangeNotifier {
       _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
+    }else if(_gameProvider.hasMessage){
+      makeSnackBar(_gameProvider.message);
+      _gameProvider.hasMessage = false;
+      _gameProvider.message = null;
+      notifyListeners();
     } else if (_friendsProvider.newNotification) {
       makeSnackBar(_friendsProvider.notification);
       _friendsProvider.notification = null;
@@ -79,7 +84,7 @@ class PopupProvider with ChangeNotifier {
         });
     hasPopup = true;
   }
-
+  
   void makeSnackBar(String message) {
     _popUp = (BuildContext context) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();

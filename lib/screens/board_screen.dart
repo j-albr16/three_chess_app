@@ -198,7 +198,7 @@ class _BoardScreenState extends State<BoardScreen> {
                 bool youAreOwner = request.playerResponse[ResponseRole.Create] ==
                     gameProvider?.player?.playerColor ??
                 PlayerColor.none;
-          bool youVoted =!request.playerResponse.containsValue(
+          bool youVoted = request.playerResponse.containsValue(
               gameProvider?.player?.playerColor ?? PlayerColor.none) ;
             if (youVoted && youAreOwner) {
               votes.insert(

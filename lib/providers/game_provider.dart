@@ -654,7 +654,7 @@ class GameProvider with ChangeNotifier {
     if (data['userId'] != _userId) {
       String message = 'Could not get Message';
       _game.requests
-          .removeWhere((request) => request.requestType == data['requestType']);
+          .removeWhere((request) => request.requestType.index == data['requestType']);
       popUpMessage = data['message'];
       hasMessage = true;
       notifyListeners();

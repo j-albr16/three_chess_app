@@ -195,11 +195,12 @@ class _BoardScreenState extends State<BoardScreen> {
                       ((request.playerResponse[ResponseRole.Create].index + 2) %
                           3))
                   .abs();
-          if (!request.playerResponse.containsValue(
-              gameProvider?.player?.playerColor ?? PlayerColor.none)) {
-            if (request.playerResponse[ResponseRole.Create] ==
+                bool youAreOwner = request.playerResponse[ResponseRole.Create] ==
                     gameProvider?.player?.playerColor ??
-                PlayerColor.none) {
+                PlayerColor.none;
+          bool youVoted =!request.playerResponse.containsValue(
+              gameProvider?.player?.playerColor ?? PlayerColor.none) ;
+            if (youVoted && youAreOwner) {
               votes.insert(
                   votes.length,
                   PendingRequest(
@@ -210,7 +211,7 @@ class _BoardScreenState extends State<BoardScreen> {
                     height: screenHeight * voteHeightFraction,
                     theme: Theme.of(context),
                   ));
-            } else {
+            } else if (!youVoted && !youAreOwner){
               votes.insert(
                   0,
                   AcceptRequestType(

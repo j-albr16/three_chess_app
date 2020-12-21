@@ -522,6 +522,8 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.Surrender,
     ));
+    popUpMessage = 'Surrender Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 
@@ -554,6 +556,8 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.Remi,
     ));
+    popUpMessage = 'Remi Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 
@@ -585,6 +589,8 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.TakeBack,
     ));
+    popUpMessage = 'Take Back Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 

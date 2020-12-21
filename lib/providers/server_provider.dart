@@ -116,6 +116,7 @@ class ServerProvider with ChangeNotifier {
     Function gameFinishedcallback,
     Function surrenderFailedCallback,
     Function playerIsOnlineCallback,
+    Function requestCancelledCallback,
     Function playerIsOfflineCallback,
   }) {
     print('Ddi Subscribe to Game Lobby Channel');
@@ -129,6 +130,7 @@ class ServerProvider with ChangeNotifier {
         surrenderRequestCallback: surrenderRequestCallback,
         surrenderDeclineCallback: surrenderDeclineCallback,
         remiRequestCallback: remiRequestCallback,
+        requestCancelledCallback: requestCancelledCallback,
         remiAcceptCallback: remiAcceptCallback,
         remiDeclineCallback: remiDeclineCallback,
         takeBackRequestCallback: takeBackRequestCallback,
@@ -244,6 +246,7 @@ class ServerProvider with ChangeNotifier {
     Function surrenderFailedCallback,
     Function playerIsOnlineCallback,
     Function playerIsOfflineCallback,
+    Function requestCancelledCallback,
   }) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
@@ -273,6 +276,9 @@ class ServerProvider with ChangeNotifier {
       case 'remi-decline':
         remiDeclineCallback(data['userId']);
         break;
+      case 'request-cancel':
+        requestCancelledCallback(data);
+      break;
       case 'takeBack-request':
         takeBackRequestCallback(data['userId'], data['chessMove']);
         break;
@@ -588,14 +594,14 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<String> declineSurrender() async {
+  Future<Map<String, dynamic>> declineSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'decline-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
-      return data['message'];
+      return data;
     } catch (error) {
       throw (error);
     }
@@ -627,14 +633,14 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<String> declineRemi() async {
+  Future<Map<String , dynamic>> declineRemi() async {
     try {
       final String url = SERVER_ADRESS + 'decline-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
-      return data['message'];
+      return data;
     } catch (error) {
       throw (error);
     }
@@ -666,27 +672,30 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<String> declineTakeBack() async {
+  Future<Map<String, dynamic>> declineTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'decline-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
-      return data['message'];
+      return data;
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<String> cancelRequest(int requestType) async {
+  Future<Map<String, dynamic>> cancelRequest(int requestType) async {
     try {
       final String url = SERVER_ADRESS + 'cancel-request' + _authString;
-      final response = await http.get(url);
+      print(requestType);
+      final response = await http.post(url,
+          body: json.encode({'requestType': requestType}),
+          headers: {'Content-Type': 'application/json'});
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
-      return data['message'];
+      return data;
     } catch (error) {
       throw (error);
     }

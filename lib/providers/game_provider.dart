@@ -73,7 +73,7 @@ class GameProvider with ChangeNotifier {
 
   bool hasPopup = false;
   bool hasMessage = false;
-  String message;
+  String popUpMessage;
 
 // providing games data for lobby
   List<Game> get games {
@@ -101,6 +101,7 @@ class GameProvider with ChangeNotifier {
     _serverProvider.subscribeToGameLobbyChannel(
       gameId: _game.id,
       moveMadeCallback: (moveData) => _handleMoveData(moveData),
+      requestCancelledCallback: (data) => _handleRequestCancelled(data),
       playerJoinedLobbyCallback: (gameData) =>
           _handlePlayerJoinedLobbyData(gameData),
       remiAcceptCallback: (userId) => _handleRemiAccept(userId),
@@ -275,77 +276,93 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> requestSurrender() async {
-    message = 'Could not send Surrender Request';
+    String message = 'Could not send Surrender Request';
     try {
-       message = await _serverProvider.requestSurrender();
+      message = await _serverProvider.requestSurrender();
     } catch (error) {
       _serverProvider.handleError('Error While Requesting Surrender', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> acceptSurrender() async {
-    message = 'Could not Accept Surrender';
+    String message = 'Could not Accept Surrender';
     try {
       print('Accept Surrender ');
-       message = await _serverProvider.acceptSurrender();
+      message = await _serverProvider.acceptSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> declineSurrender() async {
-    message = 'Could not Decline Surrender';
+    String message = 'Could not Decline Surrender';
     try {
       print('Decline Surrender');
-      message = await _serverProvider.declineSurrender();
+      Map<String, dynamic> data = await _serverProvider.declineSurrender();
+      message = data['message'];
+      if (data['declineSuccessfull']) {
+        _game.requests.removeWhere(
+            (request) => request.requestType == RequestType.Surrender);
+      }
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> requestRemi() async {
-    message = 'Could not send Remi Request';
+    String message = 'Could not send Remi Request';
     try {
       message = await _serverProvider.requestRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Requesting Remi', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> acceptRemi() async {
-    message = 'Could not Accept Remi';
+    String message = 'Could not Accept Remi';
     try {
       print('Accept Remi');
-       message = await _serverProvider.acceptRemi();
+      message = await _serverProvider.acceptRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> declineRemi() async {
-    message = 'Could not Decline Remi';
+    String message = 'Could not Decline Remi';
     try {
       print('Decline Remi');
-      message = await _serverProvider.declineRemi();
+      Map<String, dynamic> data = await _serverProvider.declineRemi();
+      message = data['message'];
+      if (data['declineSuccessfull']) {
+        _game.requests
+            .removeWhere((request) => request.requestType == RequestType.Remi);
+      }
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
@@ -353,17 +370,18 @@ class GameProvider with ChangeNotifier {
   Future<void> requestTakeBack() async {
     String message = 'Could not send Take Back Request';
     try {
-       message = await _serverProvider.requestTakeBack();
+      message = await _serverProvider.requestTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while Declining Take Back', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> acceptTakeBack() async {
-    message = 'Could not Accept Take Back';
+    String message = 'Could not Accept Take Back';
     try {
       print('Accept Take Back');
       message = await _serverProvider.acceptTakeBack();
@@ -371,19 +389,26 @@ class GameProvider with ChangeNotifier {
       _serverProvider.handleError('Error while accepting Take Back', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
 
   Future<void> declineTakeBack() async {
-    message = 'Could not Decline Take Back';
+    String message = 'Could not Decline Take Back';
     try {
       print('Decline Take Back');
-     message = await _serverProvider.declineTakeBack();
+      Map<String, dynamic> data = await _serverProvider.declineTakeBack();
+      message = data['message'];
+      if (data['declineSuccessfull']) {
+        _game.requests.removeWhere(
+            (request) => request.requestType == RequestType.TakeBack);
+      }
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
@@ -398,15 +423,23 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> cancelRequest(RequestType requestType) async {
-    message = 'Could not Cancel Request';
+    String message = 'Could not Cancel Request';
     try {
-       message =
+      Map<String, dynamic> data =
           await _serverProvider.cancelRequest(requestType.index);
+      message = data['message'];
+      print(message);
+      if (data['didRemove']) {
+        _game.requests.removeWhere((request) =>
+            request.requestType == requestType &&
+            request.playerResponse[ResponseRole.Create] == player?.playerColor);
+      }
     } catch (error) {
       _serverProvider.handleError(
           'Error while Canceling Request of request Type $requestType', error);
     } finally {
       hasMessage = true;
+      popUpMessage = message;
       notifyListeners();
     }
   }
@@ -615,5 +648,16 @@ class GameProvider with ChangeNotifier {
     _game.finishedGameData = finishedGameData;
     hasPopup = true;
     notifyListeners();
+  }
+
+  _handleRequestCancelled(Map<String, dynamic> data) {
+    if (data['userId'] != _userId) {
+      String message = 'Could not get Message';
+      _game.requests
+          .removeWhere((request) => request.requestType == data['requestType']);
+      popUpMessage = data['message'];
+      hasMessage = true;
+      notifyListeners();
+    }
   }
 }

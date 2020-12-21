@@ -43,10 +43,10 @@ class PopupProvider with ChangeNotifier {
       _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
-    }else if(_gameProvider.hasMessage){
-      makeSnackBar(_gameProvider.message);
+    } else if (_gameProvider.hasMessage) {
+      makeSnackBar(_gameProvider.popUpMessage);
       _gameProvider.hasMessage = false;
-      _gameProvider.message = null;
+      _gameProvider.popUpMessage = null;
       notifyListeners();
     } else if (_friendsProvider.newNotification) {
       makeSnackBar(_friendsProvider.notification);
@@ -71,7 +71,7 @@ class PopupProvider with ChangeNotifier {
           Size size = MediaQuery.of(context).size;
           return EndGameAlertDialog(
             finishedGameData: _gameProvider.game.finishedGameData,
-            player : _gameProvider.game.player,
+            player: _gameProvider.game.player,
             inspect: () {},
             leave: () {
               gameProvider.removeGame();
@@ -84,7 +84,7 @@ class PopupProvider with ChangeNotifier {
         });
     hasPopup = true;
   }
-  
+
   void makeSnackBar(String message) {
     _popUp = (BuildContext context) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();

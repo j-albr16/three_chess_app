@@ -195,31 +195,34 @@ class _BoardScreenState extends State<BoardScreen> {
                       ((request.playerResponse[ResponseRole.Create].index + 2) %
                           3))
                   .abs();
-          if (request.playerResponse[ResponseRole.Create] ==
-                  gameProvider?.player?.playerColor ??
-              PlayerColor.white) {
-            votes.insert(
-                votes.length,
-                PendingRequest(
-                  movesLeftToCancel: movesLeft,
-                  onCancel: () =>
-                      gameProvider.cancelRequest(request.requestType),
-                  request: request,
-                  height: screenHeight * voteHeightFraction,
-                  theme: Theme.of(context),
-                ));
-          } else {
-            votes.insert(
-                0,
-                AcceptRequestType(
-                  theme: Theme.of(context),
-                  height: screenHeight * voteHeightFraction,
-                  request: request,
-                  whosAsking: request.playerResponse[ResponseRole.Create],
-                  onAccept: () => getOnAccept(request.requestType),
-                  onDecline: () => getOnDecline(request.requestType),
-                  movesLeftToVote: movesLeft,
-                ));
+          if (!request.playerResponse.containsValue(
+              gameProvider?.player?.playerColor ?? PlayerColor.none)) {
+            if (request.playerResponse[ResponseRole.Create] ==
+                    gameProvider?.player?.playerColor ??
+                PlayerColor.none) {
+              votes.insert(
+                  votes.length,
+                  PendingRequest(
+                    movesLeftToCancel: movesLeft,
+                    onCancel: () =>
+                        gameProvider.cancelRequest(request.requestType),
+                    request: request,
+                    height: screenHeight * voteHeightFraction,
+                    theme: Theme.of(context),
+                  ));
+            } else {
+              votes.insert(
+                  0,
+                  AcceptRequestType(
+                    theme: Theme.of(context),
+                    height: screenHeight * voteHeightFraction,
+                    request: request,
+                    whosAsking: request.playerResponse[ResponseRole.Create],
+                    onAccept: () => getOnAccept(request.requestType),
+                    onDecline: () => getOnDecline(request.requestType),
+                    movesLeftToVote: movesLeft,
+                  ));
+            }
           }
         });
         bool isLocal = Provider.of<GameProvider>(context)?.game ==

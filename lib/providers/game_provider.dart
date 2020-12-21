@@ -308,10 +308,6 @@ class GameProvider with ChangeNotifier {
       print('Decline Surrender');
       Map<String, dynamic> data = await _serverProvider.declineSurrender();
       message = data['message'];
-      if (data['declineSuccessfull']) {
-        _game.requests.removeWhere(
-            (request) => request.requestType == RequestType.Surrender);
-      }
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
     } finally {
@@ -354,10 +350,6 @@ class GameProvider with ChangeNotifier {
       print('Decline Remi');
       Map<String, dynamic> data = await _serverProvider.declineRemi();
       message = data['message'];
-      if (data['declineSuccessfull']) {
-        _game.requests
-            .removeWhere((request) => request.requestType == RequestType.Remi);
-      }
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
     } finally {
@@ -400,10 +392,6 @@ class GameProvider with ChangeNotifier {
       print('Decline Take Back');
       Map<String, dynamic> data = await _serverProvider.declineTakeBack();
       message = data['message'];
-      if (data['declineSuccessfull']) {
-        _game.requests.removeWhere(
-            (request) => request.requestType == RequestType.TakeBack);
-      }
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);
     } finally {

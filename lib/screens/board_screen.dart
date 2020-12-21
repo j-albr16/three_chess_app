@@ -224,7 +224,6 @@ class _BoardScreenState extends State<BoardScreen> {
                     movesLeftToVote: movesLeft,
                   ));
             }
-          }
         });
         bool isLocal = Provider.of<GameProvider>(context)?.game ==
             null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null

@@ -76,50 +76,54 @@ class MainPageViewerState extends State<MainPageViewer>
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal ||
+        Provider.of<ScrollProvider>(context).isMakeAMoveLock;
     return ChangeNotifierProxyProvider<GameProvider, BoardStateManager>(
-    create: (BuildContext context) => BoardStateManager(Provider.of<GameProvider>(context, listen: false)),
-    update: (BuildContext context, GameProvider game, BoardStateManager previousBoardStateManager) => previousBoardStateManager
-      ..update(game),
-    child: new Scaffold(
-      body: new IconTheme(
-        data: new IconThemeData(color: _kArrowColor),
-        child: new Stack(
-          children: <Widget>[
-            new PageView.builder(
-              physics:
-                  !isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
-              controller: _controller,
-              itemBuilder: (BuildContext context, int index) {
-                return _pages[index % _pages.length];
-              },
-            ),
-            new Positioned(
-              bottom: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: new Container(
-                color: Colors.grey[800].withOpacity(0.4),
-                padding: const EdgeInsets.all(5.0),
-                child: new Center(
-                  child: new DotsIndicator(
-                    controller: _controller,
-                    itemCount: _pages.length,
-                    onPageSelected: (int page) {
-                      _controller.animateToPage(
-                        page,
-                        duration: _kDuration,
-                        curve: _kCurve,
-                      );
-                    },
+        create: (BuildContext context) => BoardStateManager(
+            Provider.of<GameProvider>(context, listen: false)),
+        update: (BuildContext context, GameProvider game,
+                BoardStateManager previousBoardStateManager) =>
+            previousBoardStateManager..update(game),
+        child: new Scaffold(
+          body: new IconTheme(
+            data: new IconThemeData(color: _kArrowColor),
+            child: new Stack(
+              children: <Widget>[
+                new PageView.builder(
+                  physics: !isLocked
+                      ? AlwaysScrollableScrollPhysics()
+                      : NeverScrollableScrollPhysics(),
+                  controller: _controller,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _pages[index % _pages.length];
+                  },
+                ),
+                new Positioned(
+                  bottom: 0.0,
+                  left: 0.0,
+                  right: 0.0,
+                  child: new Container(
+                    color: Colors.grey[800].withOpacity(0.4),
+                    padding: const EdgeInsets.all(5.0),
+                    child: new Center(
+                      child: new DotsIndicator(
+                        controller: _controller,
+                        itemCount: _pages.length,
+                        onPageSelected: (int page) {
+                          _controller.animateToPage(
+                            page,
+                            duration: _kDuration,
+                            curve: _kCurve,
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

@@ -21,6 +21,7 @@ import '../../widgets/board_boarding_widgets.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
+import '../../widgets/pending_request.dart';
 import 'dart:math';
 
 import 'game_board_subscreens/game_board_board_subscreen.dart';
@@ -143,7 +144,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         RequestType.Remi : ()  => gameProvider.declineRemi(),
         RequestType.TakeBack : ()  => gameProvider.declineTakeBack(),
       };
-      return onDecline[requestType];
+      return onDecline[requestType]();
     }
 
     Map<RequestType, Function> onRequest = {
@@ -170,28 +171,52 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         double usableHeight = screenHeight - unusableHeight;
         List<Request> requests = []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
 
-        /* Example Request:
-
-        Request(
-          moveIndex: 0,
-          playerResponse: {
-            ResponseRole.Create: PlayerColor.black,
-            ResponseRole.Decline: null,
-            ResponseRole.Accept: null,
-          },
-          requestType: RequestType.Surrender,
-        )
-
-         */
         List<Widget> votes = [];
-        requests.forEach((request) { votes.add(AcceptRequestType(
-          height: screenHeight * voteHeightFraction,
-          requestType: request.requestType,
-          whosAsking: request.playerResponse[ResponseRole.Create],
-          onAccept: () => getOnAccept(request.requestType),
-          onDecline: () => getOnDecline(request.requestType),
-          movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
-        ));});
+        requests.forEach((request) {
+          int movesLeft = 3 -
+              ((boardState.chessMoves.length % 3) -
+                      ((request.playerResponse[ResponseRole.Create].index + 2) %
+                          3))
+                  .abs();
+                bool youAreOwner = request.playerResponse[ResponseRole.Create] ==
+                    gameProvider?.player?.playerColor ??
+                PlayerColor.none;
+          bool youVoted = request.playerResponse.containsValue(
+              gameProvider?.player?.playerColor ?? PlayerColor.none) ;
+            if (youVoted && youAreOwner) {
+              votes.insert(
+                  votes.length,
+                  PendingRequest(
+                    movesLeftToCancel: movesLeft,
+                    onCancel: () =>
+                        gameProvider.cancelRequest(request.requestType),
+                    request: request,
+                    height: screenHeight * voteHeightFraction,
+                    theme: Theme.of(context),
+                  ));
+            } else if (!youVoted && !youAreOwner){
+              votes.insert(
+                  0,
+                  AcceptRequestType(
+                    theme: Theme.of(context),
+                    height: screenHeight * voteHeightFraction,
+                    requestType: request.requestType,
+                    whosAsking: request.playerResponse[ResponseRole.Create],
+                    onAccept: () => getOnAccept(request.requestType),
+                    onDecline: () => getOnDecline(request.requestType),
+                    movesLeftToVote: movesLeft,
+                  ));
+            }
+        });
+        // List<Widget> votes = [];
+        // requests.forEach((request) { votes.add(AcceptRequestType(
+        //   height: screenHeight * voteHeightFraction,
+        //   requestType: request.requestType,
+        //   whosAsking: request.playerResponse[ResponseRole.Create],
+        //   onAccept: () => getOnAccept(request.requestType),
+        //   onDecline: () => getOnDecline(request.requestType),
+        //   movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
+        // ));});
         bool isLocal = Provider.of<BoardStateManager>(context).gameType != GameType.Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
         _subScreens = [
           ChatBoardSubScreen(

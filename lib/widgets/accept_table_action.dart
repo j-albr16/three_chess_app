@@ -26,9 +26,6 @@ class AcceptRequestType extends StatelessWidget {
       this.whosAsking,
       this.height});
 
-// RequestType get requestType {
-//   return request.requestType;
-// }
 
   Widget decideRow(double screenWidth, RequestType requestType) {
     return Align(

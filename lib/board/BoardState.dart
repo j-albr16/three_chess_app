@@ -13,7 +13,7 @@ import 'PieceMover.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
 
-class BoardState extends BoardStateBone with ChangeNotifier {
+class BoardState extends BoardStateBone{
   List<SubBoardState> subStates;
   List<ChessMoveInfo> infoChessMoves;
   bool gameWon = false;
@@ -32,7 +32,6 @@ class BoardState extends BoardStateBone with ChangeNotifier {
     } else {
       _selectedMove = newIndex;
     }
-    notifyListeners();
   }
 
   Map<String, Piece> get selectedPieces {
@@ -65,7 +64,7 @@ class BoardState extends BoardStateBone with ChangeNotifier {
   }
 
   BoardState.generate({List<ChessMove> chessMoves}) {
-    _generate(chessMoves);
+    _generate(chessMoves ?? []);
   }
 
   void _generate(List<ChessMove> chessMoves) {
@@ -336,7 +335,6 @@ class BoardState extends BoardStateBone with ChangeNotifier {
       if(!silent){
         _makeASound(infoChessMoves.last);
       }
-      notifyListeners();
     }
   }
 
@@ -358,7 +356,6 @@ class BoardState extends BoardStateBone with ChangeNotifier {
     chessMoves = [];
     infoChessMoves = [];
 
-    notifyListeners();
   }
 
   @override

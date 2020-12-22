@@ -52,6 +52,9 @@ enum HowGameEnded {
   Leave,
 }
 
+
+enum GameType { Local, Analyze, Online }
+
 enum ResponseRole {
   Accept,
   Create,

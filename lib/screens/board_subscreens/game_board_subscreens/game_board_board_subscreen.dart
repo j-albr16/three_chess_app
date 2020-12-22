@@ -9,60 +9,49 @@ import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
+import 'package:three_chess/providers/board_state_manager.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
-import '../../models/chess_move.dart';
-import '../../widgets/board_boarding_widgets.dart';
-import '../../providers/game_provider.dart';
-import '../../widgets/three_chess_board.dart';
+import '../../../models/chess_move.dart';
+import '../../../widgets/board_boarding_widgets.dart';
+import '../../../providers/game_provider.dart';
+import '../../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 class BoardBoardSubScreen extends StatefulWidget {
   final BoardState boardState;
   final BoardState boardStateListen;
   final Tiles tileKeeper;
+  final bool local;
 
-  BoardBoardSubScreen({this.boardState, this.tileKeeper, this.boardStateListen});
+  BoardBoardSubScreen({this.local, this.boardState, this.tileKeeper, this.boardStateListen});
 
   @override
   _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
 }
 
 class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
-  bool local = true;
+  bool local;
   ThreeChessBoard threeChessBoard;
 
   @override
   void initState(){
-
+    local  = widget.local;
     super.initState();
   }
 
-  _moveLeft(){
-
-        widget.boardState.selectedMove -= 1;
+  _moveLeft(context){
+    BoardStateManager boardStateManager = Provider.of<BoardStateManager>(context, listen: false);
+    boardStateManager.setSelectedMove(boardStateManager.boardState.selectedMove --);
   }
 
-  _moveRight(){
-      widget.boardState.selectedMove += 1;
+  _moveRight(context){
+    BoardStateManager boardStateManager = Provider.of<BoardStateManager>(context, listen: false);
+    boardStateManager.setSelectedMove(boardStateManager.boardState.selectedMove ++);
 
   }
 
-  Future<bool>_sendMove(ChessMove chessMove, GameProvider gameProvider){
-    if(local){
-      return Future.delayed(Duration.zero).then((_) {
-        if(!ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
-
-          print("No Move detechted in movePieceTo");
-            widget.boardStateListen.movePieceTo("", "");
-        }
-
-          return true;
-      });
-    }
-    return gameProvider.sendMove(chessMove);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,18 +63,12 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
     GameProvider gameProviderListen =
     Provider.of<GameProvider>(context);
 
-    if(gameProviderListen.game != null) {
-      local = false;
-    }
 
     threeChessBoard = ThreeChessBoard(
       height: 500,
       width: 500,
       didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
-      sendMove: (ChessMove chessMove) => _sendMove(chessMove, gameProvider),
-      whoIsPlaying: local ? null : gameProviderListen.player.playerColor,
-      syncChessMoves: local ? null : gameProviderListen.game.chessMoves,
-      newMove: local ? null : gameProviderListen,
+      whoIsPlaying: Provider.of<BoardStateManager>(context).whoIsPlaying,
       tileKeeper: widget.tileKeeper,
       boardState: widget.boardState,
       boardStateListen: widget.boardStateListen,
@@ -144,7 +127,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                             children: [
                               Align(
                                 alignment: Alignment.bottomLeft,
-                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveLeft(), borderWidth: 2, icon:
+                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveLeft(context), borderWidth: 2, icon:
                                 Container(
                                     alignment: Alignment.bottomLeft,
                                     padding: EdgeInsets.only( bottom:10),
@@ -153,7 +136,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                               Expanded(child: Container(color: Colors.transparent,)),
                               Align(
                                 alignment: Alignment.bottomRight,
-                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(), borderWidth: 2, icon: Container(
+                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(context), borderWidth: 2, icon: Container(
                                     alignment: Alignment.bottomRight,
                                     padding: EdgeInsets.only(bottom:10),
                                     child: FittedBox(child: Icon(Icons.arrow_right, size: 1000,))),),

@@ -28,7 +28,8 @@ class MainPageViewer extends StatefulWidget {
   State createState() => new MainPageViewerState();
 }
 
-class MainPageViewerState extends State<MainPageViewer> with notificationPort<MainPageViewer> {
+class MainPageViewerState extends State<MainPageViewer>
+    with notificationPort<MainPageViewer> {
   PageController _controller;
 
   static const _kDuration = const Duration(milliseconds: 300);
@@ -41,12 +42,14 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
     Future.delayed(Duration.zero).then((_) {
-      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
+      GameProvider gameProvider =
+          Provider.of<GameProvider>(context, listen: false);
       gameProvider.fetchAll();
-         Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
-         Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
-         Provider.of<OnlineProvider>(context, listen: false);
-         Provider.of<UserProvider>(context, listen: false).fetchUser();
+      Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+      Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
+      Provider.of<OnlineProvider>(context, listen: false);
+      Provider.of<UserProvider>(context, listen: false).fetchUser();
+      Provider.of<OnlineProvider>(context, listen: false).getCount();
     });
 
     //TODO REMOVE
@@ -60,6 +63,7 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
   @override
   void dispose() {
     _controller.dispose();
+    Provider.of<OnlineProvider>(context, listen: false).stopCount();
     super.dispose();
   }
 
@@ -111,11 +115,11 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),);
+    );
   }
 }
 
@@ -153,13 +157,19 @@ class DotsIndicator extends AnimatedWidget {
 
   Widget _buildDot(int index) {
     bool toLoop = false;
-    if (controller.page != null && controller.page.ceil() % itemCount == 0 && index == 0) {
+    if (controller.page != null &&
+        controller.page.ceil() % itemCount == 0 &&
+        index == 0) {
       toLoop = true;
     }
     double selectedness = Curves.easeOut.transform(
       max(
         0.0,
-        1.0 - (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) % itemCount - (index + (toLoop ? 1 : 0))).abs(),
+        1.0 -
+            (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) %
+                        itemCount -
+                    (index + (toLoop ? 1 : 0)))
+                .abs(),
       ),
     );
     double zoom = 1.0 + (_kMaxZoom - 1.0) * selectedness;

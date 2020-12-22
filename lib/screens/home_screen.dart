@@ -10,72 +10,44 @@ import '../screens/design-test-screen.dart';
 import '../screens/auth_test_screen.dart';
 import '../screens/lobby_screen.dart';
 import '../screens/game_provider_test_screen.dart';
+import '../widgets/logo.dart';
+import '../widgets/meta_data_count.dart';
+import '../providers/online_provider.dart';
 
 class HomeScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    bool boardClickable = Provider.of<GameProvider>(context).game != null;
+    Size size = MediaQuery.of(context).size;
+    ThemeData theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Main Menu'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-        children: <Widget>[
-        menuItem('Chess Board Test', BoardScreen.routeName, context, clickable: boardClickable),
-        menuItem('Design Test', DesignTestScreen.routeName, context),
-        Consumer<AuthProvider>(
-        builder: (context, auth, child) {
-        return auth.isAuth
-        ? Navigator.of(context).pushNamed(DesignTestScreen.routeName)
-            : menuItem('Auth Test', AuthScreen.routeName, context);
-        },
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+        SizedBox(height: 20),
+        Logo(
+          size: Size(size.width * 0.7, size.height * 0.35),
+          imagePath: 'assets/logo.png',
         ),
-        menuItem('Lobby', LobbyScreen.routeName, context),
-        menuItem('Game Test Screen', GameTestScreen.routeName, context),
-        Container(
-        height: 200,
-        width: 200,
-        child: GestureDetector(
-        onTap: () => Provider.of<GameProvider>(context, listen: false).fetchGame(),
-        child: Image.asset(
-        'assets/pieces/bishop_black.png',
-        fit: BoxFit.cover,
-        ),
-        ),
-        ),
-        menuItem('Friends Screen', FriendsScreen.routeName, context),
-        ],
-        ),
-      ),
-      );
+        SizedBox(height: 30),
+        countWidget(Size(size.width * 0.7, size.height * 0.1), theme)
+      ],),
+    );
+    
   }
+
+ static Widget countWidget(Size size, ThemeData theme){
+    return Consumer<OnlineProvider>(
+      builder: (_ , onlineProvider, __) => Count(
+        size: size,
+        theme: theme,
+        games: onlineProvider.gamesCount,
+        player: onlineProvider.playerCount,
+        users: onlineProvider.usersCount,
+      ),
+    );
+  }
+
 }
 
-Widget menuItem(String title, String routeName, BuildContext context,{bool clickable = true}) {
-  return GestureDetector(
-    onTap: () { if(clickable){Navigator.of(context).pushNamed(routeName);}},
-    child: Container(
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 45,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: clickable ? Colors.blue : Colors.grey,
-        border: Border.all(color: Colors.black87),
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            blurRadius: 6.0,
-          )
-        ],
-      ),
-    ),
-  );
-}

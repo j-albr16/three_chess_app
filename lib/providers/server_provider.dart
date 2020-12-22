@@ -700,6 +700,21 @@ class ServerProvider with ChangeNotifier {
       throw (error);
     }
   }
+  //########################################################################################################
+  Future<Map<String, int>> getCount() async {
+    try{
+      final String url = SERVER_ADRESS + 'count' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      return {
+      'player' : data['playerCount'],
+        'games': data['gamesCount'],
+        'users':data['usersCount'],
+      };
+    }catch(error){
+      handleError('Error while Counting Games and Player', error);
+    }
+  }
   //#########################################################################################################
 
   void _validation(Map<String, dynamic> data) {

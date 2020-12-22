@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/board/BoardState.dart';
 import 'package:three_chess/helpers/convert_data_print.dart';
+import 'package:three_chess/providers/board_state_manager.dart';
 import 'package:three_chess/providers/friends_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
@@ -72,8 +73,10 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
   @override
   Widget build(BuildContext context) {
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
-    return ChangeNotifierProvider(
-        create: (ctx) => BoardState(),
+    return ChangeNotifierProxyProvider<GameProvider, BoardStateManager>(
+    create: (BuildContext context) => BoardStateManager(Provider.of<GameProvider>(context, listen: false)),
+    update: (BuildContext context, GameProvider game, BoardStateManager previousBoardStateManager) => previousBoardStateManager
+      ..update(game),
     child: new Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),

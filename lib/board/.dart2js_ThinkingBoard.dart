@@ -74,8 +74,7 @@ class Tile  {
       this.directions,
       this.side,
       this.path,
-      this.isHighlighted = false}) {
-  }
+      this.isHighlighted = false}) ;
 }
 
 

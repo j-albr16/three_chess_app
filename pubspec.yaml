@@ -29,6 +29,7 @@ dependencies:
   http: ^0.12.2
   shared_preferences: ^0.5.12+2
   socket_io_client: ^0.9.11
+  scroll_to_index: ^1.0.6
   assets_audio_player: ^2.0.13
   reorderables: ^0.3.2
   # audioplayers: ^0.17.0

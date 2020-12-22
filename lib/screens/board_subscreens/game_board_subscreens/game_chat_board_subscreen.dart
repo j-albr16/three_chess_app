@@ -10,10 +10,10 @@ import 'package:three_chess/models/player.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
-import '../../models/chess_move.dart';
-import '../../widgets/board_boarding_widgets.dart';
-import '../../providers/game_provider.dart';
-import '../../widgets/three_chess_board.dart';
+import '../../../models/chess_move.dart';
+import '../../../widgets/board_boarding_widgets.dart';
+import '../../../providers/game_provider.dart';
+import '../../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 class ChatBoardSubScreen extends StatelessWidget {

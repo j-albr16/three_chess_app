@@ -13,7 +13,7 @@ class AcceptRequestType extends StatelessWidget {
   final Function onDecline;
   final int movesLeftToVote;
   final ThemeData theme;
-  final Request request;
+  final RequestType requestType;
   final double height;
   final PlayerColor whosAsking;
 
@@ -22,13 +22,14 @@ class AcceptRequestType extends StatelessWidget {
       this.theme,
       this.onDecline,
       this.movesLeftToVote,
-      this.request,
+      this.requestType,
       this.whosAsking,
       this.height});
 
-RequestType get requestType {
-  return request.requestType;
-}
+// RequestType get requestType {
+//   return request.requestType;
+// }
+
   Widget decideRow(double screenWidth, RequestType requestType) {
     return Align(
       alignment: Alignment.bottomCenter,

@@ -18,6 +18,7 @@ import './screens/friends_screen.dart';
 import './providers/online_provider.dart';
 import './screens/chat_screen.dart';
 import './providers/friends_provider.dart';
+import './helpers/theme.dart';
 import './providers/server_provider.dart';
 import './providers/user_provider.dart';
 import './screens/main_page_viewer.dart';
@@ -93,72 +94,33 @@ class ThreeChessApp extends StatelessWidget {
                   popUpProvider
                     ..update(
                         friendsProvider: friendsProvider,
-                        gameProvider: gameProvider))
+                        gameProvider: gameProvider)),
+          ChangeNotifierProvider<ChessTheme>(create: (_) => ChessTheme()),
         ],
-        child: MaterialApp(
-          theme: ThemeData(
-            primarySwatch: Colors.deepPurpleAccent[300],
-            errorColor: Colors.red[800],
-            disabledColor: Colors.grey[800],
-            primaryColorDark: Colors.black87,
-            backgroundColor: Colors.white24,
-            primaryColorLight: Colors.white70,
-            focusColor: Colors.deepPurpleAccent[800],
-            primaryTextTheme: TextTheme(
-              bodyText1: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 11,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.normal),
-              bodyText2: TextStyle(
-                color: Colors.white70,
-                fontSize: 11,
-                fontWeight: FontWeight.normal,
-              ),
-              headline1: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.bold),
-              headline2: TextStyle(
-                color: Colors.white70,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-              subtitle1: TextStyle(
-                color: Colors.black87,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
-              ),
-              subtitle2: TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          title: 'three chess app',
-          home: MainPageViewer(),
-          routes: {
-            MainPageViewer.routeName: (ctx) => MainPageViewer(),
-            BoardScreen.routeName: (ctx) => BoardScreen(),
-            DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
-            AuthScreen.routeName: (ctx) => AuthScreen(),
-            CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
-            LobbyScreen.routeName: (ctx) => LobbyScreen(),
-            GameTestScreen.routeName: (ctx) => GameTestScreen(),
-            FriendsScreen.routeName: (ctx) => FriendsScreen(),
-            ChatScreen.routeName: (ctx) => ChatScreen(),
-          },
-          // builder: (context, widget) => ResponsiveWrapper.builder(
-          //     BouncingScrollWrapper.builder(context, widget),
-          //     maxWidth: 2400,
-          //     minWidth: 300,
-          //     defaultScaleFactor: 0.212,
-          //     defaultScale: true,
-          //     breakpoints: [],
-          //     background: Container(color: Color(0xFFF5F5F5))),
-        ));
+        child: Consumer<ChessTheme>(
+            builder: (_, themeProvider, __) => MaterialApp(
+                  theme: themeProvider.theme,
+                  title: 'three chess app',
+                  home: MainPageViewer(),
+                  routes: {
+                    MainPageViewer.routeName: (ctx) => MainPageViewer(),
+                    BoardScreen.routeName: (ctx) => BoardScreen(),
+                    DesignTestScreen.routeName: (ctx) => DesignTestScreen(),
+                    AuthScreen.routeName: (ctx) => AuthScreen(),
+                    CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
+                    LobbyScreen.routeName: (ctx) => LobbyScreen(),
+                    GameTestScreen.routeName: (ctx) => GameTestScreen(),
+                    FriendsScreen.routeName: (ctx) => FriendsScreen(),
+                    ChatScreen.routeName: (ctx) => ChatScreen(),
+                  },
+                  // builder: (context, widget) => ResponsiveWrapper.builder(
+                  //     BouncingScrollWrapper.builder(context, widget),
+                  //     maxWidth: 2400,
+                  //     minWidth: 300,
+                  //     defaultScaleFactor: 0.212,
+                  //     defaultScale: true,
+                  //     breakpoints: [],
+                  //     background: Container(color: Color(0xFFF5F5F5))),
+                )));
   }
 }

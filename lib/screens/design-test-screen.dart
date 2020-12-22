@@ -17,6 +17,7 @@ import '../widgets/move_table.dart';
 import '../providers/friends_provider.dart';
 import '../helpers/sound_player.dart';
 import '../widgets/chat.dart';
+import '../widgets/end_game.dart';
 import '../providers/popup_provider.dart';
 import '../screens/screen_bone.dart';
 
@@ -29,8 +30,6 @@ class DesignTestScreen extends StatefulWidget {
 
 class _DesignTestScreenState extends State<DesignTestScreen>
     with notificationPort<DesignTestScreen> {
-  bool _play = false;
-
   @override
   Widget build(BuildContext context) {
     GameProvider _gameProvider =
@@ -39,28 +38,72 @@ class _DesignTestScreenState extends State<DesignTestScreen>
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
-          AudioWidget.assets(
-            play: _play,
-              child: RaisedButton(
-                child: Text('Play Sound'),
-                onPressed: () => setState(() {
-                  _play = !_play;
+          // Invitations(
+          //   acceptInvitation: (String gameId) =>
+          //       print('Accept Invitation to ' + gameId),
+          //   declineInvitation: () => print('Declined Invitation'),
+          //   invitations: Provider.of<FriendsProvider>(context).invitations,
+          //   size: Size(400, 300),
+          // ),
+          testButtonBar(
+            text: 'Show fnished Game Popup',
+            color: Colors.blue,
+            callback: () => showDialog(
+                context: context,
+                builder: (context) {
+                  Map finishedGameData = {
+                    'winner': PlayerColor.white,
+                    'howGameEnded': HowGameEnded.Surrender,
+                    PlayerColor.white: 1300,
+                    PlayerColor.black: 800,
+                    PlayerColor.red: 800,
+                  };
+                  Size size = MediaQuery.of(context).size;
+                  return EndGameAlertDialog(
+                    finishedGameData: finishedGameData,
+                    inspect: () {},
+                    leave: () => Navigator.of(context).pop(),
+                    player: Provider.of<GameProvider>(context).game.player,
+                    rematch: () {},
+                    size: size,
+                    you: Provider.of<GameProvider>(context).player,
+                  );
                 }),
-              ),
-              path: soundLinks[Sound.Capture]),
-          Invitations(
-            acceptInvitation: (String gameId) =>
-                print('Accept Invitation to ' + gameId),
-            declineInvitation: () => print('Declined Invitation'),
-            invitations: Provider.of<FriendsProvider>(context).invitations,
-            size: Size(400, 300),
           ),
           testButtonBar(
             callback: () async {
-              // await sounds.playSound(Sound.Capture);
+              await Sounds.playSound(Sound.Capture);
             },
             color: Colors.pink,
-            text: 'Player Sound',
+            text: 'Capture',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.Check);
+            },
+            color: Colors.pink,
+            text: 'Check',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.LowTime);
+            },
+            color: Colors.pink,
+            text: 'Low Time',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.SocialNotify);
+            },
+            color: Colors.pink,
+            text: 'Social Notify',
+          ),
+          testButtonBar(
+            callback: () async {
+              await Sounds.playSound(Sound.Move);
+            },
+            color: Colors.pink,
+            text: 'Move',
           ),
           testButtonBar(
             callback: () => _gameProvider.sendMove(new ChessMove(

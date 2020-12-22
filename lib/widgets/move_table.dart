@@ -40,7 +40,7 @@ class GameTable extends StatelessWidget {
       height: size.height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
-        color: Colors.black38,
+        color: Colors.black54,
         border: Border.all(
           color: Colors.white,
         ),
@@ -149,8 +149,6 @@ class GameTable extends StatelessWidget {
   
   List<Widget> _confirmationBar(RequestType requestType) {
     List<Widget> result = [];
-
-    
     Widget iconButtonTake = _noPressWrapper(
         requestType: RequestType.TakeBack,
         child: Container(

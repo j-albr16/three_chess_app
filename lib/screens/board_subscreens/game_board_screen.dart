@@ -261,13 +261,12 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
                 .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
           
           // Chat Stuff
-          Chat chat = Provider.of<ChatProvider>(context).chat;
           ThemeData theme = Theme.of(context);
 
         _subScreens = [
           ChatBoardSubScreen(
             height: chatScreenHeight ?? screenHeight,
-            chat: chat,
+            // chat: chat,
             chatController: chatController,
             chatFocusNode: chatFocusNode,
             chatInit: chatInit,

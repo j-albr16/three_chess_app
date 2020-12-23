@@ -7,6 +7,7 @@ import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
+import 'package:three_chess/providers/chat_provider.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
@@ -20,7 +21,6 @@ import 'package:relative_scale/relative_scale.dart';
 
 class ChatBoardSubScreen extends StatelessWidget {
   final double height;
-  final model.Chat chat;
   final ScrollController scrollController;
   final bool maxScrollEntend;
   final TextEditingController chatController;
@@ -30,7 +30,6 @@ class ChatBoardSubScreen extends StatelessWidget {
   final bool chatInit;
 
   ChatBoardSubScreen({
-    this.chat,
     this.height,
     this.chatInit,
     this.submitMessage,
@@ -49,7 +48,7 @@ class ChatBoardSubScreen extends StatelessWidget {
           )
         : Container(
             child: Chat(
-              chat: chat,
+              chat: Provider.of<ChatProvider>(context).chat,
               chatController: chatController,
               chatFocusNode: chatFocusNode,
               lobbyChat: true,

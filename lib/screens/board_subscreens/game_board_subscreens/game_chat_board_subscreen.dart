@@ -19,45 +19,86 @@ import '../../../widgets/three_chess_board.dart';
 import '../../../widgets/chat.dart';
 import 'package:relative_scale/relative_scale.dart';
 
-class ChatBoardSubScreen extends StatelessWidget {
+class ChatBoardSubScreen extends StatefulWidget {
   final double height;
-  final ScrollController scrollController;
-  final bool maxScrollEntend;
-  final TextEditingController chatController;
-  final FocusNode chatFocusNode;
-  final Function submitMessage;
   final ThemeData theme;
-  final bool chatInit;
-
+// Chat Related
   ChatBoardSubScreen({
     this.height,
-    this.chatInit,
-    this.submitMessage,
-    this.scrollController,
-    this.maxScrollEntend,
-    this.chatFocusNode,
-    this.chatController,
     this.theme,
   });
 
   @override
+  _ChatBoardSubScreenState createState() => _ChatBoardSubScreenState();
+}
+
+class _ChatBoardSubScreenState extends State<ChatBoardSubScreen> {
+  ScrollController chatScrollController;
+  FocusNode chatFocusNode;
+  TextEditingController chatController;
+  bool maxScrollExtend = false;
+
+  void _scrollListener() {
+    if (chatScrollController.offset ==
+            chatScrollController.position.maxScrollExtent &&
+        !chatScrollController.position.outOfRange) {
+      maxScrollExtend = true;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    chatScrollController = ScrollController();
+    chatController = TextEditingController();
+    chatFocusNode = FocusNode();
+    chatScrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    Provider.of<ChatProvider>(context, listen: false).resetCurrentChat();
+    // chatProvider.resetCurrentChat();
+    chatFocusNode.dispose();
+    chatController.dispose();
+    chatScrollController.dispose();
+    super.dispose();
+  }
+
+  void submitMessage(String text) {
+    Provider.of<ChatProvider>(context).sendTextMessage(chatController.text);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return chatInit
-        ? Center(
+    return FutureBuilder(
+      future: Provider.of<ChatProvider>(context).fetchChat(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
             child: CircularProgressIndicator(),
-          )
-        : Container(
-            child: Chat(
-              chat: Provider.of<ChatProvider>(context).chat,
-              chatController: chatController,
-              chatFocusNode: chatFocusNode,
-              lobbyChat: true,
-              maxScrollExtent: maxScrollEntend,
-              scrollController: scrollController,
-              size: Size(400, height),
-              submitMessage: submitMessage,
-              theme: theme,
+          );
+        } else if (snapshot.connectionState == ConnectionState.done) {
+          return Consumer<ChatProvider>(
+            builder: (context, chatProvider, child) => Container(
+              child: Chat(
+                chat: chatProvider.chat,
+                chatController: chatController,
+                chatFocusNode: chatFocusNode,
+                lobbyChat: true,
+                maxScrollExtent: maxScrollExtend,
+                scrollController: chatScrollController,
+                size: Size(400, widget.height),
+                submitMessage: (String text) => submitMessage(text),
+                theme: widget.theme,
+              ),
             ),
           );
+        } else {
+          return Text('Could not Fetch Chat. Sorry');
+        }
+      },
+    );
   }
 }

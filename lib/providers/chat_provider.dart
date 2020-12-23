@@ -39,6 +39,9 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
+    if(_currentChatIndex == null){
+      return new Chat();
+    }
     if (_chats[_currentChatIndex] == null) {
       // TODO
       return new Chat();

@@ -47,36 +47,12 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
   GameProvider gameProvider;
   Tiles tileKeeper;
 
-  // Chat Related
-  FocusNode chatFocusNode;
-  TextEditingController chatController;
-  ScrollController chatScrollController;
-  bool maxScrollExtent = false;
-  ChatProvider chatProvider;
-  bool chatInit = false;
-  void _scrollListener() {
-    if (chatScrollController.offset ==
-            chatScrollController.position.maxScrollExtent &&
-        !chatScrollController.position.outOfRange) {
-      maxScrollExtent = true;
-    }
-  }
-
   @override
   void initState() {
     controller = ScrollController();
     tileKeeper = Tiles();
     Future.delayed(Duration.zero).then((_) {
       gameProvider = Provider.of(context, listen: false);
-      // Chat Related
-      chatProvider = Provider.of<ChatProvider>(context, listen: false);
-      chatFocusNode = FocusNode();
-      chatController = TextEditingController();
-      chatScrollController = ScrollController();
-      chatScrollController.addListener(_scrollListener);
-      chatProvider
-          .selectChatRoom(isGameChat: true)
-          .then((_) => chatInit = true);
     });
     //
     // threeChessBoard = ThreeChessBoard(
@@ -84,16 +60,6 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    // Chat Realted
-    chatProvider.resetCurrentChat();
-    chatFocusNode.dispose();
-    chatController.dispose();
-    chatScrollController.dispose();
-    super.dispose();
-  }
 
   List<double> _sectionStarts(double screenHeight, int requestsLength) {
     double chatHeight = chatScreenHeight ?? screenHeight;
@@ -154,7 +120,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     BoardState boardState =
         Provider.of<BoardStateManager>(context, listen: false).boardState;
     BoardState boardStateListen =
-        Provider.of<BoardStateManager>(context ).boardState;
+        Provider.of<BoardStateManager>(context).boardState;
 
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
 
@@ -259,21 +225,15 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         bool isLocal = Provider.of<BoardStateManager>(context).gameType !=
             GameType
                 .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
-          
-          // Chat Stuff
-          ThemeData theme = Theme.of(context);
+
+        // Chat Stuff
+        ThemeData theme = Theme.of(context);
 
         _subScreens = [
           ChatBoardSubScreen(
             height: chatScreenHeight ?? screenHeight,
             // chat: chat,
-            chatController: chatController,
-            chatFocusNode: chatFocusNode,
-            chatInit: chatInit,
-            maxScrollEntend: maxScrollExtent,
-            scrollController: chatScrollController,
             theme: theme,
-            submitMessage: (String text) => chatProvider.sendTextMessage(text),
           ),
           BoardBoardSubScreen(
             boardState: boardState,

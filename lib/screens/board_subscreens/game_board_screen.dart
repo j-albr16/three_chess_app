@@ -46,10 +46,12 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
   double voteHeightFraction = 0.1;
   GameProvider gameProvider;
   Tiles tileKeeper;
+  bool didStartJump;
 
   @override
   void initState() {
     controller = ScrollController();
+    didStartJump = false;
     tileKeeper = Tiles();
     Future.delayed(Duration.zero).then((_) {
       gameProvider = Provider.of(context, listen: false);
@@ -225,6 +227,13 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         bool isLocal = Provider.of<BoardStateManager>(context).gameType !=
             GameType
                 .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
+
+        //init Jump
+            if(didStartJump == false){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            controller.jumpTo(_sectionStarts(screenHeight, requests.length)[1]);
+          });
+        }
 
         // Chat Stuff
         ThemeData theme = Theme.of(context);

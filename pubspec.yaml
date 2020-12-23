@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^4.3.2+2
+  universal_html: ^1.2.3
   image: ^2.1.17
   equatable: ^1.2.3
   http: ^0.12.2

@@ -42,10 +42,11 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
   ScrollController controller;
   double iconBarFractionOfTable = 0.1;
   double gameTableHeightFraction = 0.7;
-  double chatScreenHeight = 0;
+  double chatScreenHeight;
   double voteHeightFraction = 0.1;
   GameProvider gameProvider;
   Tiles tileKeeper;
+  bool didStartJump = false;
 
   @override
   void initState() {
@@ -176,6 +177,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
                 ?.requests ??
             []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
 
+
+
         List<Widget> votes = [];
         requests.forEach((request) {
           int movesLeft = 3 -
@@ -225,6 +228,11 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         bool isLocal = Provider.of<BoardStateManager>(context).gameType !=
             GameType
                 .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
+
+        if(!didStartJump){
+          controller.jumpTo(_sectionStarts(screenHeight, requests.length)[1]);
+          didStartJump = true;
+        }
 
         // Chat Stuff
         ThemeData theme = Theme.of(context);

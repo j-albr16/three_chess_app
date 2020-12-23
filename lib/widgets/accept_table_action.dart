@@ -108,6 +108,7 @@ class AcceptRequestType extends StatelessWidget {
         child: RelativeBuilder(
             builder: (context, screenHeight, screenWidth, sy, sx) {
           return Container(
+            width: screenWidth,
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),

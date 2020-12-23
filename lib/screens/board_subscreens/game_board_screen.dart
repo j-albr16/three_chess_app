@@ -169,9 +169,52 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
       builder: (context, screenHeight, screenWidth, sy, sx)
       {
         double usableHeight = screenHeight - unusableHeight;
-        List<Request> requests = Provider.of<GameProvider>(context).game?.requests ?? []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
+        List<Request> requests = Provider.of<GameProvider>(context).game?.requests ?? []; //Needs to be Not Null !
+
 
         List<Widget> votes = [];
+
+       int _movesLeft(Request request){
+         return 3 -
+             ((boardState.chessMoves.length % 3) -
+                 ((request.playerResponse[ResponseRole.Create].index + 2) %
+                     3))
+                 .abs();
+        }
+        //
+        // requests.where((request) =>
+        //   !request.playerResponse.containsValue(gameProvider.player.playerColor)).forEach((request) {
+        //   votes.insert(
+        //       0,
+        //       AcceptRequestType(
+        //         theme: Theme.of(context),
+        //         height: screenHeight * voteHeightFraction,
+        //         requestType: request.requestType,
+        //         whosAsking: request.playerResponse[ResponseRole.Create],
+        //         onAccept: () => getOnAccept(request.requestType),
+        //         onDecline: () => getOnDecline(request.requestType),
+        //         movesLeftToVote: _movesLeft(request),
+        //       ));
+        // }); // Voteable Requests
+        //
+        // requests.where((request) => request.playerResponse.containsValue(gameProvider.player.playerColor) && request.playerResponse[ResponseRole.Create] != gameProvider.player.playerColor).forEach((element) {
+        //
+        // });  //Votes, already voted
+        //
+        // requests.where((request) => request.playerResponse[ResponseRole.Create] == gameProvider.player.playerColor).forEach((request) {
+        //   votes.insert(
+        //       votes.length,
+        //       PendingRequest(
+        //         movesLeftToCancel: _movesLeft(request),
+        //         onCancel: () =>
+        //             gameProvider.cancelRequest(request.requestType),
+        //         request: request,
+        //         height: screenHeight * voteHeightFraction,
+        //         theme: Theme.of(context),
+        //       ));
+        // }); //Your own requests
+
+
         requests.forEach((request) {
           int movesLeft = 3 -
               ((boardState.chessMoves.length % 3) -

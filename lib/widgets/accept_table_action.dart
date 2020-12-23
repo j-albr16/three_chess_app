@@ -102,17 +102,21 @@ class AcceptRequestType extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RelativeBuilder(
-        builder: (context, screenHeight, screenWidth, sy, sx) {
-      return Container(
-        padding: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          color: Colors.black54,
-        ),
-        // height: height,
-        child: decideRow(screenWidth, requestType),
-      );
-    });
+    return Container(
+      height: height,
+      child: FittedBox(
+        child: RelativeBuilder(
+            builder: (context, screenHeight, screenWidth, sy, sx) {
+          return Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: Colors.black54,
+            ),
+            child: decideRow(screenWidth, requestType),
+          );
+        }),
+      ),
+    );
   }
 }

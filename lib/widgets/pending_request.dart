@@ -21,24 +21,29 @@ class PendingRequest extends StatelessWidget {
       this.onCancel});
 
   Widget build(BuildContext context) {
-    return RelativeBuilder(
-        builder: (_, __, width, ___, ____) => Container(
-              decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(cornerRadius)),
-              padding: EdgeInsets.all(5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  requestInformation(width),
-                  DeclineButton(
-                    onDecline:onCancel,
-                    size: Size(width * 0.23, height * 0.55),
-                    theme: theme,
+    return Container(
+      height: height,
+      child: FittedBox(
+        child: RelativeBuilder(
+            builder: (_, __, width, ___, ____) => Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(cornerRadius)),
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      requestInformation(width),
+                      DeclineButton(
+                        onDecline:onCancel,
+                        size: Size(width * 0.23, height * 0.55),
+                        theme: theme,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ));
+                )),
+      ),
+    );
   }
 
   Widget requestInformation(double width) {

@@ -86,7 +86,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   void updateHighlight(MapEntry<String, List<String>> newHighlighted){
     print("nice u wanna update Highlights in ThreeChessBoard, i aprreciate");
-    setState(() => widget.tileKeeper.highlightTiles(newHighlighted?.value));
+    widget.tileKeeper.highlightTiles(newHighlighted?.value);
   }
 
   String possibleDeselect; //This makes deselecting by clicking on the same piece again possible

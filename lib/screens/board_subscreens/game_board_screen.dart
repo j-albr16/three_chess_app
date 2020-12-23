@@ -171,7 +171,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         RequestType.Remi: () => gameProvider.acceptRemi(),
         RequestType.TakeBack: () => gameProvider.acceptTakeBack(),
       };
-      return onAccept[requestType];
+      return onAccept[requestType]();
     }
 
     Function getOnDecline(RequestType requestType) {

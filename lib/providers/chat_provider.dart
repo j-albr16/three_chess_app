@@ -12,6 +12,8 @@ import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
 import '../widgets/friend_list.dart';
+import './game_provider.dart';
+import 'package:provider/provider.dart';
 import '../models/enums.dart';
 import '../conversion/chat_conversion.dart';
 
@@ -92,7 +94,7 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChat({String id, bool isGameChat}) async {
+  Future<void> fetchChat({String id, bool isGameChat, BuildContext context}) async {
     // either receive userId or gameId...
     try {
       // http request
@@ -102,6 +104,9 @@ class ChatProvider with ChangeNotifier {
       _chats.add(ChatConversion.convertChat(data, _userId));
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
+      if(isGameChat){
+        Provider.of<GameProvider>(context, listen:false).setChatId(chat.id);
+      }
       print("next up fetch print:");
       ChatConversion.printWholeChat(chat);
       print(_chats);
@@ -127,13 +132,14 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectChatRoom({String id = '', bool isGameChat = false}) async {
+  Future<void> selectChatRoom({String id = '', bool isGameChat = false, BuildContext context}) async {
     int index = _chats.indexWhere((chat) =>
-        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null);
+        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null || chat.id == id);
     if (index == -1) {
       return await fetchChat(
         id: id,
         isGameChat: isGameChat,
+        context : context,
       );
     } else {
       _currentChatIndex = index;

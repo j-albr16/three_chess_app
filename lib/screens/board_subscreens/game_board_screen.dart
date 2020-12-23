@@ -243,6 +243,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
             height: chatScreenHeight ?? screenHeight,
             // chat: chat,
             theme: theme,
+            chatId: gameProvider?.game?.chatId,
           ),
           BoardBoardSubScreen(
             boardState: boardState,

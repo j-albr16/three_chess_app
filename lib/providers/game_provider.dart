@@ -80,6 +80,12 @@ class GameProvider with ChangeNotifier {
     return [..._games];
   }
 
+  void setChatId(String chatId){
+    print('Setting Chat Id');
+    print(chatId);
+    _game.chatId = chatId;
+  }
+
   Future<void> fetchAll() async {
     print('start fetching games');
     await fetchGame();

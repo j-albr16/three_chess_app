@@ -22,10 +22,12 @@ import 'package:relative_scale/relative_scale.dart';
 class ChatBoardSubScreen extends StatefulWidget {
   final double height;
   final ThemeData theme;
+  final String chatId;
 // Chat Related
   ChatBoardSubScreen({
     this.height,
     this.theme,
+    this.chatId,
   });
 
   @override
@@ -75,7 +77,7 @@ class _ChatBoardSubScreenState extends State<ChatBoardSubScreen> {
     return Container(
       height: widget.height,
       child: FutureBuilder(
-        future: Provider.of<ChatProvider>(context).fetchChat(),
+        future: Provider.of<ChatProvider>(context).selectChatRoom(isGameChat: true, id: widget.chatId, context: context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(

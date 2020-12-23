@@ -40,20 +40,18 @@ class _BoardScreenState extends State<BoardScreen> {
   GameType chosenScreen;
   ScrollController controller;
   int indexOfOnlineGameSelection = 0;
-  BoardStateManager boardStateManager;
-  BoardStateManager boardStateManagerListen;
 
   @override
   initState(){
-    Future.delayed(Duration.zero).then((_) { boardStateManager = Provider.of<BoardStateManager>(context, listen: false);
-    boardStateManagerListen = Provider.of<BoardStateManager>(context);});
     super.initState();
   }
 
-  _choseScreen(GameType newGameType){
-        setState(() {
-      boardStateManager.gameType = newGameType;
-    });
+  Function _chooseScreen(context){
+    return (GameType newGameType) {
+      setState(() {
+        Provider.of<BoardStateManager>(context, listen: false).gameType = newGameType;
+      });
+    };
   }
 
   _buildSelectedScreen(){
@@ -69,7 +67,7 @@ class _BoardScreenState extends State<BoardScreen> {
             width: screenWidth,
             height: screenHeight,
             currentGames: gameProvider.game != null ? [gameProvider.game] : [],
-            gameTypeCall: _choseScreen,
+            gameTypeCall: _chooseScreen(context),
             selectedOnlineGame: indexOfOnlineGameSelection,
             selectOnlineGameCall: (newIndex) => setState(() => indexOfOnlineGameSelection = newIndex),
           );
@@ -81,7 +79,7 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Container(
 
-      child: boardStateManager?.gameType == null ? _buildChooseScreen() : _buildSelectedScreen(),
+      child: Provider.of<BoardStateManager>(context).gameType == null ? _buildChooseScreen() : _buildSelectedScreen(),
     );
   }
 }

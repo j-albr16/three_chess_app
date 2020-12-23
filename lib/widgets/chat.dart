@@ -6,46 +6,56 @@ import '../providers/chat_provider.dart';
 import '../models/enums.dart';
 import '../models/message.dart';
 import '../models/user.dart';
+import './text_field.dart';
 import '../providers/friends_provider.dart';
 import '../models/chat_model.dart' as mod;
 import '../screens/auth_test_screen.dart' as DEC;
 
-class Chat extends StatelessWidget{
-  Size size;
-  Function submitMessage;
-  mod.Chat chat;
-  bool lobbyChat;
-  ScrollController scrollController;
-  TextEditingController chatController;
-  ThemeData theme;
-  bool maxScrollExtent;
+class Chat extends StatelessWidget {
+  final Size size;
+  final Function submitMessage;
+  final mod.Chat chat;
+  final bool lobbyChat;
+  bool wasInit = false;
+  final ScrollController scrollController;
+  final TextEditingController chatController;
+  final ThemeData theme;
+  final bool maxScrollExtent;
+  final FocusNode chatFocusNode;
 
   Chat({
     this.chat,
     this.maxScrollExtent,
+    this.chatFocusNode,
     this.theme,
     this.lobbyChat,
     this.size,
     this.submitMessage,
     this.chatController,
     this.scrollController,
-  }){
+  }) {
     // TODO Scroll Down
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
-    Provider.of<FriendsProvider>(context, listen: false).resetNewMessages(chat.id);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (maxScrollExtent || wasInit == false) {
+        scrollController.animateTo(scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+        wasInit = true;
+        Provider.of<FriendsProvider>(context, listen: false)
+            .resetNewMessages(chat.id);
+      }
     });
     return Container(
       alignment: Alignment.center,
-      width:size.width,
-      height:size.height,
+      width: size.width,
+      height: size.height,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.green,
-          width: 1,
+          color: Colors.black,
+          width: 3,
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(6),
@@ -55,7 +65,7 @@ class Chat extends StatelessWidget{
           children: <Widget>[
             Expanded(
               child: ListView.builder(
-                controller:scrollController,
+                controller: scrollController,
                 physics: BouncingScrollPhysics(),
                 itemCount: chat.messages.length,
                 itemBuilder: (context, index) => chatObject(
@@ -65,65 +75,62 @@ class Chat extends StatelessWidget{
                     chat.messages[index].owner),
               ),
             ),
-            textField(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: textField(),
+            ),
           ]),
     );
   }
 
   Widget textField() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(13),
-            child: TextField(
-              controller: chatController,
-              decoration: DEC.decoration('your Message', theme),
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.done,
-              cursorColor: Colors.black26,
-              style: TextStyle(color: Colors.black26),
-              onSubmitted: (_){
-                submit();
-              },
-            ),
-          ),
+    return ChessTextField(
+      controller: chatController,
+      // errorText: 'invalid',
+      focusNode: chatFocusNode,
+      // hintText: 'message',
+      labelText: 'message',
+      maxLines: 1,
+      textInputType: TextInputType.text,
+      theme: theme,
+      obscuringText: false,
+      size: Size(size.height * 0.9, 50),
+      onSubmitted: (_) => submit(),
+      suffixIcon: IconButton(
+        padding: EdgeInsets.all(6),
+        onPressed: submit,
+        icon: Icon(
+          Icons.subdirectory_arrow_right_sharp,
+          color: Colors.black26,
         ),
-        IconButton(
-          padding: EdgeInsets.all(6),
-          onPressed: submit,
-          icon: Icon(
-            Icons.subdirectory_arrow_right_sharp,
-            color: Colors.black26,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   submit() {
     if (chatController.text.isNotEmpty) {
+      chatFocusNode.unfocus();
       submitMessage(chatController.text);
       chatController.clear();
     }
   }
 
-AlignmentGeometry getAlignment(MessageOwner owner){
-  switch(owner){
-    case MessageOwner.You : 
-    return Alignment.bottomRight;
-    break;
-    case MessageOwner.Mate:
-    return Alignment.bottomLeft;
-    break;
-    case MessageOwner.Server:
-    return Alignment.bottomCenter;
-    break;
+  AlignmentGeometry getAlignment(MessageOwner owner) {
+    switch (owner) {
+      case MessageOwner.You:
+        return Alignment.bottomRight;
+        break;
+      case MessageOwner.Mate:
+        return Alignment.bottomLeft;
+        break;
+      case MessageOwner.Server:
+        return Alignment.bottomCenter;
+        break;
+    }
   }
 
-}
-  Widget chatObject(DateTime time, String text, String userName, MessageOwner owner) {
+  Widget chatObject(
+      DateTime time, String text, String userName, MessageOwner owner) {
     return Align(
       alignment: getAlignment(owner),
       child: Container(

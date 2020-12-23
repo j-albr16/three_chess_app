@@ -206,12 +206,12 @@ class ChessTheme with ChangeNotifier {
     },
     'bodyText1': {
       'color': ChessColor.Black.index,
-      'fontSize': 14,
+      'fontSize': 16,
       'fontWeight': FontWeight.normal.index,
     },
     'bodyText2': {
       'color': ChessColor.Black.index,
-      'fontSize': 13,
+      'fontSize': 14,
       'fontWeight': FontWeight.w500.index,
     },
     'overline': {

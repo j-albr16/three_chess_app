@@ -215,7 +215,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 onTap: (friend) {
                   print('Select Chat and Navigate to new Chat after Selection');
                   return Provider.of<ChatProvider>(context, listen: false)
-                      .selectChatRoom(friend.userId, isGameChat: false)
+                      .selectChatRoom(id: friend.userId, isGameChat: false)
                       .then((_) => Navigator.of(context)
                           .pushNamed(ChatScreen.routeName));
                   // TODO Open Chat where chat is supposed to be and not design Test Screen

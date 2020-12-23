@@ -398,26 +398,6 @@ class AddFriendArea extends StatelessWidget {
     );
   }
 
-  // Widget textField() {
-  //   TextEditingController controller = TextEditingController();
-  //   return Container(
-  //     padding: EdgeInsets.only(left: 10),
-  //     child: TextField(
-  //       controller: controller,
-  //       autofocus: true,
-  //       style: TextStyle(fontSize: 16),
-  //       decoration: InputDecoration(
-  //         suffixIcon: IconButton(
-  //           icon: Icon(Icons.send),
-  //           onPressed: () => _submit(controller.text),
-  //         ),
-  //         hintText: '... add a Friend',
-  //       ),
-  //       maxLines: 1,
-  //       onSubmitted: _submit,
-  //     ),
-  //   );
-  // }
 
   Widget button() {
     return Container(

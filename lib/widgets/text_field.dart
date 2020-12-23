@@ -63,7 +63,7 @@ class ChessTextField extends StatelessWidget {
   }
 
   static TextStyle textStyle(ThemeData theme) {
-    return theme.textTheme.bodyText2
+    return theme.textTheme.bodyText1
         .copyWith(color: theme.colorScheme.onBackground);
   }
 
@@ -77,7 +77,7 @@ class ChessTextField extends StatelessWidget {
     return InputDecoration(
       // Border
       errorBorder: border(theme.colorScheme.error, 2),
-      disabledBorder: border(theme.colorScheme.background, 1),
+      disabledBorder: border(theme.colorScheme.background, 2),
       enabledBorder: border(theme.colorScheme.primaryVariant, 2),
       focusedBorder: border(theme.colorScheme.primary, 2),
       focusedErrorBorder: border(theme.colorScheme.primaryVariant, 2),

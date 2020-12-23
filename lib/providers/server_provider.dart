@@ -278,7 +278,7 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'request-cancel':
         requestCancelledCallback(data);
-      break;
+        break;
       case 'takeBack-request':
         takeBackRequestCallback(data['userId'], data['chessMove']);
         break;
@@ -407,8 +407,11 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     _validation(data);
   }
-  Future<Map<String, dynamic>> getMoreMessages(String chatId, int messageCount) async {
-    final String url = SERVER_ADRESS + 'more-messages/$messageCount/$chatId' + _authString;
+
+  Future<Map<String, dynamic>> getMoreMessages(
+      String chatId, int messageCount) async {
+    final String url =
+        SERVER_ADRESS + 'more-messages/$messageCount/$chatId' + _authString;
     final response = await http.get(url);
     final Map<String, dynamic> data = json.decode(response.body);
     _printRawData(data);
@@ -641,7 +644,7 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<Map<String , dynamic>> declineRemi() async {
+  Future<Map<String, dynamic>> declineRemi() async {
     try {
       final String url = SERVER_ADRESS + 'decline-remi' + _authString;
       final response = await http.get(url);
@@ -708,19 +711,34 @@ class ServerProvider with ChangeNotifier {
       throw (error);
     }
   }
+
   //########################################################################################################
   Future<Map<String, int>> getCount() async {
-    try{
+    try {
       final String url = SERVER_ADRESS + 'count' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       return {
-      'player' : data['playerCount'],
+        'player': data['playerCount'],
         'games': data['gamesCount'],
-        'users':data['usersCount'],
+        'users': data['usersCount'],
       };
-    }catch(error){
+    } catch (error) {
       handleError('Error while Counting Games and Player', error);
+    }
+  }
+
+  Future<void> sendErrorReport(String text) async {
+    try {
+      final String url = SERVER_ADRESS + 'error-report' + _authString;
+      final response = await http.post(url,
+          body: json.encode({'error': text}),
+          headers: {'Content-Type': 'application/json'});
+      final data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      handleError('error while making buck report', error);
     }
   }
   //#########################################################################################################

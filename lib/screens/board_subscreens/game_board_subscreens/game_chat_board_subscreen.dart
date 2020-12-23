@@ -20,7 +20,6 @@ import 'package:relative_scale/relative_scale.dart';
 
 class ChatBoardSubScreen extends StatelessWidget {
   final double height;
-  final double iconBarFraction;
   final model.Chat chat;
   final ScrollController scrollController;
   final bool maxScrollEntend;
@@ -35,7 +34,6 @@ class ChatBoardSubScreen extends StatelessWidget {
     this.height,
     this.chatInit,
     this.submitMessage,
-    this.iconBarFraction,
     this.scrollController,
     this.maxScrollEntend,
     this.chatFocusNode,

@@ -41,7 +41,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
-    if(_currentChatIndex == null){
+    if (_currentChatIndex == null) {
       return new Chat();
     }
     if (_chats[_currentChatIndex] == null) {
@@ -94,7 +94,8 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChat({String id, bool isGameChat, BuildContext context}) async {
+  Future<void> fetchChat(
+      {String id, bool isGameChat, BuildContext context}) async {
     // either receive userId or gameId...
     try {
       // http request
@@ -104,8 +105,8 @@ class ChatProvider with ChangeNotifier {
       _chats.add(ChatConversion.convertChat(data, _userId));
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
-      if(isGameChat){
-        Provider.of<GameProvider>(context, listen:false).setChatId(chat.id);
+      if (isGameChat) {
+        Provider.of<GameProvider>(context, listen: false).setChatId(chat.id);
       }
       print("next up fetch print:");
       ChatConversion.printWholeChat(chat);
@@ -118,7 +119,7 @@ class ChatProvider with ChangeNotifier {
   Future<void> getMoreMessages(Chat chat) async {
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.getMoreMessages(chat.id ,chat.messages.length);
+          await _serverProvider.getMoreMessages(chat.id, chat.messages.length);
       data['messages'].forEach((message) {
         User owner =
             chat.user.firstWhere((user) => user.id == message['userId']);
@@ -132,19 +133,25 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectChatRoom({String id = '', bool isGameChat = false, BuildContext context}) async {
+  Future<void> selectChatRoom(
+      {String id = '', bool isGameChat = false, BuildContext context}) async {
     int index = _chats.indexWhere((chat) =>
-        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null || chat.id == id);
+        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null ||
+        chat.id == id);
     if (index == -1) {
-      return await fetchChat(
+      await fetchChat(
         id: id,
         isGameChat: isGameChat,
-        context : context,
+        context: context,
       );
+      if (!isGameChat) {
+        return notifyListeners();
+      }
+      return;
     } else {
       _currentChatIndex = index;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   void _handleMessageData(Map<String, dynamic> messageData,

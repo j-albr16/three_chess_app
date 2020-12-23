@@ -69,40 +69,45 @@ class _ChatBoardSubScreenState extends State<ChatBoardSubScreen> {
   }
 
   void submitMessage(String text) {
-    Provider.of<ChatProvider>(context).sendTextMessage(chatController.text);
+    Provider.of<ChatProvider>(context, listen: false)
+        .sendTextMessage(chatController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: widget.height,
-      child: FutureBuilder(
-        future: Provider.of<ChatProvider>(context).selectChatRoom(isGameChat: true, id: widget.chatId, context: context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            return Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) => Container(
-                child: Chat(
-                  chat: chatProvider.chat,
-                  chatController: chatController,
-                  chatFocusNode: chatFocusNode,
-                  lobbyChat: true,
-                  maxScrollExtent: maxScrollExtend,
-                  scrollController: chatScrollController,
-                  size: Size(400, widget.height),
-                  submitMessage: (String text) => submitMessage(text),
-                  theme: widget.theme,
+    return GestureDetector(
+      onTap: () => chatFocusNode.unfocus(),
+      child: Container(
+        height: widget.height,
+        child: FutureBuilder(
+          future: Provider.of<ChatProvider>(context).selectChatRoom(
+              isGameChat: true, id: widget.chatId, context: context),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              return Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) => Container(
+                  child: Chat(
+                    chat: chatProvider.chat,
+                    chatController: chatController,
+                    chatFocusNode: chatFocusNode,
+                    lobbyChat: true,
+                    maxScrollExtent: maxScrollExtend,
+                    scrollController: chatScrollController,
+                    size: Size(400, widget.height),
+                    submitMessage: (String text) => submitMessage(text),
+                    theme: widget.theme,
+                  ),
                 ),
-              ),
-            );
-          } else {
-            return Text('Could not Fetch Chat. Sorry');
-          }
-        },
+              );
+            } else {
+              return Text('Could not Fetch Chat. Sorry');
+            }
+          },
+        ),
       ),
     );
   }

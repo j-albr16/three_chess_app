@@ -18,10 +18,10 @@ class Count extends StatelessWidget {
       width: size.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(cornerRadius),
-        boxShadow: [
-          BoxShadow(color: Colors.black38, offset: Offset(0, 2)),
-        ],
-        border: Border.all(color: theme.colorScheme.onSurface),
+        // boxShadow: [
+        //   BoxShadow(color: Colors.black38, offset: Offset(0, 2)),
+        // ],
+        border: Border.all(color: theme.colorScheme.onSurface, width: 2.4),
       ),
       padding: EdgeInsets.all(inMainBoxPadding),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
@@ -48,9 +48,9 @@ class Count extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        infoKeyTile('Active Games :'),
-        infoKeyTile('Active Player :'),
-        infoKeyTile('Online User :'),
+        infoKeyTile('Active Games '),
+        infoKeyTile('Active Player '),
+        infoKeyTile('Online User '),
       ],
     );
   }

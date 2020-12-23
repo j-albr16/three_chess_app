@@ -506,6 +506,14 @@ class GameProvider with ChangeNotifier {
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true
+    if (moveData['emptyMove']) {
+      _game.chessMoves.add(new ChessMove(
+        initialTile: '',
+        nextTile: '',
+        remainingTime:
+            _game.chessMoves[_game.chessMoves.length - 4].remainingTime,
+      ));
+    }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
     }
@@ -647,8 +655,8 @@ class GameProvider with ChangeNotifier {
   _handleRequestCancelled(Map<String, dynamic> data) {
     if (data['userId'] != _userId) {
       String message = 'Could not get Message';
-      _game.requests
-          .removeWhere((request) => request.requestType.index == data['requestType']);
+      _game.requests.removeWhere(
+          (request) => request.requestType.index == data['requestType']);
       popUpMessage = data['message'];
       hasMessage = true;
       notifyListeners();

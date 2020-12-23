@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
 import './message_count.dart';
+import '../widgets/text_field.dart';
 
 typedef void FriendDialog(FriendTileModel model);
 
@@ -74,11 +75,11 @@ class FriendTile extends StatelessWidget {
             onLongPress: () => onLongTap(model),
             hoverColor: Colors.grey,
           ),
-          if(model.newMessages > 0)
-          Align(
-            alignment: Alignment.topRight,
-            child: MessageCount(model.newMessages),
-          )
+          if (model.newMessages > 0)
+            Align(
+              alignment: Alignment.topRight,
+              child: MessageCount(model.newMessages),
+            )
         ],
       ),
     );
@@ -206,12 +207,20 @@ class FriendList extends StatelessWidget {
   final FriendDialog onPendingAccept;
   final FriendDialog onPendingReject;
   final FriendTileModel selectedFriend;
+  final TextEditingController controller;
+  final ThemeData theme;
+  final Size size;
+  final FocusNode focusNode;
 
   FriendList(
       {this.switchShowPending,
       this.onPendingSelect,
+      this.controller,
       this.selectedFriend,
       this.onPendingAccept,
+      this.focusNode,
+      this.size,
+      this.theme,
       this.onPendingReject,
       this.isPendingFriendsOpen,
       this.switchTyping,
@@ -328,6 +337,10 @@ class FriendList extends StatelessWidget {
                       isTyping: isTyping,
                       switchTyping: switchTyping,
                       addFriend: addFriend,
+                      controller: controller,
+                      focusNode: focusNode,
+                      size: size,
+                      theme: theme,
                     ),
                   ],
                 ),
@@ -343,42 +356,78 @@ typedef void AddFriend(String friendToAdd);
 class AddFriendArea extends StatelessWidget {
   final AddFriend addFriend;
   final bool isTyping;
+  final Size size;
+  final ThemeData theme;
   final Function switchTyping;
+  final TextEditingController controller;
+  final FocusNode focusNode;
 
-  AddFriendArea({this.addFriend, this.isTyping = false, this.switchTyping});
+  AddFriendArea(
+      {this.addFriend,
+      this.size,
+      this.theme,
+      this.focusNode,
+      this.isTyping = false,
+      this.switchTyping,
+      this.controller});
 
   void _submit(submitted) {
+    focusNode.unfocus();
     switchTyping();
     addFriend(submitted);
   }
 
   Widget textField() {
-    TextEditingController controller = TextEditingController();
-    return Container(
-      padding: EdgeInsets.only(left: 10),
-      child: TextField(
-        controller: controller,
-        autofocus: true,
-        style: TextStyle(fontSize: 16),
-        decoration: InputDecoration(
-          suffixIcon: IconButton(
-            icon: Icon(Icons.send),
-            onPressed: () => _submit(controller.text),
-          ),
-          hintText: '... add a Friend',
-        ),
-        maxLines: 1,
-        onSubmitted: _submit,
+    return ChessTextField(
+      controller: controller,
+      // errorText: 'Error finding Friend',
+      focusNode: focusNode,
+      // helperText: 'username',
+      labelText: 'username',
+      maxLines: 1,
+      obscuringText: false,
+      onSubmitted: (String text) => _submit(text),
+      hintText: 'username',
+      size: Size(size.width * 0.9, 45),
+      suffixIcon: IconButton(
+        icon: Icon(Icons.send),
+        onPressed: () => _submit(controller.text),
       ),
+      textInputType: TextInputType.name,
+      theme: theme,
     );
   }
+
+  // Widget textField() {
+  //   TextEditingController controller = TextEditingController();
+  //   return Container(
+  //     padding: EdgeInsets.only(left: 10),
+  //     child: TextField(
+  //       controller: controller,
+  //       autofocus: true,
+  //       style: TextStyle(fontSize: 16),
+  //       decoration: InputDecoration(
+  //         suffixIcon: IconButton(
+  //           icon: Icon(Icons.send),
+  //           onPressed: () => _submit(controller.text),
+  //         ),
+  //         hintText: '... add a Friend',
+  //       ),
+  //       maxLines: 1,
+  //       onSubmitted: _submit,
+  //     ),
+  //   );
+  // }
 
   Widget button() {
     return Container(
         color: Colors.purple,
         height: 47,
         child: InkWell(
-          onTap: () => switchTyping(),
+          onTap: () {
+            switchTyping();
+            focusNode.requestFocus();
+          },
           child: Center(
             child: Padding(
               padding: EdgeInsets.only(top: 3, bottom: 3),
@@ -409,8 +458,8 @@ class AddFriendArea extends StatelessWidget {
     return Container(
         margin: EdgeInsets.only(left: 7, right: 7),
         width: double.infinity,
-        decoration:
-            BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
+        // decoration:
+            // BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
         child: isTyping ? textField() : button());
   }
 }

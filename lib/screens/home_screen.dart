@@ -22,19 +22,30 @@ class HomeScreen extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-        SizedBox(height: 20),
-        Logo(
-          size: Size(size.width * 0.7, size.height * 0.35),
-          imagePath: 'assets/logo.png',
-        ),
-        SizedBox(height: 30),
-        countWidget(Size(size.width * 0.7, size.height * 0.1), theme)
-      ],),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            title(theme),
+          SizedBox(height: 20),
+          Logo(
+            size: Size(size.width * 0.7, size.height * 0.35),
+            imagePath: 'assets/logo.png',
+            theme: theme,
+          ),
+          SizedBox(height: 30),
+          countWidget(Size(size.width * 0.7, size.height * 0.1), theme)
+        ],),
+      ),
     );
     
+  }
+
+  static Widget title(ThemeData theme){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text('Welcome to Three Chess Beta', style: theme.textTheme.headline1,),
+    );
   }
 
  static Widget countWidget(Size size, ThemeData theme){

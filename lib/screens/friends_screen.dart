@@ -26,10 +26,21 @@ class _FriendsScreenState extends State<FriendsScreen> {
   List<FriendTileModel> friends;
   List<FriendTileModel> pendingFriends;
   FriendTileModel selectedPending;
+  TextEditingController controller;
+  FocusNode focusNode;
 
   @override
   void initState() {
     super.initState();
+    controller = TextEditingController();
+    focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+    super.dispose();
   }
 
   bool isTyping = false;
@@ -103,7 +114,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           );
         })) {
       case FriendAction.Battle:
-      battleFriend(model.userId);
+        battleFriend(model.userId);
         break;
       case FriendAction.Profile:
         //TODO
@@ -179,7 +190,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          FocusScope.of(context).unfocus();
+          focusNode.unfocus();
           if (isTyping) {
             switchTyping();
           }
@@ -214,6 +225,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 // pendingFriendTiles: sampleFriends,
                 pendingFriendTiles: pendingFriends ?? [],
                 onPendingSelect: switchSelectedPending,
+                controller: controller,
+                focusNode: focusNode,
+                size: MediaQuery.of(context).size,
+                theme: Theme.of(context),
                 selectedFriend: selectedPending,
                 isPendingFriendsOpen: _isPendingOpen,
                 onPendingAccept: (model) => Provider.of<FriendsProvider>(

@@ -10,6 +10,7 @@ enum ChessColor {
   Blue700,
   Grey,
   Black,
+  Black54,
   White
 }
 
@@ -31,6 +32,7 @@ class ChessTheme with ChangeNotifier {
     ChessColor.Blue700.index: Colors.blue[700],
     ChessColor.Grey.index: Colors.grey,
     ChessColor.Black.index: Colors.black,
+    ChessColor.Black54.index: Colors.black54,
     ChessColor.White.index: Colors.white,
   };
 

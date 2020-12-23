@@ -47,6 +47,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
   GameProvider gameProvider;
   Tiles tileKeeper;
   bool didStartJump;
+  double greyBarHeight = 30;
 
   @override
   void initState() {
@@ -71,11 +72,11 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     return [
       0,
       chatHeight,
-      chatHeight + requestsHeight + 30 * (requestsHeight == 0 ? 0 : 1),
+      chatHeight + requestsHeight + greyBarHeight * (requestsHeight == 0 ? 0 : 1),
       chatHeight +
           requestsHeight +
           (screenHeight * gameTableHeightFraction * iconBarFractionOfTable) +
-          30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
+          greyBarHeight, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
       chatHeight + requestsHeight + (screenHeight * gameTableHeightFraction),
     ];
   }
@@ -228,8 +229,9 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
             GameType
                 .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
 
-        //init Jump
+        //init Jump and chatScreenHeight
             if(didStartJump == false){
+              chatScreenHeight = usableHeight - greyBarHeight;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             controller.jumpTo(_sectionStarts(screenHeight, requests.length)[1]);
           });

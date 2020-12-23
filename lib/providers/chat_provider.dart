@@ -59,19 +59,20 @@ class ChatProvider with ChangeNotifier {
     gameInvitationCallback,
   }) {
     _serverProvider.subscribeToAuthUserChannel(
-      friendRemovedCallback: (String userId,String message) => friendRemovedCallback(userId, message),
+      friendRemovedCallback: (String userId, String message) =>
+          friendRemovedCallback(userId, message),
       friendDeclinedCallback: (message) => friendDeclinedCallback(message),
       friendAcceptedCallback: (data) => friendAcceptedCallback(data),
       friendRequestCallback: (friendData, message) =>
           friendRequestCallback(friendData, message),
-          friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
-          friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
-          friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
-          friendIsNotPlayingCallback: (userId) => friendIsNotPlayingCallback(userId),
+      friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
+      friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
+      friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
+      friendIsNotPlayingCallback: (userId) =>
+          friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
-          gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
-
+      gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
     );
   }
 
@@ -106,7 +107,24 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectChatRoom(String id, {bool isGameChat = false}) async {
+  Future<void> getMoreMessages(Chat chat) async {
+    try {
+      final Map<String, dynamic> data =
+          await _serverProvider.getMoreMessages(chat.id ,chat.messages.length);
+      data['messages'].forEach((message) {
+        User owner =
+            chat.user.firstWhere((user) => user.id == message['userId']);
+        _chats[_currentChatIndex].messages.add(ChatConversion.rebaseOneMessage(
+            message, _userId,
+            userName: owner.userName));
+      });
+      notifyListeners();
+    } catch (error) {
+      _serverProvider.handleError('Error While getting more Messages', error);
+    }
+  }
+
+  Future<void> selectChatRoom({String id = '', bool isGameChat = false}) async {
     int index = _chats.indexWhere((chat) =>
         chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null);
     if (index == -1) {
@@ -131,11 +149,10 @@ class ChatProvider with ChangeNotifier {
       increaseNewMessageCounterCallback(messageData['userId']);
     }
     if (chatIndex != -1) {
-      _chats[chatIndex].messages.add(ChatConversion.rebaseOneMessage(messageData, _userId));
+      _chats[chatIndex]
+          .messages
+          .add(ChatConversion.rebaseOneMessage(messageData, _userId));
     }
     notifyListeners();
   }
-
 }
-
-

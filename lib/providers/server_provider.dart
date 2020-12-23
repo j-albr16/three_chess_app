@@ -407,6 +407,14 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     _validation(data);
   }
+  Future<Map<String, dynamic>> getMoreMessages(String chatId, int messageCount) async {
+    final String url = SERVER_ADRESS + 'more-messages/$messageCount/$chatId' + _authString;
+    final response = await http.get(url);
+    final Map<String, dynamic> data = json.decode(response.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
 
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
     final url = SERVER_ADRESS +

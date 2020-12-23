@@ -26,32 +26,41 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(),
       body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             title(theme),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             Logo(
               size: Size(size.width * 0.7, size.height * 0.35),
               imagePath: 'assets/logo.png',
               theme: theme,
             ),
-            SizedBox(height: 30),
-            countWidget(Size(size.width * 0.7, size.height * 0.1), theme)
+            SizedBox(height: 15),
+            countWidget(Size(size.width * 0.7, size.height * 0.1), theme),
+            SizedBox(height : 15),
+            homeScreenButtons(context, Size(size.width * 0.8, size.height * 0.4), theme)
           ],
         ),
       ),
     );
   }
 
-  Widget homeScreenButtons() {
-    return GridView(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: 1,
-        crossAxisCount: 2,
-        crossAxisSpacing: 40,
-        mainAxisSpacing: 40,
-      ),
-      children: [],
+  Widget homeScreenButtons(BuildContext context, Size size, ThemeData theme) {
+    return Column(
+      children: [
+        gridButton(
+          callback: () => Navigator.of(context).pushNamed(AuthScreen.routeName),
+          theme: theme,
+          size: Size(size.width * 0.3, size.height * 0.1),
+          title: 'Auth Screen',
+        ),
+        gridButton(
+          callback: () => sendErrorReport(context),
+          theme: theme,
+          size: Size(size.width * 0.3, size.height * 0.1),
+          title: 'Report Error',
+        ),
+      ],
     );
   }
 

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
+import '../helpers/constants.dart';
+import '../widgets/text_field.dart';
 
 enum AuthMode { signUp, logIn, reset }
 
@@ -13,9 +15,7 @@ class AuthScreen extends StatefulWidget {
 
   @override
   _AuthScreenState createState() => _AuthScreenState();
-
 }
-
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -39,14 +39,13 @@ class _AuthScreenState extends State<AuthScreen> {
     super.initState();
   }
 
-   @override
+  @override
   void dispose() {
     _passwordNode.dispose();
     _emailNode.dispose();
     _confirmPasswordNode.dispose();
     super.dispose();
   }
-
 
   Future<void> _saveForm(BuildContext context) async {
     try {
@@ -88,7 +87,7 @@ class _AuthScreenState extends State<AuthScreen> {
           );
         },
       );
-    }finally{
+    } finally {
       _switchAuthMode(AuthMode.logIn);
     }
   }
@@ -97,170 +96,193 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Auth Test Screen'),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
+    Size labelSize = Size(size.width * 0.7, size.height * 0.15);
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+        appBar: AppBar(
+          title: Text('Authentification'),
         ),
-        child: Column(
-          children: [
-            if (authMode == AuthMode.logIn) _label('Sign Up', size, theme),
-            if (authMode == AuthMode.signUp) _label('Sign Up', size, theme),
-            if (authMode == AuthMode.reset) _label('Remake', size, theme),
-            SizedBox(height: 40),
-            Center(
-              child: Container(
-                padding: EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.primaryColorDark),
-                    borderRadius: BorderRadius.circular(8)),
-                height: size.height * 0.6,
-                width: size.width * 0.4,
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    children: <Widget>[
-                      if (authMode == AuthMode.signUp)
-                        TextFormField(
-                          initialValue: 'scrutycs',
-                          decoration: decoration('Username', theme),
-                          cursorColor: theme.primaryColorDark,
-                          style: theme.primaryTextTheme.bodyText1,
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please provide a price';
-                            }
-
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context).requestFocus(_emailNode);
-                          },
-                          onSaved: (value) {
-                            _userName = value;
-                          },
-                        ),
-                      SizedBox(height: 13),
-                      TextFormField(
-                        initialValue: 'jan.albrecht2000@gmail.com',
-                        focusNode: _emailNode,
-                        decoration: decoration('Email', theme),
-                        cursorColor: theme.primaryColorDark,
-                          style: theme.primaryTextTheme.bodyText1,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please provide a price';
-                          }
-                          return null;
-                        },
-                        onFieldSubmitted: (_) {
-                          FocusScope.of(context).requestFocus(_passwordNode);
-                        },
-                        onSaved: (value) {
-                          _email = value;
-                        },
-                      ),
-                      SizedBox(height: 13),
-                      TextFormField(
-                        initialValue: 'dont4getme',
-                        focusNode: _passwordNode,
-                        decoration: decoration('Password', theme),
-                        cursorColor: theme.primaryColorDark,
-                          style: theme.primaryTextTheme.bodyText1,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.visiblePassword,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please provide a price';
-                          }
-                          return null;
-                        },
-                        onFieldSubmitted: (_) {
-                          authMode == AuthMode.signUp
-                              ? FocusScope.of(context)
-                                  .requestFocus(_confirmPasswordNode)
-                              : _saveForm(context);
-                        },
-                        onSaved: (value) {
-                          _password = value;
-                        },
-                      ),
-                      SizedBox(height: 13),
-                      if (authMode == AuthMode.signUp ||
-                          authMode == AuthMode.reset)
-                        TextFormField(
-                          initialValue: 'dont4getme',
-                          focusNode: _confirmPasswordNode,
-                          decoration: decoration('Confirm Password', theme),
-                          textInputAction: TextInputAction.done,
-                          cursorColor: theme.primaryColorDark,
-                          style: theme.primaryTextTheme.bodyText1,
-                          keyboardType: TextInputType.visiblePassword,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please provide a price';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            _saveForm(context);
-                          },
-                          onSaved: (value) {
-                            _confirmPassword = value;
-                          },
-                        ),
-                      SizedBox(height: 13),
-                      Container(
-                        height: 40,
-                        width: 60,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 60, vertical: 3),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20)),
-                        child: FlatButton(
-                          child: Text(
-                            'Submitt',
-                            style: theme.primaryTextTheme.bodyText1,
-                          ),
-                          onPressed: () => _saveForm(context),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      if (authMode != AuthMode.reset)
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 60, vertical: 3),
-                          height: 40,
-                          width: 60,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20)),
-                          child: FlatButton(
-                            height: 40,
-                            child: Text(
-                              authMode == AuthMode.logIn ? 'Sign Up' : 'Log In',
-                              style: theme.primaryTextTheme.bodyText1,
-                            ),
-                            onPressed: () => _switchAuthMode(
-                                authMode == AuthMode.logIn
-                                    ? AuthMode.signUp
-                                    : AuthMode.logIn),
-                          ),
-                        ),
-                    ],
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(),
+            child: SingleChildScrollView(
+                        child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (authMode == AuthMode.logIn)
+                    _label('LogIn', labelSize, theme),
+                  if (authMode == AuthMode.signUp)
+                    _label('Sign Up', labelSize, theme),
+                  if (authMode == AuthMode.reset)
+                    _label('Remake', labelSize, theme),
+                  SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(cornerRadius)),
+                    height: size.height * 0.4,
+                    width: size.width * 0.6,
+                    child: form(theme),
                   ),
-                ),
+                  submitBar(theme, Size(size.width * 0.9, size.height * 0.1))
+                ],
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Form form(ThemeData theme) {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: <Widget>[
+          if (authMode == AuthMode.signUp)
+            TextFormField(
+              // initialValue: 'scrutycs',
+              cursorColor: theme.primaryColorDark,
+              decoration: ChessTextField.inputDecoration(
+                labelText: 'username',
+                theme: theme,
+              ),
+              style: theme.primaryTextTheme.bodyText1,
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.text,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please provide a price';
+                }
+
+                return null;
+              },
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_emailNode);
+              },
+              onSaved: (value) {
+                _userName = value;
+              },
+            ),
+          SizedBox(height: 13),
+          TextFormField(
+            // initialValue: 'jan.albrecht2000@gmail.com',
+            focusNode: _emailNode,
+            cursorColor: theme.primaryColorDark,
+            decoration: ChessTextField.inputDecoration(
+              labelText: 'email',
+              theme: theme,
+            ),
+            style: theme.primaryTextTheme.bodyText1,
+            textInputAction: TextInputAction.next,
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please provide a price';
+              }
+              return null;
+            },
+            onFieldSubmitted: (_) {
+              FocusScope.of(context).requestFocus(_passwordNode);
+            },
+            onSaved: (value) {
+              _email = value;
+            },
+          ),
+          SizedBox(height: 13),
+          TextFormField(
+            // initialValue: 'dont4getme',
+            focusNode: _passwordNode,
+            cursorColor: theme.primaryColorDark,
+            decoration: ChessTextField.inputDecoration(
+              labelText: 'password',
+              theme: theme,
+            ),
+            style: theme.textTheme.bodyText1,
+            obscureText: true,
+            textInputAction: TextInputAction.next,
+            keyboardType: TextInputType.visiblePassword,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please provide a price';
+              }
+              return null;
+            },
+            onFieldSubmitted: (_) {
+              authMode == AuthMode.signUp
+                  ? FocusScope.of(context).requestFocus(_confirmPasswordNode)
+                  : _saveForm(context);
+            },
+            onSaved: (value) {
+              _password = value;
+            },
+          ),
+          SizedBox(height: 13),
+          if (authMode == AuthMode.signUp || authMode == AuthMode.reset)
+            TextFormField(
+              // initialValue: 'dont4getme',
+              focusNode: _confirmPasswordNode,
+              textInputAction: TextInputAction.done,
+              cursorColor: theme.primaryColorDark,
+              decoration: ChessTextField.inputDecoration(
+                labelText: 'confirm password',
+                theme: theme,
+              ),
+              style: theme.textTheme.bodyText1,
+              keyboardType: TextInputType.visiblePassword,
+              obscureText: true,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please provide a price';
+                }
+                return null;
+              },
+              onFieldSubmitted: (_) {
+                _saveForm(context);
+              },
+              onSaved: (value) {
+                _confirmPassword = value;
+              },
+            ),
+          SizedBox(height: 13),
+        ],
+      ),
+    );
+  }
+
+  Widget submitBar(ThemeData theme, Size size) {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FlatButton(
+            height: size.height * 0.5,
+            minWidth: size.width * 0.4,
+              color: theme.colorScheme.secondaryVariant.withOpacity(0.8),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(cornerRadius)),
+            child: Text(
+              'Submitt',
+              style: theme.primaryTextTheme.bodyText1,
+            ),
+            onPressed: () => _saveForm(context),
+          ),
+          if (authMode != AuthMode.reset)
+            FlatButton(
+              height: size.height * 0.5,
+              minWidth: size.width * 0.4,
+              color: theme.colorScheme.secondaryVariant.withOpacity(0.8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(cornerRadius)),
+              child: Text(
+                authMode == AuthMode.logIn ? 'Sign Up' : 'Log In',
+                style: theme.primaryTextTheme.bodyText1,
+              ),
+              onPressed: () => _switchAuthMode(authMode == AuthMode.logIn
+                  ? AuthMode.signUp
+                  : AuthMode.logIn),
+            ),
+        ],
       ),
     );
   }
@@ -272,48 +294,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-InputDecoration decoration(String text, theme) {
-  return InputDecoration(
-    hoverColor: theme.primaryColor,
-    focusColor: theme.focusColor,
-    counterStyle: theme.primaryTextTheme.bodyText1,
-    errorStyle: theme.primaryTextTheme.bodyText1,
-    helperStyle:theme.primaryTextTheme.bodyText1,
-    hintStyle: theme.primaryTextTheme.bodyText1,
-    labelStyle: theme.primaryTextTheme.bodyText1,
-    prefixStyle: theme.primaryTextTheme.bodyText1,
-    suffixStyle: theme.primaryTextTheme.bodyText1,
-    labelText: text,
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide:
-          BorderSide(style: BorderStyle.solid, color: theme.errorColor, width: 2),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide:
-          BorderSide(style: BorderStyle.solid, color: theme.errorColor , width: 1),
-    ),
-    disabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide:
-          BorderSide(style: BorderStyle.solid, color: theme.primaryColor, width: 1),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide:
-          BorderSide(style: BorderStyle.solid, color: theme.primaryColor, width: 0.7),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide:
-          BorderSide(style: BorderStyle.solid, color: theme.focusColor, width: 2),
-    ),
-  );
-}
-
 Widget _label(String text, Size size, ThemeData theme) {
   return Container(
+    width: size.width,
+    height: size.height,
     padding: EdgeInsets.symmetric(
       vertical: size.width * 0.05,
       horizontal: size.width * 0.2,
@@ -321,11 +305,22 @@ Widget _label(String text, Size size, ThemeData theme) {
     margin: EdgeInsets.all(30),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
-      color: theme.primaryColorDark,
+      gradient: RadialGradient(
+          colors: [
+            theme.colorScheme.secondary,
+            theme.colorScheme.secondaryVariant.withOpacity(0.8),
+          ],
+          focalRadius: 600,
+          center: Alignment.bottomLeft,
+          stops: [0,  300]),
+      color: theme.colorScheme.secondary,
+      boxShadow: [
+        BoxShadow(offset: Offset(5, 3), color: Colors.black26, blurRadius: 2)
+      ],
     ),
     child: Text(
       text,
-      style: theme.primaryTextTheme.headline1,
+      style: theme.textTheme.headline1.copyWith(color: Colors.white),
       textAlign: TextAlign.center,
     ),
   );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../helpers/constants.dart';
+import '../../helpers/constants.dart';
 
 class AcceptButton extends StatelessWidget {
   final Size size;

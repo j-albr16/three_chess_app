@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../helpers/constants.dart';
+import '../../helpers/constants.dart';
 
 class DeclineButton extends StatelessWidget {
   final Size size;

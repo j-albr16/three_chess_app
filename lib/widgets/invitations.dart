@@ -4,10 +4,10 @@ import '../providers/friends_provider.dart';
 import '../models/game.dart';
 
 class Invitations extends StatelessWidget {
-  List<Game> invitations;
-  Function acceptInvitation;
-  Function declineInvitation;
-  Size size;
+  final List<Game> invitations;
+  final Function acceptInvitation;
+  final Function declineInvitation;
+  final Size size;
 
   Invitations(
       {this.invitations,

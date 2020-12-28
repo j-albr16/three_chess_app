@@ -46,13 +46,14 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget homeScreenButtons(BuildContext context, Size size, ThemeData theme) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         gridButton(
           callback: () => Navigator.of(context).pushNamed(AuthScreen.routeName),
           theme: theme,
           size: Size(size.width * 0.3, size.height * 0.1),
-          title: 'Auth Screen',
+          title: 'Invitations',
         ),
         gridButton(
           callback: () => sendErrorReport(context),
@@ -67,9 +68,10 @@ class HomeScreen extends StatelessWidget {
   Widget gridButton(
       {String title, Function callback, ThemeData theme, Size size}) {
     return FlatButton(
+      padding: EdgeInsets.all(inMainBoxPadding),
       onPressed: callback,
       child: Text(title,
-          style: theme.textTheme.headline1
+          style: theme.textTheme.subtitle1
               .copyWith(color: theme.colorScheme.onSecondary)),
       height: size.height,
       minWidth: size.width,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
-import './message_count.dart';
-import '../widgets/text_field.dart';
+import 'basic/message_count.dart';
+import 'basic/text_field.dart';
 
 typedef void FriendDialog(FriendTileModel model);
 

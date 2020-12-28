@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 import '../helpers/constants.dart';
-import '../widgets/text_field.dart';
+import '../widgets/basic/text_field.dart';
 
 enum AuthMode { signUp, logIn, reset }
 

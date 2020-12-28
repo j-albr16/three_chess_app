@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/widgets/decline_button.dart';
+import 'package:three_chess/widgets/basic/decline_button.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 import '../models/enums.dart';

@@ -12,8 +12,8 @@ import '../screens/auth_test_screen.dart';
 import '../screens/lobby_screen.dart';
 import '../screens/game_provider_test_screen.dart';
 import '../helpers/constants.dart';
-import '../widgets/text_field.dart';
-import '../widgets/logo.dart';
+import '../widgets/basic/text_field.dart';
+import '../widgets/basic/logo.dart';
 import '../widgets/meta_data_count.dart';
 import '../providers/online_provider.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/slider.dart';
-import '../widgets/switch_row.dart';
-import '../widgets/buttonbar.dart';
+import 'basic/slider.dart';
+import 'basic/switch_row.dart';
+import 'basic/buttonbar.dart';
 import '../models/friend.dart';
 import '../models/game_opptions.dart';
 import './friend_popup.dart';

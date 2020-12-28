@@ -32,8 +32,8 @@ class _InvitationScreenState extends State<InvitationScreen> with notificationPo
         child: Consumer<FriendsProvider>(
           builder: (ctx, friendsProvider, __) => 
                    Invitations(
-            acceptInvitation: ,
-            declineInvitation: ,
+            // acceptInvitation: ,
+            // declineInvitation: ,
             invitations: [],
             size: size,
           ),

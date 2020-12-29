@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../helpers/constants.dart';
+import './basic/sorrounding_cart.dart';
 
 class Count extends StatelessWidget {
   final Size size;
@@ -13,18 +14,10 @@ class Count extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SorroundingCard(
       // height: size.height,
-      width: size.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(cornerRadius),
-        // boxShadow: [
-        //   BoxShadow(color: Colors.black38, offset: Offset(0, 2)),
-        // ],
-        border: Border.all(color: theme.colorScheme.onSurface, width: 2.4),
-      ),
-      padding: EdgeInsets.all(inMainBoxPadding),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
+      theme: theme,
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         infoKeys(),
         count(),
       ]),

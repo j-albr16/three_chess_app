@@ -9,6 +9,8 @@ import '../screens/main_page_viewer.dart';
 
 class InvitationScreen extends StatefulWidget {
 
+  static String routeName = '/invitation-screen';
+
   @override
   _InvitationScreenState createState() => _InvitationScreenState();
 }

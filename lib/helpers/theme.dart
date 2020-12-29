@@ -7,6 +7,7 @@ enum ChessColor {
   Orange,
   Red,
   Blue,
+  Blue300,
   Blue700,
   Grey,
   Black,
@@ -29,6 +30,7 @@ class ChessTheme with ChangeNotifier {
     ChessColor.Orange.index: Colors.orange,
     ChessColor.Red.index: Colors.red,
     ChessColor.Blue.index: Colors.blue,
+    ChessColor.Blue300.index: Colors.blue[300],
     ChessColor.Blue700.index: Colors.blue[700],
     ChessColor.Grey.index: Colors.grey,
     ChessColor.Black.index: Colors.black,
@@ -299,18 +301,18 @@ ColorScheme get colorScheme {
 
   static Map<String, int> lightColorScheme = {
     'brightness': Brightness.light.index,
-    'onPrimary': ChessColor.White.index, // Text on Primary
-    'onError': ChessColor.White.index,
-    'onBackground': ChessColor.Black.index,
-    'onSecondary': ChessColor.White.index,
-    'onSurface': ChessColor.Black.index,
-    'primaryVariant': ChessColor.Purple700.index,
-    'background': ChessColor.White.index,
-    'error': ChessColor.Red.index,
     'primary': ChessColor.Purple.index,
-    'secondary': ChessColor.Blue.index,
+    'onPrimary': ChessColor.White.index, // Text on Primary
+    'primaryVariant': ChessColor.Purple700.index,
+    'secondary': ChessColor.Blue300.index,
+    'onSecondary': ChessColor.White.index,
     'secondaryVariant': ChessColor.Blue700.index,
+    'error': ChessColor.Red.index,
+    'onError': ChessColor.White.index,
+    'background': ChessColor.White.index,
+    'onBackground': ChessColor.Black.index,
     'surface': ChessColor.White.index,
+    'onSurface': ChessColor.Black.index,
   };
 
   static Map<String, int> darkColorScheme = {
@@ -324,7 +326,7 @@ ColorScheme get colorScheme {
     'background': ChessColor.Black.index,
     'error': ChessColor.Red.index,
     'primary': ChessColor.Purple.index,
-    'secondary': ChessColor.Blue.index,
+    'secondary': ChessColor.Blue300.index,
     'secondaryVariant': ChessColor.Blue700.index,
     'surface': ChessColor.Black.index,
   };

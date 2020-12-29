@@ -20,9 +20,10 @@ class ChessTextField extends StatelessWidget {
   final bool obscuringText;
   final Function onSubmitted;
   final String hintText;
+  final bool expands;
 
   ChessTextField({
-    this.obscuringText,
+    this.obscuringText = false,
     this.textInputType,
     this.focusNode,
     this.hintText,
@@ -35,6 +36,7 @@ class ChessTextField extends StatelessWidget {
     this.maxLines,
     this.onSubmitted,
     this.size,
+    this.expands = false,
   });
 
   @override
@@ -42,7 +44,9 @@ class ChessTextField extends StatelessWidget {
     return Container(
       child: TextField(
         controller: controller,
+        textAlignVertical: TextAlignVertical.top,
         focusNode: focusNode,
+        expands: expands,
         onTap: () => focusNode.requestFocus(),
         keyboardType: textInputType,
         maxLines: maxLines,
@@ -91,7 +95,7 @@ class ChessTextField extends StatelessWidget {
       fillColor: theme.colorScheme.background.withOpacity(0.4),
       // Icon
       suffixIcon: icon,
-      contentPadding: EdgeInsets.all(3),
+      contentPadding: EdgeInsets.all(6),
       // bool
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.auto,

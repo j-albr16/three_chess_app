@@ -22,6 +22,7 @@ import './helpers/theme.dart';
 import './providers/server_provider.dart';
 import './providers/user_provider.dart';
 import './screens/main_page_viewer.dart';
+import './screens/invitation_screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -112,6 +113,7 @@ class ThreeChessApp extends StatelessWidget {
                     GameTestScreen.routeName: (ctx) => GameTestScreen(),
                     FriendsScreen.routeName: (ctx) => FriendsScreen(),
                     ChatScreen.routeName: (ctx) => ChatScreen(),
+                    InvitationScreen.routeName: (ctx) => InvitationScreen(),
                   },
                   // builder: (context, widget) => ResponsiveWrapper.builder(
                   //     BouncingScrollWrapper.builder(context, widget),

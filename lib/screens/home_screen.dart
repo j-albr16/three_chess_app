@@ -1,108 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'package:three_chess/providers/server_provider.dart';
+import 'package:three_chess/screens/invitation_screen.dart';
 import '../screens/friends_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/providers/auth_provider.dart';
 import 'package:three_chess/providers/game_provider.dart';
 
-import '../screens/board_screen.dart';
-import '../screens/design-test-screen.dart';
-import '../screens/auth_test_screen.dart';
-import '../screens/lobby_screen.dart';
-import '../screens/game_provider_test_screen.dart';
-import '../helpers/constants.dart';
-import '../widgets/basic/text_field.dart';
 import '../widgets/basic/logo.dart';
 import '../widgets/meta_data_count.dart';
 import '../providers/online_provider.dart';
+import '../widgets/report_error_dialog.dart';
+import '../widgets/homescreen_action_buttons.dart';
+import '../screens/auth_test_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            title(theme),
-            SizedBox(height: 15),
-            Logo(
-              size: Size(size.width * 0.7, size.height * 0.35),
-              imagePath: 'assets/logo.png',
-              theme: theme,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Home Screen'),
+        ),
+        body: SizedBox(
+          height: size.height,
+          width: size.width,
+          child: SingleChildScrollView(
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                title(theme),
+                // SizedBox(height: 7),
+                Divider(
+                  thickness: 2,
+                ),
+                // SizedBox(height: 7),
+                Logo(
+                  size: Size(size.width * 0.7, size.height * 0.35),
+                  imagePath: 'assets/logo.png',
+                  theme: theme,
+                ),
+                countWidget(Size(size.width * 0.7, size.height * 0.1), theme),
+                homeScreenButtons(size, theme, context),
+              ],
             ),
-            SizedBox(height: 15),
-            countWidget(Size(size.width * 0.7, size.height * 0.1), theme),
-            SizedBox(height : 15),
-            homeScreenButtons(context, Size(size.width * 0.8, size.height * 0.4), theme)
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget homeScreenButtons(BuildContext context, Size size, ThemeData theme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        gridButton(
-          callback: () => Navigator.of(context).pushNamed(AuthScreen.routeName),
-          theme: theme,
-          size: Size(size.width * 0.3, size.height * 0.1),
-          title: 'Invitations',
-        ),
-        gridButton(
-          callback: () => sendErrorReport(context),
-          theme: theme,
-          size: Size(size.width * 0.3, size.height * 0.1),
-          title: 'Report Error',
-        ),
-      ],
+  static Widget homeScreenButtons(
+      Size size, ThemeData theme, BuildContext context) {
+    final List<Map<String, dynamic>> buttonData = [
+      {
+        'callback': () =>
+            Navigator.of(context).pushNamed(InvitationScreen.routeName),
+        'title': 'Invitations',
+        'icon': Icons.gamepad,
+      },
+      {
+        'callback': () => Navigator.of(context).pushNamed(AuthScreen.routeName),
+        'title': 'Auth Screen',
+        'icon': Icons.person,
+      },
+      {
+        'callback': () => sendErrorReport(size, context, theme),
+        'title': 'Error Report',
+        'icon': Icons.error,
+      }
+    ];
+    return HomeScreenButtons(
+      buttonData: buttonData,
+      size: size,
+      theme: theme,
     );
   }
 
-  Widget gridButton(
-      {String title, Function callback, ThemeData theme, Size size}) {
-    return FlatButton(
-      padding: EdgeInsets.all(inMainBoxPadding),
-      onPressed: callback,
-      child: Text(title,
-          style: theme.textTheme.subtitle1
-              .copyWith(color: theme.colorScheme.onSecondary)),
-      height: size.height,
-      minWidth: size.width,
-      color: theme.colorScheme.secondary,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(cornerRadius))),
-    );
-  }
-
-  static sendErrorReport(BuildContext context) {
+  static sendErrorReport(Size size, BuildContext context, ThemeData theme) {
     return showDialog(
       context: context,
       builder: (context) {
-        TextEditingController controller = TextEditingController();
-        return AlertDialog(
-          content: ChessTextField(),
-          actions: [
-            FlatButton(
-                onPressed: () {
-                  controller.dispose();
-                  Navigator.of(context).pop();
-                },
-                child: Text('Cancel')),
-            FlatButton(
-                onPressed: () {
-                  Provider.of<ServerProvider>(context, listen: false)
-                      .sendErrorReport(controller.text);
-                  controller.dispose();
-                },
-                child: Text('Submitt'))
-          ],
+        print(size.height);
+        return ReportErrorDialog(
+          size: Size(size.width * 0.9, size.height * 0.9),
+          theme: theme,
         );
       },
     );

@@ -13,7 +13,6 @@ class Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SorroundingCard(
-      theme: theme,
       height: size.height,
       child: Image.asset(
         imagePath,

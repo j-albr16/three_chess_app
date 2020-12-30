@@ -444,6 +444,22 @@ class ServerProvider with ChangeNotifier {
     return data;
   }
 
+  Future<bool> declineInvitation(String  gameId, bool all) async {
+    final String url = SERVER_ADRESS + 'decline-invitation' + _authString;
+    final encodedResponse = await http.post(
+      url,
+      body: json.encode({
+        'gameIds': gameId,
+        'all': all,
+      }),
+      // setting json/application as Content header so Server exects JSON format body. CORS error willbe handled Serverside in req headers
+      headers: {'Content-Type': 'application/json'},
+    );
+    final data = json.decode(encodedResponse.body);
+    _validation(data);
+    return data['valid'];
+  }
+
   // Game Provider -----------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> createGame(
       {bool isPublic,

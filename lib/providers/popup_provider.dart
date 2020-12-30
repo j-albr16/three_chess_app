@@ -10,7 +10,7 @@ import '../models/game.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../models/player.dart';
-import '../widgets/invitations.dart';
+import '../widgets/invitations/invitations.dart';
 import './game_provider.dart';
 import '../models/user.dart';
 

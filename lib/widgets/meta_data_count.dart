@@ -16,7 +16,6 @@ class Count extends StatelessWidget {
   Widget build(BuildContext context) {
     return SorroundingCard(
       // height: size.height,
-      theme: theme,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         infoKeys(),
         count(),

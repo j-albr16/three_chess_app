@@ -197,6 +197,21 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 
+  Future<void> declineInvitation({String gameId, bool all = false}) async {
+    String message = 'Could decline Invitation(s)';
+    try{
+     final bool didDecline = await  _serverProvider.declineInvitation(gameId, all);
+     if(didDecline){
+       _invitations.removeWhere((invitation) => gameId.contains(invitation.id));
+       message = 'Invitation was declined';
+     }
+    }catch(error){
+      _serverProvider.handleError('Error While Declining Invitation', error);
+    }finally{
+      makeNewNotification(message);
+    }   
+  }
+
   void _handleGameInvitation(Map<String, dynamic> gameData) {
     print('Handling Game Invitation');
     _invitations.add(GameConversion.rebaseWholeGame(gameData));

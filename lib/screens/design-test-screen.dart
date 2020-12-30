@@ -9,7 +9,7 @@ import '../providers/game_provider.dart';
 
 import '../models/player.dart';
 import '../models/user.dart';
-import '../widgets/invitations.dart';
+import '../widgets/invitations/invitations.dart';
 import '../models/game.dart';
 import '../models/chess_move.dart';
 import '../widgets/end_game.dart';

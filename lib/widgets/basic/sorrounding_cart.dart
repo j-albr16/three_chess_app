@@ -5,8 +5,6 @@ import '../../helpers/constants.dart';
 class SorroundingCard extends StatelessWidget {
   @required
   final Widget child;
-  @required
-  final ThemeData theme;
 
   final double height;
   final double maxWidth;
@@ -16,27 +14,27 @@ class SorroundingCard extends StatelessWidget {
   final EdgeInsets margin;
   final AlignmentGeometry alignment;
 
-  Color get getColor{
-    if(color != null){
-      return color;
-    }
-    return theme.colorScheme.background;
-  }
-
   SorroundingCard({
     this.alignment = Alignment.center,
     this.child,
     this.color,
     this.maxWidth = 500,
     this.height,
-    this.margin = const EdgeInsets.symmetric(horizontal: mainBoxMargin, vertical: mainBoxMargin / 1.5),
+    this.margin = const EdgeInsets.symmetric(
+        horizontal: mainBoxMargin, vertical: mainBoxMargin / 1.5),
     this.padding = const EdgeInsets.all(mainBoxPadding),
-    this.theme,
     this.width = double.infinity,
   });
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    Color getColor;
+    if (color == null) {
+      getColor = theme.colorScheme.background;
+    } else {
+      getColor = color;
+    }
     return Container(
       alignment: alignment,
       width: width,

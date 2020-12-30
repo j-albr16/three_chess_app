@@ -19,7 +19,6 @@ class HomeScreenButtons extends StatelessWidget {
     return SorroundingCard(
       color: theme.colorScheme.secondary,
       child: homeScreenButtons(context, size, theme),
-      theme: theme,
     );
   }
 

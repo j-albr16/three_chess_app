@@ -208,13 +208,13 @@ class ChessTheme with ChangeNotifier {
     },
     'bodyText1': {
       'color': ChessColor.Black.index,
-      'fontSize': 16,
+      'fontSize': 14,
       'fontWeight': FontWeight.normal.index,
     },
     'bodyText2': {
       'color': ChessColor.Black.index,
-      'fontSize': 14,
-      'fontWeight': FontWeight.w500.index,
+      'fontSize': 15,
+      'fontWeight': FontWeight.w400.index,
     },
     'overline': {
       'color': ChessColor.Black.index,
@@ -255,8 +255,8 @@ class ChessTheme with ChangeNotifier {
     },
     'bodyText2': {
       'color': ChessColor.White.index,
-      'fontSize': 13,
-      'fontWeight': FontWeight.w500.index,
+      'fontSize': 15,
+      'fontWeight': FontWeight.w400.index,
     },
     'overline': {
       'color': ChessColor.White.index,

@@ -21,11 +21,13 @@ class ChessTextField extends StatelessWidget {
   final Function onSubmitted;
   final String hintText;
   final bool expands;
+  final Widget prefixIcon;
 
   ChessTextField({
     this.obscuringText = false,
     this.textInputType,
     this.focusNode,
+    this.prefixIcon,
     this.hintText,
     this.labelText,
     this.suffixIcon,
@@ -58,7 +60,8 @@ class ChessTextField extends StatelessWidget {
           errorText: errorText,
           hintText: hintText,
           helperText: helperText,
-          icon: suffixIcon,
+          suffixIcon: suffixIcon,
+          prefixIcon: prefixIcon,
           labelText: labelText,
           theme: theme,
         ),
@@ -77,7 +80,9 @@ class ChessTextField extends StatelessWidget {
       String errorText,
       String hintText,
       String labelText,
-      Widget icon}) {
+      Widget suffixIcon,
+      Widget prefixIcon,
+      }) {
     return InputDecoration(
       // Border
       errorBorder: border(theme.colorScheme.error, 2),
@@ -94,11 +99,12 @@ class ChessTextField extends StatelessWidget {
       focusColor: theme.colorScheme.primaryVariant.withOpacity(0.4),
       fillColor: theme.colorScheme.background.withOpacity(0.4),
       // Icon
-      suffixIcon: icon,
+      suffixIcon: suffixIcon,
       contentPadding: EdgeInsets.all(6),
       // bool
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.auto,
+      prefixIcon: prefixIcon,
     );
   }
 

@@ -281,6 +281,7 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+
   Future<void> requestSurrender() async {
     String message = 'Could not send Surrender Request';
     try {

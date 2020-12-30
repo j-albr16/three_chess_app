@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/screens/chat_screen.dart';
 import 'package:three_chess/screens/create_game_screen.dart';
-import 'package:three_chess/widgets/friend_list.dart';
+import 'package:three_chess/widgets/friends/friend_list.dart';
 
 import '../providers/chat_provider.dart';
 import '../screens/design-test-screen.dart';
 import '../widgets/create_game.dart';
 import '../models/friend.dart';
 import '../providers/friends_provider.dart';
+import '../widgets/friends/friend_tile.dart';
 
 enum FriendAction { Watch, Battle, Profile, Delete }
 
@@ -28,6 +29,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   FriendTileModel selectedPending;
   TextEditingController controller;
   FocusNode focusNode;
+  bool isSearchingFriend = false;
 
   @override
   void initState() {
@@ -225,6 +227,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 // pendingFriendTiles: sampleFriends,
                 pendingFriendTiles: pendingFriends ?? [],
                 onPendingSelect: switchSelectedPending,
+                isSearchingFriend: isSearchingFriend,
+                switchIsSearchingFriend: () {
+                  setState() {
+                    isSearchingFriend = !isSearchingFriend;
+                  }
+                },
                 controller: controller,
                 focusNode: focusNode,
                 size: MediaQuery.of(context).size,

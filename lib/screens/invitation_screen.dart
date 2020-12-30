@@ -42,6 +42,7 @@ class _InvitationScreenState extends State<InvitationScreen>
                       child: Column(
               children: [
                 InvitationHead(
+                  deleteAll: deleteAll,
                   cancelDeclineAll: () => setState(() {
                     deleteAll = false;
                   }),

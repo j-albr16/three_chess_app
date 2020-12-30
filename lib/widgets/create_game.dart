@@ -4,7 +4,7 @@ import 'basic/switch_row.dart';
 import 'basic/buttonbar.dart';
 import '../models/friend.dart';
 import '../models/game_opptions.dart';
-import './friend_popup.dart';
+import 'friends/friend_popup.dart';
 import '../models/user.dart';
 
 typedef CreateGameCallback(Options options);

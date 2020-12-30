@@ -37,8 +37,10 @@ class _ReportErrorDialogState extends State<ReportErrorDialog> {
   }
 
   void submit(String text, context) {
-    Provider.of<ServerProvider>(context, listen: false)
-        .sendErrorReport(controller.text);
+    if (!controller.text.isEmpty) {
+      Provider.of<ServerProvider>(context, listen: false)
+          .sendErrorReport(controller.text);
+    }
     focusNode.unfocus();
     Navigator.of(context).pop();
   }

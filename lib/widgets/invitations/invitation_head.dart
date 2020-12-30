@@ -11,9 +11,11 @@ class InvitationHead extends StatelessWidget {
   final Function cancelDeclineAll;
   final int invitationCount;
   final Size size;
+  final bool deleteAll;
 
   InvitationHead(
       {this.size,
+      this.deleteAll,
       this.declineAll,
       this.invitationCount,
       this.cancelDeclineAll,
@@ -35,7 +37,10 @@ class InvitationHead extends StatelessWidget {
           SizedBox(
             height: 5,
           ),
-          deleteButton(theme, Size(size.width * 0.9, size.height * 0.15))
+          if (!deleteAll)
+            deleteButton(theme, Size(size.width * 0.9, size.height * 0.15)),
+          if (deleteAll)
+            confirmDelete(theme, Size(size.width * 0.9, size.height * 0.15))
         ],
       ),
     );
@@ -55,20 +60,24 @@ class InvitationHead extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cornerRadius),
         ),
-        padding: EdgeInsets.all(mainBoxPadding));
+        // padding: EdgeInsets.all(mainBoxPadding)
+        );
   }
 
   Widget confirmDelete(ThemeData theme, Size size) {
-    Size buttonSize = Size(size.width * 0.3, size.height * 0.9);
+    Size buttonSize = Size(size.width * 0.45, size.height);
     return Container(
       height: size.height,
       width: size.width,
-      padding: EdgeInsets.all(mainBoxPadding),
+      margin: EdgeInsets.all(mainBoxMargin / 1.5),
+      // padding: EdgeInsets.all(mainBoxPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(cornerRadius),
-        color: Colors.red[900].withOpacity(0.1),
+        color: Colors.red[900].withOpacity(0.4),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           AcceptButton(
             onAccept: () => confirmDeclineAll(),

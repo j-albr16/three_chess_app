@@ -46,7 +46,7 @@ class ChessTextField extends StatelessWidget {
     return Container(
       child: TextField(
         controller: controller,
-        textAlignVertical: TextAlignVertical.top,
+        textAlignVertical: maxLines != 1 ? TextAlignVertical.top : TextAlignVertical.center,
         focusNode: focusNode,
         expands: expands,
         onTap: () => focusNode.requestFocus(),

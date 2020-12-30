@@ -11,7 +11,7 @@ import '../providers/server_provider.dart';
 import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
-import '../widgets/friend_list.dart';
+import '../widgets/friends/friend_list.dart';
 import './game_provider.dart';
 import 'package:provider/provider.dart';
 import '../models/enums.dart';

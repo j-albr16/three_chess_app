@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/helpers/constants.dart';
 
 import '../../providers/friends_provider.dart';
 import '../../models/game.dart';
 import '../basic/sorrounding_cart.dart';
+import '../basic/decline_button.dart';
+import '../basic/accept_button.dart';
 
 class Invitations extends StatelessWidget {
   final List<Game> invitations;
@@ -18,6 +21,7 @@ class Invitations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Container(
       height: size.height,
       width: size.width,
@@ -31,6 +35,7 @@ class Invitations extends StatelessWidget {
                 size: size,
                 game: invitation,
                 accept: (gameId) => acceptInvitation(gameId),
+                theme: theme,
                 decline: (gameId) => declineInvitation(gameId)))
             .toList(),
       ),
@@ -38,64 +43,86 @@ class Invitations extends StatelessWidget {
   }
 
   static Widget invitationTile(
-      {Size size, Game game, Function accept, Function decline}) {
+      {Size size,
+      Game game,
+      Function accept,
+      Function decline,
+      ThemeData theme}) {
     return SorroundingCard(
       child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(13),
-            child: Text(
-              'Game Invitation',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(13),
             child: gameInfos(
-                game.player[0].user.userName, game.time, game.increment),
+                userName: game.player[0].user.userName,
+                time: game.time,
+                increment: game.increment,
+                theme: theme,
+                isRated: game.isRated),
           ),
-          actionButtons(accept, decline, game.id),
+          actionButtons(
+            accept: accept,
+            decline: decline,
+            gameId: game.id,
+            size: Size(size.width, size.height * 0.2),
+            theme: theme,
+          ),
         ],
       ),
     );
   }
 
-  static Widget gameInfos(String userName, int time, int increment) {
+  static Widget gameInfos(
+      {String userName,
+      int time,
+      int increment,
+      bool isRated,
+      ThemeData theme}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text(userName),
-        SizedBox(
-          width: 4,
-        ),
-        Text(time.toString() + ' + ' + increment.toString()),
+        SizedBox(width: 4),
+        Text(userName,
+            style: theme.textTheme.bodyText2
+                .copyWith(fontWeight: FontWeight.w700)),
+        SizedBox(width: 30),
+        Text(isRated ? 'Rated' : 'Casual', style: theme.textTheme.bodyText2),
+        Text(time.toString() + ' + ' + increment.toString(),
+            style: theme.textTheme.bodyText2),
+        SizedBox(width: 4),
       ],
     );
   }
 
   static Widget actionButtons(
-      Function accept, Function decline, String gameId) {
+      {Function accept,
+      Function decline,
+      String gameId,
+      ThemeData theme,
+      Size size}) {
+    Size buttonSize = Size(size.width * 0.3, size.height * 0.45);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        FlatButton(
-          padding: EdgeInsets.all(15),
-          child: Text('Join'),
-          color: Colors.green,
-          onPressed: () => accept(gameId),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        AcceptButton(
+          child: Text(
+            'Join',
+            style: theme.textTheme.bodyText2
+                .copyWith(color: theme.colorScheme.onError),
+          ),
+          onAccept: () => accept(gameId),
+          size: buttonSize,
+          theme: theme,
         ),
-        SizedBox(
-          width: 4,
-        ),
-        FlatButton(
-          padding: EdgeInsets.all(15),
-          child: Text('Discard'),
-          color: Colors.red,
-          onPressed: () => decline(gameId),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        DeclineButton(
+          child: Text(
+            'Discard',
+            style: theme.textTheme.bodyText2
+                .copyWith(color: theme.colorScheme.onError),
+          ),
+          onDecline: () => decline(gameId),
+          size: buttonSize,
+          theme: theme,
         ),
       ],
     );

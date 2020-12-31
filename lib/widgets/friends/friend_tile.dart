@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../basic/message_count.dart';
+import '../../helpers/constants.dart';
 
 typedef void FriendDialog(FriendTileModel model);
 
@@ -50,42 +51,46 @@ class FriendTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: height,
-          margin: EdgeInsets.only(top: 5, bottom: 5),
-          child: Stack(
-            children: [
-              ListTile(
-                leading: FittedBox(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 2, bottom: 5),
-                    child: Row(
-                      children: [
-                        onlineIcon(model.isOnline),
-                        Container(width: 10, color: Colors.transparent),
-                        playingIcon(model.isPlaying),
-                        // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
-                      ],
-                    ),
-                  ),
-                ),
-                title: usernameText(model.username),
-                onTap: () => onTap(model),
-                onLongPress: () => onLongTap(model),
-                hoverColor: Colors.grey,
-              ),
-              if (model.newMessages > 0)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: MessageCount(model.newMessages),
-                )
-            ],
+    return FlatButton(
+      height: height,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cornerRadius)),
+      child: Container(
+      padding: EdgeInsets.all(mainBoxPadding),
+        margin: EdgeInsets.zero,
+        alignment: Alignment.topLeft,
+        decoration: BoxDecoration(
+          border: BorderDirectional(
+            bottom: BorderSide(width: 0.5, color: Colors.black26),
           ),
         ),
-        Divider(thickness: 1,)
-      ],
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  onlineIcon(model.isOnline),
+                  SizedBox(width: 10),
+                  playingIcon(model.isPlaying),
+
+                  // TODO for now just print out new Messages as Tetx WIdget.. Will be removed
+                ],
+              ),
+            ),
+            if (model.newMessages > 0)
+              Align(
+                alignment: Alignment.topRight,
+                child: MessageCount(model.newMessages),
+              ),
+            Center(child: usernameText(model.username)),
+          ],
+        ),
+      ),
+      onPressed: () => onTap(model),
+      onLongPress: () => onLongTap(model),
+      hoverColor: Colors.grey,
     );
   }
 }

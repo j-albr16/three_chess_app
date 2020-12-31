@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../basic/text_field.dart';
 import '../basic/sorrounding_cart.dart';
+import '../../helpers/constants.dart';
 
 typedef void AddFriend(String friendToAdd);
 
@@ -92,7 +93,9 @@ class AddFriendArea extends StatelessWidget {
       // decoration:
       // BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
       // child: isTyping ? textField() : button());
-      child: SorroundingCard(child: textField()),
+      child: SorroundingCard(
+        // padding: EdgeInsets.all(mainBoxPadding / 2),
+        child: textField()),
     );
   }
 }

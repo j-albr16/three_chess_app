@@ -16,7 +16,7 @@ class Logo extends StatelessWidget {
       height: size.height,
       child: Image.asset(
         imagePath,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
       ),
     );
   }

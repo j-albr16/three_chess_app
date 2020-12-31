@@ -39,7 +39,7 @@ class FriendList extends StatelessWidget {
       this.switchIsSearchingFriend,
       this.size,
       this.theme,
-      this.isSearchingFriend = false,
+      this.isSearchingFriend,
       this.onPendingReject,
       this.isPendingFriendsOpen,
       this.switchTyping,
@@ -83,6 +83,17 @@ class FriendList extends StatelessWidget {
               Expanded(child: friendList()),
               if (isPendingFriendsOpen) pendingFriendList(size.height * 0.3),
               friendActions(theme),
+              if (isSearchingFriend)
+                AddFriendArea(
+                  isTyping: isTyping,
+                  switchTyping: switchTyping,
+                  addFriend: addFriend,
+                  controller: controller,
+                  focusNode: focusNode,
+                  size: size,
+                  theme: theme,
+                ),
+                SizedBox(height: bottomGreyBarHeigth),
             ],
           ),
         ],
@@ -93,7 +104,7 @@ class FriendList extends StatelessWidget {
   Widget friendActionButton(
       {Function callback, ThemeData theme, String text, Icon icon}) {
     return FlatButton(
-      padding: EdgeInsets.symmetric(horizontal : mainBoxPadding, vertical: 0),
+      padding: EdgeInsets.symmetric(horizontal: mainBoxPadding, vertical: 0),
       color: theme.colorScheme.secondary,
       child: Stack(
         children: [
@@ -105,7 +116,7 @@ class FriendList extends StatelessWidget {
             child: Text(
               text,
               style: theme.textTheme.subtitle2
-                .copyWith(color: theme.colorScheme.onSecondary, fontSize: 17),
+                  .copyWith(color: theme.colorScheme.onSecondary, fontSize: 17),
             ),
           ),
         ],
@@ -132,7 +143,10 @@ class FriendList extends StatelessWidget {
             ),
           ),
           // SizedBox(height: 10),
-          Divider(color: theme.colorScheme.onSecondary, height: 1,),
+          Divider(
+            color: theme.colorScheme.onSecondary,
+            height: 1,
+          ),
           friendActionButton(
             callback: switchIsSearchingFriend,
             theme: theme,
@@ -142,16 +156,6 @@ class FriendList extends StatelessWidget {
               color: theme.colorScheme.onSecondary,
             ),
           ),
-          if (isSearchingFriend)
-            AddFriendArea(
-              isTyping: isTyping,
-              switchTyping: switchTyping,
-              addFriend: addFriend,
-              controller: controller,
-              focusNode: focusNode,
-              size: size,
-              theme: theme,
-            ),
         ],
       ),
     );
@@ -184,6 +188,7 @@ class FriendList extends StatelessWidget {
 
   Widget friendList() {
     return SorroundingCard(
+      padding: EdgeInsets.symmetric(vertical: 4),
       alignment: Alignment.topLeft,
       child: ListView(
         shrinkWrap: true,

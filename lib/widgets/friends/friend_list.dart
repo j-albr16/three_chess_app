@@ -15,10 +15,8 @@ class FriendList extends StatelessWidget {
   final FriendDialog onLongTap;
   final FriendDialog onTap;
   final AddFriend addFriend;
-  final bool isTyping;
-  final Function switchTyping;
-  final Function switchShowPending;
-  final bool isPendingFriendsOpen;
+  final Function switchBool;
+  final bool isPendingOpen;
   final FriendDialog onPendingAccept;
   final FriendDialog onPendingReject;
   final FriendTileModel selectedFriend;
@@ -27,23 +25,19 @@ class FriendList extends StatelessWidget {
   final Size size;
   final FocusNode focusNode;
   final bool isSearchingFriend;
-  final Function switchIsSearchingFriend;
 
   FriendList(
-      {this.switchShowPending,
+      {this.switchBool,
       this.onPendingSelect,
       this.controller,
       this.selectedFriend,
       this.onPendingAccept,
       this.focusNode,
-      this.switchIsSearchingFriend,
       this.size,
       this.theme,
       this.isSearchingFriend,
       this.onPendingReject,
-      this.isPendingFriendsOpen,
-      this.switchTyping,
-      this.isTyping,
+      this.isPendingOpen,
       this.addFriend,
       this.onLongTap,
       this.onTap,
@@ -56,7 +50,7 @@ class FriendList extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     _onPendingWrapper({Widget child}) {
-      return isPendingFriendsOpen
+      return isPendingOpen
           ? Align(
               alignment: Alignment.topCenter,
               child: child,
@@ -81,19 +75,18 @@ class FriendList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Expanded(child: friendList()),
-              if (isPendingFriendsOpen) pendingFriendList(size.height * 0.3),
+              if (isPendingOpen) pendingFriendList(size.height * 0.3),
               friendActions(theme),
               if (isSearchingFriend)
                 AddFriendArea(
-                  isTyping: isTyping,
-                  switchTyping: switchTyping,
+                  switchIsSearchingFriend:() =>  switchBool('isSearchingFriend'),
                   addFriend: addFriend,
                   controller: controller,
                   focusNode: focusNode,
                   size: size,
                   theme: theme,
                 ),
-                SizedBox(height: bottomGreyBarHeigth),
+              SizedBox(height: bottomGreyBarHeigth),
             ],
           ),
         ],
@@ -134,21 +127,23 @@ class FriendList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           friendActionButton(
-            callback: switchShowPending,
+            callback: () => switchBool('isPendingOpen'),
             theme: theme,
             text: 'Open Requests',
             icon: Icon(
-              isPendingFriendsOpen ? Icons.arrow_upward : Icons.arrow_downward,
+              isPendingOpen ? Icons.arrow_upward : Icons.arrow_downward,
               color: theme.colorScheme.onSecondary,
             ),
           ),
           // SizedBox(height: 10),
+          if(isSearchingFriend)
           Divider(
             color: theme.colorScheme.onSecondary,
             height: 1,
           ),
+          if(isSearchingFriend)
           friendActionButton(
-            callback: switchIsSearchingFriend,
+            callback: () => switchBool('isSearchingFriend'),
             theme: theme,
             text: 'Add a Friend',
             icon: Icon(

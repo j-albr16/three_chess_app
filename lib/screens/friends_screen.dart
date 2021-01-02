@@ -30,7 +30,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   FriendTileModel selectedPending;
   TextEditingController controller;
   FocusNode focusNode;
-  bool isSearchingFriend = false;
 
   @override
   void initState() {
@@ -45,9 +44,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
     focusNode.dispose();
     super.dispose();
   }
-
-  bool isTyping = false;
-  bool _isPendingOpen = false;
 
   Future<void> _friendPopUp(context, FriendTileModel model) async {
     switch (await showDialog<FriendAction>(
@@ -86,16 +82,28 @@ class _FriendsScreenState extends State<FriendsScreen> {
     });
   }
 
-  switchTyping() {
+  // Booleans
+
+  bool isSearchingFriend = false;
+  bool _isPendingOpen = false;
+  bool pendingSelected = false;
+
+  Map<String, bool> get switchBooleans {
+    return {
+      'isSearchingFriend': isSearchingFriend,
+      'isPendingOpen': _isPendingOpen,
+      'pendingSelected': pendingSelected,
+    };
+  }
+
+  void switchBool(String key) {
     setState(() {
-      isTyping = !isTyping;
+      switchBooleans[key] = !switchBooleans[key];
     });
   }
 
-  switchPending() {
-    setState(() {
-      _isPendingOpen = !_isPendingOpen;
-    });
+  void setBoolTo(String key, bool setTo) {
+    switchBooleans[key] = setTo;
   }
 
   void provideFriends() {
@@ -134,19 +142,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           focusNode.unfocus();
-          if (isTyping) {
-            switchTyping();
-          }
+          setBoolTo('isSearchingFriend', false);
         },
         child: Container(
           width: double.infinity,
           height: double.infinity,
           child: Center(
             child: FriendList(
-              isTyping: isTyping,
-              switchTyping: switchTyping,
               tileHeight: 40,
-              switchShowPending: switchPending,
+              switchBool: switchBool,
               addFriend: (toBeAddedUsername) =>
                   Provider.of<FriendsProvider>(context, listen: false)
                       .makeFriendRequest(toBeAddedUsername)
@@ -166,17 +170,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
               pendingFriendTiles: pendingFriends ?? [],
               onPendingSelect: switchSelectedPending,
               isSearchingFriend: isSearchingFriend,
-              switchIsSearchingFriend: () {
-                setState(() {
-                  isSearchingFriend = !isSearchingFriend;
-                });
-              },
               controller: controller,
               focusNode: focusNode,
               size: MediaQuery.of(context).size,
               theme: Theme.of(context),
               selectedFriend: selectedPending,
-              isPendingFriendsOpen: _isPendingOpen,
+              isPendingOpen: _isPendingOpen,
               onPendingAccept: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
                       .acceptFriend(model.userId)

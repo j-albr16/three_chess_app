@@ -78,7 +78,6 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-
       child: Provider.of<BoardStateManager>(context).gameType == null ? _buildChooseScreen() : _buildSelectedScreen(),
     );
   }

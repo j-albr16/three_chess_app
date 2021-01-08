@@ -7,8 +7,15 @@ class AcceptButton extends StatelessWidget {
   final Function onAccept;
   final ThemeData theme;
   final Widget child;
+  final EdgeInsets margin;
 
-  AcceptButton({this.child, this.theme, this.onAccept, this.size});
+  AcceptButton({
+    this.child,
+    this.theme,
+    this.margin,
+    this.onAccept,
+    this.size,
+  });
 
   Widget get getChild {
     if (child != null) {
@@ -27,6 +34,7 @@ class AcceptButton extends StatelessWidget {
       width: size.width,
       child: InkWell(
         child: Card(
+          margin: margin,
           color: Colors.green[600],
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(cornerRadius / 2)),

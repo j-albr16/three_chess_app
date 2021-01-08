@@ -43,9 +43,12 @@ class FriendTile extends StatelessWidget {
   }
 
   static Widget usernameText(String username) {
-    return Text(
-      username,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: EdgeInsets.all(4),
+      child: Text(
+        username,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 

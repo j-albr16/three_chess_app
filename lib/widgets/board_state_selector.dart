@@ -21,38 +21,37 @@ class BoardStateSelector extends StatelessWidget {
 
   final selectedColor = Colors.orange;
 
-
-
   BoardStateSelector(
-      {
-        this.controller,
-        this.selectOnlineGameCall,
-        this.gameTypeCall,
+      {this.controller,
+      this.selectOnlineGameCall,
+      this.gameTypeCall,
       this.currentGames = const [],
       this.selectedOnlineGame,
       this.width,
       this.height});
 
-  Widget _selectedGameTile(Game game){
+  Widget _selectedGameTile(Game game) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: selectedColor,
-          width: (height * (selectorHeightFraction - gameTileSquareFraction) * 0.9) * 1/2,
-        )
-      ),
+          border: Border.all(
+        color: selectedColor,
+        width:
+            (height * (selectorHeightFraction - gameTileSquareFraction) * 0.9) *
+                1 /
+                2,
+      )),
       child: _onlineGameTile(game),
     );
   }
 
-  Widget selectableTile(Widget child, int index){
+  Widget selectableTile(Widget child, int index) {
     return GestureDetector(
       onTap: selectOnlineGameCall(index),
       child: child,
     );
   }
 
-  Widget _onlineGameTile(Game game){
+  Widget _onlineGameTile(Game game) {
     return SizedBox(
       height: height * gameTileSquareFraction,
       width: height * gameTileSquareFraction,
@@ -61,14 +60,15 @@ class BoardStateSelector extends StatelessWidget {
           children: [
             Text("Time: ${game.time}"),
             Text("Increment: ${game.increment}"),
-            Text("It's ${playerColorString[PlayerColor.values[game.chessMoves.length%3]]}`s turn"),
+            Text(
+                "It's ${playerColorString[PlayerColor.values[game.chessMoves.length % 3]]}`s turn"),
           ],
         ),
       ),
     );
   }
 
-  Widget _onlineSelector(){
+  Widget _onlineSelector() {
     return Column(
       children: [
         Container(
@@ -76,54 +76,60 @@ class BoardStateSelector extends StatelessWidget {
             borderRadius: BorderRadius.circular(40.0),
             border: Border.all(
               color: Colors.black, //Theme Border color?
-          ),),
-            height: height * selectorHeightFraction,
-            width: width * selectorWidthFraction,
-            child: currentGames.length > 0 ? SingleChildScrollView(
-              controller: controller,
-              child: Column(
-                children: currentGames.map((game) {
-                  if(game == currentGames[selectedOnlineGame]){
-                    return _selectedGameTile(game);
-                  }
-                  return selectableTile(_onlineGameTile(game), currentGames.indexOf(game));
-                }).toList(),
-              ),
-            ) : Center(child: Text("No current Games, swipe left to join one in the lobby or go for local :D")),
+            ),
           ),
+          height: height * selectorHeightFraction,
+          width: width * selectorWidthFraction,
+          child: currentGames.length > 0
+              ? SingleChildScrollView(
+                  controller: controller,
+                  child: Column(
+                    children: currentGames.map((game) {
+                      if (game == currentGames[selectedOnlineGame]) {
+                        return _selectedGameTile(game);
+                      }
+                      return selectableTile(
+                          _onlineGameTile(game), currentGames.indexOf(game));
+                    }).toList(),
+                  ),
+                )
+              : Center(
+                  child: Text(
+                      "No current Games, swipe left to join one in the lobby or go for local :D")),
+        ),
         Container(
           padding: EdgeInsets.all(15),
           child: ElevatedButton(
             child: Text("OnlineGame"),
-            onPressed: () => gameTypeCall(GameType.Online), //TODO in the future there has to be the index taken in account (not here tho)
+            onPressed: () => gameTypeCall(GameType
+                .Online), //TODO in the future there has to be the index taken in account (not here tho)
           ),
         ),
       ],
     );
   }
 
-  Widget _offlineSelector(){
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ElevatedButton(
-            child: Text("Local Game"),
-            onPressed: () => gameTypeCall(GameType.Local),
-          ),
-          ElevatedButton(
-            child: Text("Analyze Game"),
-            onPressed: () => gameTypeCall(GameType.Analyze),
-          ),
-        ],
-      );
+  Widget _offlineSelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          child: Text("Local Game"),
+          onPressed: () => gameTypeCall(GameType.Local),
+        ),
+        ElevatedButton(
+          child: Text("Analyze Game"),
+          onPressed: () => gameTypeCall(GameType.Analyze),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: width,
-      child: Column(
+    return Scaffold(
+      appBar: AppBar(title: Text('Games')),
+      body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _onlineSelector(),

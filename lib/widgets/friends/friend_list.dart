@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'package:three_chess/helpers/constants.dart';
+import 'package:three_chess/screens/friends_screen.dart';
 import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 import './add_friend.dart';
 import './friend_tile.dart';
 import './pending_friend_tile.dart';
+
+typedef void SwitchBool(FriendBools friendBool);
 
 class FriendList extends StatelessWidget {
   final double width;
@@ -15,7 +18,7 @@ class FriendList extends StatelessWidget {
   final FriendDialog onLongTap;
   final FriendDialog onTap;
   final AddFriend addFriend;
-  final Function switchBool;
+  final SwitchBool switchBool;
   final bool isPendingOpen;
   final FriendDialog onPendingAccept;
   final FriendDialog onPendingReject;
@@ -25,11 +28,13 @@ class FriendList extends StatelessWidget {
   final Size size;
   final FocusNode focusNode;
   final bool isSearchingFriend;
+  final Function resetBool;
 
   FriendList(
       {this.switchBool,
       this.onPendingSelect,
       this.controller,
+      this.resetBool,
       this.selectedFriend,
       this.onPendingAccept,
       this.focusNode,
@@ -65,12 +70,6 @@ class FriendList extends StatelessWidget {
       width: width,
       child: Stack(
         children: [
-          // if (isPendingFriendsOpen)
-          //   Container(
-          //     width: double.infinity,
-          //     height: double.infinity,
-          //     color: Colors.grey,
-          //   ),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -79,7 +78,8 @@ class FriendList extends StatelessWidget {
               friendActions(theme),
               if (isSearchingFriend)
                 AddFriendArea(
-                  switchIsSearchingFriend:() =>  switchBool('isSearchingFriend'),
+                  switchIsSearchingFriend: () =>
+                      switchBool(FriendBools.IsSearchngFriend),
                   addFriend: addFriend,
                   controller: controller,
                   focusNode: focusNode,
@@ -127,7 +127,7 @@ class FriendList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           friendActionButton(
-            callback: () => switchBool('isPendingOpen'),
+            callback: () => switchBool(FriendBools.PendingOpen),
             theme: theme,
             text: 'Open Requests',
             icon: Icon(
@@ -136,68 +136,82 @@ class FriendList extends StatelessWidget {
             ),
           ),
           // SizedBox(height: 10),
-          if(isSearchingFriend)
-          Divider(
-            color: theme.colorScheme.onSecondary,
-            height: 1,
-          ),
-          if(isSearchingFriend)
-          friendActionButton(
-            callback: () => switchBool('isSearchingFriend'),
-            theme: theme,
-            text: 'Add a Friend',
-            icon: Icon(
-              Icons.search,
+          if (!isSearchingFriend)
+            Divider(
               color: theme.colorScheme.onSecondary,
+              height: 1,
             ),
-          ),
+          if (!isSearchingFriend)
+            friendActionButton(
+              callback: () => switchBool(FriendBools.IsSearchngFriend),
+              theme: theme,
+              text: 'Add a Friend',
+              icon: Icon(
+                Icons.search,
+                color: theme.colorScheme.onSecondary,
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget pendingFriendList(double height) {
-    return SorroundingCard(
-      alignment: Alignment.topLeft,
-      height: height,
-      child: ListView(
-        shrinkWrap: true,
-        children: pendingFriendTiles
-            .map((model) => Container(
-                  child: PendingFriendTile(
-                    isSelected: selectedFriend?.userId == (model?.userId ?? "")
-                        ? true
-                        : false,
-                    onSelected: onPendingSelect,
-                    model: model,
-                    onAccept: onPendingAccept,
-                    onReject: onPendingReject,
-                    height: tileHeight,
-                  ),
-                  constraints: BoxConstraints(maxWidth: width),
-                ))
-            .toList(),
+    return GestureDetector(
+      onTap: () {
+        onPendingSelect(null);
+        resetBool(FriendBools.IsSearchngFriend, false);
+      },
+      child: SorroundingCard(
+        alignment: Alignment.topLeft,
+        height: height,
+        child: ListView(
+          shrinkWrap: true,
+          children: pendingFriendTiles
+              .map((model) => Container(
+                    child: PendingFriendTile(
+                      isSelected:
+                          selectedFriend?.userId == (model?.userId ?? "")
+                              ? true
+                              : false,
+                      onSelected: onPendingSelect,
+                      model: model,
+                      onAccept: onPendingAccept,
+                      onReject: onPendingReject,
+                      height: tileHeight,
+                    ),
+                    constraints: BoxConstraints(maxWidth: width),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
 
   Widget friendList() {
-    return SorroundingCard(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      alignment: Alignment.topLeft,
-      child: ListView(
-        shrinkWrap: true,
-        children: friendTiles
-            .map((model) => Container(
-                  constraints: BoxConstraints(maxWidth: width),
-                  child: FriendTile(
-                    model: model,
-                    height: tileHeight,
-                    onTap: onTap,
-                    onLongTap: onLongTap,
-                  ),
-                ))
-            .toList(),
+    return GestureDetector(
+      onTap: () {
+        onPendingSelect(null);
+        resetBool(FriendBools.PendingOpen, false);
+        resetBool(FriendBools.IsSearchngFriend, false);
+      },
+      child: SorroundingCard(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        alignment: Alignment.topLeft,
+        child: ListView(
+          shrinkWrap: true,
+          children: friendTiles
+              .map((model) => Container(
+                    constraints: BoxConstraints(maxWidth: width),
+                    child: FriendTile(
+                      model: model,
+                      height: tileHeight,
+                      onTap: onTap,
+                      onLongTap: onLongTap,
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }

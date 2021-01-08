@@ -12,6 +12,7 @@ import '../providers/friends_provider.dart';
 import '../widgets/friends/friend_tile.dart';
 import '../widgets/friends/friend_action_popup.dart';
 
+enum FriendBools { PendingSelected, IsSearchngFriend, PendingOpen }
 enum FriendAction { Watch, Battle, Profile, Delete }
 
 class FriendsScreen extends StatefulWidget {
@@ -84,26 +85,21 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   // Booleans
 
-  bool isSearchingFriend = false;
-  bool _isPendingOpen = false;
-  bool pendingSelected = false;
+  Map<FriendBools, bool> switchBooleans = {
+    FriendBools.IsSearchngFriend: false,
+    FriendBools.PendingOpen: false,
+  };
 
-  Map<String, bool> get switchBooleans {
-    return {
-      'isSearchingFriend': isSearchingFriend,
-      'isPendingOpen': _isPendingOpen,
-      'pendingSelected': pendingSelected,
-    };
-  }
-
-  void switchBool(String key) {
+  void switchBool(FriendBools key) {
     setState(() {
       switchBooleans[key] = !switchBooleans[key];
     });
   }
 
-  void setBoolTo(String key, bool setTo) {
-    switchBooleans[key] = setTo;
+  void setBoolTo(FriendBools key, bool setTo) {
+    setState(() {
+      switchBooleans[key] = setTo;
+    });
   }
 
   void provideFriends() {
@@ -142,7 +138,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           focusNode.unfocus();
-          setBoolTo('isSearchingFriend', false);
+          setBoolTo(FriendBools.IsSearchngFriend, false);
         },
         child: Container(
           width: double.infinity,
@@ -168,14 +164,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
               friendTiles: friends ?? [],
               // pendingFriendTiles: sampleFriends,
               pendingFriendTiles: pendingFriends ?? [],
+              resetBool: setBoolTo,
               onPendingSelect: switchSelectedPending,
-              isSearchingFriend: isSearchingFriend,
+              isSearchingFriend: switchBooleans[FriendBools.IsSearchngFriend],
               controller: controller,
               focusNode: focusNode,
               size: MediaQuery.of(context).size,
               theme: Theme.of(context),
               selectedFriend: selectedPending,
-              isPendingOpen: _isPendingOpen,
+              isPendingOpen: switchBooleans[FriendBools.PendingOpen],
               onPendingAccept: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
                       .acceptFriend(model.userId)

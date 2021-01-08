@@ -57,7 +57,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: () => chatFocusNode.unfocus(),
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text('Chat'),
+        ),
         body: Center(
           child: wig.Chat(
             chat: chatProvider.chat,

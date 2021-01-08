@@ -38,7 +38,7 @@ class AcceptRequestType extends StatelessWidget {
             width: screenWidth * 0.3,
             child: Text(
               requestTypeInterface[requestType] + ' Request by $whosAsking',
-              style: theme.textTheme.bodyText2.copyWith(color: Colors.white),
+              style: theme.textTheme.bodyText2,
             ),
           ),
           Spacer(),

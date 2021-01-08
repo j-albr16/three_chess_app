@@ -58,11 +58,11 @@ class PendingRequest extends StatelessWidget {
           children: <Widget>[
             Text(
               requestTypeInterface[request.requestType] + ' requested',
-              style: theme.textTheme.bodyText2.copyWith(color: Colors.white),
+              style: theme.textTheme.bodyText2,
             ),
             Text(
               'Ends in $movesLeftToCancel move(s)',
-              style: theme.textTheme.bodyText2.copyWith(color: Colors.white),
+              style: theme.textTheme.bodyText2,
             ),
           ],
         ),

@@ -5,7 +5,6 @@ import '../../helpers/constants.dart';
 class SorroundingCard extends StatelessWidget {
   @required
   final Widget child;
-
   final double height;
   final double maxWidth;
   final double width;

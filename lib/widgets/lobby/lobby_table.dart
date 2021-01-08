@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:three_chess/providers/game_provider.dart';
 
-import '../models/game.dart';
+import '../../models/game.dart';
 
 typedef void GameSelectCall(Game game);
 
@@ -14,7 +14,7 @@ class LobbyTable extends StatefulWidget {
   final GameProvider gameProvider;
 
   final GameSelectCall onGameTap;
-  final List<ColumnType> selectedColumns;
+  final ColumnType selectedColumns;
 
 
   final double height;
@@ -26,7 +26,7 @@ class LobbyTable extends StatefulWidget {
   _LobbyTableState createState() => _LobbyTableState();
 }
 
-enum ColumnType {UserNames, UserName1, UserName2, AverageScore, Time, Mode, Fullness }
+enum ColumnType { UserName1, UserName2, AverageScore, Time, Mode, Fullness }
 typedef Widget ColumnCell(Game game);
 typedef int GameCompare(Game game, Game game2);
 
@@ -72,7 +72,7 @@ class _LobbyTableState extends State<LobbyTable> {
   void initState() {
     loadWidgets();
     _loadComparisons();
-    _selectedColoumn = List.from(widget.selectedColumns, growable: true) ?? List.from(ColumnType.values, growable: true);
+    _selectedColoumn = List.from(ColumnType.values, growable: true);
     _scrollController = ScrollController()..addListener(() => _scrollListener());
     onGameTap = widget.onGameTap;
     super.initState();
@@ -112,9 +112,6 @@ class _LobbyTableState extends State<LobbyTable> {
 
   void _loadComparisons() {
     gameComparison = {
-      ColumnType.UserNames: (Game game, Game game2) {
-        return 0;
-      },
       ColumnType.UserName1: (Game game, Game game2) {
         return game.player[0].user.userName.compareTo(game2.player[0].user.userName);
       },
@@ -203,7 +200,6 @@ class _LobbyTableState extends State<LobbyTable> {
   // v Code for Design
 
   Map<ColumnType, String> columnHeader = {
-    ColumnType.UserNames: "Players",
     ColumnType.UserName1: "Player 1",
     ColumnType.UserName2: "Player 2",
     ColumnType.AverageScore: "Avg. Score",
@@ -213,17 +209,16 @@ class _LobbyTableState extends State<LobbyTable> {
   };
 
   Map<ColumnType, double> columnFlex = {
-    ColumnType.UserNames:  4,
     ColumnType.UserName1: 1,
     ColumnType.UserName2: 1,
-    ColumnType.AverageScore: 3,
-    ColumnType.Time: 2,
+    ColumnType.AverageScore: 1,
+    ColumnType.Time: 1,
     ColumnType.Mode: 1,
     ColumnType.Fullness: 1,
   };
 
   Widget getHeader(ColumnType type) {
-    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16))); // TODO GestureDetector for sorting TODO I DONT THINK SO ANYMORE
+    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16))); // TODO GestureDetector for sorting
   }
 
   Widget orderColumn(ColumnType e) {
@@ -236,31 +231,6 @@ class _LobbyTableState extends State<LobbyTable> {
   Map<ColumnType, ColumnCell> columnWidget;
   void loadWidgets() {
     columnWidget = {
-      ColumnType.UserNames: (Game game) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(children: [
-            Spacer(),
-            Text(_user(0, game)),
-            Spacer(),
-            Align(
-              child: Text(_score(0, game)),
-              alignment: Alignment.centerRight,
-            ),
-            Spacer()
-          ]),
-          Row(children: [
-            Spacer(),
-            Text(_user(1, game)),
-            Spacer(),
-            Align(
-              child: Text(_score(1, game)),
-              alignment: Alignment.centerRight,
-            ),
-            Spacer()
-          ]),
-        ],
-      ),
       ColumnType.UserName1: (Game game) => Row(children: [
         Spacer(),
         Text(_user(0, game)),
@@ -290,7 +260,12 @@ class _LobbyTableState extends State<LobbyTable> {
               (game.time % 60).toString() +
               " + " +
               game.increment.toString())),
-      ColumnType.Mode: (Game game) => Center(child: Text(game.isRated ? "Rated" : "Unrated")),
+      ColumnType.Mode: (Game game) => Center(child: Column(
+        children: [
+          if(game.allowPremades)Icon(Icons.group_add, color: Colors.orange,),
+          Text(game.isRated ? "Rated" : "Unrated"),
+        ],
+      )),
       ColumnType.Fullness: (Game game) => Center(child: Text(game.player.length.toString() + "/3")),
     };
   }
@@ -323,7 +298,7 @@ class _LobbyTableState extends State<LobbyTable> {
           height: rowHeigth,
           width: getWidth(type),
           child: Padding(
-              padding: EdgeInsets.only(left: 5, right: 5),
+              padding: EdgeInsets.only(left: 15, right: 15),
               child: sortSelectedColumn != type
                   ? child
                   : Stack(

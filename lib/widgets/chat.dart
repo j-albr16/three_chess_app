@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 import '../providers/chat_provider.dart';
 import '../models/enums.dart';
@@ -10,14 +11,19 @@ import 'basic/text_field.dart';
 import '../providers/friends_provider.dart';
 import '../models/chat_model.dart' as mod;
 import '../screens/auth_test_screen.dart' as DEC;
+import '../helpers/constants.dart';
+
+typedef void SubmitMessage(String message);
 
 class Chat extends StatelessWidget {
   final Size size;
-  final Function submitMessage;
+  final SubmitMessage submitMessage;
   final mod.Chat chat;
   final bool lobbyChat;
   bool wasInit = false;
+  @required
   final ScrollController scrollController;
+  @required
   final TextEditingController chatController;
   final ThemeData theme;
   final bool maxScrollExtent;
@@ -33,12 +39,10 @@ class Chat extends StatelessWidget {
     this.submitMessage,
     this.chatController,
     this.scrollController,
-  }) {
-    // TODO Scroll Down
-  }
+  });
 
-  @override
-  Widget build(BuildContext context) {
+  void animateToBottom(BuildContext context) {
+    ///  Method to Animate to the Bottom of the Chat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (maxScrollExtent || wasInit == false) {
         scrollController.animateTo(scrollController.position.maxScrollExtent,
@@ -48,60 +52,56 @@ class Chat extends StatelessWidget {
             .resetNewMessages(chat.id);
       }
     });
-    return Container(
-      alignment: Alignment.center,
-      width: size.width,
-      height: size.height,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.black,
-          width: 3,
-          style: BorderStyle.solid,
-        ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Expanded(
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Expanded(
+            child: SorroundingCard(
+              padding: EdgeInsets.all(mainBoxPadding / 2),
               child: ListView.builder(
                 controller: scrollController,
                 physics: BouncingScrollPhysics(),
                 itemCount: chat.messages.length,
                 itemBuilder: (context, index) => chatObject(
-                    chat.messages[index].timeStamp,
-                    chat.messages[index].text,
-                    chat.messages[index].userName,
-                    chat.messages[index].owner),
+                    time: chat.messages[index].timeStamp,
+                    theme: Theme.of(context),
+                    text: chat.messages[index].text,
+                    userName: chat.messages[index].userName,
+                    owner: chat.messages[index].owner),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: textField(),
-            ),
-          ]),
-    );
+          ),
+          textField(),
+        ]);
   }
 
   Widget textField() {
-    return ChessTextField(
-      controller: chatController,
-      // errorText: 'invalid',
-      focusNode: chatFocusNode,
-      // hintText: 'message',
-      labelText: 'message',
-      maxLines: 1,
-      textInputType: TextInputType.text,
-      theme: theme,
-      obscuringText: false,
-      size: Size(size.height * 0.9, 50),
-      onSubmitted: (_) => submit(),
-      suffixIcon: IconButton(
-        padding: EdgeInsets.all(6),
-        onPressed: submit,
-        icon: Icon(
-          Icons.subdirectory_arrow_right_sharp,
-          color: Colors.black26,
+    return SorroundingCard(
+      padding: EdgeInsets.all(mainBoxPadding
+      ),
+      child: ChessTextField(
+        controller: chatController,
+        // errorText: 'invalid',
+        focusNode: chatFocusNode,
+        // hintText: 'message',
+        labelText: 'message',
+        maxLines: 1,
+        textInputType: TextInputType.text,
+        theme: theme,
+        obscuringText: false,
+        size: Size(size.width * 0.9, 50),
+        onSubmitted: (_) => submit(),
+        suffixIcon: IconButton(
+          padding: EdgeInsets.all(6),
+          onPressed: submit,
+          icon: Icon(
+            Icons.subdirectory_arrow_right_sharp,
+            color: Colors.black26,
+          ),
         ),
       ),
     );
@@ -116,73 +116,72 @@ class Chat extends StatelessWidget {
   }
 
   AlignmentGeometry getAlignment(MessageOwner owner) {
+    AlignmentGeometry align = Alignment.bottomRight;
     switch (owner) {
       case MessageOwner.You:
-        return Alignment.bottomRight;
+        align = Alignment.bottomRight;
         break;
       case MessageOwner.Mate:
-        return Alignment.bottomLeft;
+        align = Alignment.bottomLeft;
         break;
       case MessageOwner.Server:
-        return Alignment.bottomCenter;
+        align = Alignment.bottomCenter;
         break;
     }
+    return align;
   }
 
-  Widget chatObject(
-      DateTime time, String text, String userName, MessageOwner owner) {
+  Widget chatObjectWrapper({ThemeData theme, MessageOwner owner, Widget child}) {
     return Align(
       alignment: getAlignment(owner),
       child: Container(
-        margin: EdgeInsets.all(8),
-        padding: EdgeInsets.all(8),
-        constraints: BoxConstraints(maxWidth: size.width * 0.7),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.black54,
-        ),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (lobbyChat && owner == MessageOwner.You)
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                SizedBox(
-                  height: 4,
+          margin: EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
+          constraints: BoxConstraints(maxWidth: size.width * 0.7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: theme.colorScheme.onBackground.withOpacity(0.60),
+          ),
+          child: child),
+    );
+  }
+
+  Widget chatObject(
+      {DateTime time,
+      ThemeData theme,
+      String text,
+      String userName,
+      MessageOwner owner}) {
+    return chatObjectWrapper(
+      theme: theme,
+      owner: owner,
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (lobbyChat && owner != MessageOwner.You)
+                Text(
+                  userName,
+                  style: theme.textTheme.subtitle2.copyWith(fontSize: 14),
+                  textAlign: TextAlign.left,
                 ),
-                RichText(
-                  text: TextSpan(
-                    text: text,
-                    style: TextStyle(
-                      fontSize: owner != MessageOwner.Server ? 14 : 8,
-                      color: Colors.white70,
-                    ),
-                    children: [],
-                  ),
-                  // text,
-                ),
-              ]),
               SizedBox(
                 height: 4,
               ),
               Text(
-                DateFormat.Hm().format(time),
-                style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w300),
+                text,
+                style: theme.textTheme.bodyText2,
               ),
             ]),
-      ),
+            SizedBox(
+              height: 4,
+            ),
+            Text(
+              DateFormat.Hm().format(time),
+              style: theme.textTheme.overline.copyWith(color: theme.textTheme.subtitle2.color),
+            ),
+          ]),
     );
   }
 }

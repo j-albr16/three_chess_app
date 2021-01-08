@@ -83,12 +83,12 @@ class Invitations extends StatelessWidget {
       children: [
         SizedBox(width: 4),
         Text(userName,
-            style: theme.textTheme.bodyText2
+            style: theme.textTheme.bodyText1
                 .copyWith(fontWeight: FontWeight.w700)),
         SizedBox(width: 30),
-        Text(isRated ? 'Rated' : 'Casual', style: theme.textTheme.bodyText2),
+        Text(isRated ? 'Rated' : 'Casual', style: theme.textTheme.bodyText1),
         Text(time.toString() + ' + ' + increment.toString(),
-            style: theme.textTheme.bodyText2),
+            style: theme.textTheme.bodyText1),
         SizedBox(width: 4),
       ],
     );
@@ -107,7 +107,7 @@ class Invitations extends StatelessWidget {
         AcceptButton(
           child: Text(
             'Join',
-            style: theme.textTheme.bodyText2
+            style: theme.textTheme.bodyText1
                 .copyWith(color: theme.colorScheme.onError),
           ),
           onAccept: () => accept(gameId),
@@ -117,7 +117,7 @@ class Invitations extends StatelessWidget {
         DeclineButton(
           child: Text(
             'Discard',
-            style: theme.textTheme.bodyText2
+            style: theme.textTheme.bodyText1
                 .copyWith(color: theme.colorScheme.onError),
           ),
           onDecline: () => decline(gameId),

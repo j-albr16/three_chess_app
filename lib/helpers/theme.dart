@@ -183,11 +183,11 @@ class ChessTheme with ChangeNotifier {
   static Map<String, Map<String, int>> lightTextThemeData = {
     'headline1': {
       'color': ChessColor.Black.index,
-      'fontSize': 25,
+      'fontSize': 21,
       'fontWeight': FontWeight.bold.index,
     },
     'headline2': {
-      'color': ChessColor.Black.index,
+      'color': ChessColor.White.index,
       'fontSize': 21,
       'fontWeight': FontWeight.w800.index,
     },
@@ -199,12 +199,12 @@ class ChessTheme with ChangeNotifier {
     'subtitle1': {
       'color': ChessColor.Black.index,
       'fontSize': 18,
-      'fontWeight': FontWeight.normal.index,
+      'fontWeight': FontWeight.w500.index,
     },
     'subtitle2': {
-      'color': ChessColor.Black.index,
+      'color': ChessColor.White.index,
       'fontSize': 18,
-      'fontWeight': FontWeight.w800.index,
+      'fontWeight': FontWeight.w500.index,
     },
     'bodyText1': {
       'color': ChessColor.Black.index,
@@ -212,26 +212,26 @@ class ChessTheme with ChangeNotifier {
       'fontWeight': FontWeight.normal.index,
     },
     'bodyText2': {
-      'color': ChessColor.Black.index,
-      'fontSize': 15,
-      'fontWeight': FontWeight.w400.index,
+      'color': ChessColor.White.index,
+      'fontSize': 14,
+      'fontWeight': FontWeight.normal.index,
     },
     'overline': {
       'color': ChessColor.Black.index,
-      'fontSize': 6,
+      'fontSize': 8,
       'fontWeight': FontWeight.normal.index,
     },
   };
   static Map<String, Map<String, int>> darkTextThemeData = {
     'headline1': {
       'color': ChessColor.White.index,
-      'fontSize': 25,
+      'fontSize': 21,
       'fontWeight': FontWeight.bold.index,
     },
     'headline2': {
-      'color': ChessColor.White.index,
+      'color': ChessColor.Black.index,
       'fontSize': 21,
-      'fontWeight': FontWeight.w800.index,
+      'fontWeight': FontWeight.bold.index,
     },
     'caption': {
       'color': ChessColor.White.index,
@@ -241,12 +241,12 @@ class ChessTheme with ChangeNotifier {
     'subtitle1': {
       'color': ChessColor.White.index,
       'fontSize': 18,
-      'fontWeight': FontWeight.normal.index,
+      'fontWeight': FontWeight.w500.index,
     },
     'subtitle2': {
-      'color': ChessColor.White.index,
+      'color': ChessColor.Black.index,
       'fontSize': 18,
-      'fontWeight': FontWeight.w800.index,
+      'fontWeight': FontWeight.w500.index,
     },
     'bodyText1': {
       'color': ChessColor.White.index,
@@ -254,13 +254,13 @@ class ChessTheme with ChangeNotifier {
       'fontWeight': FontWeight.normal.index,
     },
     'bodyText2': {
-      'color': ChessColor.White.index,
-      'fontSize': 15,
-      'fontWeight': FontWeight.w400.index,
+      'color': ChessColor.Black.index,
+      'fontSize': 14,
+      'fontWeight': FontWeight.normal.index,
     },
     'overline': {
       'color': ChessColor.White.index,
-      'fontSize': 6,
+      'fontSize': 8,
       'fontWeight': FontWeight.normal.index,
     },
   };

@@ -7,9 +7,11 @@ class DeclineButton extends StatelessWidget {
   final Function onDecline;
   final ThemeData theme;
   final Widget child;
+  final EdgeInsets margin;
 
   DeclineButton({
     this.child,
+    this.margin,
     this.theme,
     this.onDecline,
     this.size,
@@ -21,7 +23,7 @@ class DeclineButton extends StatelessWidget {
 
     return Text(
       'X',
-      style: theme.textTheme.subtitle2.copyWith(
+      style: theme.textTheme.subtitle1.copyWith(
           color: Colors.white,
           shadows: [Shadow(offset: Offset(0, 2), color: Colors.black26)]),
     );
@@ -34,6 +36,7 @@ class DeclineButton extends StatelessWidget {
       width: size.width,
       child: InkWell(
         child: Card(
+          margin: margin,
           elevation: 4,
           // margin: EdgeInsets.all(5),
           shape: RoundedRectangleBorder(

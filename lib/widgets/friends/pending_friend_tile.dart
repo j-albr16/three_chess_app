@@ -50,7 +50,7 @@ class PendingFriendTile extends StatelessWidget {
                   child: FriendTile.usernameText(model.username)),
                 if (isSelected) Flexible(
                   flex: 3,
-                  child: confirmButtons(Size(screenWidth / 2,height), theme)),
+                  child: confirmButtons(Size(screenWidth / 2, 2 * height / 3), theme)),
               ],
             )),
         onPressed: () => onSelected(model),
@@ -67,12 +67,15 @@ class PendingFriendTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AcceptButton(
-            onAccept: onAccept,
+            margin: EdgeInsets.zero,
+            onAccept:() =>  onAccept(model),
             size: buttonSize,
             theme: theme,
           ),
+          SizedBox(width: 10),
           DeclineButton(
-            onDecline: onReject,
+            onDecline:() =>  onReject(model),
+            margin: EdgeInsets.zero,
             size: buttonSize,
             theme: theme,
           ),

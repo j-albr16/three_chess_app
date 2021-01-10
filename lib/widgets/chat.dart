@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 import '../providers/chat_provider.dart';
+import './basic/sorrounding_cart.dart';
 import '../models/enums.dart';
 import '../models/message.dart';
 import '../models/user.dart';
-import 'basic/text_field.dart';
+import './basic/text_field.dart';
 import '../providers/friends_provider.dart';
 import '../models/chat_model.dart' as mod;
 import '../screens/auth_test_screen.dart' as DEC;

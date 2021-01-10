@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
-import 'package:three_chess/helpers/constants.dart';
-import 'package:three_chess/screens/friends_screen.dart';
-import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
+
+import '../../helpers/constants.dart';
+import '../../screens/friends_screen.dart';
+import '../basic/sorrounding_cart.dart';
 import './add_friend.dart';
 import './friend_tile.dart';
 import './pending_friend_tile.dart';

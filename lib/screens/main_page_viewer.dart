@@ -1,12 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/helpers/convert_data_print.dart';
-import 'package:three_chess/providers/board_state_manager.dart';
-import 'package:three_chess/providers/friends_provider.dart';
-import 'package:three_chess/providers/game_provider.dart';
-import 'package:three_chess/providers/scroll_provider.dart';
-import 'package:three_chess/screens/board_screen.dart';
+
+import '../providers/board_state_manager.dart';
+import '../providers/friends_provider.dart';
+import '../providers/game_provider.dart';
+import '../providers/scroll_provider.dart';
+import '../screens/board_screen.dart';
 import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lobby_screen.dart';
@@ -15,8 +16,6 @@ import '../screens/screen_bone.dart';
 import '../providers/user_provider.dart';
 //
 
-import 'dart:math';
-import 'package:flutter/material.dart';
 
 class MainPageViewer extends StatefulWidget {
   static const routeName = '/main-page-viewer';

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/friends_provider.dart';
-import 'friend_list.dart';
 import '../../models/friend.dart';
 import './friend_tile.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/helpers/path_clipper.dart';
+
+import '../helpers/path_clipper.dart';
 
 enum Corner{ topLeft, topRight, bottomLeft, bottomRight}
 class CornerTile extends StatelessWidget {

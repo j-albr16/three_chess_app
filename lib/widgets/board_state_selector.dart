@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/models/enums.dart';
-import 'package:three_chess/models/game.dart';
-import 'package:three_chess/models/enums.dart';
+
+import '../models/enums.dart';
+import '../models/game.dart';
+import '../models/enums.dart';
 
 typedef GameTypeCall(GameType gameType);
 typedef OnlineGameSelect(int selectedGameIndex);

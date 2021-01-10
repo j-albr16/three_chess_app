@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
-import 'package:three_chess/models/chess_move.dart';
-import 'package:three_chess/providers/game_provider.dart';
-import 'package:three_chess/widgets/lobby/lobby_table_mobilefull.dart';
-import 'package:three_chess/models/game.dart';
-import 'package:three_chess/models/player.dart';
-import 'package:three_chess/models/user.dart';
-import 'package:three_chess/models/enums.dart';
+
+import '../providers/game_provider.dart';
+import '../widgets/lobby/lobby_table_mobilefull.dart';
 import '../widgets/lobby/lobby_actions.dart';
 
 import './create_game_screen.dart';

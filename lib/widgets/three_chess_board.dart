@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/board/Painter.dart';
-import 'package:three_chess/board/PieceMover.dart';
-import 'package:three_chess/board/ThinkingBoard.dart';
-import 'package:three_chess/board/TileSelect.dart';
-import 'package:three_chess/board/Tiles.dart';
-import 'package:three_chess/board/chess_move_info.dart';
-import 'package:three_chess/board/timeCounter.dart';
-import 'package:three_chess/models/chess_move.dart';
-import 'package:three_chess/models/enums.dart';
-import 'package:three_chess/models/game.dart';
-import 'package:three_chess/providers/board_state_manager.dart';
-import 'package:three_chess/providers/game_provider.dart';
-import 'package:three_chess/providers/scroll_provider.dart';
+
+import '../board/BoardState.dart';
+import '../board/Painter.dart';
+import '../board/ThinkingBoard.dart';
+import '../board/Tiles.dart';
+import '../board/timeCounter.dart';
+import '../models/chess_move.dart';
+import '../models/enums.dart';
+import '../providers/board_state_manager.dart';
+import '../providers/scroll_provider.dart';
 
 typedef Future<bool> ResponseMove(ChessMove chessMove);
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/widgets/basic/decline_button.dart';
 import 'package:relative_scale/relative_scale.dart';
 
+import './basic/decline_button.dart';
 import '../models/enums.dart';
 import '../models/request.dart';
 import '../helpers/constants.dart';

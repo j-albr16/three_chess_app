@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:relative_scale/relative_scale.dart';
-import 'package:three_chess/providers/server_provider.dart';
 import 'package:three_chess/screens/invitation_screen.dart';
-import '../screens/friends_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/providers/auth_provider.dart';
-import 'package:three_chess/providers/game_provider.dart';
 
 import '../widgets/basic/logo.dart';
 import '../widgets/meta_data_count.dart';

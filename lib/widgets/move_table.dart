@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/board/BoardState.dart';
 
+import '../board/BoardState.dart';
 import '../models/game.dart';
 import '../models/player.dart';
 import '../models/user.dart';

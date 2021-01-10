@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/invitations/invitations.dart';
 import '../screens/screen_bone.dart';
-import 'package:provider/provider.dart';
 import '../providers/friends_provider.dart';
 import '../providers/game_provider.dart';
-import '../screens/main_page_viewer.dart';
-import '../widgets/basic/sorrounding_cart.dart';
-import '../helpers/constants.dart';
 import '../widgets/invitations/invitation_head.dart';
 
 class InvitationScreen extends StatefulWidget {

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/screens/chat_screen.dart';
-import 'package:three_chess/screens/create_game_screen.dart';
-import 'package:three_chess/widgets/friends/friend_list.dart';
 
+import '../screens/chat_screen.dart';
+import '../screens/create_game_screen.dart';
+import '../widgets/friends/friend_list.dart';
 import '../providers/chat_provider.dart';
-import '../screens/design-test-screen.dart';
-import '../widgets/create_game.dart';
-import '../models/friend.dart';
 import '../providers/friends_provider.dart';
 import '../widgets/friends/friend_tile.dart';
 import '../widgets/friends/friend_action_popup.dart';

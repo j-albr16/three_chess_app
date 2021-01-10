@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:three_chess/providers/game_provider.dart';
+
+import '../../providers/game_provider.dart';
 
 import '../../models/game.dart';
 

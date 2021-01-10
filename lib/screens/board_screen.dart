@@ -1,27 +1,13 @@
-import 'dart:math';
-
+import 'package:relative_scale/relative_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/board/Tiles.dart';
-import 'package:three_chess/data/board_data.dart';
-import 'package:three_chess/models/enums.dart';
-import 'package:three_chess/models/game.dart';
-import 'package:three_chess/models/player.dart';
-import 'package:three_chess/models/request.dart';
-import 'package:three_chess/screens/board_subscreens/game_board_screen.dart';
-import 'package:three_chess/widgets/board_state_selector.dart';
-import '../models/enums.dart';
-import 'package:three_chess/providers/scroll_provider.dart';
-import 'package:three_chess/widgets/accept_table_action.dart';
-import 'package:three_chess/widgets/move_table.dart';
 
-import '../models/chess_move.dart';
-import '../widgets/board_boarding_widgets.dart';
+import '../models/enums.dart';
+import '../screens/board_subscreens/game_board_screen.dart';
+import '../widgets/board_state_selector.dart';
+import '../models/enums.dart';
+
 import '../providers/game_provider.dart';
-import '../widgets/three_chess_board.dart';
-import 'package:relative_scale/relative_scale.dart';
-import 'dart:math';
 
 import 'board_subscreens/game_board_subscreens/game_board_board_subscreen.dart';
 import 'board_subscreens/game_board_subscreens/game_chat_board_subscreen.dart';

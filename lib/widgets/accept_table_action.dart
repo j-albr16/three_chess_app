@@ -4,8 +4,8 @@ import 'package:relative_scale/relative_scale.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
-import 'basic/accept_button.dart' as aBtn;
-import 'basic/decline_button.dart' as dBtn;
+import './basic/accept_button.dart' as aBtn;
+import './basic/decline_button.dart' as dBtn;
 import '../models/request.dart';
 
 class AcceptRequestType extends StatelessWidget {

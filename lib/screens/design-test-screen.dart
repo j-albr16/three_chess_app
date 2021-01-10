@@ -1,24 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/models/chess_move.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:three_chess/models/enums.dart';
-import 'package:three_chess/models/piece.dart';
-import 'package:three_chess/models/user.dart';
 import 'package:provider/provider.dart';
-import '../providers/game_provider.dart';
 
-import '../models/player.dart';
-import '../models/user.dart';
-import '../widgets/invitations/invitations.dart';
-import '../models/game.dart';
 import '../models/chess_move.dart';
+import '../models/enums.dart';
+import '../providers/game_provider.dart';
 import '../widgets/end_game.dart';
-import '../widgets/move_table.dart';
-import '../providers/friends_provider.dart';
 import '../helpers/sound_player.dart';
-import '../widgets/chat.dart';
-import '../widgets/end_game.dart';
-import '../providers/popup_provider.dart';
 import '../screens/screen_bone.dart';
 
 class DesignTestScreen extends StatefulWidget {

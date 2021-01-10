@@ -1,6 +1,6 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+
 import '../helpers/path_clipper.dart';
 
 import 'enums.dart';

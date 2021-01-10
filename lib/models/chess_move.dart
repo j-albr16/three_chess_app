@@ -1,6 +1,3 @@
-import 'piece.dart';
-
-import 'enums.dart';
 
 enum MoveType { QueenSideRochade, KingSideRochade, Take }
 

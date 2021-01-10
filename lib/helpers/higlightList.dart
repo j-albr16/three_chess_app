@@ -1,4 +1,4 @@
-import 'package:collection/equality.dart';
+import 'package:collection/collection.dart';
 
 class HighlightList{ //TODO include whatsHit for cleaner code in threeChessBoard
   List<String> highlights;

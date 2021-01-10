@@ -1,11 +1,8 @@
-import '../models/tile.dart';
 
 import '../models/enums.dart';
 import '../models/piece.dart';
 import '../board/Tiles.dart';
-import '../board/BoardState.dart';
 import '../data/board_data.dart';
-import '../board/PieceMover.dart';
 import 'BoardStateBone.dart';
 
 class ThinkingBoard {

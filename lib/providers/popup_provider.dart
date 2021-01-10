@@ -3,16 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:three_chess/screens/board_screen.dart';
 
+
+import '../screens/board_screen.dart';
 import './friends_provider.dart';
 import '../models/game.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
-import '../models/player.dart';
 import '../widgets/invitations/invitations.dart';
 import './game_provider.dart';
-import '../models/user.dart';
 
 typedef PopUp(BuildContext context);
 

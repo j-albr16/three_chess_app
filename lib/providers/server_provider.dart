@@ -4,13 +4,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../data/server.dart';
-import '../providers/chat_provider.dart';
-import '../providers/friends_provider.dart';
-import '../providers/user_provider.dart';
 import '../models/chess_move.dart';
 import '../helpers/user_acc.dart';
 import '../models/user.dart';

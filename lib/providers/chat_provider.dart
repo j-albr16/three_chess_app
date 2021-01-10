@@ -1,20 +1,14 @@
-import 'dart:convert';
-import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:async';
+import 'package:provider/provider.dart';
+
+import 'package:flutter/material.dart';
 import 'package:three_chess/models/user.dart';
 
-import '../data/server.dart';
 import '../providers/server_provider.dart';
-import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
-import '../widgets/friends/friend_list.dart';
 import './game_provider.dart';
-import 'package:provider/provider.dart';
-import '../models/enums.dart';
 import '../conversion/chat_conversion.dart';
 
 class ChatProvider with ChangeNotifier {

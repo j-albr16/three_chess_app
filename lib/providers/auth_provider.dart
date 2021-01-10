@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../helpers/http_exception.dart';
+
 import '../data/server.dart';
 import '../helpers/webstorage.dart';
 

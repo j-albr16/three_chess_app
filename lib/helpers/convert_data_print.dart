@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:three_chess/data/board_data.dart';
-import 'package:three_chess/models/enums.dart';
+import '../data/board_data.dart';
+import '../models/enums.dart';
 
 class ConvertDataPrint {
   static printJSboardDataAj() {

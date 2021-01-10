@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:three_chess/board/ThinkingBoard.dart';
-import 'package:three_chess/data/board_data.dart';
+import 'package:collection/collection.dart';
+
+import 'ThinkingBoard.dart';
+import '../data/board_data.dart';
 
 import '../models/enums.dart';
 import '../models/piece.dart';
 import '../models/chess_move.dart';
-import 'package:collection/collection.dart';
 
-import 'PieceMover.dart';
 import 'Tiles.dart';
-import 'chess_move_info.dart';
+
+
 class BoardStateBone{
   Map<String, Piece> pieces;
   Map<PlayerColor, String> enpassent;

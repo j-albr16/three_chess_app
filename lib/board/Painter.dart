@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../models/piece.dart';
 import '../models/tile.dart';
-import '../helpers/path_clipper.dart';
 
 
 class BoardPainter extends StatelessWidget {

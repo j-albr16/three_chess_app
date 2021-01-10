@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/models/chess_move.dart';
-import 'package:three_chess/models/enums.dart';
+import '../board/BoardState.dart';
+import '../models/chess_move.dart';
+import '../models/enums.dart';
 
 import 'game_provider.dart';
 

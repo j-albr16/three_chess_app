@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import '../models/enums.dart';
 
 class BoardData {

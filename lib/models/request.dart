@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../models/enums.dart';
 
 class Request {

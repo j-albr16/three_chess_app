@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:provider/provider.dart';
-import 'package:three_chess/conversion/chat_conversion.dart';
-import '../models/friend.dart';
 import 'package:flutter/foundation.dart';
+
+import '../models/friend.dart';
 import '../models/game.dart';
 import '../providers/server_provider.dart';
-import '../models/user.dart';
 import '../conversion/game_conversion.dart';
 import '../providers/chat_provider.dart';
 import '../conversion/friend_conversion.dart';

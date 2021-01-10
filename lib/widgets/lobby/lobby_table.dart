@@ -218,7 +218,7 @@ class _LobbyTableState extends State<LobbyTable> {
   };
 
   Widget getHeader(ColumnType type) {
-    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16))); // TODO GestureDetector for sorting
+    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16)));
   }
 
   Widget orderColumn(ColumnType e) {

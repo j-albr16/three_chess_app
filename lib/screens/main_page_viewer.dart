@@ -28,8 +28,7 @@ class MainPageViewer extends StatefulWidget {
   State createState() => new MainPageViewerState();
 }
 
-class MainPageViewerState extends State<MainPageViewer>
-    with notificationPort<MainPageViewer> {
+class MainPageViewerState extends State<MainPageViewer> with notificationPort<MainPageViewer> {
   PageController _controller;
 
   static const _kDuration = const Duration(milliseconds: 300);
@@ -42,14 +41,12 @@ class MainPageViewerState extends State<MainPageViewer>
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
     Future.delayed(Duration.zero).then((_) {
-      GameProvider gameProvider =
-          Provider.of<GameProvider>(context, listen: false);
+      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
       gameProvider.fetchAll();
-      Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
-      Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
-      Provider.of<OnlineProvider>(context, listen: false);
-      Provider.of<UserProvider>(context, listen: false).fetchUser();
-      Provider.of<OnlineProvider>(context, listen: false).getCount();
+         Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
+         Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
+         Provider.of<OnlineProvider>(context, listen: false);
+         Provider.of<UserProvider>(context, listen: false).fetchUser();
     });
 
     //TODO REMOVE
@@ -63,7 +60,6 @@ class MainPageViewerState extends State<MainPageViewer>
   @override
   void dispose() {
     _controller.dispose();
-    Provider.of<OnlineProvider>(context, listen: false).stopCount();
     super.dispose();
   }
 
@@ -76,54 +72,50 @@ class MainPageViewerState extends State<MainPageViewer>
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal ||
-        Provider.of<ScrollProvider>(context).isMakeAMoveLock;
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
     return ChangeNotifierProxyProvider<GameProvider, BoardStateManager>(
-        create: (BuildContext context) => BoardStateManager(
-            Provider.of<GameProvider>(context, listen: false)),
-        update: (BuildContext context, GameProvider game,
-                BoardStateManager previousBoardStateManager) =>
-            previousBoardStateManager..update(game),
-        child: new Scaffold(
-          body: new IconTheme(
-            data: new IconThemeData(color: _kArrowColor),
-            child: new Stack(
-              children: <Widget>[
-                new PageView.builder(
-                  physics: !isLocked
-                      ? AlwaysScrollableScrollPhysics()
-                      : NeverScrollableScrollPhysics(),
-                  controller: _controller,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _pages[index % _pages.length];
-                  },
-                ),
-                new Positioned(
-                  bottom: 0.0,
-                  left: 0.0,
-                  right: 0.0,
-                  child: new Container(
-                    color: Colors.grey[800].withOpacity(0.4),
-                    padding: const EdgeInsets.all(5.0),
-                    child: new Center(
-                      child: new DotsIndicator(
-                        controller: _controller,
-                        itemCount: _pages.length,
-                        onPageSelected: (int page) {
-                          _controller.animateToPage(
-                            page,
-                            duration: _kDuration,
-                            curve: _kCurve,
-                          );
-                        },
-                      ),
-                    ),
+    create: (BuildContext context) => BoardStateManager(Provider.of<GameProvider>(context, listen: false)),
+    update: (BuildContext context, GameProvider game, BoardStateManager previousBoardStateManager) => previousBoardStateManager
+      ..update(game),
+    child: new Scaffold(
+      body: new IconTheme(
+        data: new IconThemeData(color: _kArrowColor),
+        child: new Stack(
+          children: <Widget>[
+            new PageView.builder(
+              physics:
+                  !isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
+              controller: _controller,
+              itemBuilder: (BuildContext context, int index) {
+                return _pages[index % _pages.length];
+              },
+            ),
+            new Positioned(
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: new Container(
+                color: Colors.grey[800].withOpacity(0.4),
+                padding: const EdgeInsets.all(5.0),
+                child: new Center(
+                  child: new DotsIndicator(
+                    controller: _controller,
+                    itemCount: _pages.length,
+                    onPageSelected: (int page) {
+                      _controller.animateToPage(
+                        page,
+                        duration: _kDuration,
+                        curve: _kCurve,
+                      );
+                    },
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    ),);
   }
 }
 
@@ -161,19 +153,13 @@ class DotsIndicator extends AnimatedWidget {
 
   Widget _buildDot(int index) {
     bool toLoop = false;
-    if (controller.page != null &&
-        controller.page.ceil() % itemCount == 0 &&
-        index == 0) {
+    if (controller.page != null && controller.page.ceil() % itemCount == 0 && index == 0) {
       toLoop = true;
     }
     double selectedness = Curves.easeOut.transform(
       max(
         0.0,
-        1.0 -
-            (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) %
-                        itemCount -
-                    (index + (toLoop ? 1 : 0)))
-                .abs(),
+        1.0 - (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) % itemCount - (index + (toLoop ? 1 : 0))).abs(),
       ),
     );
     double zoom = 1.0 + (_kMaxZoom - 1.0) * selectedness;

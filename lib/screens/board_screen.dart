@@ -9,7 +9,6 @@ import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
 import 'package:three_chess/models/request.dart';
-import 'package:three_chess/providers/board_state_manager.dart';
 import 'package:three_chess/screens/board_subscreens/game_board_screen.dart';
 import 'package:three_chess/widgets/board_state_selector.dart';
 import '../models/enums.dart';
@@ -41,21 +40,12 @@ class _BoardScreenState extends State<BoardScreen> {
   ScrollController controller;
   int indexOfOnlineGameSelection = 0;
 
-  @override
-  initState(){
-    super.initState();
-  }
+  _choseScreen(GameType gameType){
 
-  Function _chooseScreen(context){
-    return (GameType newGameType) {
-      setState(() {
-        Provider.of<BoardStateManager>(context, listen: false).gameType = newGameType;
-      });
-    };
   }
 
   _buildSelectedScreen(){
-    return GameBoardScreen();
+    return GameBoardScreen(gameType: chosenScreen); // MAYBE manage gameType diffrently
   }
 
   _buildChooseScreen(){
@@ -67,7 +57,7 @@ class _BoardScreenState extends State<BoardScreen> {
             width: screenWidth,
             height: screenHeight,
             currentGames: gameProvider.game != null ? [gameProvider.game] : [],
-            gameTypeCall: _chooseScreen(context),
+            gameTypeCall: _choseScreen,
             selectedOnlineGame: indexOfOnlineGameSelection,
             selectOnlineGameCall: (newIndex) => setState(() => indexOfOnlineGameSelection = newIndex),
           );
@@ -78,7 +68,8 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Provider.of<BoardStateManager>(context).gameType == null ? _buildChooseScreen() : _buildSelectedScreen(),
+
+      child: chosenScreen == null ? _buildChooseScreen() : _buildSelectedScreen(),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:three_chess/board/BoardState.dart';
-import 'package:three_chess/board/ThinkingBoard.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 
@@ -15,17 +14,7 @@ class BoardStateManager with ChangeNotifier{
   bool waitingForResponse = false;
   PlayerColor whoIsPlaying;
 
-  MapEntry<String, List<String>> _highlighted;
-
-  get highlighted {
-    return _highlighted;
-  }
-
-  set highlighted(newHighlighted){
-    _highlighted = newHighlighted;
-    print("someone set a new Highlight to me (boardStateManager");
-    notifyListeners();
-  }
+  MapEntry<String, List<String>> highlighted;
 
 
   set gameType(GameType newGameType){
@@ -81,7 +70,7 @@ class BoardStateManager with ChangeNotifier{
         int previousLength = boardState.chessMoves.length;
           boardState.transformTo(chessMoves);
           if(boardState.chessMoves.length != previousLength){
-            _highlighted = null;
+            highlighted = null;
 
           }
       }
@@ -112,10 +101,6 @@ class BoardStateManager with ChangeNotifier{
       }
       else if(gameType == GameType.Local){
         boardState.movePieceTo(start, end);
-
-        if(!ThinkingBoard.anyLegalMove(PlayerColor.values[boardState.chessMoves.length % 3], boardState)){
-          boardState.movePieceTo("", "");
-        }
       }
       notifyListeners();
     }

@@ -330,6 +330,20 @@ class ThinkingBoard {
     return result;
   }
 
+ static bool isOver({BoardStateBone boardState}){
+   int kingCount = 0;
+   for(Piece piece in boardState.pieces.values){
+     if(piece.pieceType == PieceType.King){
+       kingCount++;
+       if(kingCount == 3){
+         return false;
+       }
+     }
+   }
+   assert(kingCount != 3);
+   return true;
+ }
+
   static bool isTileCovered(
       {String toBeCheckedTile,
       PlayerColor requestingPlayer,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 typedef GameTypeCall(GameType gameType);
 typedef OnlineGameSelect(int selectedGameIndex);
@@ -21,25 +22,24 @@ class BoardStateSelector extends StatelessWidget {
 
   final selectedColor = Colors.orange;
 
-  BoardStateSelector(
-      {this.controller,
-      this.selectOnlineGameCall,
-      this.gameTypeCall,
-      this.currentGames = const [],
-      this.selectedOnlineGame,
-      this.width,
-      this.height});
+  BoardStateSelector({this.controller,
+    this.selectOnlineGameCall,
+    this.gameTypeCall,
+    this.currentGames = const [],
+    this.selectedOnlineGame,
+    this.width,
+    this.height});
 
   Widget _selectedGameTile(Game game) {
     return Container(
       decoration: BoxDecoration(
           border: Border.all(
-        color: selectedColor,
-        width:
+            color: selectedColor,
+            width:
             (height * (selectorHeightFraction - gameTileSquareFraction) * 0.9) *
                 1 /
                 2,
-      )),
+          )),
       child: _onlineGameTile(game),
     );
   }
@@ -51,18 +51,21 @@ class BoardStateSelector extends StatelessWidget {
     );
   }
 
-  Widget _onlineGameTile(Game game) {
-    return SizedBox(
-      height: height * gameTileSquareFraction,
-      width: height * gameTileSquareFraction,
+  Widget _gameLabel(Game game) {
+    return SorroundingCard(
+      maxWidth: 400,
       child: FittedBox(
-        child: Column(
-          children: [
-            Text("Time: ${game.time}"),
-            Text("Increment: ${game.increment}"),
-            Text(
-                "It's ${playerColorString[PlayerColor.values[game.chessMoves.length % 3]]}`s turn"),
-          ],
+        fit: BoxFit.cover,
+        child: Center(
+          child: Column(
+            children: [
+              Text("Time: ${game.time}"),
+              Text("Increment: ${game.increment}"),
+              Text(
+                  "It's ${playerColorString[PlayerColor.values[game.chessMoves
+                      .length % 3]]}`s turn"),
+            ],
+          ),
         ),
       ),
     );
@@ -82,27 +85,28 @@ class BoardStateSelector extends StatelessWidget {
           width: width * selectorWidthFraction,
           child: currentGames.length > 0
               ? SingleChildScrollView(
-                  controller: controller,
-                  child: Column(
-                    children: currentGames.map((game) {
-                      if (game == currentGames[selectedOnlineGame]) {
-                        return _selectedGameTile(game);
-                      }
-                      return selectableTile(
-                          _onlineGameTile(game), currentGames.indexOf(game));
-                    }).toList(),
-                  ),
-                )
+            controller: controller,
+            child: Column(
+              children: currentGames.map((game) {
+                if (game == currentGames[selectedOnlineGame]) {
+                  return _selectedGameTile(game);
+                }
+                return selectableTile(
+                    _onlineGameTile(game), currentGames.indexOf(game));
+              }).toList(),
+            ),
+          )
               : Center(
-                  child: Text(
-                      "No current Games, swipe left to join one in the lobby or go for local :D")),
+              child: Text(
+                  "No current Games, swipe left to join one in the lobby or go for local :D")),
         ),
         Container(
           padding: EdgeInsets.all(15),
           child: ElevatedButton(
             child: Text("OnlineGame"),
-            onPressed: () => gameTypeCall(GameType
-                .Online), //TODO in the future there has to be the index taken in account (not here tho)
+            onPressed: () =>
+                gameTypeCall(GameType
+                    .Online), //TODO in the future there has to be the index taken in account (not here tho)
           ),
         ),
       ],

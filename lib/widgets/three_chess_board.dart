@@ -11,6 +11,7 @@ import 'package:three_chess/board/timeCounter.dart';
 import 'package:three_chess/models/chess_move.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
+import 'package:three_chess/providers/board_state_manager.dart';
 import 'package:three_chess/providers/game_provider.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 
@@ -22,21 +23,16 @@ class ThreeChessBoard extends StatefulWidget {
   final TimeCounter timeCounter = TimeCounter(); //Not used yet
   final double height;
   final double width;
-  final ResponseMove sendMove;
-  final List<ChessMove> syncChessMoves;
   final PlayerColor whoIsPlaying;
   final ValueNotifier<bool> didStart;
-  final Listenable newMove;
   final BoardState boardStateListen;
 
   ThreeChessBoard(
-      {this.newMove,
+      {
         this.tileKeeper,
         this.boardState,
       this.height,
       this.width,
-      this.sendMove,
-      this.syncChessMoves,
       this.whoIsPlaying,
       this.didStart,
       this.boardStateListen});
@@ -47,14 +43,13 @@ class ThreeChessBoard extends StatefulWidget {
 
 class _ThreeChessBoardState extends State<ThreeChessBoard> {
   Tiles tileKeeper;
-  MapEntry<String, List<String>> highlighted;
   String draggedPiece;
   Offset dragOffset;
   Offset startingOffset;
   PlayerColor playingPlayer;
   bool somethingChangedWorkAround = true;
-  bool waitingForResponse = false;
   UniqueKey painterKey;
+  BoardStateManager boardStateManager;
 
   bool get myTurn {
     if (widget.whoIsPlaying == null) {
@@ -71,60 +66,39 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
   @override
   void initState() {
+    super.initState();
       playingPlayer = widget.whoIsPlaying;
       tileKeeper = widget.tileKeeper ?? Tiles();
-      widget.newMove?.addListener(() => updateGame());
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        updateGame();
+      Future.delayed(Duration.zero).then((value) {
+        boardStateManager = Provider.of<BoardStateManager>(context);
+        boardStateManager.addListener(() {
+          updateHighlight(boardStateManager.highlighted);
+        });
       });
+
       if (playingPlayer != null) {
         setState(() {
           widget.tileKeeper.rotateTilesTo(playingPlayer);
         });
       }
 
-    super.initState();
+
   }
 
-  void updateGame() {
-    //print("i update look the last move: " + game?.chessMoves?.last?.nextTile.toString());
-    if (!waitingForResponse) {
-      int previousLength = widget.boardState.chessMoves.length;
-      setState(() {
-        widget.boardState.transformTo(widget.syncChessMoves);
-        if(widget.boardState.chessMoves.length != previousLength){
-          highlighted = null; // THIS IS NOT NEEDED WHEN BOARDSTATE IS A CHANGENOTIFIER (or stateNotifier - riverpod) Maybe even but highlighted in boardState
-        if(widget.boardState.chessMoves.length > previousLength){
-          if(widget.boardState.infoChessMoves.last.specialMoves.contains(SpecialMove.CheckMate) && widget.boardState.infoChessMoves.last.targetedPlayer[SpecialMove.CheckMate].contains(widget.whoIsPlaying)){
-            if(widget.boardState.chessMoves.length%3 == widget?.whoIsPlaying?.index) {
-                _makeAMove("", "");
-              }
-            }
-        }
-        }
-      });
-    }
+  @override
+  void dispose(){
+
+    super.dispose();
   }
 
-  _makeAMove(String start, String whatsHit) {
-    widget.boardState.movePieceTo(start, whatsHit);
-
-    waitingForResponse = true;
-    widget.sendMove(widget.boardState.chessMoves.last).then((response) {
-      if (!response) {
-        widget.boardState.transformTo(widget.boardState.chessMoves
-            .sublist(0, widget.boardState.chessMoves.length - 1));
-      }
-      waitingForResponse = false;
-    });
-    // if(widget.whoIsPlaying == null && !ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
-    //   widget.boardState.movePieceTo("", "");
-    // }
+  void updateHighlight(MapEntry<String, List<String>> newHighlighted){
+    setState(() => widget.tileKeeper.highlightTiles(newHighlighted?.value));
   }
 
   String possibleDeselect; //This makes deselecting by clicking on the same piece again possible
 
   doHitDown(String whatsHit, details) {
+    MapEntry<String, List<String>> highlighted = boardStateManager.highlighted;
 
     _cleanDrag(){
       draggedPiece = null;
@@ -169,7 +143,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
           if(highlighted.value.contains(whatsHit)){
             //if whatsHit is highlighted
             if(myTurn){
-              _makeAMove(highlighted.key, whatsHit);
+              boardStateManager.clientMove(highlighted.key, whatsHit);
             }
            _cleanMove();
           }
@@ -191,6 +165,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   }
 
   doHitUp(String whatsHit) {
+    MapEntry<String, List<String>> highlighted = boardStateManager.highlighted;
+
     _cleanDrag(){
       draggedPiece = null;
       dragOffset = null;
@@ -207,13 +183,13 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
       if(highlighted != null){
         if(highlighted.value.contains(whatsHit)) {
           if (widget.whoIsPlaying == null) {
-            _makeAMove(highlighted.key, whatsHit);
+            boardStateManager.clientMove(highlighted.key, whatsHit);
             _cleanMove();
             //Make the move because only the turns pieces can drag
           } else { //if widget.whoIsPlaying != null
             //check weather its your turn
             if(myTurn){
-              _makeAMove(highlighted.key, whatsHit);
+              boardStateManager.clientMove(highlighted.key, whatsHit);
             }
             _cleanMove();
           }

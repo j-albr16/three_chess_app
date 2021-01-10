@@ -9,6 +9,8 @@ import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
 import 'package:three_chess/models/request.dart';
+import 'package:three_chess/screens/board_subscreens/game_board_screen.dart';
+import 'package:three_chess/widgets/board_state_selector.dart';
 import '../models/enums.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/widgets/accept_table_action.dart';
@@ -21,9 +23,9 @@ import '../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'dart:math';
 
-import 'board_subscreens/board_board_subscreen.dart';
-import 'board_subscreens/chat_board_subscreen.dart';
-import 'board_subscreens/table_board_subscreen.dart';
+import 'board_subscreens/game_board_subscreens/game_board_board_subscreen.dart';
+import 'board_subscreens/game_board_subscreens/game_chat_board_subscreen.dart';
+import 'board_subscreens/game_board_subscreens/game_table_board_subscreen.dart';
 
 
 class BoardScreen extends StatefulWidget {
@@ -34,201 +36,41 @@ class BoardScreen extends StatefulWidget {
 }
 
 class _BoardScreenState extends State<BoardScreen> {
-  ThreeChessBoard threeChessBoard;
+  GameType chosenScreen;
   ScrollController controller;
-  double iconBarFractionOfTable = 0.1;
-  double gameTableHeightFraction = 0.7;
-  double chatScreenHeight = 0;
-  double voteHeightFraction = 0.1;
-  GameProvider gameProvider;
-  Tiles tileKeeper;
+  int indexOfOnlineGameSelection = 0;
 
-  @override
-  void initState() {
-    controller = ScrollController();
-    tileKeeper = Tiles();
-    Future.delayed(Duration.zero).then((_) {
-      gameProvider = Provider.of(context, listen: false);
-    });
+  _choseScreen(GameType gameType){
 
-    // threeChessBoard = ThreeChessBoard(
-    //     boardState: BoardState.newGame(), height: 1000, width: 1000);
-    super.initState();
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  _buildSelectedScreen(){
+    return GameBoardScreen(gameType: chosenScreen); // MAYBE manage gameType diffrently
   }
 
-  
-  List<double> _sectionStarts(double screenHeight, int requestsLength){
-    double chatHeight = chatScreenHeight ?? screenHeight;
-    double requestsHeight = (screenHeight * voteHeightFraction) * requestsLength;
-
-    return [
-      0,
-      chatHeight,
-      chatHeight + requestsHeight + 30*(requestsHeight == 0 ? 0 : 1),
-      chatHeight + requestsHeight +(screenHeight * gameTableHeightFraction * iconBarFractionOfTable) + 30, // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
-    chatHeight + requestsHeight + (screenHeight*gameTableHeightFraction),
-    ];
+  _buildChooseScreen(){
+    return RelativeBuilder(
+        builder: (context, screenHeight, screenWidth, sy, sx) {
+          GameProvider gameProvider = Provider.of<GameProvider>(context);
+          return BoardStateSelector(
+            controller: controller,
+            width: screenWidth,
+            height: screenHeight,
+            currentGames: gameProvider.game != null ? [gameProvider.game] : [],
+            gameTypeCall: _choseScreen,
+            selectedOnlineGame: indexOfOnlineGameSelection,
+            selectOnlineGameCall: (newIndex) => setState(() => indexOfOnlineGameSelection = newIndex),
+          );
+        }
+    );
   }
-
-  List<Widget> _subScreens;
-  
-  _goToNearestSubScreen(double screenHeight, int requestsLength){
-    controller.animateTo(_sectionStarts(screenHeight, requestsLength)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight, requestsLength))],
-    curve: Curves.linear, duration: Duration(milliseconds: 200));
-      //curve: Curves.bounceIn, duration: Duration(milliseconds: 200
-  } //_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))]
-  
-  int _nearestIndexOf(double input, List<double> list){
-    assert (list != null && list.isNotEmpty);
-
-    double difference = (list[0] - input).abs();
-    int index = 0;
-   //print("input: $input");
-    for( int i = 1; i < list.length;i++){
-      if((list[i] - input).abs() < difference){
-        difference = (list[i]-input).abs();
-        index = i;
-      }
-    }
-    //print("index: $index");
-    return index;
-  }
-
-  bool _onEndNotification(ScrollEndNotification scrollNotification, double screenHeight, int requestsLength){
-    if(scrollNotification is ScrollEndNotification){
-      Future.delayed(Duration.zero).then((_) =>
-          _goToNearestSubScreen(screenHeight, requestsLength));
-      //print("i tried, this scroll just ended");
-    }
-    return true;
-  }
-
 
   @override
   Widget build(BuildContext context) {
+    return Container(
 
-    BoardState boardState = Provider.of<BoardState>(context, listen: false);
-    BoardState boardStateListen = Provider.of<BoardState>(context);
-
-
-    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
-
-    switchIsLocked(){
-      Provider.of<ScrollProvider>(context, listen: false).isLockedHorizontal = !isLocked;
-    }
-
-    double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
-
-
-Function getOnAccept(RequestType requestType){
-  Map<RequestType, Function> onAccept = {
-    RequestType.Surrender :() =>  gameProvider.acceptSurrender(),
-    RequestType.Remi : ()  => gameProvider.acceptRemi(),
-    RequestType.TakeBack : () => gameProvider.acceptTakeBack(),
-  };
-  return onAccept[requestType];
-}
-Function getOnDecline(RequestType requestType){
-  Map<RequestType, Function> onDecline= {
-    RequestType.Surrender : () => gameProvider.declineSurrender(),
-    RequestType.Remi : ()  => gameProvider.declineRemi(),
-    RequestType.TakeBack : ()  => gameProvider.declineTakeBack(),
-  };
-  return onDecline[requestType];
-}
-
-    Map<RequestType, Function> onRequest = {
-      RequestType.Surrender : () => gameProvider.requestSurrender(),
-      RequestType.Remi :() =>  gameProvider.requestRemi(),
-      RequestType.TakeBack :() =>  gameProvider.requestTakeBack(),
-    };
-
-    Map<RequestType, Function> onLocalRequest = {
-      RequestType.Surrender : () => boardState.newGame(), //TODO TESTING PHASE ONLY
-      RequestType.Remi :() => boardState.newGame(),  //TODO TESTING PHASE ONLY
-      RequestType.TakeBack :() {
-
-        if (boardState.chessMoves.length != null && boardState.chessMoves.length > 1) {
-          boardState.transformTo(boardState.chessMoves.sublist(0, boardState.chessMoves.length-1));
-        }},
-    };
-
-    return RelativeBuilder(
-      
-
-        builder: (context, screenHeight, screenWidth, sy, sx)
-      {
-        double usableHeight = screenHeight - unusableHeight;
-        List<Request> requests = []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
-
-        /* Example Request:
-
-        Request(
-          moveIndex: 0,
-          playerResponse: {
-            ResponseRole.Create: PlayerColor.black,
-            ResponseRole.Decline: null,
-            ResponseRole.Accept: null,
-          },
-          requestType: RequestType.Surrender,
-        )
-
-         */
-        List<Widget> votes = [];
-        requests.forEach((request) { votes.add(AcceptRequestType(
-          height: screenHeight * voteHeightFraction,
-          requestType: request.requestType,
-          whosAsking: request.playerResponse[ResponseRole.Create],
-          onAccept: () => getOnAccept(request.requestType),
-          onDecline: () => getOnDecline(request.requestType),
-          movesLeftToVote: 3-((boardState.chessMoves.length % 3 )- ((request.playerResponse[ResponseRole.Create].index + 2) % 3)).abs(),
-        ));});
-        bool isLocal = Provider.of<GameProvider>(context)?.game == null; // TODO FOR TESTING PHASE, Local should be decided not just on game == null
-        print(isLocal ? "This is Local" : "this is online (not local)");
-        _subScreens = [
-          ChatBoardSubScreen(
-              height: chatScreenHeight ?? screenHeight,),
-          BoardBoardSubScreen(
-            boardState: boardState,
-            boardStateListen: boardStateListen,
-          tileKeeper: tileKeeper,),
-          ...votes,
-          TableBoardSubScreen(
-            boardStateListen: boardStateListen,
-            controller: ScrollController(),
-            isLocal: isLocal,
-            onRequest:  !isLocal ? onRequest : onLocalRequest, // TODO FOR TESTING PHASE, Local should be decided not just on game == null
-            height: gameTableHeightFraction * screenHeight,
-              iconBarFraction: iconBarFractionOfTable),
-        ];
-
-        return Scaffold(
-            appBar: AppBar(
-              actions: [
-                IconButton(
-                icon: Icon(!isLocked ? Icons.lock_open : Icons.lock_clock),
-                onPressed: () => switchIsLocked(),),
-              ],
-            ),
-            body: NotificationListener<ScrollEndNotification>(
-              onNotification: (scrollNotification) => _onEndNotification(scrollNotification, screenHeight, requests.length),
-              child: SingleChildScrollView(
-                physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                controller: controller,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _subScreens,
-                ),
-              ),
-            ),
-          );},
+      child: chosenScreen == null ? _buildChooseScreen() : _buildSelectedScreen(),
     );
-        }
+  }
 }
 

@@ -9,33 +9,35 @@ import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
+import 'package:three_chess/providers/board_state_manager.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
-import '../../models/chess_move.dart';
-import '../../widgets/board_boarding_widgets.dart';
-import '../../providers/game_provider.dart';
-import '../../widgets/three_chess_board.dart';
+import '../../../models/chess_move.dart';
+import '../../../widgets/board_boarding_widgets.dart';
+import '../../../providers/game_provider.dart';
+import '../../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 class BoardBoardSubScreen extends StatefulWidget {
   final BoardState boardState;
   final BoardState boardStateListen;
   final Tiles tileKeeper;
+  final bool local;
 
-  BoardBoardSubScreen({this.boardState, this.tileKeeper, this.boardStateListen});
+  BoardBoardSubScreen({this.local, this.boardState, this.tileKeeper, this.boardStateListen});
 
   @override
   _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
 }
 
 class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
-  bool local = true;
+  bool local;
   ThreeChessBoard threeChessBoard;
 
   @override
   void initState(){
-
+    local  = widget.local;
     super.initState();
   }
 
@@ -74,18 +76,12 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
     GameProvider gameProviderListen =
     Provider.of<GameProvider>(context);
 
-    if(gameProviderListen.game != null) {
-      local = false;
-    }
 
     threeChessBoard = ThreeChessBoard(
       height: 500,
       width: 500,
       didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
-      sendMove: (ChessMove chessMove) => _sendMove(chessMove, gameProvider),
-      whoIsPlaying: local ? null : gameProviderListen.player.playerColor,
-      syncChessMoves: local ? null : gameProviderListen.game.chessMoves,
-      newMove: local ? null : gameProviderListen,
+      whoIsPlaying: Provider.of<BoardStateManager>(context).whoIsPlaying,
       tileKeeper: widget.tileKeeper,
       boardState: widget.boardState,
       boardStateListen: widget.boardStateListen,

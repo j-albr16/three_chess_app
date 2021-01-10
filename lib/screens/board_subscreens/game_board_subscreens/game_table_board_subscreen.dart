@@ -8,16 +8,16 @@ import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/game.dart';
 import 'package:three_chess/models/player.dart';
 import 'package:three_chess/providers/scroll_provider.dart';
-import 'package:three_chess/screens/board_subscreens/board_board_subscreen.dart';
-import 'package:three_chess/screens/board_subscreens/chat_board_subscreen.dart';
+import 'file:///G:/Programming/Github/three_chess_app_new_era/lib/screens/board_subscreens/game_board_subscreens/game_board_board_subscreen.dart';
+import 'file:///G:/Programming/Github/three_chess_app_new_era/lib/screens/board_subscreens/game_board_subscreens/game_chat_board_subscreen.dart';
 import 'package:three_chess/widgets/move_table.dart';
 
-import '../../models/chess_move.dart';
-import '../../widgets/board_boarding_widgets.dart';
-import '../../providers/game_provider.dart';
-import '../../widgets/three_chess_board.dart';
+import '../../../models/chess_move.dart';
+import '../../../widgets/board_boarding_widgets.dart';
+import '../../../providers/game_provider.dart';
+import '../../../widgets/three_chess_board.dart';
 import 'package:relative_scale/relative_scale.dart';
-import '../../providers/game_provider.dart';
+import '../../../providers/game_provider.dart';
 
 class TableBoardSubScreen extends StatefulWidget {
   final BoardState boardStateListen;

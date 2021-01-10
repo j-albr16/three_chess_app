@@ -41,30 +41,17 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
     super.initState();
   }
 
-  _moveLeft(){
-
-        widget.boardState.selectedMove -= 1;
+  _moveLeft(context){
+    BoardStateManager boardStateManager = Provider.of<BoardStateManager>(context, listen: false);
+    boardStateManager.setSelectedMove(boardStateManager.boardState.selectedMove --);
   }
 
-  _moveRight(){
-      widget.boardState.selectedMove += 1;
+  _moveRight(context){
+    BoardStateManager boardStateManager = Provider.of<BoardStateManager>(context, listen: false);
+    boardStateManager.setSelectedMove(boardStateManager.boardState.selectedMove ++);
 
   }
 
-  Future<bool>_sendMove(ChessMove chessMove, GameProvider gameProvider){
-    if(local){
-      return Future.delayed(Duration.zero).then((_) {
-        if(!ThinkingBoard.anyLegalMove(PlayerColor.values[widget.boardState.chessMoves.length % 3], widget.boardState)){
-
-          print("No Move detechted in movePieceTo");
-            widget.boardStateListen.movePieceTo("", "");
-        }
-
-          return true;
-      });
-    }
-    return gameProvider.sendMove(chessMove);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +127,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                             children: [
                               Align(
                                 alignment: Alignment.bottomLeft,
-                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveLeft(), borderWidth: 2, icon:
+                                child: ActionTile(isCornerLeft: true, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveLeft(context), borderWidth: 2, icon:
                                 Container(
                                     alignment: Alignment.bottomLeft,
                                     padding: EdgeInsets.only( bottom:10),
@@ -149,7 +136,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                               Expanded(child: Container(color: Colors.transparent,)),
                               Align(
                                 alignment: Alignment.bottomRight,
-                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(), borderWidth: 2, icon: Container(
+                                child: ActionTile(isCornerLeft: false, cutOfLength: 10, startY: (usableHeight / 2) * 0.8, onTap: () => _moveRight(context), borderWidth: 2, icon: Container(
                                     alignment: Alignment.bottomRight,
                                     padding: EdgeInsets.only(bottom:10),
                                     child: FittedBox(child: Icon(Icons.arrow_right, size: 1000,))),),

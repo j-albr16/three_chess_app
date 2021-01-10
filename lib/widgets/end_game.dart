@@ -7,25 +7,26 @@ import '../models/enums.dart';
 
 class EndGameAlertDialog extends StatelessWidget {
   Size size;
-  Game game;
   Player you;
+  Map finishedGameData;
+  List<Player> player;
 
   Function rematch;
   Function leave;
   Function inspect;
 
   EndGameAlertDialog(
-      {this.size, this.game, this.you, this.inspect, this.leave, this.rematch});
+      {this.size, this.finishedGameData, this.player, this.you, this.inspect, this.leave, this.rematch});
 
   String get title {
-    if (game.finishedGameData['winner'] == you.playerColor) {
+    if (finishedGameData['winner'] == you.playerColor) {
       return 'You Won';
     }
     return 'You Lost';
   }
 
   String get winType {
-    switch (game.finishedGameData['howGameEnded']) {
+    switch (finishedGameData['howGameEnded']) {
       case HowGameEnded.CheckMate:
         return 'CheckMate';
       case HowGameEnded.Leave:
@@ -39,6 +40,8 @@ class EndGameAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(finishedGameData);
+    print(you);
     return AlertDialog(
       title: Text(title),
       titlePadding: EdgeInsets.all(7),
@@ -57,10 +60,10 @@ class EndGameAlertDialog extends StatelessWidget {
             Text('Win Type :  ' + winType),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: game.player.map((player) => updatedPlayerTile(
+              children:player.map((player) => updatedPlayerTile(
                   player.user.userName,
                   player.user.score,
-                  game.finishedGameData[player.playerColor])),
+                  finishedGameData[player.playerColor])).toList(),
             ),
           ],
         ),

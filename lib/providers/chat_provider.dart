@@ -11,7 +11,9 @@ import '../providers/server_provider.dart';
 import '../models/message.dart';
 import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
-import '../widgets/friend_list.dart';
+import '../widgets/friends/friend_list.dart';
+import './game_provider.dart';
+import 'package:provider/provider.dart';
 import '../models/enums.dart';
 import '../conversion/chat_conversion.dart';
 
@@ -39,6 +41,9 @@ class ChatProvider with ChangeNotifier {
   }
 
   Chat get chat {
+    if (_currentChatIndex == null) {
+      return new Chat();
+    }
     if (_chats[_currentChatIndex] == null) {
       // TODO
       return new Chat();
@@ -59,19 +64,20 @@ class ChatProvider with ChangeNotifier {
     gameInvitationCallback,
   }) {
     _serverProvider.subscribeToAuthUserChannel(
-      friendRemovedCallback: (String userId,String message) => friendRemovedCallback(userId, message),
+      friendRemovedCallback: (String userId, String message) =>
+          friendRemovedCallback(userId, message),
       friendDeclinedCallback: (message) => friendDeclinedCallback(message),
       friendAcceptedCallback: (data) => friendAcceptedCallback(data),
       friendRequestCallback: (friendData, message) =>
           friendRequestCallback(friendData, message),
-          friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
-          friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
-          friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
-          friendIsNotPlayingCallback: (userId) => friendIsNotPlayingCallback(userId),
+      friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
+      friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
+      friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
+      friendIsNotPlayingCallback: (userId) =>
+          friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
-          gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
-
+      gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
     );
   }
 
@@ -88,7 +94,8 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChat({String id, bool isGameChat}) async {
+  Future<void> fetchChat(
+      {String id, bool isGameChat, BuildContext context}) async {
     // either receive userId or gameId...
     try {
       // http request
@@ -98,6 +105,9 @@ class ChatProvider with ChangeNotifier {
       _chats.add(ChatConversion.convertChat(data, _userId));
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
+      if (isGameChat) {
+        Provider.of<GameProvider>(context, listen: false).setChatId(chat.id);
+      }
       print("next up fetch print:");
       ChatConversion.printWholeChat(chat);
       print(_chats);
@@ -106,18 +116,42 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectChatRoom(String id, {bool isGameChat = false}) async {
+  Future<void> getMoreMessages(Chat chat) async {
+    try {
+      final Map<String, dynamic> data =
+          await _serverProvider.getMoreMessages(chat.id, chat.messages.length);
+      data['messages'].forEach((message) {
+        User owner =
+            chat.user.firstWhere((user) => user.id == message['userId']);
+        _chats[_currentChatIndex].messages.add(ChatConversion.rebaseOneMessage(
+            message, _userId,
+            userName: owner.userName));
+      });
+      notifyListeners();
+    } catch (error) {
+      _serverProvider.handleError('Error While getting more Messages', error);
+    }
+  }
+
+  Future<void> selectChatRoom(
+      {String id = '', bool isGameChat = false, BuildContext context}) async {
     int index = _chats.indexWhere((chat) =>
-        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null);
+        chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null ||
+        chat.id == id);
     if (index == -1) {
-      return await fetchChat(
+      await fetchChat(
         id: id,
         isGameChat: isGameChat,
+        context: context,
       );
+      if (!isGameChat) {
+        return notifyListeners();
+      }
+      return;
     } else {
       _currentChatIndex = index;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   void _handleMessageData(Map<String, dynamic> messageData,
@@ -131,11 +165,10 @@ class ChatProvider with ChangeNotifier {
       increaseNewMessageCounterCallback(messageData['userId']);
     }
     if (chatIndex != -1) {
-      _chats[chatIndex].messages.add(ChatConversion.rebaseOneMessage(messageData, _userId));
+      _chats[chatIndex]
+          .messages
+          .add(ChatConversion.rebaseOneMessage(messageData, _userId));
     }
     notifyListeners();
   }
-
 }
-
-

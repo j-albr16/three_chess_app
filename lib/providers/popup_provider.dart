@@ -10,7 +10,7 @@ import '../models/game.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../models/player.dart';
-import '../widgets/invitations.dart';
+import '../widgets/invitations/invitations.dart';
 import './game_provider.dart';
 import '../models/user.dart';
 
@@ -43,6 +43,11 @@ class PopupProvider with ChangeNotifier {
       _friendsProvider.newInvitation = false;
       makeInvitationPopup(_friendsProvider.invitations.last);
       notifyListeners();
+    } else if (_gameProvider.hasMessage) {
+      makeSnackBar(_gameProvider.popUpMessage);
+      _gameProvider.hasMessage = false;
+      _gameProvider.popUpMessage = null;
+      notifyListeners();
     } else if (_friendsProvider.newNotification) {
       makeSnackBar(_friendsProvider.notification);
       _friendsProvider.notification = null;
@@ -65,7 +70,8 @@ class PopupProvider with ChangeNotifier {
         builder: (context) {
           Size size = MediaQuery.of(context).size;
           return EndGameAlertDialog(
-            game: gameProvider.game,
+            finishedGameData: _gameProvider.game.finishedGameData,
+            player: _gameProvider.game.player,
             inspect: () {},
             leave: () {
               gameProvider.removeGame();
@@ -104,7 +110,7 @@ class PopupProvider with ChangeNotifier {
             return invitationDialog(game, size, context);
           },
         );
-    // Sounds.playSound(Sound.SocialNotify);
+    Sounds.playSound(Sound.SocialNotify);
     hasPopup = true;
   }
 

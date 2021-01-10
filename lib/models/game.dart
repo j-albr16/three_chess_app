@@ -25,10 +25,12 @@ class Game {
   int posRatingRange;
   int negRatingRange;
   List<Request> requests;
+  String chatId;
   bool allowPremades;
 
   Game({
     this.allowPremades,
+    this.chatId,
     this.player,
     this.finishedGameData,
     this.invitations,

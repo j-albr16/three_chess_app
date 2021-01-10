@@ -21,14 +21,14 @@ const String SERVER_URL = SERVER_ADRESS;
 
 const printCreateGame = true;
 const printjoinGame = true;
-const printFetchGame = false;
+const printFetchGame = true;
+const printFetchGameRawData = true;
 const printFetchGames = false;
 const printGameSocket = true;
 const printGameMove = true;
 
 class GameProvider with ChangeNotifier {
   String _userId = constUserId;
-
 
   Player _player = new Player(
     user: new User(
@@ -56,12 +56,15 @@ class GameProvider with ChangeNotifier {
     _game = game;
     _serverProvider = serverProvider;
     if (!_didInitLobby) {
+      // try {
       subscribeToLobbychannel();
       _didInitLobby = true;
+      // } catch (error) {
+      //   print('Could not Connect Socket');
+      // }
     }
     notifyListeners();
   }
-
 
 // providing game data for screen
   Game get game {
@@ -69,10 +72,18 @@ class GameProvider with ChangeNotifier {
   }
 
   bool hasPopup = false;
+  bool hasMessage = false;
+  String popUpMessage;
 
 // providing games data for lobby
   List<Game> get games {
     return [..._games];
+  }
+
+  void setChatId(String chatId){
+    print('Setting Chat Id');
+    print(chatId);
+    _game.chatId = chatId;
   }
 
   Future<void> fetchAll() async {
@@ -92,9 +103,11 @@ class GameProvider with ChangeNotifier {
   }
 
   void subscribeToGameLobbyChannel() {
+    print('Did Subscribe to Game Lobby Channel');
     _serverProvider.subscribeToGameLobbyChannel(
       gameId: _game.id,
       moveMadeCallback: (moveData) => _handleMoveData(moveData),
+      requestCancelledCallback: (data) => _handleRequestCancelled(data),
       playerJoinedLobbyCallback: (gameData) =>
           _handlePlayerJoinedLobbyData(gameData),
       remiAcceptCallback: (userId) => _handleRemiAccept(userId),
@@ -113,7 +126,8 @@ class GameProvider with ChangeNotifier {
       gameFinishedcallback: (data) => _handleGameFinished(data),
       surrenderFailedCallback: () => _handleSurrenderFailed(),
       playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
-      playerIsOfflineCallback: (userId, expiryDate) => _handlePlayerIsOffline(userId, expiryDate),
+      playerIsOfflineCallback: (userId, expiryDate) =>
+          _handlePlayerIsOffline(userId, expiryDate),
     );
   }
 
@@ -127,11 +141,10 @@ class GameProvider with ChangeNotifier {
     );
   }
 
-  void removeGame(){
+  void removeGame() {
     _game = null;
     notifyListeners();
   }
-  
 
   Future<void> createGame(
       {bool isPublic,
@@ -144,11 +157,11 @@ class GameProvider with ChangeNotifier {
       int posRatingRange}) async {
     try {
       final Map<String, dynamic> data = await _serverProvider.createGame(
-        allowPremades : allowPremades,
+        allowPremades: allowPremades,
         isPublic: isPublic,
         increment: increment,
         isRated: isRated,
-        invitations : invitations,
+        invitations: invitations,
         negRatingRange: negRatingRange,
         posRatingRange: posRatingRange,
         time: time,
@@ -205,8 +218,8 @@ class GameProvider with ChangeNotifier {
 
   Future<bool> sendMove(ChessMove chessMove) async {
     try {
-     final data = await _serverProvider.sendMove(chessMove);
-     return data['moveValid'];
+      final data = await _serverProvider.sendMove(chessMove);
+      return data['moveValid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating Game', error);
     }
@@ -218,6 +231,10 @@ class GameProvider with ChangeNotifier {
     try {
       // make http request
       final Map<String, dynamic> data = await _serverProvider.fetchGame();
+      if (printFetchGameRawData) {
+        print('Fetch Game Raw Data ' + '-' * 20);
+        print(data);
+      }
       _game = GameConversion.rebaseWholeGame(data['gameData']);
       // starts listening to Game Lobby Websoket (Message on player who joined Game or made a Chess move etc....)
       // prints all Data if option is set on true
@@ -225,13 +242,7 @@ class GameProvider with ChangeNotifier {
         GameConversion.printEverything(_game, player, _games);
       }
       if (_game != null) {
-        _serverProvider.subscribeToGameLobbyChannel(
-          gameId: _game.id,
-          moveMadeCallback: (moveData) => _handleMoveData(moveData),
-          playerJoinedLobbyCallback: (gameData) =>
-              _handlePlayerJoinedLobbyData(gameData),
-        );
-        _serverProvider.subscribeToLobbyChannel();
+        subscribeToGameLobbyChannel();
       }
       notifyListeners();
     } catch (error) {
@@ -244,20 +255,22 @@ class GameProvider with ChangeNotifier {
     // output: sends fetch Games request to Server. Receives all Lobby Games a JSON From Server. Returns List of Lobby Games
     try {
       // make http request
-      final  data = await _serverProvider.fetchGames();
+      final data = await _serverProvider.fetchGames();
       _games = [];
       // Convert Data to existing Models
       data['gameData']['games'].forEach((game) {
-        final playerData = data['gameData']['player']?.where((player) => player['gameId'] == game['_id']);
+        final playerData = data['gameData']['player']
+            ?.where((player) => player['gameId'] == game['_id']);
         print(playerData);
-        final userData= data['gameData']['user']?.where((user) =>user['gameId'] == game['_id']);
+        final userData = data['gameData']['user']
+            ?.where((user) => user['gameId'] == game['_id']);
         print(userData);
-_games.add(GameConversion.rebaseLobbyGame(
-            gameData: game,
-            playerData: playerData,
-            userData: userData,
-          ));
-      } );
+        _games.add(GameConversion.rebaseLobbyGame(
+          gameData: game,
+          playerData: playerData,
+          userData: userData,
+        ));
+      });
       notifyListeners();
       // printsa all game Provider Data if option is set on true
       if (printFetchGames) {
@@ -268,113 +281,192 @@ _games.add(GameConversion.rebaseLobbyGame(
     }
   }
 
+
   Future<void> requestSurrender() async {
+    String message = 'Could not send Surrender Request';
     try {
-      await _serverProvider.requestSurrender();
+      message = await _serverProvider.requestSurrender();
     } catch (error) {
       _serverProvider.handleError('Error While Requesting Surrender', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> acceptSurrender() async {
+    String message = 'Could not Accept Surrender';
     try {
-      await _serverProvider.acceptSurrender();
+      print('Accept Surrender ');
+      message = await _serverProvider.acceptSurrender();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> declineSurrender() async {
+    String message = 'Could not Decline Surrender';
     try {
-      await _serverProvider.declineSurrender();
+      print('Decline Surrender');
+      Map<String, dynamic> data = await _serverProvider.declineSurrender();
+      message = data['message'];
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> requestRemi() async {
+    String message = 'Could not send Remi Request';
     try {
-      await _serverProvider.requestRemi();
+      message = await _serverProvider.requestRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Requesting Remi', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> acceptRemi() async {
+    String message = 'Could not Accept Remi';
     try {
-      await _serverProvider.acceptRemi();
+      print('Accept Remi');
+      message = await _serverProvider.acceptRemi();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> declineRemi() async {
+    String message = 'Could not Decline Remi';
     try {
-      await _serverProvider.declineRemi();
+      print('Decline Remi');
+      Map<String, dynamic> data = await _serverProvider.declineRemi();
+      message = data['message'];
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> requestTakeBack() async {
+    String message = 'Could not send Take Back Request';
     try {
-      await _serverProvider.requestTakeBack();
+      message = await _serverProvider.requestTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while Declining Take Back', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> acceptTakeBack() async {
+    String message = 'Could not Accept Take Back';
     try {
-      await _serverProvider.acceptTakeBack();
+      print('Accept Take Back');
+      message = await _serverProvider.acceptTakeBack();
     } catch (error) {
       _serverProvider.handleError('Error while accepting Take Back', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   Future<void> declineTakeBack() async {
+    String message = 'Could not Decline Take Back';
     try {
-      await _serverProvider.declineTakeBack();
+      print('Decline Take Back');
+      Map<String, dynamic> data = await _serverProvider.declineTakeBack();
+      message = data['message'];
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
     }
   }
 
   // TODO Remove
   Future<void> createTestGame() async {
-    try{
+    try {
       await _serverProvider.createTestGame();
-    }catch(error){
+    } catch (error) {
       _serverProvider.handleError('Error while declining Take Bakc', error);
     }
   }
-   
+
+  Future<void> cancelRequest(RequestType requestType) async {
+    String message = 'Could not Cancel Request';
+    try {
+      Map<String, dynamic> data =
+          await _serverProvider.cancelRequest(requestType.index);
+      message = data['message'];
+      print(message);
+      if (data['didRemove']) {
+        _game.requests.removeWhere((request) =>
+            request.requestType == requestType &&
+            request.playerResponse[ResponseRole.Create] == player?.playerColor);
+      }
+    } catch (error) {
+      _serverProvider.handleError(
+          'Error while Canceling Request of request Type $requestType', error);
+    } finally {
+      hasMessage = true;
+      popUpMessage = message;
+      notifyListeners();
+    }
+  }
 
   // only with scores
   void _handleNewGameData(Map<String, dynamic> gameData) {
     print('Handle New Game Data');
     // TODO unite filter somewhere specific
-    if(gameData['_id'] != _game.id){
-    _games.add(GameConversion.rebaseLobbyGame(
-      gameData: gameData,
-      playerData: gameData['player'],
-      userData: gameData['user'],
-    ));
-    // print all Game Data if option is set on true
-    if (printGameSocket) {
-      GameConversion.printEverything(_game, player, _games);
-    }
-    notifyListeners();
+    if (gameData['_id'] != _game.id) {
+      _games.add(GameConversion.rebaseLobbyGame(
+        gameData: gameData,
+        playerData: gameData['player'],
+        userData: gameData['user'],
+      ));
+      // print all Game Data if option is set on true
+      if (printGameSocket) {
+        GameConversion.printEverything(_game, player, _games);
+      }
+      notifyListeners();
     }
   }
 
-  void _handlePlayerIsOnline(String userId){
-    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null);
+  void _handlePlayerIsOnline(String userId) {
+    Player player = _game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
     player?.isOnline = true;
     notifyListeners();
   }
-  void _handlePlayerIsOffline(String userId , String expiryDate){
-    Player player = _game.player.firstWhere((player) => player.user.id == userId, orElse: () => null );
+
+  void _handlePlayerIsOffline(String userId, String expiryDate) {
+    Player player = _game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
     player?.isOnline = false;
     _game.endGameExpiry = DateTime.parse(expiryDate);
     notifyListeners();
@@ -384,11 +476,11 @@ _games.add(GameConversion.rebaseLobbyGame(
     print('Handle Player Joined');
     final int gameIndex = _games.indexWhere((e) => e.id == gameData['_id']);
     // adds the converted Player to the Game with the given gameId in _games
-    if(gameIndex != -1){
-    _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
-          playerData: gameData['player'],
-          userData: gameData['user'],
-        ));
+    if (gameIndex != -1) {
+      _games[gameIndex].player.add(GameConversion.rebaseOnePlayer(
+            playerData: gameData['player'],
+            userData: gameData['user'],
+          ));
     }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
@@ -416,11 +508,19 @@ _games.add(GameConversion.rebaseLobbyGame(
 
   void _handleMoveData(Map<String, dynamic> moveData) {
     print('Handle Move Data');
-    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3 ];
+    PlayerColor playerColor = PlayerColor.values[_game.chessMoves.length % 3];
     moveData['playerColor'] = playerColor;
     print(moveData);
     _game.chessMoves.add(GameConversion.rebaseOneMove(moveData));
     // print all Game Provider Data if optin was set to true
+    if (moveData['emptyMove']) {
+      _game.chessMoves.add(new ChessMove(
+        initialTile: '',
+        nextTile: '',
+        remainingTime:
+            _game.chessMoves[_game.chessMoves.length - 4].remainingTime,
+      ));
+    }
     if (printGameSocket) {
       GameConversion.printEverything(_game, player, _games);
     }
@@ -428,19 +528,23 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleSurrenderRequest(String userId, int chessMove) {
-    Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
+    Map<ResponseRole, PlayerColor> playerResponse = {};
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
       playerResponse: playerResponse,
       requestType: RequestType.Surrender,
     ));
+    popUpMessage = 'Surrender Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 
   void _handleSurrenderDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId, _game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Surrender, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     notifyListeners();
@@ -453,26 +557,36 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleRemiRequest(String userId, int chessMove) {
-    Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    print('Handle Remi request');
+    print(userId);
+    print(chessMove);
+    Map<ResponseRole, PlayerColor> playerResponse = {};
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game) ??
+            PlayerColor.none;
     playerResponse[ResponseRole.Create] = playerColor;
+    print(playerResponse[ResponseRole.Create]);
     _game.requests.add(new Request(
       moveIndex: chessMove,
       playerResponse: playerResponse,
       requestType: RequestType.Remi,
     ));
+    popUpMessage = 'Remi Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 
   void _handleRemiAccept(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleRemiDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.Remi, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
@@ -481,26 +595,31 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleTakeBackRequest(String userId, int chessMove) {
-    Map<ResponseRole, PlayerColor> playerResponse;
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    Map<ResponseRole, PlayerColor> playerResponse = {};
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     playerResponse[ResponseRole.Create] = playerColor;
     _game.requests.add(new Request(
       moveIndex: chessMove,
       playerResponse: playerResponse,
       requestType: RequestType.TakeBack,
     ));
+    popUpMessage = 'Take Back Request was Made';
+    hasMessage = true;
     notifyListeners();
   }
 
   void _handleTakeBackAccept(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Accept] = playerColor;
     notifyListeners();
   }
 
   void _handleTakeBackDecline(String userId) {
-    PlayerColor playerColor = GameConversion.getPlayerColorFromUserId(userId,_game);
+    PlayerColor playerColor =
+        GameConversion.getPlayerColorFromUserId(userId, _game);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, _game)
         .playerResponse[ResponseRole.Decline] = playerColor;
     _game.requests
@@ -516,18 +635,38 @@ _games.add(GameConversion.rebaseLobbyGame(
   }
 
   void _handleGameFinished(Map<String, dynamic> data) {
-    PlayerColor winnerPlayerColor = GameConversion.getPlayerColorFromUserId(data['winnerId'],_game);
-    List<Map<String, dynamic>>  convertedPlayer = data['convertedPlayer'];
+    PlayerColor winnerPlayerColor =
+        GameConversion.getPlayerColorFromUserId(data['winnerId'], _game);
+    print(winnerPlayerColor);
+    List<dynamic> newUsers = data['newUsers'];
     Map finishedGameData = {
       'winner': winnerPlayerColor,
     };
-    convertedPlayer.forEach((convPlayer) {
-      _game.finishedGameData[PlayerColor.values[convPlayer['playerColor']]] =
-          convPlayer['scoreAfter'];
+    _game.finishedGameData = {};
+    newUsers.forEach((newUser) {
+      PlayerColor playerColor =
+          GameConversion.getPlayerColorFromUserId(newUser['_id'], _game) ??
+              PlayerColor.none;
+      print(playerColor);
+      print(newUser);
+      finishedGameData.putIfAbsent(playerColor, () => newUser['score']);
     });
     finishedGameData['howGameEnded'] =
         HowGameEnded.values[data['howGameEnded']];
+    print(finishedGameData);
     _game.finishedGameData = finishedGameData;
+    hasPopup = true;
     notifyListeners();
+  }
+
+  _handleRequestCancelled(Map<String, dynamic> data) {
+    if (data['userId'] != _userId) {
+      String message = 'Could not get Message';
+      _game.requests.removeWhere(
+          (request) => request.requestType.index == data['requestType']);
+      popUpMessage = data['message'];
+      hasMessage = true;
+      notifyListeners();
+    }
   }
 }

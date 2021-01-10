@@ -18,7 +18,7 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController _scrollController;
   ChatProvider _chatProvider;
   bool maxScrollExtent = false;
-  bool wasInit = false;
+  FocusNode chatFocusNode;
 
   _scrollListener() {
     if (_scrollController.offset ==
@@ -35,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatController = TextEditingController();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    chatFocusNode = FocusNode();
     super.initState();
   }
 
@@ -43,33 +44,34 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatController.dispose();
     _scrollController.dispose();
     _chatProvider.resetCurrentChat();
+    chatFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (maxScrollExtent || wasInit == false) {
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 500), curve: Curves.bounceIn);
-        wasInit = true;
-      }
-    });
+    
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     ThemeData theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: wig.Chat(
-          chat: chatProvider.chat,
-          chatController: _chatController,
-          scrollController: _scrollController,
-          lobbyChat: true,
-          size: Size(400, 600),
-          submitMessage: (text) => _chatProvider.sendTextMessage(text),
-          theme: theme,
-          maxScrollExtent: maxScrollExtent,
+    return GestureDetector(
+      onTap: () => chatFocusNode.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Chat'),
+        ),
+        body: Center(
+          child: wig.Chat(
+            chat: chatProvider.chat,
+            chatController: _chatController,
+            scrollController: _scrollController,
+            chatFocusNode: chatFocusNode,
+            lobbyChat: true,
+            size: Size(400, 600),
+            submitMessage: (text) => _chatProvider.sendTextMessage(text),
+            theme: theme,
+            maxScrollExtent: maxScrollExtent,
+          ),
         ),
       ),
     );

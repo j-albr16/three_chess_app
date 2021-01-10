@@ -17,12 +17,10 @@ import '../models/user.dart';
 import '../providers/game_provider.dart';
 
 class ServerProvider with ChangeNotifier {
-  IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic> {
+  IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': true,
   });
-
-
 
   String _token = constToken;
   String _userId = constUserId;
@@ -68,31 +66,38 @@ class ServerProvider with ChangeNotifier {
     gameInvitationsCallback,
   }) {
     print('Subscribe to Auth USer Channel');
+    // try {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleAuthUserChannelSocketData(
-        data,
-        messageCallback,
-        friendRequestCallback,
-        friendAcceptedCallback,
-        friendDeclinedCallback,
-        friendRemovedCallback,
-        friendIsOnlineCallback,
-        friendIsAfkCallback,
-        friendIsPlayingCallback,
-        friendIsNotPlayingCallback,
-        gameInvitationsCallback,
-      );
+          data: data,
+          messageCallback: messageCallback,
+          friendRequestCallback: friendRequestCallback,
+          friendAcceptedCallback: friendAcceptedCallback,
+          friendDeclinedCallback: friendDeclinedCallback,
+          friendRemovedCallback: friendRemovedCallback,
+          friendIsOnlineCallback: friendIsOnlineCallback,
+          friendIsAfkCallback: friendIsAfkCallback,
+          friendIsPlayingCallback: friendIsAfkCallback,
+          friendIsNotPlayingCallback: friendIsNotPlayingCallback,
+          gameInvitationCallback: gameInvitationsCallback);
     });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
 
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     print('Did Subscribe to Lobby Channel');
+    // try {
     _socket.on('lobby', (jsonData) {
       print('New Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
     });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
 
   void subscribeToGameLobbyChannel({
@@ -111,30 +116,36 @@ class ServerProvider with ChangeNotifier {
     Function gameFinishedcallback,
     Function surrenderFailedCallback,
     Function playerIsOnlineCallback,
+    Function requestCancelledCallback,
     Function playerIsOfflineCallback,
   }) {
     print('Ddi Subscribe to Game Lobby Channel');
+    // try {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleGameLobbyChannelData(
-        data,
-        moveMadeCallback,
-        playerJoinedLobbyCallback,
-        surrenderRequestCallback,
-        surrenderDeclineCallback,
-        remiRequestCallback,
-        remiAcceptCallback,
-        remiDeclineCallback,
-        takeBackRequestCallback,
-        takeBackAcceptCallback,
-        takenBackCallback,
-        takeBackDeclineCallback,
-        gameFinishedcallback,
-        surrenderFailedCallback,
-        playerIsOnlineCallback,
-        playerIsOfflineCallback,
+        data: data,
+        moveMadeCallback: moveMadeCallback,
+        playerJoinedLobbyCallback: playerJoinedLobbyCallback,
+        surrenderRequestCallback: surrenderRequestCallback,
+        surrenderDeclineCallback: surrenderDeclineCallback,
+        remiRequestCallback: remiRequestCallback,
+        requestCancelledCallback: requestCancelledCallback,
+        remiAcceptCallback: remiAcceptCallback,
+        remiDeclineCallback: remiDeclineCallback,
+        takeBackRequestCallback: takeBackRequestCallback,
+        takeBackAcceptCallback: takeBackAcceptCallback,
+        takenBackCallback: takenBackCallback,
+        takeBackDeclineCallback: takeBackDeclineCallback,
+        gameFinishedCallback: gameFinishedcallback,
+        surrenderFailedCallback: surrenderFailedCallback,
+        playerIsOnlineCallback: playerIsOfflineCallback,
+        playerIsOfflineCallback: playerIsOfflineCallback,
       );
     });
+    // } catch (error) {
+    //   print('Connection Socket Failed');
+    // }
   }
   //#########################################################################################################
 
@@ -155,7 +166,7 @@ class ServerProvider with ChangeNotifier {
 
   //#########################################################################################################
 // Handle Socket Messages of different Channels -----------------------------------------------------------
-  void _handleAuthUserChannelSocketData(
+  void _handleAuthUserChannelSocketData({
     Map<String, dynamic> data,
     Function messageCallback,
     Function friendRequestCallback,
@@ -167,7 +178,7 @@ class ServerProvider with ChangeNotifier {
     Function friendIsPlayingCallback,
     Function friendIsNotPlayingCallback,
     Function gameInvitationCallback,
-  ) {
+  }) {
     _printRawData(data);
     _handleSocketServerMessage(data['action'], data['message']);
     switch (data['action']) {
@@ -218,7 +229,7 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleGameLobbyChannelData(
+  void _handleGameLobbyChannelData({
     Map<String, dynamic> data,
     Function moveMadeCallback,
     Function playerJoinedLobbyCallback,
@@ -235,7 +246,8 @@ class ServerProvider with ChangeNotifier {
     Function surrenderFailedCallback,
     Function playerIsOnlineCallback,
     Function playerIsOfflineCallback,
-  ) {
+    Function requestCancelledCallback,
+  }) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
     switch (data['action']) {
@@ -263,6 +275,9 @@ class ServerProvider with ChangeNotifier {
         break;
       case 'remi-decline':
         remiDeclineCallback(data['userId']);
+        break;
+      case 'request-cancel':
+        requestCancelledCallback(data);
         break;
       case 'takeBack-request':
         takeBackRequestCallback(data['userId'], data['chessMove']);
@@ -393,6 +408,17 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
   }
 
+  Future<Map<String, dynamic>> getMoreMessages(
+      String chatId, int messageCount) async {
+    final String url =
+        SERVER_ADRESS + 'more-messages/$messageCount/$chatId' + _authString;
+    final response = await http.get(url);
+    final Map<String, dynamic> data = json.decode(response.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
+
   Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
     final url = SERVER_ADRESS +
         'fetch-chat' +
@@ -416,6 +442,22 @@ class ServerProvider with ChangeNotifier {
     // _printRawData(data);
     _validation(data);
     return data;
+  }
+
+  Future<bool> declineInvitation(String  gameId, bool all) async {
+    final String url = SERVER_ADRESS + 'decline-invitation' + _authString;
+    final encodedResponse = await http.post(
+      url,
+      body: json.encode({
+        'gameIds': gameId,
+        'all': all,
+      }),
+      // setting json/application as Content header so Server exects JSON format body. CORS error willbe handled Serverside in req headers
+      headers: {'Content-Type': 'application/json'},
+    );
+    final data = json.decode(encodedResponse.body);
+    _validation(data);
+    return data['valid'];
   }
 
   // Game Provider -----------------------------------------------------------------------------------------
@@ -553,111 +595,166 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  Future<void> requestSurrender() async {
+  Future<String> requestSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'request-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptSurrender() async {
+  Future<String> acceptSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'accept-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineSurrender() async {
+  Future<Map<String, dynamic>> declineSurrender() async {
     try {
       final String url = SERVER_ADRESS + 'decline-surrender' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data;
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> requestRemi() async {
+  Future<String> requestRemi() async {
     try {
       final String url = SERVER_ADRESS + 'request-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptRemi() async {
+  Future<String> acceptRemi() async {
     try {
       final String url = SERVER_ADRESS + 'accept-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineRemi() async {
+  Future<Map<String, dynamic>> declineRemi() async {
     try {
       final String url = SERVER_ADRESS + 'decline-remi' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data;
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> requestTakeBack() async {
+  Future<String> requestTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'request-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> acceptTakeBack() async {
+  Future<String> acceptTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'accept-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data['message'];
     } catch (error) {
       throw (error);
     }
   }
 
-  Future<void> declineTakeBack() async {
+  Future<Map<String, dynamic>> declineTakeBack() async {
     try {
       final String url = SERVER_ADRESS + 'decline-takeback' + _authString;
       final response = await http.get(url);
       final Map<String, dynamic> data = json.decode(response.body);
       _printRawData(data);
       _validation(data);
+      return data;
     } catch (error) {
       throw (error);
+    }
+  }
+
+  Future<Map<String, dynamic>> cancelRequest(int requestType) async {
+    try {
+      final String url = SERVER_ADRESS + 'cancel-request' + _authString;
+      print(requestType);
+      final response = await http.post(url,
+          body: json.encode({'requestType': requestType}),
+          headers: {'Content-Type': 'application/json'});
+      final Map<String, dynamic> data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+      return data;
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  //########################################################################################################
+  Future<Map<String, int>> getCount() async {
+    try {
+      final String url = SERVER_ADRESS + 'count' + _authString;
+      final response = await http.get(url);
+      final Map<String, dynamic> data = json.decode(response.body);
+      return {
+        'player': data['playerCount'],
+        'games': data['gamesCount'],
+        'users': data['usersCount'],
+      };
+    } catch (error) {
+      handleError('Error while Counting Games and Player', error);
+    }
+  }
+
+  Future<void> sendErrorReport(String text) async {
+    try {
+      final String url = SERVER_ADRESS + 'error-report' + _authString;
+      final response = await http.post(url,
+          body: json.encode({'error': text}),
+          headers: {'Content-Type': 'application/json'});
+      final data = json.decode(response.body);
+      _printRawData(data);
+      _validation(data);
+    } catch (error) {
+      handleError('error while making buck report', error);
     }
   }
   //#########################################################################################################
@@ -666,14 +763,14 @@ class ServerProvider with ChangeNotifier {
     if (data == null) {
       throw ('No Data was Received. Data is null');
     }
-    if(!data['valid']){
-   if (data['problem']) {
-      throw ('Data is not Valid. This is the Message sent from Server: ' +
-          data['message']);
-    }else {
-      throw (data['message']);
+    if (!data['valid']) {
+      if (data['problem']) {
+        throw ('Data is not Valid. This is the Message sent from Server: ' +
+            data['message']);
+      } else {
+        throw (data['message']);
+      }
     }
-  }
   }
 
 //############################################################################################################
@@ -689,32 +786,33 @@ class ServerProvider with ChangeNotifier {
         '------------------------------------------------------------------------------------------------');
   }
 
-void _handleSocketServerMessage(String action, String message) {
-  if (action != 'friend-online') {
-    print(
-        '-------------------------------------------------------------------------------------------------');
-    print(
-        'Received Socket Data------------------------------------------------------------------------------');
-    print(
-        'Socket Message ... :   ---------------------------------------------------------------------------');
-    print('$message   ');
-    print(
-        'Action Key String   ------------------------------------------------------------------------------');
-    print(action);
-    print(
-        '-------------------------------------------------------------------------------------------------');
+  void _handleSocketServerMessage(String action, String message) {
+    if (action != 'friend-online') {
+      print(
+          '-------------------------------------------------------------------------------------------------');
+      print(
+          'Received Socket Data------------------------------------------------------------------------------');
+      print(
+          'Socket Message ... :   ---------------------------------------------------------------------------');
+      print('$message   ');
+      print(
+          'Action Key String   ------------------------------------------------------------------------------');
+      print(action);
+      print(
+          '-------------------------------------------------------------------------------------------------');
+    }
   }
-}
 
-void _printRawData(dynamic data) {
-  if (data['action'] != 'friend-online' && data['valid'] == true) {
-    print(
-        '-------------------------------------------------------------------------------------------------');
-    print(
-        'RAW DATA     ------------------------------------------------------------------------------------');
-    print(data);
-    print(
-        '-------------------------------------------------------------------------------------------------');
+  void _printRawData(dynamic data) {
+    // if (data['action'] != 'friend-online' && data['valid'] == true) {
+    if (data['action'] != 'friend-online') {
+      print(
+          '-------------------------------------------------------------------------------------------------');
+      print(
+          'RAW DATA     ------------------------------------------------------------------------------------');
+      print(data);
+      print(
+          '-------------------------------------------------------------------------------------------------');
+    }
   }
-}
 }

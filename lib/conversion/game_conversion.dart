@@ -30,10 +30,13 @@ class GameConversion {
       game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
     }
     game.chessMoves = chessMoves;
-    List<Request> convRequests;
+    List<Request> convRequests = [];
+    print('Raw Data of Requests');
+    print(gameData['requests']);
     gameData['requests']?.forEach(
         (request) => convRequests.add(rebaseOneRequest(request, game)));
     // returns the converted Game
+    game.requests = convRequests;
     return game;
   }
 
@@ -79,9 +82,9 @@ class GameConversion {
   static Player rebaseOnePlayer({playerData, userData}) {
     // input: takes player Converted Data of One Player as Input
     // output: returns a Player Model with the Given Data
-    print('-----------------Here-------------------------');
-    print(playerData['playerColor']);
-    print(userData);
+    // print('-----------------Here-------------------------');
+    // print(playerData);
+    // print(userData);
     return new Player(
       isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
@@ -108,9 +111,12 @@ class GameConversion {
   }
 
   static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
-    return game.player
-        .firstWhere((player) => player.user.id == userId, orElse: () => null)
-        .playerColor;
+    print('Getting Player Color from UserId');
+    Player player = game.player
+        .firstWhere((player) => player.user.id == userId, orElse: () => null);
+    PlayerColor playerColor = player?.playerColor;
+    print(playerColor);
+    return playerColor;
   }
 
   static Request getRequestFromRequestType(RequestType requestType, Game game) {
@@ -210,13 +216,19 @@ class GameConversion {
         print(' -> nextTile:        ' + m.nextTile);
         print(' -> remainingTime:   ' + m.remainingTime.toString());
       });
+      game.requests.forEach((re) {
+        print('one request ' + '-' * 30);
+        print(' -> requestType:     ' + re.requestType?.toString());
+        print(' -> playerResponse:     ' + re.playerResponse?.toString());
+        print(' -> moveIndex:     ' + re.moveIndex?.toString());
+      });
     }
     if (player != null) {
       print(
           '=================================================================================================');
       print(
           'This Player:----------------------------------------------------------------------------------------');
-          print('playerColor: ');
+      print('playerColor: ');
       print(player.playerColor);
       print('remainingTime:   ' + player?.remainingTime?.toString());
       print(

@@ -9,3 +9,4 @@ const double mainBoxMargin = 11;
 const Color green = Colors.green;
 const Color orange = Colors.orange;
 const double bottomGreyBarHeigth = 30;
+const double dividerThickness = 2;

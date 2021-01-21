@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/data/board_data.dart';
+import 'package:three_chess/helpers/constants.dart';
+import 'package:three_chess/widgets/basic/advanced_selection.dart';
+import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 import '../models/enums.dart';
 import '../models/game.dart';
 import '../models/enums.dart';
+import '../widgets/select_game_widget.dart';
+import '../widgets/basic/chess_divider.dart';
 
-typedef GameTypeCall(GameType gameType);
-typedef OnlineGameSelect(int selectedGameIndex);
+typedef void GameTypeCall(GameType gameType);
+typedef void GameIndexCall(int selectedGameIndex);
+typedef void ConfirmGame();
 
 class BoardStateSelector extends StatelessWidget {
-  final List<Game> currentGames;
   final GameTypeCall gameTypeCall;
-  final int selectedOnlineGame;
-  final OnlineGameSelect selectOnlineGameCall;
+  final GameIndexCall gameIndexCall;
+  final ConfirmGame confirmGame;
+
+  final bool onlineGamesOpen;
+  final bool localGamesOpen;
+  final Function switchOnlineGames;
+  final Function switchLocalGames;
+
+  final List<Game> currentGames;
+  final Game localGame;
+  final Game analyzeGame;
+
+  final int gameIndex;
+  final GameType gameType;
+
   final double height;
   final double width;
   final ScrollController controller;
@@ -22,101 +41,116 @@ class BoardStateSelector extends StatelessWidget {
 
   final selectedColor = Colors.orange;
 
+  BoardStateSelector({
+    this.gameType,
+    this.controller,
+    this.gameIndexCall,
+    this.gameTypeCall,
+    this.confirmGame,
+    this.currentGames = const [],
+    this.gameIndex,
+    this.width,
+    this.height,
+    this.onlineGamesOpen,
+    this.localGamesOpen,
+    this.switchLocalGames,
+    this.switchOnlineGames,
+    this.analyzeGame,
+    this.localGame,
+  });
 
-
-  BoardStateSelector(
-      {
-        this.controller,
-        this.selectOnlineGameCall,
-        this.gameTypeCall,
-      this.currentGames = const [],
-      this.selectedOnlineGame,
-      this.width,
-      this.height});
-
-  Widget _selectedGameTile(Game game){
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: selectedColor,
-          width: height * (selectorHeightFraction - gameTileSquareFraction) * 0.9,
-        )
+  Widget confirmSelection(ThemeData theme) {
+    return FlatButton(
+      minWidth: double.infinity,
+      onPressed: confirmGame,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(cornerRadius),
       ),
-      child: _onlineGameTile(game),
-    );
-  }
-
-  Widget selectableTile(Widget child, int index){
-    return GestureDetector(
-      onTap: selectOnlineGameCall(index),
-      child: child,
-    );
-  }
-
-  Widget _onlineGameTile(Game game){
-    return SizedBox(
-      height: height * gameTileSquareFraction,
-      width: height * gameTileSquareFraction,
-      child: FittedBox(
-        child: Row(
-          children: [
-            Text("Time: ${game.time}"),
-            Text("Increment: ${game.increment}"),
-            Text("It's ${playerColorString[PlayerColor.values[game.chessMoves.length%3]]}"),
-          ],
-        ),
+      color: theme.colorScheme.secondary,
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('Confirm Selection'),
       ),
     );
   }
 
-  Widget _onlineSelector(){
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40.0),
-        border: Border.all(
-          color: Colors.white, //Theme Border color?
-      ),),
-        height: height * selectorHeightFraction,
-        width: width * selectorWidthFraction,
-        child: currentGames.length > 0 ? SingleChildScrollView(
-          controller: controller,
-          child: Column(
-            children: currentGames.map((game) {
-              if(game == currentGames[selectedOnlineGame]){
-                return _selectedGameTile(game);
-              }
-              return selectableTile(_onlineGameTile(game), currentGames.indexOf(game));
-            }).toList(),
-          ),
-        ) : Text("No current Games, swipe left to join one in the lobby or go for local :D"),
-      );
-  }
-
-  Widget _offlineSelector(){
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+Widget localGames(Size size, ThemeData theme) {
+    return Column(
       children: [
-        ElevatedButton(
-          child: Text("Local Game"),
-          onPressed: gameTypeCall(GameType.Local),
+        SelectGame(
+          size: size,
+          theme: theme,
+          game: analyzeGame,
+          gameType: GameType.Analyze,
+          confirmGame: confirmGame,
+          currentGameType: gameType,
+          gameTypeCall: gameTypeCall,
+          currentGameIndex: gameIndex,
         ),
-        ElevatedButton(
-          child: Text("Analyze Game"),
-          onPressed: gameTypeCall(GameType.Analyze),
-        ),
+        SelectGame(
+          size: size,
+          gameTypeCall: gameTypeCall,
+          gameType: GameType.Local,
+          game: localGame,
+          theme: theme,
+          confirmGame: confirmGame,
+          currentGameType: gameType,
+          currentGameIndex: gameIndex,
+        )
       ],
+    );
+  }
+
+  Widget onlineGames(Size size, ThemeData theme) {
+    return ListView(
+      children: currentGames
+          .asMap()
+          .entries
+          .map((gameEntry) => SelectGame(
+                confirmGame: confirmGame,
+                theme: theme,
+                currentGameIndex: gameIndex,
+                currentGameType: gameType,
+                gameIndexCall: gameIndexCall,
+                size: size,
+                gameTypeCall: gameTypeCall,
+                game: gameEntry.value,
+                gameType: GameType.Online,
+                gameIndex: gameEntry.key,
+              ))
+          .toList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    Size size = MediaQuery.of(context).size;
     return Container(
       height: height,
       width: width,
       child: Column(
-        children: [
-          _onlineSelector(),
-          _offlineSelector(),
+        children: <Widget>[
+          AdvancedSelection(
+            updateSelection: switchOnlineGames,
+            nameSelected: 'Hide Online Games',
+            nameDeselected: 'Show Online Games',
+            isSelected: onlineGamesOpen,
+          ),
+          // ChessDivider(),
+          if (onlineGamesOpen) Flexible(child: onlineGames(size, theme), flex: 1),
+          // ChessDivider(),
+          AdvancedSelection(
+            isSelected: localGamesOpen,
+            nameDeselected: 'Show Local Games',
+            nameSelected: 'Hide Local Games',
+            updateSelection: switchLocalGames,
+          ),
+          // ChessDivider(),
+          if (localGamesOpen) localGames(size, theme),
+          if (gameType != null) confirmSelection(theme),
+          SizedBox(height: 28),
         ],
       ),
     );

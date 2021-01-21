@@ -5,10 +5,10 @@ import 'package:three_chess/providers/scroll_provider.dart';
 import 'providers/chat_provider.dart';
 
 import './screens/board_screen.dart';
-import './screens/design-test-screen.dart';
+import './screens/test_screen.dart';
 import './providers/game_provider.dart';
 import './providers/auth_provider.dart';
-import './screens/auth_test_screen.dart';
+import './screens/auth_screen.dart';
 import './providers/popup_provider.dart';
 import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';

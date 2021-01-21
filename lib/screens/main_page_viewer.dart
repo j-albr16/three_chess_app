@@ -48,6 +48,7 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
          Provider.of<UserProvider>(context, listen: false).fetchUser();
     });
 
+
     //TODO REMOVE
     //print("########################################");
     //ConvertDataPrint.printNewBlackAndRedOrder();

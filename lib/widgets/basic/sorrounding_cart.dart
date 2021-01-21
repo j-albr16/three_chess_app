@@ -10,6 +10,7 @@ class SorroundingCard extends StatelessWidget {
   final double width;
   final EdgeInsets padding;
   final Color color;
+  final Color shadowColor;
   final EdgeInsets margin;
   final AlignmentGeometry alignment;
 
@@ -17,6 +18,7 @@ class SorroundingCard extends StatelessWidget {
     this.alignment = Alignment.center,
     this.child,
     this.color,
+    this.shadowColor = Colors.black26,
     this.maxWidth = 500,
     this.height,
     this.margin = const EdgeInsets.symmetric(
@@ -43,7 +45,7 @@ class SorroundingCard extends StatelessWidget {
         color: getColor,
         boxShadow: [
           BoxShadow(
-              color: Colors.black26,
+              color: shadowColor,
               offset: Offset(2, 0),
               blurRadius: 5,
               spreadRadius: 3),

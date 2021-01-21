@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/helpers/constants.dart';
+import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 import 'basic/slider.dart';
 import 'basic/switch_row.dart';
@@ -7,12 +9,18 @@ import '../models/friend.dart';
 import '../models/game_opptions.dart';
 import 'friends/friend_popup.dart';
 import '../models/user.dart';
+import './basic/advanced_selection.dart';
 
 typedef CreateGameCallback(Options options);
 
 class CreateGame extends StatelessWidget {
   Size size;
   User user;
+
+  // general
+  bool advancedSettings;
+  Function updateAdvancedSettings;
+
 // is Private vars
   bool isPublic = true;
   Function updateIsPrivate;
@@ -78,6 +86,8 @@ class CreateGame extends StatelessWidget {
       this.createGame,
       this.allowPremades,
       this.posRatingRange,
+      this.advancedSettings,
+      this.updateAdvancedSettings,
       this.user,
       this.negRatingRange,
       this.updateIncrement,
@@ -107,6 +117,7 @@ class CreateGame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     print(selectedFriends);
     return Container(
       height: size.height,
@@ -116,17 +127,51 @@ class CreateGame extends StatelessWidget {
       ),
       child: ListView(
         children: <Widget>[
-          header('Create Game'),
+          sliderBlock(theme),
+          Divider(thickness: dividerThickness),
+          advancedSettingsWidget(),
+          Divider(thickness: dividerThickness),
+          if(advancedSettings)
+          boolBlock(),
+          inviteFriend(context),
+          if (selectedFriends.length > 0) invitedFriends(),
+          Divider(thickness: dividerThickness),
+          finishSelection(),
+          Divider(thickness: dividerThickness),
+        ],
+      ),
+    );
+  }
+
+  Widget advancedSettingsWidget() {
+    return AdvancedSelection(
+      isSelected: advancedSettings,
+      nameDeselected: 'Open Advanced Settings',
+      nameSelected: 'Close Advanced Settings',
+      updateSelection: updateAdvancedSettings,
+    );
+  }
+
+  Widget boolBlock() {
+    return SorroundingCard(
+      child: Column(
+        children: [
           isPublicSwitch(),
           allowPremadeSwitch(),
           isRatedButtonBar(),
           playerColorButtonBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget sliderBlock(ThemeData theme) {
+    return SorroundingCard(
+      child: Column(
+        children: <Widget>[
           timeSlider(),
           incrementSlider(),
-          ratingRangeSlider(),
-          inviteFriend(context),
-          if (selectedFriends.length > 0) invitedFriends(),
-          finishSelection(),
+          ratingRangeSlider(theme),
         ],
       ),
     );
@@ -223,14 +268,14 @@ class CreateGame extends StatelessWidget {
     );
   }
 
-  Widget ratingRangeSlider() {
+  Widget ratingRangeSlider(ThemeData theme) {
     return Column(
       children: [
-        Text('Rating Range'),
+        Text('Rating Range', style: theme.textTheme.bodyText1),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(negRatingRange?.toString()),
+            Text(negRatingRange.round().toStringAsFixed(0), style: theme.textTheme.bodyText1),
             SizedBox(
               height: size.height * 0.1,
               width: size.width * 0.6,
@@ -239,12 +284,12 @@ class CreateGame extends StatelessWidget {
                 max: user.score + 1000.0,
                 divisions: user.score + 1000,
                 labels: RangeLabels(
-                    negRatingRange?.toString(), posRatingRange?.toString()),
+                    negRatingRange.round().toStringAsFixed(0), posRatingRange.round().toStringAsFixed(0)),
                 onChanged: (RangeValues values) => updateRatingRange(values),
                 values: RangeValues(negRatingRange, posRatingRange),
               ),
             ),
-            Text(posRatingRange?.toString()),
+            Text(posRatingRange.round().toStringAsFixed(0), style: theme.textTheme.bodyText1),
           ],
         ),
       ],
@@ -294,10 +339,9 @@ class CreateGame extends StatelessWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: selectedFriends.map((e) {
-          print('Hi');
           return Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(cornerRadius),
             ),
             child: SizedBox(
                 height: size.height * 0.08,
@@ -306,7 +350,7 @@ class CreateGame extends StatelessWidget {
                     remove: true,
                     removeCallback: (String id) => removeFriend(id))),
             // child: Text(e.user.userName),
-            elevation: 8,
+            elevation: 3,
           );
         }).toList());
   }

@@ -45,6 +45,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   bool _userInit = false;
   bool _friendsInit = false;
+  bool _advancedSettings = false;
 
   GameProvider _gameProvider;
 
@@ -53,6 +54,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
 // is Private vars
   bool isPublic = true;
+
   Function updateIsPrivate(bool value) {
     setState(() {
       isPublic = value;
@@ -61,6 +63,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
 //allow Premade vars
   bool allowPremades = true;
+
   Function updateAllowPremades(bool value) {
     setState(() {
       allowPremades = value;
@@ -89,6 +92,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   double time = 10;
   double timeMin = 0;
   double timeMax = 50;
+
   Function updateTime(double value) {
     setState(() {
       time = value;
@@ -102,6 +106,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   double incrementMin = 0;
   double incrementMax = 10;
   int incrementDivisions = 10;
+
   Function updateIncrement(double value) {
     setState(() {
       increment = value;
@@ -110,6 +115,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   // Friend Popup
   int friendSelectionAmount = 0;
+
   Function confirmFriendSelection(List<String> selectedFriendIds) {
     selectedFriends = friends
         .where((friend) => selectedFriendIds.contains(friend.user.id))
@@ -133,6 +139,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   // Rating Range
   double posRatingRange;
+
   updateRatingRange(RangeValues values) {
     print(user.score);
     if (values.start <= user.score) {
@@ -192,6 +199,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   }
 
   bool didCheckForPreInvites = false;
+
   void checkForPreInvites() {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
@@ -276,6 +284,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
           updatePlayerColorSelection: (int index) =>
               updatePlayerColorSelection(index),
           updateTime: (double value) => updateTime(value),
+          advancedSettings: _advancedSettings,
+          updateAdvancedSettings: () => setState(() {
+            _advancedSettings = !_advancedSettings;
+          }),
         );
       }),
     );

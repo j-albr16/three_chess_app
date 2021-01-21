@@ -10,15 +10,16 @@ class GameConversion {
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
     // convert Chess moves and add them to exisitng Chess Move Class
+    if (gameData == null) {
+      return null;
+    }
     List<ChessMove> chessMoves = [];
-    // TODO : Delete
     gameData['chessMoves']?.forEach((e) => chessMoves.add(rebaseOneMove(e)));
     // convert player List and add them to existing player class
     List<Player> convPlayer = connectUserPlayerData(
       player: gameData['player'],
       users: gameData['user'],
     );
-    // TODO : Delete Printout
     print('Finished converting Player and User');
     // creates a game and sets Game options in it
     Game game = createGameWithOptions(gameData['options']);

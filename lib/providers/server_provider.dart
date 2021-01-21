@@ -10,6 +10,7 @@ import '../data/server.dart';
 import '../models/chess_move.dart';
 import '../helpers/user_acc.dart';
 import '../models/user.dart';
+import '../models/game.dart';
 import '../providers/game_provider.dart';
 
 class ServerProvider with ChangeNotifier {
@@ -143,6 +144,7 @@ class ServerProvider with ChangeNotifier {
     //   print('Connection Socket Failed');
     // }
   }
+
   //#########################################################################################################
 
   //#########################################################################################################
@@ -158,6 +160,7 @@ class ServerProvider with ChangeNotifier {
   void unSubscribeToGameLobbyChannel(String gameId) {
     _socket.off(gameId);
   }
+
   //#########################################################################################################
 
   //#########################################################################################################
@@ -317,7 +320,50 @@ class ServerProvider with ChangeNotifier {
     // _validation(data);
     return data;
   }
+
   //#########################################################################################################
+  // Local Games -------------------------------------------------------------------------------------------
+  Future<Map<String, dynamic>> fetchLocalGames() async {
+    print('Start Fetching Local Games');
+      final String url = SERVER_ADRESS + 'fetch-local-games' + _authString;
+      final encodedResponse = await http.get(url);
+      final Map<String, dynamic> data = json.decode(encodedResponse.body);
+      _printRawData(data);
+      _validation(data);
+      return data;
+  }
+
+  List<Map<String, dynamic>> rebaseChessMoves(List<ChessMove> chessMoves) {
+    return chessMoves
+        .map((chessMove) => {
+              'remainingTime': chessMove.remainingTime,
+              'initialTile': chessMove.initialTile,
+              'nextTile': chessMove.nextTile,
+            })
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> saveGames(
+      Game localGame, Game analyzeGame) async {
+    final List<Map<String, dynamic>> analyzeChessMoves =
+        rebaseChessMoves(analyzeGame.chessMoves);
+    final List<Map<String, dynamic>> localChessMoves =
+        rebaseChessMoves(localGame.chessMoves);
+    final String url = SERVER_ADRESS + 'save-local-games' + _authString;
+    final body = json.encode({
+      'analyzeGame': {'chessMoves': analyzeChessMoves},
+      'localGame': {
+        'chessMoves': localChessMoves,
+        'options': {'time': localGame.time, 'increment': localGame.increment}
+      }
+    });
+    final encodedResponse = await http
+        .post(url, body: body, headers: {'Content-Type': 'application/json'});
+    final Map<String, dynamic> data = json.decode(encodedResponse.body);
+    _printRawData(data);
+    _validation(data);
+    return data;
+  }
 
   //#########################################################################################################
   // Friend Provider ---------------------------------------------------------------------------------------
@@ -390,6 +436,7 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     return data;
   }
+
   //#########################################################################################################
 
   //#########################################################################################################
@@ -427,6 +474,7 @@ class ServerProvider with ChangeNotifier {
     _validation(data);
     return data;
   }
+
   //#########################################################################################################
 
   //#########################################################################################################
@@ -440,7 +488,7 @@ class ServerProvider with ChangeNotifier {
     return data;
   }
 
-  Future<bool> declineInvitation(String  gameId, bool all) async {
+  Future<bool> declineInvitation(String gameId, bool all) async {
     final String url = SERVER_ADRESS + 'decline-invitation' + _authString;
     final encodedResponse = await http.post(
       url,
@@ -753,6 +801,7 @@ class ServerProvider with ChangeNotifier {
       handleError('error while making buck report', error);
     }
   }
+
   //#########################################################################################################
 
   void _validation(Map<String, dynamic> data) {

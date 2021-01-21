@@ -29,6 +29,8 @@ class LobbyActions extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     return SorroundingCard(
+      width: size.width,
+      height: size.height,
       padding: EdgeInsets.all(mainBoxPadding / 2),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,7 +52,7 @@ class LobbyActions extends StatelessWidget {
                                     size: size,
                                     description: child.value,
                                     buttonSize: Size(
-                                        size.width * 0.28, size.height * 0.06),
+                                        size.width * 0.25, size.height * 0.06),
                                     theme: theme,
                                     onTap: _createGameTap(child.key),
                                   ),

@@ -54,6 +54,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 child: Container(
                   child: LobbyTable(
                     width: screenWidth,
+                    theme: Theme.of(context),
                     height: screenHeight * 0.5,
                     selectedColumns: [
                       ColumnType.Time,

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../providers/game_provider.dart';
+import '../../providers/lobby_provider.dart';
 
 import '../../models/game.dart';
 
@@ -13,6 +14,7 @@ typedef void GameSelectCall(Game game);
 
 class LobbyTable extends StatefulWidget {
   final GameProvider gameProvider;
+  final LobbyProvider lobbyProvider;
 
   final GameSelectCall onGameTap;
   final ColumnType selectedColumns;
@@ -21,7 +23,7 @@ class LobbyTable extends StatefulWidget {
   final double height;
   final double width;
 
-  LobbyTable({this.width = 1000, this.height = 1000, this.gameProvider, this.onGameTap, this.selectedColumns});
+  LobbyTable({this.width = 1000, this.height = 1000, this.gameProvider, this.onGameTap, this.selectedColumns, this.lobbyProvider});
 
   @override
   _LobbyTableState createState() => _LobbyTableState();
@@ -71,7 +73,7 @@ class _LobbyTableState extends State<LobbyTable> {
 
   @override
   void initState() {
-    loadWidgets();
+    Future.delayed(Duration.zero).then((_) => loadWidgets(Theme.of(context)));
     _loadComparisons();
     _selectedColoumn = List.from(ColumnType.values, growable: true);
     _scrollController = ScrollController()..addListener(() => _scrollListener());
@@ -182,7 +184,7 @@ class _LobbyTableState extends State<LobbyTable> {
       }
     }
     setState(() {
-      _columns = selectedColoumn.map((e) => orderColumn(e)).toList();
+      _columns = selectedColoumn.map((e) => orderColumn(e, Theme.of(context))).toList();
     });
   }
 
@@ -218,11 +220,11 @@ class _LobbyTableState extends State<LobbyTable> {
     ColumnType.Fullness: 1,
   };
 
-  Widget getHeader(ColumnType type) {
-    return Center(child: Text(columnHeader[type], style: TextStyle(fontSize: 16)));
+  Widget getHeader(ColumnType type, ThemeData theme) {
+    return Center(child: Text(columnHeader[type], style: TextStyle(color: Colors.black)));
   }
 
-  Widget orderColumn(ColumnType e) {
+  Widget orderColumn(ColumnType e, ThemeData theme) {
     return Container(
       //decoration: BoxDecoration(border: Border(left: borderSide, right: borderSide)),
         key: ValueKey(0),
@@ -230,44 +232,44 @@ class _LobbyTableState extends State<LobbyTable> {
   }
 
   Map<ColumnType, ColumnCell> columnWidget;
-  void loadWidgets() {
+  void loadWidgets( ThemeData theme) {
     columnWidget = {
       ColumnType.UserName1: (Game game) => Row(children: [
         Spacer(),
-        Text(_user(0, game)),
+        Text(_user(0, game), style: theme.textTheme.bodyText1),
         Spacer(),
         Align(
-          child: Text(_score(0, game)),
+          child: Text(_score(0, game), style: theme.textTheme.bodyText1),
           alignment: Alignment.centerRight,
         ),
         Spacer()
       ]),
       ColumnType.UserName2: (Game game) => Row(children: [
         Spacer(),
-        Text(_user(1, game)),
+        Text(_user(1, game),style: theme.textTheme.bodyText1),
         Spacer(),
         Align(
-          child: Text(_score(1, game)),
+          child: Text(_score(1, game), style: theme.textTheme.bodyText1),
           alignment: Alignment.centerRight,
         ),
         Spacer()
       ]),
       ColumnType.AverageScore: (Game game) => Center(
-        child: Text("~" + _avgScore(game).toString()),
+        child: Text("~" + _avgScore(game).toString(), style: theme.textTheme.bodyText1),
       ),
       ColumnType.Time: (Game game) => Center(
           child: Text(((game.time - (game.time % 60)) / 60).toString() +
               ":" +
               (game.time % 60).toString() +
               " + " +
-              game.increment.toString())),
+              game.increment.toString(), style: theme.textTheme.bodyText1)),
       ColumnType.Mode: (Game game) => Center(child: Column(
         children: [
           if(game.allowPremades)Icon(Icons.group_add, color: Colors.orange,),
-          Text(game.isRated ? "Rated" : "Unrated"),
+          Text(game.isRated ? "Rated" : "Unrated", style: theme.textTheme.bodyText1),
         ],
       )),
-      ColumnType.Fullness: (Game game) => Center(child: Text(game.player.length.toString() + "/3")),
+      ColumnType.Fullness: (Game game) => Center(child: Text(game.player.length.toString() + "/3", style: theme.textTheme.bodyText1)),
     };
   }
 
@@ -323,7 +325,7 @@ class _LobbyTableState extends State<LobbyTable> {
     if (!noHeader) {
       result.add(wrapHeaderCell(
         type: type,
-        child: getHeader(type),
+        child: getHeader(type, Theme.of(context)),
       ));
     }
     for (Game game in games) {
@@ -398,7 +400,7 @@ class _LobbyTableState extends State<LobbyTable> {
   @override
   Widget build(BuildContext context) {
 
-      games = widget.gameProvider?.games?.where((element) => element.player.length < 3)?.toList() ?? [];
+      games = widget.lobbyProvider?.lobbyGames?.where((element) => element.player.length < 3)?.toList() ?? [];
 
       _resort();
 

@@ -7,6 +7,7 @@ import '../models/user.dart';
 import '../providers/user_provider.dart';
 import '../models/friend.dart';
 import '../providers/friends_provider.dart';
+import '../providers/lobby_provider.dart';
 
 typedef CreateGameCallback(
     {int increment,
@@ -30,6 +31,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     super.initState();
     Future.delayed(Duration.zero).then((_) {
       _gameProvider = Provider.of<GameProvider>(context, listen: false);
+      _lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
       Provider.of<FriendsProvider>(context, listen: false)
           .fetchFriends()
           .then((_) => setState(() {
@@ -45,15 +47,18 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   bool _userInit = false;
   bool _friendsInit = false;
+  bool _advancedSettings = false;
 
   GameProvider _gameProvider;
+  LobbyProvider _lobbyProvider;
 
   Size size;
   User user;
 
 // is Private vars
   bool isPublic = true;
-  Function updateIsPrivate(bool value) {
+
+  void updateIsPrivate(bool value) {
     setState(() {
       isPublic = value;
     });
@@ -61,14 +66,15 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
 //allow Premade vars
   bool allowPremades = true;
-  Function updateAllowPremades(bool value) {
+
+  void updateAllowPremades(bool value) {
     setState(() {
       allowPremades = value;
     });
   }
 
 // is Public Button Bar (Switch)
-  Function updateButtonBarData(int index) {
+  void updateButtonBarData(int index) {
     setState(() {
       currentPublicitySelection = index;
     });
@@ -77,7 +83,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   int currentPublicitySelection = 0;
 
 // player Color Selection
-  Function updatePlayerColorSelection(int index) {
+  void updatePlayerColorSelection(int index) {
     setState(() {
       playerColorSelection = index;
     });
@@ -89,7 +95,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   double time = 10;
   double timeMin = 0;
   double timeMax = 50;
-  Function updateTime(double value) {
+
+  void updateTime(double value) {
     setState(() {
       time = value;
     });
@@ -102,7 +109,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   double incrementMin = 0;
   double incrementMax = 10;
   int incrementDivisions = 10;
-  Function updateIncrement(double value) {
+
+  void updateIncrement(double value) {
     setState(() {
       increment = value;
     });
@@ -110,7 +118,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   // Friend Popup
   int friendSelectionAmount = 0;
-  Function confirmFriendSelection(List<String> selectedFriendIds) {
+
+  void confirmFriendSelection(List<String> selectedFriendIds) {
     selectedFriends = friends
         .where((friend) => selectedFriendIds.contains(friend.user.id))
         .toList();
@@ -118,11 +127,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     setState(() {});
   }
 
-  Function cancelFriendSelection() {
+  void cancelFriendSelection() {
     Navigator.of(context).pop();
   }
 
-  Function removeFriend(String id) {
+  void removeFriend(String id) {
     setState(() {
       selectedFriends.removeWhere((friend) => friend.user.id == id);
     });
@@ -133,6 +142,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   // Rating Range
   double posRatingRange;
+
   updateRatingRange(RangeValues values) {
     print(user.score);
     if (values.start <= user.score) {
@@ -174,7 +184,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       posRatingRange,
       allowPremades}) {
     print('Create Game');
-    _gameProvider.createGame(
+    _lobbyProvider.createGame(
       increment: increment,
       time: time,
       invitations: invitations,
@@ -187,11 +197,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     Navigator.of(context).pop();
   }
 
-  Function cancelCreateGame() {
+  void cancelCreateGame() {
     Navigator.of(context).pop();
   }
 
   bool didCheckForPreInvites = false;
+
   void checkForPreInvites() {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
@@ -276,6 +287,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
           updatePlayerColorSelection: (int index) =>
               updatePlayerColorSelection(index),
           updateTime: (double value) => updateTime(value),
+          advancedSettings: _advancedSettings,
+          updateAdvancedSettings: () => setState(() {
+            _advancedSettings = !_advancedSettings;
+          }),
         );
       }),
     );

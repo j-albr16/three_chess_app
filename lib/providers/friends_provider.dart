@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 
 import '../models/friend.dart';
@@ -212,7 +211,7 @@ class FriendsProvider with ChangeNotifier {
 
   void _handleGameInvitation(Map<String, dynamic> gameData) {
     print('Handling Game Invitation');
-    _invitations.add(GameConversion.rebaseWholeGame(gameData));
+    _invitations.add(GameConversion.rebaseOnlineGame(gameData, gameData['player'], gameData['user']));
     newInvitation = true;
     notifyListeners();
   }

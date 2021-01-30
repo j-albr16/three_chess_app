@@ -14,13 +14,16 @@ enum RequestType {
   Surrender,
   TakeBack,
 }
+
 const Map<RequestType, String> requestTypeInterface = {
   RequestType.TakeBack: "Take Back",
   RequestType.Remi: "Draw",
   RequestType.Surrender: "Surrender",
 };
 
-enum TableAction { DrawOffer, TakebackRequest, SurrenderRequest }
+enum TableAction { DrawOffer, TakeBackRequest, SurrenderRequest }
+
+enum ChatType {Friend , OnlineGame, Lobby}
 
 enum PieceKey {
   PawnWhite,
@@ -55,11 +58,14 @@ enum HowGameEnded {
 
 enum GameType { Local, Analyze, Online }
 
-enum ResponseRole {
-  Accept,
-  Create,
-  Decline,
-}
+Map<GameType, String> gameTypeString = {
+  GameType.Analyze: 'Analyze',
+  GameType.Local: 'Local',
+  GameType.Online: 'Online',
+};
+
+enum
+ResponseRole {Accept,Create,Decline,}
 
 enum MessageOwner {
   You,

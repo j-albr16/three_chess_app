@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/chat_provider.dart';
 import '../../../widgets/chat.dart';
+import '../../../models/enums.dart';
 
 class ChatBoardSubScreen extends StatefulWidget {
   final double height;
@@ -67,7 +68,7 @@ class _ChatBoardSubScreenState extends State<ChatBoardSubScreen> {
         height: widget.height,
         child: FutureBuilder(
           future: Provider.of<ChatProvider>(context).selectChatRoom(
-              isGameChat: true, id: widget.chatId, context: context),
+              chatType: ChatType.OnlineGame, id: widget.chatId, context: context),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(

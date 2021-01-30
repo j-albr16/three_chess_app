@@ -27,7 +27,8 @@ class MainPageViewer extends StatefulWidget {
   State createState() => new MainPageViewerState();
 }
 
-class MainPageViewerState extends State<MainPageViewer> with notificationPort<MainPageViewer> {
+class MainPageViewerState extends State<MainPageViewer>
+    with notificationPort<MainPageViewer> {
   PageController _controller;
 
   static const _kDuration = const Duration(milliseconds: 300);
@@ -40,12 +41,23 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
     Future.delayed(Duration.zero).then((_) {
-      GameProvider gameProvider = Provider.of<GameProvider>(context, listen: false);
-      gameProvider.fetchAll();
-         Provider.of<FriendsProvider>(context, listen: false).fetchFriends();
-         Provider.of<FriendsProvider>(context, listen: false).fetchInvitations();
-         Provider.of<OnlineProvider>(context, listen: false);
-         Provider.of<UserProvider>(context, listen: false).fetchUser();
+      // Provider Init
+      GameProvider gameProvider =
+          Provider.of<GameProvider>(context, listen: false);
+      LobbyProvider lobbyProvider =
+          Provider.of<LobbyProvider>(context, listen: false);
+      FriendsProvider friendsProvider =
+          Provider.of<FriendsProvider>(context, listen: false);
+      UserProvider userProvider =
+          Provider.of<UserProvider>(context, listen: false);
+      // Game Fetching
+      gameProvider.fetchOnlineGames();
+      lobbyProvider.fetchPendingGames();
+      lobbyProvider.fetchLobbyGames();
+      // Friends
+      friendsProvider.fetchFriends();
+      friendsProvider.fetchInvitations();
+      userProvider.fetchUser();
     });
 
     //TODO REMOVE

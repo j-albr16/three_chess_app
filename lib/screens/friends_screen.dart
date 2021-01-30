@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/models/enums.dart';
 
 import '../screens/chat_screen.dart';
 import '../screens/create_game_screen.dart';
@@ -152,7 +153,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
               onTap: (friend) {
                 print('Select Chat and Navigate to new Chat after Selection');
                 return Provider.of<ChatProvider>(context, listen: false)
-                    .selectChatRoom(id: friend.userId, isGameChat: false)
+                    .selectChatRoom(id: friend.userId, chatType: ChatType.Friend)
                     .then((_) =>
                         Navigator.of(context).pushNamed(ChatScreen.routeName));
                 // TODO Open Chat where chat is supposed to be and not design Test Screen

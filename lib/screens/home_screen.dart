@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/helpers/constants.dart';
 import 'package:three_chess/screens/invitation_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +8,8 @@ import '../widgets/meta_data_count.dart';
 import '../providers/online_provider.dart';
 import '../widgets/report_error_dialog.dart';
 import '../widgets/homescreen_action_buttons.dart';
-import '../screens/auth_test_screen.dart';
+import '../screens/auth_screen.dart';
+import './test_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -18,6 +20,12 @@ class HomeScreen extends StatelessWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+                icon: Icon(Icons.dashboard_sharp),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(DesignTestScreen.routeName))
+          ],
           title: Text('Home Screen'),
         ),
         body: SizedBox(
@@ -30,7 +38,7 @@ class HomeScreen extends StatelessWidget {
                 title(theme),
                 // SizedBox(height: 7),
                 Divider(
-                  thickness: 2,
+                  thickness: dividerThickness,
                 ),
                 // SizedBox(height: 7),
                 Logo(

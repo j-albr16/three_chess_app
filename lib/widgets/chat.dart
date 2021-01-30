@@ -10,7 +10,7 @@ import '../models/user.dart';
 import './basic/text_field.dart';
 import '../providers/friends_provider.dart';
 import '../models/chat_model.dart' as mod;
-import '../screens/auth_test_screen.dart' as DEC;
+import '../screens/auth_screen.dart' as DEC;
 import '../helpers/constants.dart';
 
 typedef void SubmitMessage(String message);

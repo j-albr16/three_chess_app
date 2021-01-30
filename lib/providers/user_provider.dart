@@ -19,8 +19,8 @@ class UserProvider with ChangeNotifier{
     _gameProvider = gameProvider;
     _serverProvider = serverProvider;
     _user = user;
-    if(_gameProvider?.game?.finishedGameData != null){
-      _user.score = _gameProvider.game.finishedGameData[_gameProvider.player.playerColor]; // new Score of Auth user with the given Player Color
+    if(_gameProvider?.onlineGame?.finishedGameData != null){
+      _user.score = _gameProvider.onlineGame.finishedGameData[_gameProvider.player.playerColor]; // new Score of Auth user with the given Player Color
     }
     notifyListeners();
   }

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../providers/game_provider.dart';
+import '../../providers/lobby_provider.dart';
 import '../../models/game.dart';
 
 typedef void GameSelectCall(Game game);
@@ -44,6 +45,7 @@ class LobbyTableLess extends StatelessWidget {
 
 class LobbyTable extends StatefulWidget {
   final GameProvider gameProvider;
+  final LobbyProvider lobbyProvider;
 
   GameSelectCall onGameTap;
 
@@ -54,6 +56,7 @@ class LobbyTable extends StatefulWidget {
       {this.width = 1000,
       this.height = 1000,
       this.gameProvider,
+        this.lobbyProvider,
       this.onGameTap});
 
   @override
@@ -448,7 +451,7 @@ class _LobbyTableState extends State<LobbyTable> {
 
   @override
   Widget build(BuildContext context) {
-    games = widget.gameProvider?.games
+    games = widget.lobbyProvider?.lobbyGames
             ?.where((element) => element.player.length < 3)
             ?.toList() ??
         [];

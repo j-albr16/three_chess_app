@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/providers/scroll_provider.dart';
 
 import 'providers/chat_provider.dart';
 
+import './providers/scroll_provider.dart';
 import './screens/board_screen.dart';
 import './screens/design-test-screen.dart';
 import './providers/game_provider.dart';

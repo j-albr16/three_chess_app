@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
 
-import '../../board/BoardState.dart';
-import '../../board/Tiles.dart';
+import '../../board/client_game.dart';
+import '../../helpers/scroll_sections.dart';
 import '../../models/enums.dart';
 import '../../models/request.dart';
-import '../../providers/board_state_manager.dart';
+import '../../providers/ClientGameProvider.dart';
 import '../../providers/scroll_provider.dart';
 import '../../widgets/accept_table_action.dart';
 import '../../providers/game_provider.dart';
@@ -24,26 +24,34 @@ class GameBoardScreen extends StatefulWidget {
   _GameBoardScreenState createState() => _GameBoardScreenState();
 }
 
-class _GameBoardScreenState extends State<GameBoardScreen> {
+class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
   ThreeChessBoard threeChessBoard;
   ScrollController controller;
-  double iconBarFractionOfTable = 0.1;
-  double gameTableHeightFraction = 0.7;
-  double chatScreenHeight = 0;
-  double voteHeightFraction = 0.1;
+  final double iconBarFractionOfTable = 0.1;
+  final double gameTableHeightFraction = 0.7;
+  final double voteHeightFraction = 0.1;
   GameProvider gameProvider;
-  Tiles tileKeeper;
+
+  double tableIconBarHeight(double screenHeight){
+    return iconBarFractionOfTable * screenHeight;
+  }
+
+  double tableBodyHeight(double screenHeight){
+    return gameTableHeightFraction * screenHeight - iconBarFractionOfTable;
+  }
+
+  double chatScreenHeight(double screenHeight){
+    return screenHeight;
+  }
 
   @override
   void initState() {
     controller = ScrollController();
-    tileKeeper = Tiles();
     Future.delayed(Duration.zero).then((_) {
       gameProvider = Provider.of(context, listen: false);
+      sections = _createSections(MediaQuery.of(context).size.height);
     });
 
-    // threeChessBoard = ThreeChessBoard(
-    //     boardState: BoardState.newGame(), height: 1000, width: 1000);
     super.initState();
   }
 
@@ -53,67 +61,42 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     super.dispose();
   }
 
-  List<double> _sectionStarts(double screenHeight, int requestsLength) {
-    double chatHeight = chatScreenHeight ?? screenHeight;
-    double requestsHeight =
-        (screenHeight * voteHeightFraction) * requestsLength;
 
+
+  List<ScrollSection> _createSections(double screenHeight){
     return [
-      0,
-      chatHeight,
-      chatHeight + requestsHeight + 30 * (requestsHeight == 0 ? 0 : 1),
-      chatHeight +
-          requestsHeight +
-          (screenHeight * gameTableHeightFraction * iconBarFractionOfTable) +
-          30,
-      // (20 max dot size, 5 +5 edgeInsets)30 should be the grey bar at the bottom
-      chatHeight + requestsHeight + (screenHeight * gameTableHeightFraction),
+      ScrollSection(name: "Chat", height: chatScreenHeight(screenHeight), isAnchorTop: true),
+      ScrollSection(name: "Board", height: screenHeight, isAnchorTop: true),
+      ScrollSection(name: "Requests", height: 0, isAnchorTop: false),
+      ScrollSection(name: "IconBar", height: tableIconBarHeight(screenHeight), isAnchorTop: false),
+      ScrollSection(name: "Table", height: tableBodyHeight(screenHeight), isAnchorTop: false),
     ];
   }
 
-  List<Widget> _subScreens;
 
-  _goToNearestSubScreen(double screenHeight, int requestsLength) {
-    controller.animateTo(
-        _sectionStarts(screenHeight, requestsLength)[_nearestIndexOf(
-            controller.offset, _sectionStarts(screenHeight, requestsLength))],
-        curve: Curves.linear,
-        duration: Duration(milliseconds: 200));
-    //curve: Curves.bounceIn, duration: Duration(milliseconds: 200
-  } //_sectionStarts(screenHeight)[_nearestIndexOf(controller.offset, _sectionStarts(screenHeight))]
-
-  int _nearestIndexOf(double input, List<double> list) {
-    assert(list != null && list.isNotEmpty);
-
-    double difference = (list[0] - input).abs();
-    int index = 0;
-    //print("input: $input");
-    for (int i = 1; i < list.length; i++) {
-      if ((list[i] - input).abs() < difference) {
-        difference = (list[i] - input).abs();
-        index = i;
-      }
-    }
-    //print("index: $index");
-    return index;
+  Function getOnAccept(RequestType requestType) {
+    Map<RequestType, Function> onAccept = {
+      RequestType.Surrender: () => gameProvider.acceptSurrender(),
+      RequestType.Remi: () => gameProvider.acceptRemi(),
+      RequestType.TakeBack: () => gameProvider.acceptTakeBack(),
+    };
+    return onAccept[requestType];
   }
 
-  bool _onEndNotification(ScrollEndNotification scrollNotification,
-      double screenHeight, int requestsLength) {
-    if (scrollNotification is ScrollEndNotification) {
-      Future.delayed(Duration.zero)
-          .then((_) => _goToNearestSubScreen(screenHeight, requestsLength));
-      //print("i tried, this scroll just ended");
-    }
-    return true;
+  Function getOnDecline(RequestType requestType) {
+    Map<RequestType, Function> onDecline = {
+      RequestType.Surrender: () => gameProvider.declineSurrender(),
+      RequestType.Remi: () => gameProvider.declineRemi(),
+      RequestType.TakeBack: () => gameProvider.declineTakeBack(),
+    };
+    return onDecline[requestType];
   }
+
 
   @override
   Widget build(BuildContext context) {
-    BoardState boardState =
-        Provider.of<BoardStateManager>(context, listen: false).boardState;
-    BoardState boardStateListen =
-        Provider.of<BoardStateManager>(context).boardState;
+    ClientGame clientGame =
+        Provider.of<ClientGameProvider>(context, listen: false).clientGame;
 
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal;
 
@@ -124,47 +107,9 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
 
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
 
-    Function getOnAccept(RequestType requestType) {
-      Map<RequestType, Function> onAccept = {
-        RequestType.Surrender: () => gameProvider.acceptSurrender(),
-        RequestType.Remi: () => gameProvider.acceptRemi(),
-        RequestType.TakeBack: () => gameProvider.acceptTakeBack(),
-      };
-      return onAccept[requestType];
-    }
-
-    Function getOnDecline(RequestType requestType) {
-      Map<RequestType, Function> onDecline = {
-        RequestType.Surrender: () => gameProvider.declineSurrender(),
-        RequestType.Remi: () => gameProvider.declineRemi(),
-        RequestType.TakeBack: () => gameProvider.declineTakeBack(),
-      };
-      return onDecline[requestType];
-    }
-
-    Map<RequestType, Function> onRequest = {
-      RequestType.Surrender: () => gameProvider.requestSurrender(),
-      RequestType.Remi: () => gameProvider.requestRemi(),
-      RequestType.TakeBack: () => gameProvider.requestTakeBack(),
-    };
-
-    Map<RequestType, Function> onLocalRequest = {
-      RequestType.Surrender: () => boardState.newGame(),
-      //TODO TESTING PHASE ONLY
-      RequestType.Remi: () => boardState.newGame(),
-      //TODO TESTING PHASE ONLY
-      RequestType.TakeBack: () {
-        if (boardState.chessMoves.length != null &&
-            boardState.chessMoves.length > 1) {
-          boardState.transformTo(boardState.chessMoves
-              .sublist(0, boardState.chessMoves.length - 1));
-        }
-      },
-    };
 
     return RelativeBuilder(
       builder: (context, screenHeight, screenWidth, sy, sx) {
-        double usableHeight = screenHeight - unusableHeight;
         List<Request> requests =
             []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
 
@@ -181,6 +126,9 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
         )
 
          */
+
+        updateHeightOf(sectionIndex: 2, height: (requests.length * (screenHeight * voteHeightFraction)));
+
         List<Widget> votes = [];
         requests.forEach((request) {
           votes.add(AcceptRequestType(
@@ -190,34 +138,25 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
             onAccept: () => getOnAccept(request.requestType),
             onDecline: () => getOnDecline(request.requestType),
             movesLeftToVote: 3 -
-                ((boardState.chessMoves.length % 3) -
+                ((clientGame.chessMoves.length % 3) -
                         ((request.playerResponse[ResponseRole.Create].index +
                                 2) %
                             3))
                     .abs(),
           ));
         });
-        bool isLocal = Provider.of<BoardStateManager>(context).gameType !=
-            GameType
-                .Online; // TODO NEEDS A MORE ORGANIZED WAY, BoardStateManager maybe?
-        _subScreens = [
+
+        List<Widget> _subScreens = [
           ChatBoardSubScreen(
-            height: chatScreenHeight ?? screenHeight,
+            height: chatScreenHeight(screenHeight),
           ),
-          BoardBoardSubScreen(
-            boardState: boardState,
-            boardStateListen: boardStateListen,
-            tileKeeper: tileKeeper,
-          ),
+          BoardBoardSubScreen(),
           ...votes,
           TableBoardSubScreen(
-              boardStateListen: boardStateListen,
               controller: ScrollController(),
-              isLocal: isLocal,
-              onRequest: !isLocal ? onRequest : onLocalRequest,
-              // TODO FOR TESTING PHASE, Local should be decided not just on game == null
-              height: gameTableHeightFraction * screenHeight,
-              iconBarFraction: iconBarFractionOfTable),
+              onRequest: clientGame.doActionButton,
+              bodyHeight: tableBodyHeight(screenHeight),
+              iconBarHeight: tableIconBarHeight(screenHeight)),
         ];
 
         return Scaffold(
@@ -230,8 +169,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
             ],
           ),
           body: NotificationListener<ScrollEndNotification>(
-            onNotification: (scrollNotification) => _onEndNotification(
-                scrollNotification, screenHeight, requests.length),
+            onNotification: (scrollNotification) => onEndNotification(
+                scrollNotification: scrollNotification, screenHeight: screenHeight),
             child: SingleChildScrollView(
               physics: Provider.of<ScrollProvider>(context).isMakeAMoveLock
                   ? NeverScrollableScrollPhysics()

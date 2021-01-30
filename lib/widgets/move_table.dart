@@ -11,7 +11,8 @@ typedef void RequestAction(RequestType requestType);
 
 class GameTable extends StatelessWidget {
   final BoardState boardStateListen;
-  final Size size;
+  final double width;
+  final double bodyHeight;
   final List<RequestType> pendingActions;
   final RequestType confirmation;
   final RequestAction onConfirmation;
@@ -19,16 +20,17 @@ class GameTable extends StatelessWidget {
   final RequestAction onRequest;
   final RequestAction onRequestCancel;
   final ScrollController controller;
-  final double iconBarFraction;
+  final double iconBarHeight;
 
   GameTable(
       {this.boardStateListen,
-        this.iconBarFraction,
+        this.iconBarHeight,
       this.onRequestCancel,
       this.onConfirmation,
       this.onConfirmationCancel,
       this.onRequest,
-      this.size,
+      this.width,
+        this.bodyHeight,
       this.controller,
       this.pendingActions,
       this.confirmation});
@@ -36,8 +38,8 @@ class GameTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width,
-      height: size.height,
+      width: width,
+      height: bodyHeight + iconBarHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
         color: Colors.black54,
@@ -58,7 +60,7 @@ class GameTable extends StatelessWidget {
                   children:pendingActions.map((pendingAction) =>  Align(
                   alignment: Alignment.topCenter,
                   child: pendingBox(
-                      height: size.height * 0.1, pendingAction: pendingAction))).toList()
+                      height: (bodyHeight + iconBarHeight) * 0.1, pendingAction: pendingAction))).toList()
              ),
           ]),
         ],
@@ -228,8 +230,8 @@ class GameTable extends StatelessWidget {
           bottom: BorderSide(color: Colors.white),
         ),
       ),
-      width: size.width,
-      height: size.height * iconBarFraction, //TODO Should inherit IconBarFraction of BoardScreen
+      width: width,
+      height: iconBarHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: confirmation != null

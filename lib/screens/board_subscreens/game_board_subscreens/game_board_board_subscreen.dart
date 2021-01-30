@@ -3,83 +3,69 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
+import 'package:three_chess/board/client_game.dart';
+import 'package:three_chess/providers/ClientGameProvider.dart';
 
 import '../../../board/BoardState.dart';
 import '../../../board/Tiles.dart';
 import '../../../models/enums.dart';
 import '../../../models/player.dart';
-import '../../../providers/board_state_manager.dart';
 import '../../../widgets/board_boarding_widgets.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/three_chess_board.dart';
 
 class BoardBoardSubScreen extends StatefulWidget {
-  final BoardState boardState;
-  final BoardState boardStateListen;
-  final Tiles tileKeeper;
-  final bool local;
 
-  BoardBoardSubScreen(
-      {this.local, this.boardState, this.tileKeeper, this.boardStateListen});
+  BoardBoardSubScreen();
 
   @override
   _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
 }
 
 class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
-  bool local;
   ThreeChessBoard threeChessBoard;
 
   @override
   void initState() {
-    local = widget.local;
     super.initState();
   }
 
   _moveLeft(context) {
-    BoardStateManager boardStateManager =
-        Provider.of<BoardStateManager>(context, listen: false);
-    boardStateManager
-        .setSelectedMove(boardStateManager.boardState.selectedMove--);
+    ClientGameProvider clientGameProvider =
+        Provider.of<ClientGameProvider>(context, listen: false);
+    clientGameProvider
+        .clientGame.selectedMove = clientGameProvider.clientGame.selectedMove--;
   }
 
   _moveRight(context) {
-    BoardStateManager boardStateManager =
-        Provider.of<BoardStateManager>(context, listen: false);
-    boardStateManager
-        .setSelectedMove(boardStateManager.boardState.selectedMove++);
+    ClientGameProvider clientGameProvider =
+    Provider.of<ClientGameProvider>(context, listen: false);
+    clientGameProvider
+        .clientGame.selectedMove = clientGameProvider.clientGame.selectedMove++;
   }
 
   @override
   Widget build(BuildContext context) {
+    ClientGame clientGame = Provider.of<ClientGameProvider>(context).clientGame;
     Player leftCorner;
     Player rightCorner;
-
-    GameProvider gameProvider =
-        Provider.of<GameProvider>(context, listen: false);
-    GameProvider gameProviderListen = Provider.of<GameProvider>(context);
 
     threeChessBoard = ThreeChessBoard(
       height: 500,
       width: 500,
-      didStart: ValueNotifier<bool>(gameProviderListen.game?.didStart ?? false),
-      whoIsPlaying: Provider.of<BoardStateManager>(context).whoIsPlaying,
-      tileKeeper: widget.tileKeeper,
-      boardState: widget.boardState,
-      boardStateListen: widget.boardStateListen,
     );
 
     Player getPlayer(PlayerColor playerColor) {
-      return gameProviderListen?.game?.player?.firstWhere(
+      return clientGame?.game?.player?.firstWhere(
           (element) => element.playerColor == playerColor,
           orElse: null);
     }
 
-    if (gameProvider.game != null) {
+    if (clientGame.game != null) {
       leftCorner = getPlayer(
-          PlayerColor.values[(gameProvider.player.playerColor.index + 1) % 3]);
+          PlayerColor.values[(clientGame.clientPlayer.index + 1) % 3]);
       rightCorner = getPlayer(
-          PlayerColor.values[(gameProvider.player.playerColor.index + 2) % 3]);
+          PlayerColor.values[(clientGame.clientPlayer.index + 2) % 3]);
     }
 
     double unusableHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
@@ -195,11 +181,11 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                           color: Colors.black45,
                           padding: EdgeInsets.all(5),
                           child: FittedBox(
-                            child: Text(
-                              widget.boardState.selectedMove + 1 ==
-                                      widget.boardState.chessMoves.length
-                                  ? "Move ${widget.boardStateListen.chessMoves.length}"
-                                  : "Move ${widget.boardStateListen.selectedMove + 1} of ${widget.boardStateListen.chessMoves.length}",
+                            child: Text( // TODO Make consumer Widget
+                              clientGame.selectedMove + 1 ==
+                                  clientGame.chessMoves.length
+                                  ? "Move ${clientGame.chessMoves.length}"
+                                  : "Move ${clientGame.selectedMove + 1} of ${clientGame.chessMoves.length}",
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,

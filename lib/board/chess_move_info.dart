@@ -21,4 +21,14 @@ class ChessMoveInfo {
       return false;
         }).toList().isEmpty);
   }
+
+  ChessMoveInfo clone(){
+    return new ChessMoveInfo(
+        chessMove: chessMove,
+        movedPiece: movedPiece,
+        specialMoves: [...specialMoves],
+        targetedPlayer: Map.from(targetedPlayer.map((key, value) => MapEntry<SpecialMove, List<PlayerColor>>(key, [...value]))),
+        takenPiece: takenPiece,
+    );
+  }
 }

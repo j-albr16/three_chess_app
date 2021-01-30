@@ -338,13 +338,6 @@ class BoardState extends BoardStateBone{
     }
   }
 
-  void checkAndExecuteNoMove() {
-    if (super.chessMoves.length > 0 &&
-        !ThinkingBoard.anyLegalMove(
-            PlayerColor.values[super.chessMoves.length % 3], this)) {
-      movePieceTo("", "");
-    }
-  }
 
   @override
   void newGame() {

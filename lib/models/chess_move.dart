@@ -15,4 +15,8 @@ class ChessMove {
   bool equalMove(ChessMove chessMove){
     return (chessMove.initialTile == initialTile && chessMove.nextTile == chessMove.nextTile);
   }
+
+  ChessMove clone(){
+    return new ChessMove(initialTile: initialTile, nextTile: nextTile);
+  }
 }

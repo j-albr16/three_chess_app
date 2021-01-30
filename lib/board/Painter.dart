@@ -17,25 +17,6 @@ class BoardPainter extends StatelessWidget {
 
   BoardPainter({Key key, @required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.pieceOffsetKey, this.highlighted}) : super(key: key);
 
-  // List<Widget> _buildHighlighted(List<String> currHighlighted){
-  //   print(currHighlighted.toString() + "PAINTER SEES THIS");
-  //   List<Widget> result = [];
-  //   for(String highlight in currHighlighted){
-  //     result.add(
-  //         ClipPath(
-  //         child: Container(
-  //           width: double.infinity,
-  //           height: double.infinity,
-  //           color: highlightColor,
-  //         ),
-  //         clipper: PathClipper(path: tiles[highlight].path),
-  //       ));
-  //   }
-  //   return result;
-  // }
-
-
-
 
   @override
   Widget build(BuildContext context) {

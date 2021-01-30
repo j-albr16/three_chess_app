@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/board_state_manager.dart';
+import '../providers/ClientGameProvider.dart';
 import '../providers/friends_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/scroll_provider.dart';
@@ -72,9 +72,9 @@ class MainPageViewerState extends State<MainPageViewer> with notificationPort<Ma
   @override
   Widget build(BuildContext context) {
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
-    return ChangeNotifierProxyProvider<GameProvider, BoardStateManager>(
-    create: (BuildContext context) => BoardStateManager(Provider.of<GameProvider>(context, listen: false)),
-    update: (BuildContext context, GameProvider game, BoardStateManager previousBoardStateManager) => previousBoardStateManager
+    return ChangeNotifierProxyProvider<GameProvider, ClientGameProvider>(
+    create: (BuildContext context) => ClientGameProvider(Provider.of<GameProvider>(context, listen: false)),
+    update: (BuildContext context, GameProvider game, ClientGameProvider previousBoardStateManager) => previousBoardStateManager
       ..update(game),
     child: new Scaffold(
       body: new IconTheme(

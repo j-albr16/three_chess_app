@@ -10,16 +10,16 @@ import '../../../providers/game_provider.dart';
 class TableBoardSubScreen extends StatefulWidget {
   final BoardState boardStateListen;
   final ScrollController controller;
-  final double height;
-  final double iconBarFraction;
-  final Map<RequestType, Function> onRequest;
+  final double bodyHeight;
+  final double iconBarHeight;
+  final Function(RequestType) onRequest;
   final bool isLocal;
 
   TableBoardSubScreen(
       {this.boardStateListen,
       this.controller,
-      this.height,
-      this.iconBarFraction,
+      this.bodyHeight,
+      this.iconBarHeight,
       this.onRequest,
       this.isLocal});
 
@@ -45,9 +45,10 @@ class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
       return GameTable(
-        iconBarFraction: widget.iconBarFraction,
+        iconBarHeight: widget.iconBarHeight,
         boardStateListen: widget.boardStateListen,
-        size: Size(screenWidth * 0.8, widget.height),
+        width: screenWidth * 0.8,
+        bodyHeight: widget.bodyHeight,
         controller: widget.controller,
         confirmation: confirmation,
         onConfirmation: (requestType) {
@@ -63,7 +64,7 @@ class _TableBoardSubScreenState extends State<TableBoardSubScreen> {
               pendingActions.add(requestType);
             }
             confirmation = null;
-            widget.onRequest[requestType]();
+            widget.onRequest(requestType)();
           });
         },
         onRequestCancel: (cancelPending) {

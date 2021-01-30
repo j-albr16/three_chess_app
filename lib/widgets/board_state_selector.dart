@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:three_chess/data/board_data.dart';
 import 'package:three_chess/helpers/constants.dart';
+import 'package:three_chess/models/online_game.dart';
 import 'package:three_chess/widgets/basic/advanced_selection.dart';
 import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
 
 import '../models/enums.dart';
-import '../models/game.dart';
+import '../models/online_game.dart';
 import '../models/enums.dart';
+import '../models/local_game.dart';
 import '../widgets/select_game_widget.dart';
 import '../widgets/basic/chess_divider.dart';
 
@@ -24,9 +26,9 @@ class BoardStateSelector extends StatelessWidget {
   final Function switchOnlineGames;
   final Function switchLocalGames;
 
-  final List<Game> currentGames;
-  final Game localGame;
-  final Game analyzeGame;
+  final List<OnlineGame> currentGames;
+  final LocalGame localGame;
+  final LocalGame analyzeGame;
 
   final int gameIndex;
   final GameType gameType;

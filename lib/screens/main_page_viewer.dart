@@ -12,6 +12,7 @@ import '../screens/friends_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/lobby_screen.dart';
 import '../providers/online_provider.dart';
+import '../providers/lobby_provider.dart';
 import '../screens/screen_bone.dart';
 import '../providers/user_provider.dart';
 //

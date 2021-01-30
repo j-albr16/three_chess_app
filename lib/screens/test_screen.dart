@@ -33,7 +33,7 @@ class _DesignTestScreenState extends State<DesignTestScreen>
           //   size: Size(400, 300),
           // ),
           testButtonBar(
-            text: 'Show fnished Game Popup',
+            text: 'Show fnished OnlineGame Popup',
             color: Colors.blue,
             callback: () => showDialog(
                 context: context,
@@ -104,7 +104,7 @@ class _DesignTestScreenState extends State<DesignTestScreen>
           testButtonBar(
               callback: () => _gameProvider.createTestGame(),
               color: Colors.orangeAccent,
-              text: 'Create Test Game in DB'),
+              text: 'Create Test OnlineGame in DB'),
           sorrounding([
             Text('Surrender'),
             testButtonBar(

@@ -28,7 +28,7 @@ class ClientGameProvider with ChangeNotifier{
   void update(GameProvider gameProviderUpdate){
     gameProvider = gameProviderUpdate;
     if(gameType == GameType.Online){
-      List<ChessMove> chessMoves = gameProvider.game?.chessMoves;
+      List<ChessMove> chessMoves = gameProvider.onlineGame?.chessMoves;
       if(chessMoves != null){
         (clientGame as OnlineClientGame).syncChessMove(chessMoves);
       }

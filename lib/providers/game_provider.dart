@@ -4,7 +4,7 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart';
 
-import '../models/game.dart';
+import '../models/online_game.dart';
 import '../models/player.dart';
 import '../models/user.dart';
 import '../models/chess_move.dart';
@@ -38,7 +38,7 @@ class GameProvider with ChangeNotifier {
     return player;
   }
 
-  List<Game> _onlineGames = [];
+  List<OnlineGame> _onlineGames = [];
   ServerProvider _serverProvider;
 
   void update({
@@ -54,7 +54,7 @@ class GameProvider with ChangeNotifier {
   }
 
 // providing game data for screen
-  List<Game> get onlineGames {
+  List<OnlineGame> get onlineGames {
     return [..._onlineGames];
   }
 
@@ -67,7 +67,7 @@ class GameProvider with ChangeNotifier {
     return currentGameId != null;
   }
 
-  Game get onlineGame {
+  OnlineGame get onlineGame {
     if (currentGameId != null && _onlineGames.isNotEmpty) {
       return _onlineGames.firstWhere((game) => game.id == currentGameId,
           orElse: () => null);
@@ -89,7 +89,7 @@ class GameProvider with ChangeNotifier {
   }
 
   void subscribeToGameChannel() {
-    print('Did Subscribe to Game Lobby Channel');
+    print('Did Subscribe to OnlineGame Lobby Channel');
     _serverProvider.subscribeToGameChannel(
       gameId: onlineGame.id,
       // TODO
@@ -143,7 +143,7 @@ class GameProvider with ChangeNotifier {
       final data = await _serverProvider.sendMove(chessMove, currentGameId);
       return data['moveValid'];
     } catch (error) {
-      _serverProvider.handleError('Error While creating Game', error);
+      _serverProvider.handleError('Error While creating OnlineGame', error);
       return false;
     }
   }
@@ -162,7 +162,7 @@ class GameProvider with ChangeNotifier {
       }
       notifyListeners();
     } catch (error) {
-      _serverProvider.handleError('Error whileFetching Game', error);
+      _serverProvider.handleError('Error whileFetching OnlineGame', error);
     }
   }
 
@@ -359,12 +359,12 @@ class GameProvider with ChangeNotifier {
 
   void _handleMoveData(Map<String, dynamic> moveData, String gameId) {
     print('Socket Handling New Move');
-    Game onlineGame = _onlineGames[getGameIndex(gameId)];
+    OnlineGame onlineGame = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         PlayerColor.values[onlineGame.chessMoves.length % 3];
     moveData['playerColor'] = playerColor;
     onlineGame.chessMoves.add(GameConversion.rebaseOneMove(moveData));
-    // print all Game Provider Data if optin was set to true
+    // print all OnlineGame Provider Data if optin was set to true
     if (moveData['emptyMove']) {
       onlineGame.chessMoves.add(new ChessMove(
         initialTile: '',
@@ -379,7 +379,7 @@ class GameProvider with ChangeNotifier {
   void _handleSurrenderRequest(String userId, int chessMove, String gameId) {
     print('Socket Handling Surrender Request');
     Map<ResponseRole, PlayerColor> playerResponse = {};
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     playerResponse[ResponseRole.Create] = playerColor;
@@ -395,7 +395,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleSurrenderDecline(String userId, String gameId) {
     print('Socket Handling Surrender Decline');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     GameConversion.getRequestFromRequestType(RequestType.Surrender, game)
@@ -413,7 +413,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleRemiRequest(String userId, int chessMove, String gameId) {
     print('Socket Handle Remi Request');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player) ??
@@ -432,7 +432,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleRemiAccept(String userId, String gameId) {
     print('Socket Handling Remi Accept');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     GameConversion.getRequestFromRequestType(RequestType.Remi, game)
@@ -442,7 +442,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleRemiDecline(String userId, String gameId) {
     print('Socket Handling Remi Decline');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     GameConversion.getRequestFromRequestType(RequestType.Remi, game)
@@ -454,7 +454,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleTakeBackRequest(String userId, int chessMove, String gameId) {
     print('Socket Handling Take Back Request');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -471,7 +471,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleTakeBackAccept(String userId, String gameId) {
     print('Socket Handle Take Back Accept');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, game)
@@ -481,7 +481,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleTakeBackDecline(String userId, String gameId) {
     print('Socket Handle Take Back Decline');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
     GameConversion.getRequestFromRequestType(RequestType.TakeBack, game)
@@ -493,7 +493,7 @@ class GameProvider with ChangeNotifier {
 
   void _handleTakenBack(String userId, int chessMove, String gameId) {
     print('Socket Handle Taken Back');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     game.chessMoves.removeRange(chessMove, game.chessMoves.length);
     game.requests
         .removeWhere((request) => request.requestType == RequestType.TakeBack);
@@ -501,8 +501,8 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleGameFinished(Map<String, dynamic> data, String gameId) {
-    print('Socket Handle Game Finished');
-    Game game = _onlineGames[getGameIndex(gameId)];
+    print('Socket Handle OnlineGame Finished');
+    OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor winnerPlayerColor =
         GameConversion.getPlayerColorFromUserId(data['winnerId'], game.player);
     print(winnerPlayerColor);
@@ -548,7 +548,7 @@ class GameProvider with ChangeNotifier {
     if (gameIndex != -1) {
       return gameIndex;
     }
-    print('Did not Find Game with the Given Game Id');
+    print('Did not Find OnlineGame with the Given OnlineGame Id');
     return 0;
   }
 }

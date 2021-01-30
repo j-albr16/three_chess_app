@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/board_screen.dart';
 import './friends_provider.dart';
-import '../models/game.dart';
+import '../models/online_game.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../widgets/invitations/invitations.dart';
@@ -100,7 +100,7 @@ class PopupProvider with ChangeNotifier {
     );
   }
 
-  void makeInvitationPopup(Game game) {
+  void makeInvitationPopup(OnlineGame game) {
     _popUp = (BuildContext context) => showDialog(
           context: context,
           barrierDismissible: true,
@@ -114,7 +114,7 @@ class PopupProvider with ChangeNotifier {
     hasPopup = true;
   }
 
-  invitationDialog(Game game, Size size, BuildContext context) {
+  invitationDialog(OnlineGame game, Size size, BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Stack(

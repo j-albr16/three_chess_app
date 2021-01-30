@@ -37,7 +37,7 @@ class BoardStateManager with ChangeNotifier{
     if(gameType != null){
       switch (gameType) {
         case GameType.Online:
-          boardState = BoardState.generate(chessMoves: gameProvider.game.chessMoves);
+          boardState = BoardState.generate(chessMoves: gameProvider.onlineGame?.chessMoves);
           whoIsPlaying = gameProvider.player.playerColor;
           break;
         case GameType.Local:
@@ -57,7 +57,7 @@ class BoardStateManager with ChangeNotifier{
   void update(GameProvider gameProviderUpdate){
     gameProvider = gameProviderUpdate;
     if(gameType == GameType.Online){
-      List<ChessMove> chessMoves = gameProvider.game?.chessMoves;
+      List<ChessMove> chessMoves = gameProvider.onlineGame?.chessMoves;
       if(chessMoves != null){
         syncChessMove(chessMoves);
       }

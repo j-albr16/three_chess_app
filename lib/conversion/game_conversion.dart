@@ -1,4 +1,4 @@
-import '../models/game.dart';
+import '../models/online_game.dart';
 import '../models/player.dart';
 import '../models/request.dart';
 import '../models/user.dart';
@@ -9,10 +9,10 @@ import '../models/chess_move.dart';
 typedef void GameCallback(Map<String,dynamic> gameData, Map<String,dynamic> playerData, Map<String, dynamic> userData);
 
 class GameConversion {
-  static Game rebaseAnalyzeGame(Map<String, dynamic> gameData){}
+  static OnlineGame rebaseAnalyzeGame(Map<String, dynamic> gameData){}
 
  static void sortUserAndPlayer(Map<String, dynamic> data,GameCallback lobbyGameCallback){
-    // lobby Game Callback will be called for Each Game
+    // lobby OnlineGame Callback will be called for Each OnlineGame
     data['gameData']['games'].forEach((game) {
         final playerData = data['gameData']['player']
             ?.where((player) => player['gameId'] == game['_id']);
@@ -24,15 +24,15 @@ class GameConversion {
     });
   }
 
-  static List<Game> rebaseOnlineGames(Map<String,dynamic> data){
-   List<Game> resultGames = [];
+  static List<OnlineGame> rebaseOnlineGames(Map<String,dynamic> data){
+   List<OnlineGame> resultGames = [];
    sortUserAndPlayer(data, (gameData, playerData, userData) {
      resultGames.add(rebaseOnlineGame(gameData, playerData, userData));
    });
    return resultGames;
   }
 
-  static Game rebaseOnlineGame(Map<String, dynamic> gameData, Map<String, dynamic> playerData, Map<String, dynamic> userData) {
+  static OnlineGame rebaseOnlineGame(Map<String, dynamic> gameData, Map<String, dynamic> playerData, Map<String, dynamic> userData) {
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
     // convert Chess moves and add them to exisitng Chess Move Class
@@ -47,9 +47,9 @@ class GameConversion {
       users: userData,
     );
     print('Finished converting Player and User');
-    // creates a game and sets Game options in it
-    Game game = createGameWithOptions(gameData['options']);
-    // set remaining Game parameters
+    // creates a game and sets OnlineGame options in it
+    OnlineGame game = createGameWithOptions(gameData['options']);
+    // set remaining OnlineGame parameters
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
@@ -59,15 +59,15 @@ class GameConversion {
     print(gameData['requests']);
     gameData['requests']?.forEach(
         (request) => convRequests.add(rebaseOneRequest(request, game)));
-    // returns the converted Game
+    // returns the converted OnlineGame
     game.requests = convRequests;
     return game;
   }
 
 
-  static Game rebaseLobbyGame({gameData, userData, playerData}) {
+  static OnlineGame rebaseLobbyGame({gameData, userData, playerData}) {
     // input: takes the decoded GameData of an JSON Response as Input
-    // output: returns a converted Game that includes Lobby Game Data
+    // output: returns a converted OnlineGame that includes Lobby OnlineGame Data
     //No Chess Moves made in Lobby Games
     List<ChessMove> chessMoves = [];
     // convert player List and add them to existing player class
@@ -76,18 +76,18 @@ class GameConversion {
       users: userData,
     );
     // creates a game and sets gameOptions
-    Game game = createGameWithOptions(gameData['options']);
-    // set remaining Game parameters
+    OnlineGame game = createGameWithOptions(gameData['options']);
+    // set remaining OnlineGame parameters
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
     game.chessMoves = chessMoves;
-    // returns the converted Game
+    // returns the converted OnlineGame
     return game;
   }
 
-  static List<Game> rebaseLobbyGames(Map<String, dynamic> data){
-    List<Game> gamesResult = [];
+  static List<OnlineGame> rebaseLobbyGames(Map<String, dynamic> data){
+    List<OnlineGame> gamesResult = [];
     sortUserAndPlayer(data, (gameData, playerData, userData) {
       gamesResult.add(rebaseLobbyGame(
         gameData: gameData,
@@ -98,7 +98,7 @@ class GameConversion {
     return gamesResult;
   }
 
-  static Request rebaseOneRequest(Map<String, dynamic> requestData, Game game) {
+  static Request rebaseOneRequest(Map<String, dynamic> requestData, OnlineGame game) {
     PlayerColor createPlayerColor =
         getPlayerColorFromUserId(requestData['create'], game.player);
     PlayerColor acceptPlayerColor =
@@ -156,7 +156,7 @@ class GameConversion {
     return playerColor;
   }
 
-  static Request getRequestFromRequestType(RequestType requestType, Game game) {
+  static Request getRequestFromRequestType(RequestType requestType, OnlineGame game) {
     return game.requests
         .firstWhere((request) => request.requestType == requestType);
   }
@@ -194,10 +194,10 @@ class GameConversion {
     return convPlayer;
   }
 
-  static Game createGameWithOptions(gameOptions) {
-    // input: takes JSOON Game Options as Input
-    // output: returns a game Model where Game options are set already
-    return new Game(
+  static OnlineGame createGameWithOptions(gameOptions) {
+    // input: takes JSOON OnlineGame Options as Input
+    // output: returns a game Model where OnlineGame options are set already
+    return new OnlineGame(
       increment: gameOptions['increment'],
       isPublic: gameOptions['isPublic'],
       isRated: gameOptions['isRated'],
@@ -208,12 +208,12 @@ class GameConversion {
     );
   }
 
-  static printEverything(Game game, Player player, List<Game> games) {
+  static printEverything(OnlineGame game, Player player, List<OnlineGame> games) {
     print(
         '###########################################################################################');
     if (game != null) {
       print(
-          'Game:-------------------------------------------------------------------------------------');
+          'OnlineGame:-------------------------------------------------------------------------------------');
       print(
           '===========================================================================================');
       print('id:         ' + game.id.toString());

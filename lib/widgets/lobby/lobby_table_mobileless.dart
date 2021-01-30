@@ -7,9 +7,9 @@ import 'package:reorderables/reorderables.dart';
 
 import '../../providers/game_provider.dart';
 import '../../providers/lobby_provider.dart';
-import '../../models/game.dart';
+import '../../models/online_game.dart';
 
-typedef void GameSelectCall(Game game);
+typedef void GameSelectCall(OnlineGame game);
 
 class LobbyTableLess extends StatelessWidget {
   final GameSelectCall onGameTap;
@@ -21,7 +21,7 @@ class LobbyTableLess extends StatelessWidget {
   final bool ascending;
   final bool ascendingOld;
   final Function(ColumnType) onHeaderTap;
-  final List<Game> games;
+  final List<OnlineGame> games;
   final bool isDragging;
 
   LobbyTableLess(
@@ -64,12 +64,12 @@ class LobbyTable extends StatefulWidget {
 }
 
 enum ColumnType { UserName1, UserName2, AverageScore, Time, Mode, Fullness }
-typedef Widget ColumnCell(Game game);
-typedef int GameCompare(Game game, Game game2);
+typedef Widget ColumnCell(OnlineGame game);
+typedef int GameCompare(OnlineGame game, OnlineGame game2);
 
 class _LobbyTableState extends State<LobbyTable> {
   GameSelectCall onGameTap;
-  List<Game> games;
+  List<OnlineGame> games;
   List<Widget> _columns;
   ScrollController _scrollController;
 
@@ -128,7 +128,7 @@ class _LobbyTableState extends State<LobbyTable> {
     _sortGames(sortSelectedColumn, ascending);
   }
 
-  _resortAndUpdate(List<Game> newGames) {
+  _resortAndUpdate(List<OnlineGame> newGames) {
     games = List.from(newGames, growable: true);
 
     if (sortSelectedColumnOld != null && ascendingOld != null) {
@@ -141,7 +141,7 @@ class _LobbyTableState extends State<LobbyTable> {
 
   GameCompare switchCompare(bool doSwitch, GameCompare gameCompare) {
     if (doSwitch) {
-      return (Game game2, Game game1) => gameCompare(game2, game1);
+      return (OnlineGame game2, OnlineGame game1) => gameCompare(game2, game1);
     } else {
       return gameCompare;
     }
@@ -149,25 +149,25 @@ class _LobbyTableState extends State<LobbyTable> {
 
   void _loadComparisons() {
     gameComparison = {
-      ColumnType.UserName1: (Game game, Game game2) {
+      ColumnType.UserName1: (OnlineGame game, OnlineGame game2) {
         return game.player[0].user.userName
             .compareTo(game2.player[0].user.userName);
       },
-      ColumnType.UserName2: (Game game, Game game2) {
+      ColumnType.UserName2: (OnlineGame game, OnlineGame game2) {
         String username1 =
             game.player.length > 1 ? game.player[1]?.user.userName ?? "" : "";
         String username2 =
             game2.player.length > 1 ? game2.player[1]?.user.userName ?? "" : "";
         return username1.compareTo(username2);
       },
-      ColumnType.AverageScore: (Game game, Game game2) {
+      ColumnType.AverageScore: (OnlineGame game, OnlineGame game2) {
         return _avgScore(game).compareTo(_avgScore(game2));
       },
-      ColumnType.Time: (Game game, Game game2) {
+      ColumnType.Time: (OnlineGame game, OnlineGame game2) {
         return (game.time + game.increment * 38)
             .compareTo(game2.time + game2.increment * 38);
       },
-      ColumnType.Mode: (Game game, Game game2) {
+      ColumnType.Mode: (OnlineGame game, OnlineGame game2) {
         if (game.isRated && !game2.isRated) {
           return 1;
         } else if (game.isRated == game2.isRated) {
@@ -177,27 +177,27 @@ class _LobbyTableState extends State<LobbyTable> {
         }
         return 0;
       },
-      ColumnType.Fullness: (Game game, Game game2) {
+      ColumnType.Fullness: (OnlineGame game, OnlineGame game2) {
         return (game.player.length).compareTo(game2.player.length);
       },
     };
   }
 
-  String _user(int i, Game game) {
+  String _user(int i, OnlineGame game) {
     if (i < game.player.length) {
       return game.player[i]?.user.userName ?? "";
     }
     return "";
   }
 
-  String _score(int i, Game game) {
+  String _score(int i, OnlineGame game) {
     if (i < game.player.length) {
       return game.player[i]?.user.score.toString() ?? "";
     }
     return "";
   }
 
-  int _avgScore(Game game) {
+  int _avgScore(OnlineGame game) {
     int averageScore = 0;
     for (int i = 0; i < game.player.length; i++) {
       averageScore +=
@@ -216,7 +216,7 @@ class _LobbyTableState extends State<LobbyTable> {
       } else {
         mergeSort(games,
             end: games.length,
-            compare: (Game game, Game game2) =>
+            compare: (OnlineGame game, OnlineGame game2) =>
                 gameComparison[ctype](game2, game));
       }
     }
@@ -274,7 +274,7 @@ class _LobbyTableState extends State<LobbyTable> {
   Map<ColumnType, ColumnCell> columnWidget;
   void loadWidgets() {
     columnWidget = {
-      ColumnType.UserName1: (Game game) => Row(children: [
+      ColumnType.UserName1: (OnlineGame game) => Row(children: [
             Spacer(),
             Text(_user(0, game)),
             Spacer(),
@@ -284,7 +284,7 @@ class _LobbyTableState extends State<LobbyTable> {
             ),
             Spacer()
           ]),
-      ColumnType.UserName2: (Game game) => Row(children: [
+      ColumnType.UserName2: (OnlineGame game) => Row(children: [
             Spacer(),
             Text(_user(1, game)),
             Spacer(),
@@ -294,18 +294,18 @@ class _LobbyTableState extends State<LobbyTable> {
             ),
             Spacer()
           ]),
-      ColumnType.AverageScore: (Game game) => Center(
+      ColumnType.AverageScore: (OnlineGame game) => Center(
             child: Text("~" + _avgScore(game).toString()),
           ),
-      ColumnType.Time: (Game game) => Center(
+      ColumnType.Time: (OnlineGame game) => Center(
           child: Text(((game.time - (game.time % 60)) / 60).toString() +
               ":" +
               (game.time % 60).toString() +
               " + " +
               game.increment.toString())),
-      ColumnType.Mode: (Game game) =>
+      ColumnType.Mode: (OnlineGame game) =>
           Center(child: Text(game.isRated ? "Rated" : "Unrated")),
-      ColumnType.Fullness: (Game game) =>
+      ColumnType.Fullness: (OnlineGame game) =>
           Center(child: Text(game.player.length.toString() + "/3")),
     };
   }
@@ -375,7 +375,7 @@ class _LobbyTableState extends State<LobbyTable> {
         child: getHeader(type),
       ));
     }
-    for (Game game in games) {
+    for (OnlineGame game in games) {
       result.add(wrapCell(
         type: type,
         child: columnWidget[type](game),

@@ -9,7 +9,7 @@ import '../models/player.dart';
 import 'chess_move_info.dart';
 import 'ChessMoveController.dart';
 import '../models/piece.dart';
-import '../models/game.dart';
+import '../models/online_game.dart';
 
 
 
@@ -18,7 +18,7 @@ import '../models/game.dart';
   @protected
  BoardState boardState;
  Tiles tileKeeper;
- Game game;
+ OnlineGame game;
  PlayerColor clientPlayer;
 
  ClientGame({this.game}){

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/game.dart';
+import '../models/local_game.dart';
 
 
 class LocalProvider with ChangeNotifier {
-  List<Game> localGames = [];
-  List<Game> analyzeGames = [];
+  List<LocalGame> localGames = [];
+  List<LocalGame> analyzeGames = [];
 }

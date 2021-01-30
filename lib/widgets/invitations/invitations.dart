@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:three_chess/helpers/constants.dart';
 
 import '../../providers/friends_provider.dart';
-import '../../models/game.dart';
+import '../../models/online_game.dart';
 import '../basic/sorrounding_cart.dart';
 import '../basic/decline_button.dart';
 import '../basic/accept_button.dart';
 
 class Invitations extends StatelessWidget {
-  final List<Game> invitations;
+  final List<OnlineGame> invitations;
   final Function acceptInvitation;
   final Function declineInvitation;
   final Size size;
@@ -44,7 +44,7 @@ class Invitations extends StatelessWidget {
 
   static Widget invitationTile(
       {Size size,
-      Game game,
+      OnlineGame game,
       Function accept,
       Function decline,
       ThemeData theme}) {

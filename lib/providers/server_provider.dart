@@ -11,7 +11,7 @@ import '../data/server.dart';
 import '../models/chess_move.dart';
 import '../helpers/user_acc.dart';
 import '../models/user.dart';
-import '../models/game.dart';
+import '../models/online_game.dart';
 import '../providers/game_provider.dart';
 import '../models/enums.dart';
 
@@ -26,7 +26,7 @@ typedef void FriendIsAfk(String userId);
 typedef void FriendIsPlaying(String userId);
 typedef void FriendIsNotPlaying(String userId);
 typedef void GameInvitation(Map<String, dynamic> gameData);
-// Game Callbacks
+// OnlineGame Callbacks
 typedef void Move(Map<String, dynamic> chessMove, String gameId);
 typedef void SurrenderRequest(String userId, int chessMove, String gameId);
 typedef void SurrenderDecline(String userId, String gameId);
@@ -157,7 +157,7 @@ class ServerProvider with ChangeNotifier {
     RequestCancelled requestCancelledCallback,
     PlayerIsOffline playerIsOfflineCallback,
   }) {
-    print('Ddi Subscribe to Game Channel');
+    print('Ddi Subscribe to OnlineGame Channel');
     // try {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
@@ -404,7 +404,7 @@ class ServerProvider with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> saveGames(
-      Game localGame, Game analyzeGame) async {
+      OnlineGame localGame, OnlineGame analyzeGame) async {
     final List<Map<String, dynamic>> analyzeChessMoves =
         rebaseChessMoves(analyzeGame.chessMoves);
     final List<Map<String, dynamic>> localChessMoves =
@@ -506,7 +506,7 @@ class ServerProvider with ChangeNotifier {
     return data['valid'];
   }
 
-// Game Provider -----------------------------------------------------------------------------------------
+// OnlineGame Provider -----------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> quickPairing({int time, int increment}) async {
     return await getSkeleton(
       error: 'quick pairing',
@@ -518,7 +518,7 @@ class ServerProvider with ChangeNotifier {
       Map<String, dynamic> settings) async {
     return await postSkeleton(
       url: SERVER_ADRESS + 'find-a-game-like' + _authString,
-      error: 'Find A Game Like',
+      error: 'Find A OnlineGame Like',
       body: settings,
     );
   }
@@ -544,7 +544,7 @@ class ServerProvider with ChangeNotifier {
     };
     return await postSkeleton(
       body: body,
-      error: 'Create Game',
+      error: 'Create OnlineGame',
       url: SERVER_URL + 'create-game' + _authString,
     );
   }
@@ -552,7 +552,7 @@ class ServerProvider with ChangeNotifier {
   Future<Map<String, dynamic>> joinGame(String gameId) async {
     return await postSkeleton(
         url: SERVER_URL + 'join-game' + _authString,
-        error: 'Join Game',
+        error: 'Join OnlineGame',
         body: {'gameId': gameId});
   }
 
@@ -589,7 +589,7 @@ class ServerProvider with ChangeNotifier {
   Future<Map<String, dynamic>> fetchOnlineGame(String gameId) async {
     return await getSkeleton(
         url: SERVER_URL + 'fetch-online-game/$gameId' + _authString,
-        error: 'Fetch Game');
+        error: 'Fetch OnlineGame');
   }
 
   Future<Map<String, dynamic>> fetchLobbyGames() async {
@@ -600,7 +600,7 @@ class ServerProvider with ChangeNotifier {
 
   Future<void> createTestGame() async {
     await getSkeleton(
-      error: 'Creating Test Game',
+      error: 'Creating Test OnlineGame',
       url: SERVER_ADRESS + 'create-test-game' + _authString,
     );
   }

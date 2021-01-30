@@ -50,7 +50,7 @@ class _DesignTestScreenState extends State<DesignTestScreen>
                     finishedGameData: finishedGameData,
                     inspect: () {},
                     leave: () => Navigator.of(context).pop(),
-                    player: Provider.of<GameProvider>(context).game.player,
+                    player: Provider.of<GameProvider>(context).onlineGame.player,
                     rematch: () {},
                     size: size,
                     you: Provider.of<GameProvider>(context).player,

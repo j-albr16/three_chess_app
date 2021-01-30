@@ -139,6 +139,7 @@ Widget localGames(Size size, ThemeData theme) {
             isSelected: onlineGamesOpen,
           ),
           // ChessDivider(),
+          if(onlineGamesOpen && currentGames.isEmpty)Text('No Online Games Available'),
           if (onlineGamesOpen) Flexible(child: onlineGames(size, theme), flex: 1),
           // ChessDivider(),
           AdvancedSelection(

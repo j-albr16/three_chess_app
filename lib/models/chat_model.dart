@@ -7,13 +7,19 @@ class Chat {
   List<User> user;
   List<Message> messages;
   int newMessages;
+  String gameId;
+
 
   Chat({this.user,this.newMessages, this.messages, this.id});
 
-  getChatName(String yourId){
-  if(user.length == 2){
-    return user.firstWhere((e) => e.id != yourId).userName;
+  bool get isGameChat{
+    return gameId != null;
   }
-  return user[0].userName + 's Game chat';
+
+  String getChatName(String yourId){
+  if(user.length == 2){
+    return user.firstWhere((e) => e.id != yourId).userName + '\'s Chat';
+  }
+  return user[0].userName + '\'s Game chat';
 }
   }

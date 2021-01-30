@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:three_chess/models/message.dart';
 
 import '../data/server.dart';
 import '../models/chess_move.dart';
@@ -12,6 +13,42 @@ import '../helpers/user_acc.dart';
 import '../models/user.dart';
 import '../models/game.dart';
 import '../providers/game_provider.dart';
+import '../models/enums.dart';
+
+// Auth User Callback
+typedef void Message(Map<String, dynamic> messageData);
+typedef void FriendRequest(Map<String, dynamic> friendData, String message);
+typedef void FriendAccept(Map<String, dynamic> data);
+typedef void FriendDecline(String message);
+typedef void FriendRemove(String userId, String message);
+typedef void FriendIsOnline(String userId);
+typedef void FriendIsAfk(String userId);
+typedef void FriendIsPlaying(String userId);
+typedef void FriendIsNotPlaying(String userId);
+typedef void GameInvitation(Map<String, dynamic> gameData);
+// Game Callbacks
+typedef void Move(Map<String, dynamic> chessMove, String gameId);
+typedef void SurrenderRequest(String userId, int chessMove, String gameId);
+typedef void SurrenderDecline(String userId, String gameId);
+typedef void RemiRequest(String userId, int chessMove, String gameId);
+typedef void RequestCancelled(Map<String, dynamic> data, String gameId);
+typedef void RemiAccept(String userId, String gameId);
+typedef void RemiDecline(String userId, String gameId);
+typedef void TakeBackRequest(String userId, int chessMove, String gameId);
+typedef void TakeBackAccept(String userId, String gameId);
+typedef void TakenBack(String userId, int chessMove, String gameId);
+typedef void TakeBackDecline(String userId, String gameId);
+typedef void GameFinished(Map<String, dynamic> data, String gameId);
+typedef void SurrenderFailed(String gameId);
+typedef void PlayerIsOnline(String userId);
+typedef void PlayerIsOffline(String userId, String expiryDate);
+// Lobby Callbacks
+typedef void PlayerJoined(Map<String, dynamic> gameData);
+typedef void NewGame(Map<String, dynamic> gameData);
+// Auth User Channel 2
+typedef void GameStarts(Map<String, dynamic> gameData);
+// Listener
+typedef void GameStartsListener(String gameId);
 
 class ServerProvider with ChangeNotifier {
   IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic>{
@@ -35,12 +72,12 @@ class ServerProvider with ChangeNotifier {
   }
 
   // TODO : Find a Better to make this User available
-  User get user {
-    return new User(
-      id: _userId,
-      score: 1000,
-    );
-  }
+  // User get user {
+  //   return new User(
+  //     id: _userId,
+  //     score: 1000,
+  //   );
+  // }
 
   void update({token, userId}) {
     _token = token;
@@ -48,19 +85,31 @@ class ServerProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // ###############################################################################
+  // Socket
+
   //#########################################################################################################
 // Subscribe to Socket Channels ---------------------------------------------------------------------------
+  void subscribeToAuthUserChannel2({GameStarts gameStartsCallback}) {
+    print('Subscribe To Auth User Channel 2');
+    _socket.on('$_userId/2', (jsonData) {
+      final Map<String, dynamic> data = json.decode(jsonData);
+      _handleAuthUserChannelSocketData2(
+          data: data, gameStartsCallback: gameStartsCallback);
+    });
+  }
+
   void subscribeToAuthUserChannel({
-    messageCallback,
-    friendRequestCallback,
-    friendAcceptedCallback,
-    friendDeclinedCallback,
-    friendRemovedCallback,
-    friendIsOnlineCallback,
-    friendIsAfkCallback,
-    friendIsPlayingCallback,
-    friendIsNotPlayingCallback,
-    gameInvitationsCallback,
+    Message messageCallback,
+    FriendRequest friendRequestCallback,
+    FriendAccept friendAcceptedCallback,
+    FriendDecline friendDeclinedCallback,
+    FriendRemove friendRemovedCallback,
+    FriendIsOnline friendIsOnlineCallback,
+    FriendIsAfk friendIsAfkCallback,
+    FriendIsPlaying friendIsPlayingCallback,
+    FriendIsNotPlaying friendIsNotPlayingCallback,
+    GameInvitation gameInvitationsCallback,
   }) {
     print('Subscribe to Auth USer Channel');
     // try {
@@ -79,51 +128,42 @@ class ServerProvider with ChangeNotifier {
           friendIsNotPlayingCallback: friendIsNotPlayingCallback,
           gameInvitationCallback: gameInvitationsCallback);
     });
-    // } catch (error) {
-    //   print('Connection Socket Failed');
-    // }
   }
 
   void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
     print('Did Subscribe to Lobby Channel');
-    // try {
     _socket.on('lobby', (jsonData) {
-      print('New Socket Message');
+      print('New Lobby Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
     });
-    // } catch (error) {
-    //   print('Connection Socket Failed');
-    // }
   }
 
-  void subscribeToGameLobbyChannel({
+  void subscribeToGameChannel({
     String gameId,
-    Function moveMadeCallback,
-    Function playerJoinedLobbyCallback,
-    Function surrenderRequestCallback,
-    Function surrenderDeclineCallback,
-    Function remiRequestCallback,
-    Function remiAcceptCallback,
-    Function remiDeclineCallback,
-    Function takeBackRequestCallback,
-    Function takeBackAcceptCallback,
-    Function takenBackCallback,
-    Function takeBackDeclineCallback,
-    Function gameFinishedcallback,
-    Function surrenderFailedCallback,
-    Function playerIsOnlineCallback,
-    Function requestCancelledCallback,
-    Function playerIsOfflineCallback,
+    Move moveMadeCallback,
+    SurrenderRequest surrenderRequestCallback,
+    SurrenderDecline surrenderDeclineCallback,
+    RemiRequest remiRequestCallback,
+    RemiAccept remiAcceptCallback,
+    RemiDecline remiDeclineCallback,
+    TakeBackRequest takeBackRequestCallback,
+    TakeBackAccept takeBackAcceptCallback,
+    TakenBack takenBackCallback,
+    TakeBackDecline takeBackDeclineCallback,
+    GameFinished gameFinishedCallback,
+    SurrenderFailed surrenderFailedCallback,
+    PlayerIsOnline playerIsOnlineCallback,
+    RequestCancelled requestCancelledCallback,
+    PlayerIsOffline playerIsOfflineCallback,
   }) {
-    print('Ddi Subscribe to Game Lobby Channel');
+    print('Ddi Subscribe to Game Channel');
     // try {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
-      _handleGameLobbyChannelData(
+      _handleGameChannelData(
         data: data,
         moveMadeCallback: moveMadeCallback,
-        playerJoinedLobbyCallback: playerJoinedLobbyCallback,
         surrenderRequestCallback: surrenderRequestCallback,
         surrenderDeclineCallback: surrenderDeclineCallback,
         remiRequestCallback: remiRequestCallback,
@@ -134,20 +174,17 @@ class ServerProvider with ChangeNotifier {
         takeBackAcceptCallback: takeBackAcceptCallback,
         takenBackCallback: takenBackCallback,
         takeBackDeclineCallback: takeBackDeclineCallback,
-        gameFinishedCallback: gameFinishedcallback,
+        gameFinishedCallback: gameFinishedCallback,
         surrenderFailedCallback: surrenderFailedCallback,
-        playerIsOnlineCallback: playerIsOfflineCallback,
+        playerIsOnlineCallback: playerIsOnlineCallback,
         playerIsOfflineCallback: playerIsOfflineCallback,
       );
     });
-    // } catch (error) {
-    //   print('Connection Socket Failed');
-    // }
   }
 
-  //#########################################################################################################
+//#########################################################################################################
 
-  //#########################################################################################################
+//#########################################################################################################
 // unSubscribe to Socket Channel --------------------------------------------------------------------------
   void unSubscribeToAuthUserChannel() {
     _socket.off(_userId);
@@ -161,22 +198,33 @@ class ServerProvider with ChangeNotifier {
     _socket.off(gameId);
   }
 
-  //#########################################################################################################
+//#########################################################################################################
 
-  //#########################################################################################################
+//#########################################################################################################
 // Handle Socket Messages of different Channels -----------------------------------------------------------
+  void _handleAuthUserChannelSocketData2(
+      {Map<String, dynamic> data, GameStarts gameStartsCallback}) {
+    _printRawData(data);
+    _handleSocketServerMessage(data['action'], data['message']);
+    switch (data['action']) {
+      case 'game-starts':
+        gameStartsCallback(data['gameData']);
+        break;
+    }
+  }
+
   void _handleAuthUserChannelSocketData({
     Map<String, dynamic> data,
-    Function messageCallback,
-    Function friendRequestCallback,
-    Function friendAcceptedCallback,
-    Function friendDeclinedCallback,
-    Function friendRemovedCallback,
-    Function friendIsOnlineCallback,
-    Function friendIsAfkCallback,
-    Function friendIsPlayingCallback,
-    Function friendIsNotPlayingCallback,
-    Function gameInvitationCallback,
+    Message messageCallback,
+    FriendRequest friendRequestCallback,
+    FriendAccept friendAcceptedCallback,
+    FriendDecline friendDeclinedCallback,
+    FriendRemove friendRemovedCallback,
+    FriendIsOnline friendIsOnlineCallback,
+    FriendIsAfk friendIsAfkCallback,
+    FriendIsPlaying friendIsPlayingCallback,
+    FriendIsNotPlaying friendIsNotPlayingCallback,
+    GameInvitation gameInvitationCallback,
   }) {
     _printRawData(data);
     _handleSocketServerMessage(data['action'], data['message']);
@@ -215,7 +263,7 @@ class ServerProvider with ChangeNotifier {
   }
 
   void _handleLobbyChannelData(Map<String, dynamic> data,
-      Function newGameCallback, Function playerJoinedCallback) {
+      NewGame newGameCallback, PlayerJoined playerJoinedCallback) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
     switch (data['action']) {
@@ -228,70 +276,67 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleGameLobbyChannelData({
+  void _handleGameChannelData({
+    String gameId,
     Map<String, dynamic> data,
-    Function moveMadeCallback,
-    Function playerJoinedLobbyCallback,
-    Function surrenderRequestCallback,
-    Function surrenderDeclineCallback,
-    Function remiRequestCallback,
-    Function remiAcceptCallback,
-    Function remiDeclineCallback,
-    Function takeBackRequestCallback,
-    Function takeBackAcceptCallback,
-    Function takenBackCallback,
-    Function takeBackDeclineCallback,
-    Function gameFinishedCallback,
-    Function surrenderFailedCallback,
-    Function playerIsOnlineCallback,
-    Function playerIsOfflineCallback,
-    Function requestCancelledCallback,
+    Move moveMadeCallback,
+    SurrenderRequest surrenderRequestCallback,
+    SurrenderDecline surrenderDeclineCallback,
+    RemiRequest remiRequestCallback,
+    RemiAccept remiAcceptCallback,
+    RemiDecline remiDeclineCallback,
+    TakeBackRequest takeBackRequestCallback,
+    TakeBackAccept takeBackAcceptCallback,
+    TakenBack takenBackCallback,
+    TakeBackDecline takeBackDeclineCallback,
+    GameFinished gameFinishedCallback,
+    SurrenderFailed surrenderFailedCallback,
+    PlayerIsOnline playerIsOnlineCallback,
+    PlayerIsOffline playerIsOfflineCallback,
+    RequestCancelled requestCancelledCallback,
   }) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
     switch (data['action']) {
       case 'move-made':
         print('Chess Move was made');
-        moveMadeCallback(data['chessMove']);
-        break;
-      case 'player-joined-lobby':
-        playerJoinedLobbyCallback(data['gameData']);
+        moveMadeCallback(data['chessMove'], gameId);
         break;
       case 'surrender-request':
-        surrenderRequestCallback(data['userId'], data['chessMove']);
+        surrenderRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
       case 'surrender-decline':
-        surrenderDeclineCallback(data['userId']);
+        surrenderDeclineCallback(data['userId'], gameId);
         break;
       case 'surrender-failed':
-        surrenderFailedCallback();
+        surrenderFailedCallback(gameId);
         break;
       case 'remi-request':
-        remiRequestCallback(data['userId'], data['chessMove']);
+        remiRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
       case 'remi-accept':
-        remiAcceptCallback(data['userId']);
+        remiAcceptCallback(data['userId'], gameId);
         break;
       case 'remi-decline':
-        remiDeclineCallback(data['userId']);
+        remiDeclineCallback(data['userId'], gameId);
         break;
       case 'request-cancel':
-        requestCancelledCallback(data);
+        requestCancelledCallback(data, gameId);
         break;
       case 'takeBack-request':
-        takeBackRequestCallback(data['userId'], data['chessMove']);
+        takeBackRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
       case 'takeBack-accept':
-        takeBackAcceptCallback(data['userId']);
+        takeBackAcceptCallback(data['userId'], gameId);
         break;
       case 'taken-back':
-        takenBackCallback(data['userId'], data['chessMove']);
+        takenBackCallback(data['userId'], data['chessMove'], gameId);
         break;
       case 'takeBack-decline':
-        takeBackDeclineCallback(data['userId']);
+        takeBackDeclineCallback(data['userId'], gameId);
         break;
       case 'game-finished':
-        gameFinishedCallback(data);
+        gameFinishedCallback(data, gameId);
         break;
       case 'player-online':
         playerIsOnlineCallback(data['userId']);
@@ -302,17 +347,34 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
+  // ##################################################################################
+  // Listener
+  Map<String, Function> gameStartCbs = {};
+
+  void addGameListener(String gameId, GameStartsListener gameStartsCb) {
+    gameStartCbs[gameId] = gameStartsCb;
+  }
+
+  void gameStartsNotifier(String gameId) {
+    gameStartCbs[gameId](gameId);
+  }
+
+// ##############################################################################################
+// HTTP
+
   Future<Map<String, dynamic>> fetchAuthUser() async {
-    final String url = SERVER_ADRESS + 'user' + _authString;
-    final encodedResponse = await http.get(url);
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    _validation(data);
-    return data;
+    print('Start Fetching Auth User');
+    try {
+      return await getSkeleton(
+        error: 'Fetching Auth User',
+        url: SERVER_ADRESS + 'user' + _authString,
+      );
+    } catch (error) {
+      throw (error);
+    }
   }
 
   Future<Map<String, dynamic>> onlineStatusUpdate() async {
-    // print('exec online status update');
     final String url = SERVER_ADRESS + 'online' + _authString;
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
@@ -321,16 +383,14 @@ class ServerProvider with ChangeNotifier {
     return data;
   }
 
-  //#########################################################################################################
-  // Local Games -------------------------------------------------------------------------------------------
+//#########################################################################################################
+// Local Games -------------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> fetchLocalGames() async {
     print('Start Fetching Local Games');
-      final String url = SERVER_ADRESS + 'fetch-local-games' + _authString;
-      final encodedResponse = await http.get(url);
-      final Map<String, dynamic> data = json.decode(encodedResponse.body);
-      _printRawData(data);
-      _validation(data);
-      return data;
+    return await getSkeleton(
+      error: 'Fetching Local Games',
+      url: SERVER_ADRESS + 'fetch-local-games' + _authString,
+    );
   }
 
   List<Map<String, dynamic>> rebaseChessMoves(List<ChessMove> chessMoves) {
@@ -349,162 +409,120 @@ class ServerProvider with ChangeNotifier {
         rebaseChessMoves(analyzeGame.chessMoves);
     final List<Map<String, dynamic>> localChessMoves =
         rebaseChessMoves(localGame.chessMoves);
-    final String url = SERVER_ADRESS + 'save-local-games' + _authString;
-    final body = json.encode({
+    final Map<String, dynamic> body = {
       'analyzeGame': {'chessMoves': analyzeChessMoves},
       'localGame': {
         'chessMoves': localChessMoves,
         'options': {'time': localGame.time, 'increment': localGame.increment}
       }
-    });
-    final encodedResponse = await http
-        .post(url, body: body, headers: {'Content-Type': 'application/json'});
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    _validation(data);
-    return data;
+    };
+    return await postSkeleton(
+      url: SERVER_ADRESS + 'save-local-games' + _authString,
+      error: 'Saving Local Games',
+      body: body,
+    );
   }
 
-  //#########################################################################################################
-  // Friend Provider ---------------------------------------------------------------------------------------
+//#########################################################################################################
+// Friend Provider ---------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> sendFriendRequest(String userName) async {
-    final String url = SERVER_ADRESS + 'friend-request' + _authString;
-    // making http request
-    final encodedResponse = await http.post(url,
-        body: json.encode({'userName': userName}),
-        headers: {'Content-Type': 'application/json'});
-// decode Data
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-// Validation
-    _validation(data);
-    return data;
+    return await postSkeleton(
+      body: {'userName': userName},
+      error: 'Friend Request',
+      url: SERVER_ADRESS + 'friend-request' + _authString,
+    );
   }
 
   Future<Map<String, dynamic>> fetchFriends() async {
-    final String url = SERVER_ADRESS + 'fetch-friends' + _authString;
-    // http get request
-    final encodedResponse = await http.get(url);
-    // decoding
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    // validation
-    _validation(data);
-    return data;
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'fetch-friends' + _authString,
+      error: 'Fetching Friends',
+    );
   }
 
   Future<Map<String, dynamic>> acceptFriend(String userId) async {
-    final String url = SERVER_ADRESS + 'accept-friend' + _authString;
-    // http requets
-    final encodedResponse = await http.post(url,
-        body: json.encode({'userId': userId}),
-        headers: {'Content-Type': 'application/json'});
-    // decoding
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    // validation
-    _validation(data);
-    return data;
+    return await postSkeleton(
+      error: 'Accept Friend',
+      url: SERVER_ADRESS + 'accept-friend' + _authString,
+      body: {'userId': userId},
+    );
   }
 
   Future<Map<String, dynamic>> friendDecline(String userId) async {
-    final String url = SERVER_ADRESS + 'decline-friend' + _authString;
-    // Make post http request
-    final encodedData = await http.post(url,
-        body: json.encode({'userId': userId}),
-        headers: {'Content-Type': 'application/json'});
-    // decode
-    final Map<String, dynamic> data = json.decode(encodedData.body);
-    _printRawData(data);
-    // validation
-    _validation(data);
-    return data;
+    return await postSkeleton(
+      url: SERVER_ADRESS + 'decline-friend' + _authString,
+      body: {'userId': userId},
+      error: 'Friend Decline',
+    );
   }
 
   Future<Map<String, dynamic>> friendRemove(String userId) async {
-    final String url = SERVER_ADRESS + 'remove-friend' + _authString;
-    // Make http posts
-    final encodedData = await http.post(
-      url,
-      body: json.encode({'userId': userId}),
-      headers: {'Content-Type': 'application/json'},
+    return await postSkeleton(
+      error: 'Friend Remove',
+      body: {'userId': userId},
+      url: SERVER_ADRESS + 'remove-friend' + _authString,
     );
-    // decode Data
-    final Map<String, dynamic> data = json.decode(encodedData.body);
-    // print raw data and validation
-    _printRawData(data);
-    _validation(data);
-    return data;
   }
 
-  //#########################################################################################################
+//#########################################################################################################
 
-  //#########################################################################################################
-  // Chat Provider -----------------------------------------------------------------------------------------
+//#########################################################################################################
+// Chat Provider -----------------------------------------------------------------------------------------
   Future<void> sendMessage(String text, String chatId) async {
-    final url = SERVER_ADRESS + 'send-message' + _authString;
-    final response = await http.post(url,
-        body: json.encode({'text': text, 'chatId': chatId}),
-        headers: {'Content-Type': 'application/json'});
-    final data = json.decode(response.body);
-    _printRawData(data);
-    _validation(data);
+    await postSkeleton(
+        url: SERVER_ADRESS + 'send-message' + _authString,
+        body: {'text': text, 'chatId': chatId},
+        error: 'Post Message');
   }
 
-  Future<Map<String, dynamic>> getMoreMessages(
-      String chatId, int messageCount) async {
-    final String url =
-        SERVER_ADRESS + 'more-messages/$messageCount/$chatId' + _authString;
-    final response = await http.get(url);
-    final Map<String, dynamic> data = json.decode(response.body);
-    _printRawData(data);
-    _validation(data);
-    return data;
+  Future<Map<String, dynamic>> fetchChat(ChatType chatType, String id) async {
+    return await getSkeleton(
+        error: 'Fetch Chat',
+        url: SERVER_ADRESS +
+            'fetch-chat' +
+            _authString +
+            '&id=$id&chatType=$chatType');
   }
 
-  Future<Map<String, dynamic>> fetchChat(bool isGameChat, String id) async {
-    final url = SERVER_ADRESS +
-        'fetch-chat' +
-        _authString +
-        '&id=$id&isGameChat=$isGameChat';
-    final encodedResponse = await http.get(url);
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    // validation
-    _validation(data);
-    return data;
-  }
+//#########################################################################################################
 
-  //#########################################################################################################
-
-  //#########################################################################################################
-  // fetch Invitations
+//#########################################################################################################
+// fetch Invitations
   Future<Map<String, dynamic>> fetchInvitations() async {
-    final String url = SERVER_ADRESS + 'invitations' + _authString;
-    final encodedResponse = await http.get(url);
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    _validation(data);
-    return data;
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'invitations' + _authString,
+      error: 'Fetch Invitations',
+    );
   }
 
   Future<bool> declineInvitation(String gameId, bool all) async {
-    final String url = SERVER_ADRESS + 'decline-invitation' + _authString;
-    final encodedResponse = await http.post(
-      url,
-      body: json.encode({
-        'gameIds': gameId,
-        'all': all,
-      }),
-      // setting json/application as Content header so Server exects JSON format body. CORS error willbe handled Serverside in req headers
-      headers: {'Content-Type': 'application/json'},
-    );
-    final data = json.decode(encodedResponse.body);
-    _validation(data);
+    final Map<String, dynamic> data = await postSkeleton(
+        url: SERVER_ADRESS + 'decline-invitation' + _authString,
+        error: 'Decline Invitation',
+        body: {
+          'gameIds': gameId,
+          'all': all,
+        });
     return data['valid'];
   }
 
-  // Game Provider -----------------------------------------------------------------------------------------
+// Game Provider -----------------------------------------------------------------------------------------
+  Future<Map<String, dynamic>> quickPairing({int time, int increment}) async {
+    return await getSkeleton(
+      error: 'quick pairing',
+      url: SERVER_ADRESS + 'quick-pairing/$time/$increment' + _authString,
+    );
+  }
+
+  Future<Map<String, dynamic>> findAGameLike(
+      Map<String, dynamic> settings) async {
+    return await postSkeleton(
+      url: SERVER_ADRESS + 'find-a-game-like' + _authString,
+      error: 'Find A Game Like',
+      body: settings,
+    );
+  }
+
   Future<Map<String, dynamic>> createGame(
       {bool isPublic,
       bool isRated,
@@ -514,295 +532,171 @@ class ServerProvider with ChangeNotifier {
       bool allowPremades,
       int negRatingRange,
       int posRatingRange}) async {
-    // input: Takes all game Options as input
-    // output: send a game-create req to server and receives a whole Game as JSON which will be converted into Game Model
-    // defining url for Server post request.token and userId are used for authentification purposes
-    final url = SERVER_URL + 'create-game' + _authString;
-    // sending async post request to server. Game options are encoded n req Body
-    final response = await http.post(
-      url,
-      body: json.encode({
-        'isPublic': isPublic,
-        'isRated': isRated,
-        'increment': increment,
-        'invitations': invitations,
-        'allowPremades': allowPremades,
-        'time': time,
-        'negRatingRange': negRatingRange,
-        'posRatingRange': posRatingRange,
-      }),
-      // setting json/application as Content header so Server exects JSON format body. CORS error willbe handled Serverside in req headers
-      headers: {'Content-Type': 'application/json'},
+    final Map<String, dynamic> body = {
+      'isPublic': isPublic,
+      'isRated': isRated,
+      'increment': increment,
+      'invitations': invitations,
+      'allowPremades': allowPremades,
+      'time': time,
+      'negRatingRange': negRatingRange,
+      'posRatingRange': posRatingRange,
+    };
+    return await postSkeleton(
+      body: body,
+      error: 'Create Game',
+      url: SERVER_URL + 'create-game' + _authString,
     );
-    // decode Data
-    final Map<String, dynamic> data = json.decode(response.body);
-    _printRawData(data);
-    // validate Data
-    _validation(data);
-    // return data
-    return data;
   }
 
   Future<Map<String, dynamic>> joinGame(String gameId) async {
-    // input: takes a gameId as Inout the Auth User Wants to ioyn
-    // output: Sends a Req to Server with the gven gameId. Then returns a whole Game
-    // defining url : ioyn-game -> Server Keyword, token and userId queries for authentificaton on Server
-    final url = SERVER_URL + 'join-game' + _authString;
-    // sends the join game post req to Server
-    // gameId is encoded in the req. body
-    final encodedResponse = await http.post(
-      url,
-      body: json.encode({
+    return await postSkeleton(
+        url: SERVER_URL + 'join-game' + _authString,
+        error: 'Join Game',
+        body: {'gameId': gameId});
+  }
+
+  Future<Map<String, dynamic>> sendMove(
+      ChessMove chessMove, String gameId) async {
+    return await postSkeleton(
+      body: {
         'gameId': gameId,
-      }),
-      headers: {'Content-Type': 'application/json'},
+        'chessMove': {
+          'initialTile': chessMove.initialTile,
+          'nextTile': chessMove.nextTile,
+          'remainingTime': chessMove.remainingTime,
+        }
+      },
+      error: 'Send Move',
+      url: SERVER_URL + 'chess-move' + _authString,
     );
-    // decode the Json Response
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    // validate data
-    _validation(data);
-    // return data
-    return data;
   }
 
-  Future<Map<String, dynamic>> sendMove(ChessMove chessMove) async {
-    // input: receives a ChessMove as Input
-    // output: sends chess move to server. Server validates and saves chess Move in Lobby of the Auth User. Then returns a json and socket response
-    // chess Move will be saved in Game Model of all Player in Lobby
-    // defines url: chess-move -> Server Keyword, auth and token for Server Side Authentification
-    final url = SERVER_URL + 'chess-move' + _authString;
-    // sends Chess Move as encoded Map and as post Request to server
-    // game Id will received by Server automatically cause gameId of auth User is saved in DB
-    final encodedResponse = await http.post(
-      url,
-      body: json.encode({
-        'initialTile': chessMove.initialTile,
-        'nextTile': chessMove.nextTile,
-        'remainingTime': chessMove.remainingTime,
-      }),
-      // set applicaton/json header so server expects JSON DATA
-      headers: {'Content-Type': 'application/json'},
+  Future<Map<String, dynamic>> fetchPendingGames() async {
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'fetch-pending-games' + _authString,
+      error: 'Fetch Lobbies',
     );
-    //using encodedResponse just for validation purposes
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    _printRawData(data);
-    // Now Validation
-    _validation(data);
-    // You are also lstening becuause you created Or joined a Game
-    // print everything depending on abogh set Options
-    return data;
   }
 
-  Future<Map<String, dynamic>> fetchGame() async {
-    // input: Nothing
-    // output: sends a fetch Game request to Server. Will Receive a JSON Game. return a Game Model
-    print('Start fetching Game');
-    // defining url for Server: fetch-game ->  Server Keyword. userId and token for authentification on Serveer
-    final url = SERVER_URL + 'fetch-game' + _authString;
-    // sending get request to server
-    final encodedResponse = await http.get(url);
-    // decoding JSON
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    // validation
-    _validation(data);
-    return data;
+  Future<Map<String, dynamic>> fetchOnlineGames() async {
+    return await getSkeleton(
+      error: 'Fetch Online Games',
+      url: SERVER_ADRESS + 'fetch-online-games' + _authString,
+    );
   }
 
-  Future<Map<String, dynamic>> fetchGames() async {
-    // input:nothing
-    // output: sends fetch Games request to Server. Receives all Lobby Games a JSON From Server. Returns List of Lobby Games
-    print('start fetching games');
-    // defining url for Server req: fetch-games -> Server Keyword. token and userId for Server authentification
-    final url = SERVER_URL + 'fetch-games' + _authString;
-    // sending async get request with given url to Server
-    final encodedResponse = await http.get(url);
-    // decodes received Data
-    final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    // validates Data
-    _validation(data);
-    // Game Provider Fetch Games
-    return data;
+  Future<Map<String, dynamic>> fetchOnlineGame(String gameId) async {
+    return await getSkeleton(
+        url: SERVER_URL + 'fetch-online-game/$gameId' + _authString,
+        error: 'Fetch Game');
+  }
+
+  Future<Map<String, dynamic>> fetchLobbyGames() async {
+    return await getSkeleton(
+        url: SERVER_URL + 'fetch-lobby-games' + _authString,
+        error: 'Fetch Lobby Games');
   }
 
   Future<void> createTestGame() async {
-    try {
-      final String url = SERVER_ADRESS + 'create-test-game' + _authString;
-      final response = await http.get(url);
-      final data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-    } catch (error) {
-      throw (error);
-    }
+    await getSkeleton(
+      error: 'Creating Test Game',
+      url: SERVER_ADRESS + 'create-test-game' + _authString,
+    );
   }
 
-  Future<String> requestSurrender() async {
-    try {
-      final String url = SERVER_ADRESS + 'request-surrender' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> requestSurrender(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+      url: SERVER_ADRESS + 'request-surrender/$gameId' + _authString,
+      error: 'Request Surrender',
+    );
+    return data['message'];
   }
 
-  Future<String> acceptSurrender() async {
-    try {
-      final String url = SERVER_ADRESS + 'accept-surrender' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> acceptSurrender(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+        url: SERVER_ADRESS + 'accept-surrender/$gameId' + _authString,
+        error: 'Accept Surrender');
+    return data['message'];
   }
 
-  Future<Map<String, dynamic>> declineSurrender() async {
-    try {
-      final String url = SERVER_ADRESS + 'decline-surrender' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data;
-    } catch (error) {
-      throw (error);
-    }
+  Future<Map<String, dynamic>> declineSurrender(String gameId) async {
+    return await getSkeleton(
+        url: SERVER_ADRESS + 'decline-surrender/$gameId' + _authString,
+        error: 'Decline Surrender');
   }
 
-  Future<String> requestRemi() async {
-    try {
-      final String url = SERVER_ADRESS + 'request-remi' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> requestRemi(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+      error: 'Request Remi',
+      url: SERVER_ADRESS + 'request-remi/$gameId' + _authString,
+    );
+    return data['message'];
   }
 
-  Future<String> acceptRemi() async {
-    try {
-      final String url = SERVER_ADRESS + 'accept-remi' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> acceptRemi(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+        url: SERVER_ADRESS + 'accept-remi/$gameId' + _authString,
+        error: 'Accept Remi');
+    return data['message'];
   }
 
-  Future<Map<String, dynamic>> declineRemi() async {
-    try {
-      final String url = SERVER_ADRESS + 'decline-remi' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data;
-    } catch (error) {
-      throw (error);
-    }
+  Future<Map<String, dynamic>> declineRemi(String gameId) async {
+    return await getSkeleton(
+        url: SERVER_ADRESS + 'decline-remi/$gameId' + _authString,
+        error: 'Decline Remi');
   }
 
-  Future<String> requestTakeBack() async {
-    try {
-      final String url = SERVER_ADRESS + 'request-takeback' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> requestTakeBack(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+      url: SERVER_ADRESS + 'request-takeback/$gameId' + _authString,
+      error: 'Request Take Back',
+    );
+    return data['message'];
   }
 
-  Future<String> acceptTakeBack() async {
-    try {
-      final String url = SERVER_ADRESS + 'accept-takeback' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data['message'];
-    } catch (error) {
-      throw (error);
-    }
+  Future<String> acceptTakeBack(String gameId) async {
+    final Map<String, dynamic> data = await getSkeleton(
+        error: 'Accept Take Back',
+        url: SERVER_ADRESS + 'accept-takeback/$gameId' + _authString);
+    return data['message'];
   }
 
-  Future<Map<String, dynamic>> declineTakeBack() async {
-    try {
-      final String url = SERVER_ADRESS + 'decline-takeback' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data;
-    } catch (error) {
-      throw (error);
-    }
+  Future<Map<String, dynamic>> declineTakeBack(String gameId) async {
+    return await getSkeleton(
+        url: SERVER_ADRESS + 'decline-takeback/$gameId' + _authString,
+        error: 'Decline Take Back');
   }
 
-  Future<Map<String, dynamic>> cancelRequest(int requestType) async {
-    try {
-      final String url = SERVER_ADRESS + 'cancel-request' + _authString;
-      print(requestType);
-      final response = await http.post(url,
-          body: json.encode({'requestType': requestType}),
-          headers: {'Content-Type': 'application/json'});
-      final Map<String, dynamic> data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-      return data;
-    } catch (error) {
-      throw (error);
-    }
+  Future<Map<String, dynamic>> cancelRequest(
+      int requestType, String gameId) async {
+    return await postSkeleton(
+        error: 'Cancel Request',
+        url: SERVER_ADRESS + 'cancel-request/$gameId' + _authString,
+        body: {'requestType': requestType});
   }
 
-  //########################################################################################################
+//########################################################################################################
   Future<Map<String, int>> getCount() async {
-    try {
-      final String url = SERVER_ADRESS + 'count' + _authString;
-      final response = await http.get(url);
-      final Map<String, dynamic> data = json.decode(response.body);
-      return {
-        'player': data['playerCount'],
-        'games': data['gamesCount'],
-        'users': data['usersCount'],
-      };
-    } catch (error) {
-      handleError('Error while Counting Games and Player', error);
-    }
+    final Map<String, dynamic> data = await getSkeleton(
+      url: SERVER_ADRESS + 'count' + _authString,
+      error: 'Get Count',
+    );
+    return {
+      'player': data['playerCount'],
+      'games': data['gamesCount'],
+      'users': data['usersCount'],
+    };
   }
 
   Future<void> sendErrorReport(String text) async {
-    try {
-      final String url = SERVER_ADRESS + 'error-report' + _authString;
-      final response = await http.post(url,
-          body: json.encode({'error': text}),
-          headers: {'Content-Type': 'application/json'});
-      final data = json.decode(response.body);
-      _printRawData(data);
-      _validation(data);
-    } catch (error) {
-      handleError('error while making buck report', error);
-    }
+    await postSkeleton(
+        error: 'Send Error Report',
+        url: SERVER_ADRESS + 'error-report' + _authString,
+        body: {'error': text});
   }
 
-  //#########################################################################################################
+//#########################################################################################################
 
   void _validation(Map<String, dynamic> data) {
     if (data == null) {
@@ -820,6 +714,35 @@ class ServerProvider with ChangeNotifier {
 
 //############################################################################################################
 // Helper Functions -----------------------------------------------------------------------------------------
+  Future<Map<String, dynamic>> postSkeleton(
+      {String error, Map<String, dynamic> body, String url}) async {
+    try {
+      print('Starting to $error');
+      String jsonBody = json.encode(body);
+      final encodedResponse = await http.post(url,
+          body: jsonBody, headers: {'Content-Type': 'application/json'});
+      final Map<String, dynamic> data = await json.decode(encodedResponse.body);
+      _printRawData(data);
+      _validation(data);
+      return data;
+    } catch (error) {
+      throw ('ERROR: $error');
+    }
+  }
+
+  Future<Map<String, dynamic>> getSkeleton({String url, String error}) async {
+    try {
+      print('Starting to $error');
+      final encodedResponse = await http.get(url);
+      final Map<String, dynamic> data = json.decode(encodedResponse.body);
+      _printRawData(data);
+      _validation(data);
+      return data;
+    } catch (error) {
+      throw ('ERROR: $error');
+    }
+  }
+
   void handleError(String errorText, dynamic error) {
     print(
         '-----------------------------------------------------------------------------------------------');

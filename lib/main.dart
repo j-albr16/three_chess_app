@@ -12,7 +12,6 @@ import './screens/auth_screen.dart';
 import './providers/popup_provider.dart';
 import './screens/lobby_screen.dart';
 import './screens/create_game_screen.dart';
-import './screens/game_provider_test_screen.dart';
 import './screens/friends_screen.dart';
 import './providers/online_provider.dart';
 import './screens/chat_screen.dart';
@@ -22,6 +21,8 @@ import './providers/server_provider.dart';
 import './providers/user_provider.dart';
 import './screens/main_page_viewer.dart';
 import './screens/invitation_screen.dart';
+import './providers/lobby_provider.dart';
+import './screens/game_lobby_screen.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -41,11 +42,10 @@ class ThreeChessApp extends StatelessWidget {
               ),
           ChangeNotifierProxyProvider<ServerProvider, GameProvider>(
             create: (_) => GameProvider(),
-            update: (_, server, previousGame) => previousGame
+            update: (_, server, gameProvider) => gameProvider
               ..update(
                 serverProvider: server,
-                game: previousGame.game,
-                games: previousGame.games,
+                gameProvider: gameProvider,
               ),
           ),
           ChangeNotifierProxyProvider<ServerProvider, ChatProvider>(
@@ -77,12 +77,17 @@ class ThreeChessApp extends StatelessWidget {
                 user: previousUser.user,
               ),
           ),
+          ChangeNotifierProxyProvider<ServerProvider, LobbyProvider>(
+              create: (_) => LobbyProvider(),
+              update: (_, serverProvider, previousLobbyProvider) =>
+                  previousLobbyProvider
+                    ..update(serverProvider, previousLobbyProvider)),
           ChangeNotifierProxyProvider2<ServerProvider, GameProvider,
               OnlineProvider>(
             create: (_) => OnlineProvider(),
             update: (_, serverProvider, gameProvider, previousOnlineProvider) =>
                 previousOnlineProvider
-                  ..update(game: gameProvider.game, server: serverProvider),
+                  ..update(hasGame: gameProvider.hasGame, server: serverProvider),
           ),
           ChangeNotifierProvider<ScrollProvider>(
             create: (_) => ScrollProvider(),
@@ -109,9 +114,9 @@ class ThreeChessApp extends StatelessWidget {
                     AuthScreen.routeName: (ctx) => AuthScreen(),
                     CreateGameScreen.routeName: (ctx) => CreateGameScreen(),
                     LobbyScreen.routeName: (ctx) => LobbyScreen(),
-                    GameTestScreen.routeName: (ctx) => GameTestScreen(),
                     FriendsScreen.routeName: (ctx) => FriendsScreen(),
                     ChatScreen.routeName: (ctx) => ChatScreen(),
+                    GameLobbyScreen.routeName: (ctx) => GameLobbyScreen(),
                     InvitationScreen.routeName: (ctx) => InvitationScreen(),
                   },
                   // builder: (context, widget) => ResponsiveWrapper.builder(

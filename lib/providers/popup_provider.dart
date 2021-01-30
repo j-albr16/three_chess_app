@@ -12,6 +12,7 @@ import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../widgets/invitations/invitations.dart';
 import './game_provider.dart';
+import '../providers/lobby_provider.dart';
 
 typedef PopUp(BuildContext context);
 
@@ -34,7 +35,7 @@ class PopupProvider with ChangeNotifier {
 
   void _checklForPopUps() {
     // Invitation PopUps
-    if (_gameProvider.hasPopup) {
+    if (_gameProvider.hasPopup && _gameProvider.hasGame) {
       _gameProvider.hasPopup = false;
       makeEndGamePopup(_gameProvider);
       notifyListeners();
@@ -69,8 +70,8 @@ class PopupProvider with ChangeNotifier {
         builder: (context) {
           Size size = MediaQuery.of(context).size;
           return EndGameAlertDialog(
-            finishedGameData: _gameProvider.game.finishedGameData,
-            player: _gameProvider.game.player,
+            finishedGameData: _gameProvider.onlineGame.finishedGameData,
+            player: _gameProvider.onlineGame.player,
             inspect: () {},
             leave: () {
               gameProvider.removeGame();
@@ -129,10 +130,10 @@ class PopupProvider with ChangeNotifier {
               ),
               child: Invitations.invitationTile(
                 accept: () {
-                  GameProvider gProvider =
-                      Provider.of<GameProvider>(context, listen: false);
-                  gProvider.joinGame(game.id).then((_) {
-                    if (gProvider.game != null) {
+                  LobbyProvider gProvider =
+                      Provider.of<LobbyProvider>(context, listen: false);
+                  gProvider.joinGame(game.id).then((valid) {
+                    if (valid) {
                       Navigator.of(context).pushNamed(BoardScreen.routeName);
                     }
                   });

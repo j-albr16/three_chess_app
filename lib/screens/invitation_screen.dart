@@ -5,6 +5,7 @@ import '../widgets/invitations/invitations.dart';
 import '../screens/screen_bone.dart';
 import '../providers/friends_provider.dart';
 import '../providers/game_provider.dart';
+import '../providers/lobby_provider.dart';
 import '../widgets/invitations/invitation_head.dart';
 
 class InvitationScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class InvitationScreen extends StatefulWidget {
 class _InvitationScreenState extends State<InvitationScreen>
     with notificationPort<InvitationScreen> {
   void acceptInvitation(String gameId) {
-    Provider.of<GameProvider>(context, listen: false)
+    Provider.of<LobbyProvider>(context, listen: false)
         .joinGame(gameId)
         .then((_) {
       Navigator.of(context).pop();

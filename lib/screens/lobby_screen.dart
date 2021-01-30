@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 import '../providers/game_provider.dart';
+import '../providers/lobby_provider.dart';
 import '../widgets/lobby/lobby_table_mobilefull.dart';
 import '../widgets/lobby/lobby_actions.dart';
 
@@ -64,12 +65,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     ],
                     gameProvider: Provider.of<GameProvider>(context),
                     onGameTap: (game) {
-                      Provider.of<GameProvider>(context, listen: false)
+                      Provider.of<LobbyProvider>(context, listen: false)
                           .joinGame(game.id)
-                          .then((_) {
-                        if (Provider.of<GameProvider>(context, listen: false)
-                                .game !=
-                            null) {
+                          .then((valid) {
+                        if (valid) {
                           Navigator.of(context).pushNamed(BoardScreen.routeName);
                         }
                       });

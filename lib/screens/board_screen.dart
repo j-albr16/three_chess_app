@@ -78,11 +78,11 @@ class _BoardScreenState extends State<BoardScreen> {
     });
   }
 
-  void _selectOnlineGame(newIndex) {
+  void _selectOnlineGame(newIndex,  ) {
     setState(() {
-      gameIndex = newIndex;
+      gameIndex =  newIndex;
     });
-  }
+}
 
   _buildSelectedScreen() {
     return GameBoardScreen(gameType: gameType);
@@ -96,8 +96,8 @@ class _BoardScreenState extends State<BoardScreen> {
           controller: controller,
           width: screenWidth,
           height: screenHeight,
-          analyzeGame: GameConversion.rebaseWholeGame(analyzeGameData),
-          localGame: GameConversion.rebaseWholeGame(localGameData),
+          // analyzeGame: GameConversion.rebaseOnlineGame(analyzeGameData),
+          // localGame: GameConversion.rebaseOnlineGame(localGameData, localGameData[]),
           confirmGame: _confirmGame,
           localGamesOpen: localGamesOpen,
           onlineGamesOpen: onlineGamesOpen,
@@ -106,7 +106,7 @@ class _BoardScreenState extends State<BoardScreen> {
               setState(() => localGamesOpen = !localGamesOpen),
           switchOnlineGames: () =>
               setState(() => onlineGamesOpen = !onlineGamesOpen),
-          currentGames: gameProvider.game != null ? [gameProvider.game] : [],
+          currentGames: gameProvider.onlineGames,
           gameTypeCall: _selectGameType,
           gameIndex: gameIndex,
           gameIndexCall: _selectOnlineGame,

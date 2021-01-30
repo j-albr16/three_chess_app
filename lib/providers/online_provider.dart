@@ -23,10 +23,9 @@ int get playerCount {
 int get gamesCount {
   return _gamesCount ;
 }
-   void update({game, server}){
+   void update({hasGame, server}){
      _serverProvider = server;
-     inGame = game != null; 
-     if(inGame){
+     if(hasGame){
        setTimer(4);
      }else {
        setTimer(25);

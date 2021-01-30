@@ -21,7 +21,9 @@ const Map<RequestType, String> requestTypeInterface = {
   RequestType.Surrender: "Surrender",
 };
 
-enum TableAction { DrawOffer, TakebackRequest, SurrenderRequest }
+enum TableAction { DrawOffer, TakeBackRequest, SurrenderRequest }
+
+enum ChatType {Friend , OnlineGame, Lobby}
 
 enum PieceKey {
   PawnWhite,

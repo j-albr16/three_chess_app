@@ -1,8 +1,8 @@
-
 import 'dart:async';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
+import 'package:three_chess/models/enums.dart';
 import 'package:three_chess/models/user.dart';
 
 import '../providers/server_provider.dart';
@@ -10,6 +10,7 @@ import '../helpers/user_acc.dart';
 import '../models/chat_model.dart';
 import './game_provider.dart';
 import '../conversion/chat_conversion.dart';
+import '../providers/lobby_provider.dart';
 
 class ChatProvider with ChangeNotifier {
   String _userId = constUserId;
@@ -89,18 +90,24 @@ class ChatProvider with ChangeNotifier {
   }
 
   Future<void> fetchChat(
-      {String id, bool isGameChat, BuildContext context}) async {
+      {String id,
+      ChatType chatType = ChatType.Friend,
+      BuildContext context}) async {
     // either receive userId or gameId...
     try {
-      // http request
       final Map<String, dynamic> data =
-          await _serverProvider.fetchChat(isGameChat, id);
+          await _serverProvider.fetchChat(chatType, id);
       // convert chat
       _chats.add(ChatConversion.convertChat(data, _userId));
       // make shure current chat is the new Chat that was fetched
       _currentChatIndex = _chats.length - 1;
-      if (isGameChat) {
-        Provider.of<GameProvider>(context, listen: false).setChatId(chat.id);
+      if (chatType == ChatType.Lobby) {
+        Provider.of<LobbyProvider>(context, listen: false)
+            .setChatId(id, chat.id);
+      }
+      if (chatType == ChatType.OnlineGame) {
+        Provider.of<GameProvider>(context, listen: false)
+            .setChatId(id, chat.id);
       }
       print("next up fetch print:");
       ChatConversion.printWholeChat(chat);
@@ -110,35 +117,37 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getMoreMessages(Chat chat) async {
-    try {
-      final Map<String, dynamic> data =
-          await _serverProvider.getMoreMessages(chat.id, chat.messages.length);
-      data['messages'].forEach((message) {
-        User owner =
-            chat.user.firstWhere((user) => user.id == message['userId']);
-        _chats[_currentChatIndex].messages.add(ChatConversion.rebaseOneMessage(
-            message, _userId,
-            userName: owner.userName));
-      });
-      notifyListeners();
-    } catch (error) {
-      _serverProvider.handleError('Error While getting more Messages', error);
-    }
-  }
+  // Future<void> getMoreMessages(Chat chat) async {
+  //   try {
+  //     final Map<String, dynamic> data =
+  //         await _serverProvider.getMoreMessages(chat.id, chat.messages.length);
+  //     data['messages'].forEach((message) {
+  //       User owner =
+  //           chat.user.firstWhere((user) => user.id == message['userId']);
+  //       _chats[_currentChatIndex].messages.add(ChatConversion.rebaseOneMessage(
+  //           message, _userId,
+  //           userName: owner.userName));
+  //     });
+  //     notifyListeners();
+  //   } catch (error) {
+  //     _serverProvider.handleError('Error While getting more Messages', error);
+  //   }
+  // }
 
   Future<void> selectChatRoom(
-      {String id = '', bool isGameChat = false, BuildContext context}) async {
+      {String id = '',
+      ChatType chatType = ChatType.Friend,
+      BuildContext context}) async {
     int index = _chats.indexWhere((chat) =>
         chat.user.firstWhere((u) => u.id == id, orElse: () => null) != null ||
         chat.id == id);
     if (index == -1) {
       await fetchChat(
         id: id,
-        isGameChat: isGameChat,
+        chatType: chatType,
         context: context,
       );
-      if (!isGameChat) {
+      if (chatType == ChatType.Friend) {
         return notifyListeners();
       }
       return;

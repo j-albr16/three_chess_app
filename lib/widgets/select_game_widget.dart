@@ -38,9 +38,14 @@ class SelectGame extends StatelessWidget {
 
   Color get shadowColor {
     if (gameType == GameType.Online) {
-      return gameIndex == currentGameIndex
-          ? theme.colorScheme.secondary
-          : Colors.black26;
+      if(gameIndex == currentGameIndex && currentGameType == GameType.Online){
+        return gameIndex == currentGameIndex
+            ? theme.colorScheme.secondary
+            : Colors.black26;
+      }
+      else{
+        return Colors.black26;
+      }
     } else {
       return currentGameType == gameType
           ? theme.colorScheme.secondary
@@ -65,7 +70,7 @@ class SelectGame extends StatelessWidget {
               color: Colors.black26, width: 2, style: BorderStyle.solid),
         ),
         child: FittedBox(
-          fit: BoxFit.contain,
+          fit: BoxFit.none,
           child: game != null
               ? boardWidget(game.startingBoard)
               : Text('No Image', style: theme.textTheme.bodyText1),
@@ -74,15 +79,45 @@ class SelectGame extends StatelessWidget {
     );
   }
 
+  Widget firstColumn(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text('Time', style: theme.textTheme.bodyText1),
+        Text('Increment', style: theme.textTheme.bodyText1)
+      ],
+    );
+  }
+  Widget secondColumn(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text(game.time.toString(), style: theme.textTheme.bodyText1),
+        Text( game.increment.toString() , style: theme.textTheme.bodyText1)
+      ],
+    );
+  }
+  Widget data(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        firstColumn(),
+        secondColumn(),
+      ],
+    );
+  }
+
   Widget advancedGameInfo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text("     Time: ${game.time}"),
-        Text("Increment: ${game.increment}"),
+        data(),
+        SizedBox(height: 23),
         Text(
-            "It's ${playerColorString[PlayerColor.values[game.chessMoves.length % 3]]}\'s Turn"),
+            "It's ${playerColorString[PlayerColor.values[game.chessMoves.length % 3]]}\'s Turn", style: theme.textTheme.bodyText1),
       ],
     );
   }

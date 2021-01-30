@@ -5,8 +5,34 @@ import '../models/user.dart';
 import '../models/enums.dart';
 import '../models/chess_move.dart';
 
+
+typedef void GameCallback(Map<String,dynamic> gameData, Map<String,dynamic> playerData, Map<String, dynamic> userData);
+
 class GameConversion {
-  static Game rebaseWholeGame(Map<String, dynamic> gameData) {
+  static Game rebaseAnalyzeGame(Map<String, dynamic> gameData){}
+
+ static void sortUserAndPlayer(Map<String, dynamic> data,GameCallback lobbyGameCallback){
+    // lobby Game Callback will be called for Each Game
+    data['gameData']['games'].forEach((game) {
+        final playerData = data['gameData']['player']
+            ?.where((player) => player['gameId'] == game['_id']);
+        print(playerData);
+        final userData = data['gameData']['user']
+            ?.where((user) => user['gameId'] == game['_id']);
+        print(userData);
+        lobbyGameCallback(game, playerData, userData);
+    });
+  }
+
+  static List<Game> rebaseOnlineGames(Map<String,dynamic> data){
+   List<Game> resultGames = [];
+   sortUserAndPlayer(data, (gameData, playerData, userData) {
+     resultGames.add(rebaseOnlineGame(gameData, playerData, userData));
+   });
+   return resultGames;
+  }
+
+  static Game rebaseOnlineGame(Map<String, dynamic> gameData, Map<String, dynamic> playerData, Map<String, dynamic> userData) {
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
     // convert Chess moves and add them to exisitng Chess Move Class
@@ -17,8 +43,8 @@ class GameConversion {
     gameData['chessMoves']?.forEach((e) => chessMoves.add(rebaseOneMove(e)));
     // convert player List and add them to existing player class
     List<Player> convPlayer = connectUserPlayerData(
-      player: gameData['player'],
-      users: gameData['user'],
+      player: playerData,
+      users: userData,
     );
     print('Finished converting Player and User');
     // creates a game and sets Game options in it
@@ -27,9 +53,6 @@ class GameConversion {
     game.didStart = gameData['didStart'];
     game.id = gameData['_id'];
     game.player = convPlayer;
-    if (gameData['endGameExpiry'] != null) {
-      game.endGameExpiry = DateTime.parse(gameData['endGameExpiry']);
-    }
     game.chessMoves = chessMoves;
     List<Request> convRequests = [];
     print('Raw Data of Requests');
@@ -40,6 +63,7 @@ class GameConversion {
     game.requests = convRequests;
     return game;
   }
+
 
   static Game rebaseLobbyGame({gameData, userData, playerData}) {
     // input: takes the decoded GameData of an JSON Response as Input
@@ -62,13 +86,25 @@ class GameConversion {
     return game;
   }
 
+  static List<Game> rebaseLobbyGames(Map<String, dynamic> data){
+    List<Game> gamesResult = [];
+    sortUserAndPlayer(data, (gameData, playerData, userData) {
+      gamesResult.add(rebaseLobbyGame(
+        gameData: gameData,
+        playerData: playerData,
+        userData: userData,
+      ));
+    });
+    return gamesResult;
+  }
+
   static Request rebaseOneRequest(Map<String, dynamic> requestData, Game game) {
     PlayerColor createPlayerColor =
-        getPlayerColorFromUserId(requestData['create'], game);
+        getPlayerColorFromUserId(requestData['create'], game.player);
     PlayerColor acceptPlayerColor =
-        getPlayerColorFromUserId(requestData['accept'], game);
+        getPlayerColorFromUserId(requestData['accept'], game.player);
     PlayerColor declinePlayerColor =
-        getPlayerColorFromUserId(requestData['decline'], game);
+        getPlayerColorFromUserId(requestData['decline'], game.player);
     Map<ResponseRole, PlayerColor> playerResponse = {};
     playerResponse[ResponseRole.Create] = createPlayerColor;
     playerResponse[ResponseRole.Accept] = acceptPlayerColor;
@@ -111,9 +147,9 @@ class GameConversion {
     );
   }
 
-  static PlayerColor getPlayerColorFromUserId(String userId, Game game) {
+  static PlayerColor getPlayerColorFromUserId(String userId, List<Player> gamePlayer) {
     print('Getting Player Color from UserId');
-    Player player = game.player
+    Player player =  gamePlayer
         .firstWhere((player) => player.user.id == userId, orElse: () => null);
     PlayerColor playerColor = player?.playerColor;
     print(playerColor);
@@ -134,7 +170,7 @@ class GameConversion {
     }
     // cheks whether Data is Valid. If validis not true Error was thrown on Server
     if (data['valid'] == false || data['valid'] == null) {
-      throw ('validation did not succeed ... thsi is the Error Message: ...' +
+      throw ('validation did not succeed ... this is the Error Message: ...' +
           data['message']);
     }
     print('validation finished , was succesfull');

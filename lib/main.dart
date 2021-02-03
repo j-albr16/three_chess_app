@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'providers/local_provider.dart';
 
 import 'providers/chat_provider.dart';
 
@@ -23,6 +24,7 @@ import './screens/main_page_viewer.dart';
 import './screens/invitation_screen.dart';
 import './providers/lobby_provider.dart';
 import './screens/game_lobby_screen.dart';
+import 'providers/current_games_provider.dart';
 
 void main() => runApp(ThreeChessApp());
 
@@ -100,6 +102,19 @@ class ThreeChessApp extends StatelessWidget {
                     ..update(
                         friendsProvider: friendsProvider,
                         gameProvider: gameProvider)),
+          ChangeNotifierProxyProvider<ServerProvider, LocalProvider>(
+              create: (_) => LocalProvider(),
+              update: (_, serverProvider, previousLocalProvider) =>
+              previousLocalProvider
+                ..update()), // TODO not implemented
+          ChangeNotifierProxyProvider2<GameProvider, LocalProvider,
+              CurrentGamesProvider>(
+              create: (_) => CurrentGamesProvider(),
+              update: (_, gameProvider, localProvider, currentGamesProvider) =>
+              currentGamesProvider
+                ..update(
+                  gameProvider.onlineGames, localProvider.localGames
+                )),
           ChangeNotifierProvider<ChessTheme>(create: (_) => ChessTheme()),
         ],
         child: Consumer<ChessTheme>(

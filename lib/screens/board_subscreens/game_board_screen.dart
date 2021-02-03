@@ -3,22 +3,24 @@ import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 import '../../board/client_game.dart';
+import '../../board/OnlineClientGame.dart';
 import '../../helpers/scroll_sections.dart';
 import '../../models/enums.dart';
 import '../../models/request.dart';
+import '../../models/game.dart';
+import '../../models/online_game.dart';
 import '../../providers/ClientGameProvider.dart';
 import '../../providers/scroll_provider.dart';
 import '../../widgets/accept_table_action.dart';
-import '../../providers/game_provider.dart';
 import '../../widgets/three_chess_board.dart';
 import 'game_board_subscreens/game_board_board_subscreen.dart';
 import 'game_board_subscreens/game_chat_board_subscreen.dart';
 import 'game_board_subscreens/game_table_board_subscreen.dart';
 
 class GameBoardScreen extends StatefulWidget {
-  final GameType gameType;
+  final Game game;
 
-  GameBoardScreen({@required this.gameType});
+  GameBoardScreen({@required this.game});
 
   @override
   _GameBoardScreenState createState() => _GameBoardScreenState();
@@ -27,10 +29,10 @@ class GameBoardScreen extends StatefulWidget {
 class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
   ThreeChessBoard threeChessBoard;
   ScrollController controller;
+  ClientGameProvider clientGameProvider;
   final double iconBarFractionOfTable = 0.1;
   final double gameTableHeightFraction = 0.7;
   final double voteHeightFraction = 0.1;
-  GameProvider gameProvider;
 
   double tableIconBarHeight(double screenHeight){
     return iconBarFractionOfTable * screenHeight;
@@ -48,7 +50,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
   void initState() {
     controller = ScrollController();
     Future.delayed(Duration.zero).then((_) {
-      gameProvider = Provider.of(context, listen: false);
+      clientGameProvider = Provider.of<ClientGameProvider>(context, listen:false)
+          ..setClientGame(widget.game);
       sections = _createSections(MediaQuery.of(context).size.height);
     });
 
@@ -57,6 +60,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
 
   @override
   void dispose() {
+    clientGameProvider.setClientGame(null);
     controller.dispose();
     super.dispose();
   }
@@ -71,25 +75,6 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
       ScrollSection(name: "IconBar", height: tableIconBarHeight(screenHeight), isAnchorTop: false),
       ScrollSection(name: "Table", height: tableBodyHeight(screenHeight), isAnchorTop: false),
     ];
-  }
-
-
-  Function getOnAccept(RequestType requestType) {
-    Map<RequestType, Function> onAccept = {
-      RequestType.Surrender: () => gameProvider.acceptSurrender(),
-      RequestType.Remi: () => gameProvider.acceptRemi(),
-      RequestType.TakeBack: () => gameProvider.acceptTakeBack(),
-    };
-    return onAccept[requestType];
-  }
-
-  Function getOnDecline(RequestType requestType) {
-    Map<RequestType, Function> onDecline = {
-      RequestType.Surrender: () => gameProvider.declineSurrender(),
-      RequestType.Remi: () => gameProvider.declineRemi(),
-      RequestType.TakeBack: () => gameProvider.declineTakeBack(),
-    };
-    return onDecline[requestType];
   }
 
 
@@ -110,41 +95,35 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
 
     return RelativeBuilder(
       builder: (context, screenHeight, screenWidth, sy, sx) {
-        List<Request> requests =
-            []; //Needs to be Not Null ! //TODO JAN ADD REQUEST FROM PROVIDER
 
-        /* Example Request:
-
-        Request(
-          moveIndex: 0,
-          playerResponse: {
-            ResponseRole.Create: PlayerColor.black,
-            ResponseRole.Decline: null,
-            ResponseRole.Accept: null,
-          },
-          requestType: RequestType.Surrender,
-        )
-
-         */
-
-        updateHeightOf(sectionIndex: 2, height: (requests.length * (screenHeight * voteHeightFraction)));
-
+        List<Request> requests = [];
         List<Widget> votes = [];
-        requests.forEach((request) {
-          votes.add(AcceptRequestType(
-            height: screenHeight * voteHeightFraction,
-            requestType: request.requestType,
-            whosAsking: request.playerResponse[ResponseRole.Create],
-            onAccept: () => getOnAccept(request.requestType),
-            onDecline: () => getOnDecline(request.requestType),
-            movesLeftToVote: 3 -
-                ((clientGame.chessMoves.length % 3) -
-                        ((request.playerResponse[ResponseRole.Create].index +
-                                2) %
-                            3))
-                    .abs(),
-          ));
-        });
+
+        if(widget.game.runtimeType is OnlineGame){
+          OnlineClientGame onlineGameClientDo =Provider.of<ClientGameProvider>(context).clientGame as OnlineClientGame;
+          OnlineGame onlineGame = Provider.of<ClientGameProvider>(context).clientGame.game as OnlineGame;
+
+          requests = onlineGame.requests;
+
+          updateHeightOf(sectionIndex: 2, height: (requests.length * (screenHeight * voteHeightFraction)));
+
+          requests.forEach((request) {
+            votes.add(AcceptRequestType(
+              height: screenHeight * voteHeightFraction,
+              requestType: request.requestType,
+              whosAsking: request.playerResponse[ResponseRole.Create],
+              onAccept: () => onlineGameClientDo.getOnAccept(request.requestType),
+              onDecline: () => onlineGameClientDo.getOnDecline(request.requestType),
+              movesLeftToVote: 3 -
+                  ((clientGame.chessMoves.length % 3) -
+                      ((request.playerResponse[ResponseRole.Create].index +
+                          2) %
+                          3))
+                      .abs(),
+            ));
+          });
+
+        }
 
         List<Widget> _subScreens = [
           ChatBoardSubScreen(

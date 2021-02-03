@@ -43,6 +43,24 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
     }
   }
 
+  Function getOnAccept(RequestType requestType) {
+    Map<RequestType, Function> onAccept = {
+      RequestType.Surrender: () => gameProvider.acceptSurrender(),
+      RequestType.Remi: () => gameProvider.acceptRemi(),
+      RequestType.TakeBack: () => gameProvider.acceptTakeBack(),
+    };
+    return onAccept[requestType];
+  }
+
+  Function getOnDecline(RequestType requestType) {
+    Map<RequestType, Function> onDecline = {
+      RequestType.Surrender: () => gameProvider.declineSurrender(),
+      RequestType.Remi: () => gameProvider.declineRemi(),
+      RequestType.TakeBack: () => gameProvider.declineTakeBack(),
+    };
+    return onDecline[requestType];
+  }
+
   @override
   void doActionButton(RequestType requestType){
     Map<RequestType, Function> onRequest = {

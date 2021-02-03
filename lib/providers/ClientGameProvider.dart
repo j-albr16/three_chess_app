@@ -4,7 +4,6 @@ import 'package:three_chess/board/OnlineClientGame.dart';
 import '../models/local_game.dart';
 import '../models/online_game.dart';
 import '../models/game.dart';
-import '../board/BoardState.dart';
 import '../models/chess_move.dart';
 import '../models/enums.dart';
 import '../board/client_game.dart';

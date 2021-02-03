@@ -1,3 +1,4 @@
+import 'enums.dart';
 import 'game.dart';
 import './request.dart';
 import './player.dart';
@@ -5,6 +6,9 @@ import './chess_move.dart';
 import './piece.dart';
 
 class OnlineGame extends Game{
+
+  @override
+  GameType gameType = GameType.Online;
 
   DateTime endGameExpiry; //Will prob. change
   List<String> invitations;

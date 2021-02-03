@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import './player.dart';
 import './chess_move.dart';
 import './piece.dart';
+import 'enums.dart';
 
 abstract class Game {
 
@@ -18,7 +19,7 @@ abstract class Game {
   List<Piece> startingBoard;
   int increment;
   int time;
-
+  GameType get gameType;
   Game({
     this.player,
     this.finishedGameData,

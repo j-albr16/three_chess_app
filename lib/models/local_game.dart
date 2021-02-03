@@ -10,6 +10,8 @@ class LocalGame extends Game{
 
   //Option weather Tiles perspective follow the player whos turn it is
   bool followPlaying;
+  @override
+  GameType gameType = GameType.Local;
   
   @override
   List<Player> player = [
@@ -34,4 +36,5 @@ class LocalGame extends Game{
       increment: increment,
       time: time
   );
+
 }

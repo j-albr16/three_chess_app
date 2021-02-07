@@ -77,6 +77,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 child: Container(
                   child: LobbyTable(
                     width: screenWidth,
+                    lobbyProvider: Provider.of<LobbyProvider>(context),
                     theme: Theme.of(context),
                     height: screenHeight * 0.5,
                     selectedColumns: [

@@ -20,17 +20,20 @@ class GameConversion {
     // lobby OnlineGame Callback will be called for Each OnlineGame
     data['gameData']['games'].forEach((game) {
       final List pData = playerData
-          .where((player) => player['gameId'] == game['_id'])
+          .where((player) =>
+              // Check if GameId is Noticed in Player Model
+              player['gameId'] == game['_id'] &&
+              // check if game Player Array contains the Player Id
+              game['player'].contains(player['_id']))
           .toList();
-      print(pData);
-      print(userData);
-      print(gameTypeInterface[gameType]);
       final List uData = userData.where((user) {
+        List userIds = pData.map((player) => player['userId']).toList();
         String gameTypeKey = gameTypeInterface[gameType];
         List gameIds = user[gameTypeKey];
-        return gameIds.contains(game['_id']);
+        // Check if userIds of the Game contain the userId
+        // Check if gameId is Noticed in User Model
+        return gameIds.contains(game['_id']) && userIds.contains(user['_id']);
       }).toList();
-      print(uData);
       lobbyGameCallback(game, pData, uData);
     });
   }
@@ -82,7 +85,7 @@ class GameConversion {
 
   static OnlineGame rebaseLobbyGame(
       {Map<String, dynamic> gameData, List userData, List playerData}) {
-    print('rebasing Lobby Games');
+    print('Rebasing Lobby Games');
     // input: takes the decoded GameData of an JSON Response as Input
     // output: returns a converted OnlineGame that includes Lobby OnlineGame Data
     //No Chess Moves made in Lobby Games
@@ -100,10 +103,12 @@ class GameConversion {
     game.player = convPlayer;
     game.chessMoves = chessMoves;
     // returns the converted OnlineGame
+    print('Finished Rebasing Lobby Games');
     return game;
   }
 
   static List<OnlineGame> rebaseLobbyGames(Map<String, dynamic> data) {
+    print('Start Rebasing Lobby Games');
     List<OnlineGame> gamesResult = [];
     sortUserAndPlayer(data, (gameData, playerData, userData) {
       gamesResult.add(rebaseLobbyGame(
@@ -136,7 +141,7 @@ class GameConversion {
 
   static Player rebaseOnePlayer({playerData, userData}) {
     return new Player(
-      isOnline: userData['isPlaying'],
+      isOnline: userData['isPlaying'] ?? true,
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: rebaseOneUser(userData),
@@ -147,7 +152,9 @@ class GameConversion {
     return new User(
         id: userData['_id'],
         score: userData['score'],
-        friendIds: (userData['friends'] as List).map((friend) => friend as String).toList(),
+        friendIds: (userData['friends'] as List)
+            .map((friend) => friend as String)
+            .toList(),
         userName: userData['userName']);
   }
 
@@ -167,7 +174,6 @@ class GameConversion {
     Player player = gamePlayer.firstWhere((player) => player.user.id == userId,
         orElse: () => null);
     PlayerColor playerColor = player?.playerColor;
-    print(playerColor);
     return playerColor;
   }
 

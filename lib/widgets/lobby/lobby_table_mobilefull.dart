@@ -26,8 +26,8 @@ class LobbyTable extends StatefulWidget {
   LobbyTable(
       {this.width = 1000,
       this.height = 1000,
-        this.theme,
-        this.lobbyProvider,
+      this.theme,
+      this.lobbyProvider,
       this.gameProvider,
       this.onGameTap,
       this.selectedColumns});
@@ -238,20 +238,21 @@ class _LobbyTableState extends State<LobbyTable> {
   };
 
   Map<ColumnType, double> columnFlex = {
-    ColumnType.UserNames: 4,
+    ColumnType.UserNames: 3,
     ColumnType.UserName1: 1,
     ColumnType.UserName2: 1,
     ColumnType.AverageScore: 3,
     ColumnType.Time: 2,
-    ColumnType.Mode: 1,
+    ColumnType.Mode: 3,
     ColumnType.Fullness: 1,
   };
 
   Widget getHeader(ColumnType type, ThemeData theme) {
     return Center(
         child: Text(columnHeader[type],
-            style: theme.textTheme
-                .subtitle1.copyWith(fontSize: 16))); // TODO GestureDetector for sorting TODO I DONT THINK SO ANYMORE
+            style: theme.textTheme.subtitle1.copyWith(
+                fontSize:
+                    16))); // TODO GestureDetector for sorting TODO I DONT THINK SO ANYMORE
   }
 
   Widget orderColumn(ColumnType e) {

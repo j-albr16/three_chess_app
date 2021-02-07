@@ -127,7 +127,7 @@ class SelectGame extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     return GestureDetector(
       onTap: confirmGame,
-      child: SorroundingCard(
+      child: SurroundingCard(
         height: size.height * 0.20,
         shadowColor: shadowColor,
         child: Row(

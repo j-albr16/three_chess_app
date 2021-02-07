@@ -28,7 +28,7 @@ class LobbyActions extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
-    return SorroundingCard(
+    return SurroundingCard(
       width: size.width,
       height: size.height,
       padding: EdgeInsets.all(mainBoxPadding / 2),

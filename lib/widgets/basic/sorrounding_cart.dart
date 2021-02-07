@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../helpers/constants.dart';
 
-class SorroundingCard extends StatelessWidget {
+class SurroundingCard extends StatelessWidget {
   @required
   final Widget child;
   final double height;
-  final double maxWidth;
   final double width;
   final EdgeInsets padding;
   final Color color;
@@ -14,7 +13,7 @@ class SorroundingCard extends StatelessWidget {
   final EdgeInsets margin;
   final AlignmentGeometry alignment;
 
-  SorroundingCard({
+  SurroundingCard({
     this.alignment = Alignment.center,
     this.child,
     this.color,

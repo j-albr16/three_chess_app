@@ -153,7 +153,7 @@ class CreateGame extends StatelessWidget {
   }
 
   Widget boolBlock() {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children: [
           isPublicSwitch(),
@@ -166,7 +166,7 @@ class CreateGame extends StatelessWidget {
   }
 
   Widget sliderBlock(ThemeData theme) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children: <Widget>[
           timeSlider(),

@@ -28,7 +28,7 @@ class InvitationHead extends StatelessWidget {
   }
 
   Widget invitationHead(ThemeData theme, int invitationCount) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[

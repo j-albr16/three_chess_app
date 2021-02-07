@@ -120,7 +120,7 @@ class FriendList extends StatelessWidget {
   }
 
   Widget friendActions(ThemeData theme) {
-    return SorroundingCard(
+    return SurroundingCard(
       padding: EdgeInsets.all(mainBoxPadding / 2),
       color: theme.colorScheme.secondary,
       child: Column(
@@ -163,7 +163,7 @@ class FriendList extends StatelessWidget {
         onPendingSelect(null);
         resetBool(FriendBools.IsSearchngFriend, false);
       },
-      child: SorroundingCard(
+      child: SurroundingCard(
         alignment: Alignment.topLeft,
         height: height,
         child: ListView(
@@ -196,7 +196,7 @@ class FriendList extends StatelessWidget {
         resetBool(FriendBools.PendingOpen, false);
         resetBool(FriendBools.IsSearchngFriend, false);
       },
-      child: SorroundingCard(
+      child: SurroundingCard(
         padding: EdgeInsets.symmetric(vertical: 4),
         alignment: Alignment.topLeft,
         child: ListView(

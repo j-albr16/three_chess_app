@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/data/board_data.dart';
-import 'package:three_chess/helpers/constants.dart';
-import 'package:three_chess/models/online_game.dart';
-import 'package:three_chess/widgets/basic/advanced_selection.dart';
-import 'package:three_chess/widgets/basic/sorrounding_cart.dart';
+import '../data/board_data.dart';
+import '../helpers/constants.dart';
+import '../models/game.dart';
+import '../models/online_game.dart';
+import '../widgets/basic/advanced_selection.dart';
 
 import '../models/enums.dart';
 import '../models/online_game.dart';
@@ -12,23 +12,20 @@ import '../models/local_game.dart';
 import '../widgets/select_game_widget.dart';
 import '../widgets/basic/chess_divider.dart';
 
-typedef void GameTypeCall(GameType gameType);
+typedef void GameCall(Game game);
 typedef void GameIndexCall(int selectedGameIndex);
 typedef void ConfirmGame();
 
 class BoardStateSelector extends StatelessWidget {
-  final GameTypeCall gameTypeCall;
+  final GameCall confirmGame;
   final GameIndexCall gameIndexCall;
-  final ConfirmGame confirmGame;
 
   final bool onlineGamesOpen;
   final bool localGamesOpen;
   final Function switchOnlineGames;
   final Function switchLocalGames;
 
-  final List<OnlineGame> currentGames;
-  final LocalGame localGame;
-  final LocalGame analyzeGame;
+  final List<Game> currentGames;
 
   final int gameIndex;
   final GameType gameType;
@@ -47,7 +44,6 @@ class BoardStateSelector extends StatelessWidget {
     this.gameType,
     this.controller,
     this.gameIndexCall,
-    this.gameTypeCall,
     this.confirmGame,
     this.currentGames = const [],
     this.gameIndex,
@@ -57,14 +53,12 @@ class BoardStateSelector extends StatelessWidget {
     this.localGamesOpen,
     this.switchLocalGames,
     this.switchOnlineGames,
-    this.analyzeGame,
-    this.localGame,
   });
 
   Widget confirmSelection(ThemeData theme) {
     return FlatButton(
       minWidth: double.infinity,
-      onPressed: confirmGame,
+      onPressed: () => confirmGame(gameIndex != null ? currentGames[gameIndex] : null),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(cornerRadius),
       ),
@@ -80,47 +74,51 @@ class BoardStateSelector extends StatelessWidget {
 Widget localGames(Size size, ThemeData theme) {
     return Column(
       children: [
-        SelectGame(
-          size: size,
-          theme: theme,
-          game: analyzeGame,
-          gameType: GameType.Analyze,
-          confirmGame: confirmGame,
-          currentGameType: gameType,
-          gameTypeCall: gameTypeCall,
-          currentGameIndex: gameIndex,
-        ),
-        SelectGame(
-          size: size,
-          gameTypeCall: gameTypeCall,
-          gameType: GameType.Local,
-          game: localGame,
-          theme: theme,
-          confirmGame: confirmGame,
-          currentGameType: gameType,
-          currentGameIndex: gameIndex,
-        )
+        // SelectGame(
+        //   size: size,
+        //   theme: theme,
+        //   game: ,
+        //   confirmGame: () => confirmGame(),
+        //   currentGameIndex: gameIndex,
+        //   gameIndex: ,
+        //   gameIndexCall: gameIndexCall,
+        // ),
+        // SelectGame(
+        //   size: size,
+        //   game: ,
+        //   theme: theme,
+        //   confirmGame: () => confirmGame(),
+        //   currentGameIndex: gameIndex,
+        //   gameIndex: ,
+        //   gameIndexCall: gameIndexCall,
+        // ),
+        ...currentGames.where((game) => (game.runtimeType is OnlineGame) || (game.runtimeType is LocalGame)).map((game) =>
+            SelectGame(
+              size: size,
+              game: game,
+              theme: theme,
+              confirmGame: () => confirmGame(game),
+              currentGameIndex: gameIndex,
+              gameIndex: currentGames.indexOf(game),
+              gameIndexCall: gameIndexCall,
+            )
+        ).toList(),
       ],
     );
   }
 
   Widget onlineGames(Size size, ThemeData theme) {
     return ListView(
-      children: currentGames
-          .asMap()
-          .entries
-          .map((gameEntry) => SelectGame(
-                confirmGame: confirmGame,
-                theme: theme,
-                currentGameIndex: gameIndex,
-                currentGameType: gameType,
-                gameIndexCall: gameIndexCall,
-                size: size,
-                gameTypeCall: gameTypeCall,
-                game: gameEntry.value,
-                gameType: GameType.Online,
-                gameIndex: gameEntry.key,
-              ))
+      children: currentGames.where((game) => game.runtimeType is OnlineGame).map(
+              (gameEntry) => SelectGame(
+        confirmGame: () => confirmGame(gameEntry),
+        theme: theme,
+        currentGameIndex: gameIndex,
+        gameIndexCall: gameIndexCall,
+        size: size,
+        game: gameEntry,
+        gameIndex: currentGames.indexOf(gameEntry),
+      ))
           .toList(),
     );
   }

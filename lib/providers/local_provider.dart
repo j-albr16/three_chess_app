@@ -6,4 +6,10 @@ import '../models/local_game.dart';
 class LocalProvider with ChangeNotifier {
   List<LocalGame> localGames = [];
   List<LocalGame> analyzeGames = [];
+
+  LocalProvider();
+
+  update(){
+    // TODO Not implemented
+  }
 }

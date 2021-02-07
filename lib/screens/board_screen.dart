@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/providers/current_games_provider.dart';
+import '../providers/ClientGameProvider.dart';
 
 import '../models/enums.dart';
 import '../screens/board_subscreens/game_board_screen.dart';
@@ -66,9 +68,9 @@ class _BoardScreenState extends State<BoardScreen> {
         }));
   }
 
-  void _confirmGame() {
+  void _confirmGame(Game game, context) {
     setState(() {
-      buildScreen = true;
+      Provider.of<ClientGameProvider>(context, listen:false).setClientGame(game);
     });
   }
 
@@ -78,27 +80,27 @@ class _BoardScreenState extends State<BoardScreen> {
     });
   }
 
-  void _selectOnlineGame(newIndex,  ) {
+  void _selectGame(newIndex,  ) {
     setState(() {
       gameIndex =  newIndex;
     });
 }
 
-  _buildSelectedScreen() {
-    return GameBoardScreen(gameType: gameType);
+  _buildSelectedScreen(Game game) {
+    return GameBoardScreen(game: game);
   }
 
   _buildChooseScreen() {
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
-      return Consumer<GameProvider>(
-        builder: (context, gameProvider, child) => BoardStateSelector(
+      return Consumer<CurrentGamesProvider>(
+        builder: (context, currentGamesProvider, child) => BoardStateSelector(
           controller: controller,
           width: screenWidth,
           height: screenHeight,
           // analyzeGame: GameConversion.rebaseOnlineGame(analyzeGameData),
           // localGame: GameConversion.rebaseOnlineGame(localGameData, localGameData[]),
-          confirmGame: _confirmGame,
+          confirmGame: (Game game) => _confirmGame(game, context),
           localGamesOpen: localGamesOpen,
           onlineGamesOpen: onlineGamesOpen,
           gameType: gameType,
@@ -106,10 +108,10 @@ class _BoardScreenState extends State<BoardScreen> {
               setState(() => localGamesOpen = !localGamesOpen),
           switchOnlineGames: () =>
               setState(() => onlineGamesOpen = !onlineGamesOpen),
-          currentGames: gameProvider.onlineGames,
-          gameTypeCall: _selectGameType,
+          currentGames: currentGamesProvider.games,
           gameIndex: gameIndex,
-          gameIndexCall: _selectOnlineGame,
+          gameIndexCall: _selectGame,
+
         ),
       );
     });
@@ -137,8 +139,8 @@ class _BoardScreenState extends State<BoardScreen> {
                 return CircularProgressIndicator();
               } else {
                 return Container(
-                  child: buildScreen
-                      ? _buildSelectedScreen()
+                  child: Provider.of<ClientGameProvider>(context).clientGame != null
+                      ? _buildSelectedScreen(Provider.of<ClientGameProvider>(context).clientGame.game)
                       : _buildChooseScreen(),
                 );
               }

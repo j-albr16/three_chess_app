@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/models/local_game.dart';
+import 'package:three_chess/models/online_game.dart';
 
 import './basic/sorrounding_cart.dart';
 import '../models/game.dart';
@@ -11,13 +13,10 @@ class SelectGame extends StatelessWidget {
   final Game game;
 
   final int gameIndex;
-  final GameType gameType;
 
   final int currentGameIndex;
-  final GameType currentGameType;
 
   final ConfirmGame confirmGame;
-  final GameTypeCall gameTypeCall;
   final GameIndexCall gameIndexCall;
 
   final Size size;
@@ -25,32 +24,18 @@ class SelectGame extends StatelessWidget {
 
   SelectGame({
     this.gameIndexCall,
-    this.gameTypeCall,
     this.size,
     this.theme,
-    this.currentGameType,
     this.confirmGame,
-    this.gameType,
     this.gameIndex,
     this.currentGameIndex,
     this.game,
   });
 
   Color get shadowColor {
-    if (gameType == GameType.Online) {
-      if(gameIndex == currentGameIndex && currentGameType == GameType.Online){
-        return gameIndex == currentGameIndex
-            ? theme.colorScheme.secondary
-            : Colors.black26;
-      }
-      else{
-        return Colors.black26;
-      }
-    } else {
-      return currentGameType == gameType
+      return currentGameIndex == gameIndex
           ? theme.colorScheme.secondary
           : Colors.black26;
-    }
   }
 
   Widget boardWidget(List<Piece> currentBoard) {
@@ -109,7 +94,7 @@ class SelectGame extends StatelessWidget {
     );
   }
 
-  Widget advancedGameInfo() {
+  Widget onlineGameInfo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -127,44 +112,21 @@ class SelectGame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        if (gameType == GameType.Local || gameType == GameType.Analyze)
-          Text(gameTypeString[gameType] + ' Game',
+        if (game.runtimeType is LocalGame) // || game.runtimeType is AnalyzeGame)
+          Text(gameTypeString[game.gameType] + ' Game',
               style: theme.textTheme.subtitle1),
-        if (gameType == GameType.Online) advancedGameInfo(),
+        if (game.runtimeType is OnlineGame) onlineGameInfo(),
       ],
     );
   }
 
-  void checkForConfirm() {
-    if (gameType == GameType.Online) {
-      if (gameType != currentGameType || currentGameIndex != gameIndex) {
-        gameIndexCall(gameIndex);
-        gameTypeCall(gameType);
-      } else {
-        if (game != null) {
-          confirmGame();
-          print('Game is Null. Dont Confirm Selection');
-        }
-      }
-    } else {
-      if (gameType != currentGameType) {
-        gameTypeCall(gameType);
-      } else {
-        if (game != null) {
-          confirmGame();
-        } else {
-          print('Game is Null. Dont Confirm Selection');
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     return GestureDetector(
-      onTap: () => checkForConfirm(),
+      onTap: confirmGame,
       child: SorroundingCard(
         height: size.height * 0.20,
         shadowColor: shadowColor,

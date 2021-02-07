@@ -172,13 +172,13 @@ class LobbyProvider with ChangeNotifier {
       // http request
       final Map<String, dynamic> data = await _serverProvider.joinGame(gameId);
       final Map gameData = data['gameData'];
-      String gameId = gameData['_id'];
+      String gId = gameData['_id'];
       final List playerData = gameData['player'];
       final List userData = gameData['user'];
       _pendingGames.add(GameConversion.rebaseOnlineGame(
           userData: userData, playerData: playerData, gameData: gameData));
-      addRemoveGameListener(gameId);
-      _lobbyGames.removeWhere((game) => game.id == gameId);
+      addRemoveGameListener(gId);
+      _lobbyGames.removeWhere((game) => game.id == gId);
       print('Successfully Joined OnlineGame');
       // starts game If didStart is true => 3 Player are in the OnlineGame now and the server noticed that
       return data['valid'] as bool;

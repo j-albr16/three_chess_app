@@ -19,7 +19,7 @@ class SorroundingCard extends StatelessWidget {
     this.child,
     this.color,
     this.shadowColor = Colors.black26,
-    this.maxWidth = 500,
+    this.maxWidth,
     this.height,
     this.margin = const EdgeInsets.symmetric(
         horizontal: mainBoxMargin, vertical: mainBoxMargin / 1.5),

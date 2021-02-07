@@ -783,7 +783,7 @@ class ServerProvider with ChangeNotifier {
 
   void _printRawData(dynamic data) {
     // if (data['action'] != 'friend-online' && data['valid'] == true) {
-    // if (data['action'] != 'friend-online') {
+    if (data['action'] != 'friend-online') {
     print(
         '-------------------------------------------------------------------------------------------------');
     print(
@@ -792,5 +792,5 @@ class ServerProvider with ChangeNotifier {
     print(
         '-------------------------------------------------------------------------------------------------');
   }
-// }
+}
 }

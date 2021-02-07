@@ -64,7 +64,7 @@ class Chat extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Expanded(
-            child: noSorrounding ? mainChat() : SorroundingCard(
+            child: noSorrounding ? mainChat() : SurroundingCard(
               padding: EdgeInsets.all(mainBoxPadding / 2),
               child: mainChat(),
             ),
@@ -114,7 +114,7 @@ class Chat extends StatelessWidget {
   Widget textField() {
     return noSorrounding
         ? blankTextField()
-        : SorroundingCard(
+        : SurroundingCard(
             padding: EdgeInsets.all(mainBoxPadding),
             child: blankTextField(),
           );

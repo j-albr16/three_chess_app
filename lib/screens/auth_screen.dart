@@ -134,7 +134,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget form(ThemeData theme) {
-    return SorroundingCard(
+    return SurroundingCard(
       // padding: EdgeInsets.all(morePadding),
       child: Form(
         key: _formKey,
@@ -313,7 +313,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget submitBar(ThemeData theme, Size size) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [

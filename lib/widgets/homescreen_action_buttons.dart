@@ -16,7 +16,7 @@ class HomeScreenButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SorroundingCard(
+    return SurroundingCard(
       color: theme.colorScheme.secondary,
       child: homeScreenButtons(context, size, theme),
     );

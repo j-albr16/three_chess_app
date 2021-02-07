@@ -55,7 +55,7 @@ class AddFriendArea extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 7, right: 7),
       width: double.infinity,
-      child: SorroundingCard(
+      child: SurroundingCard(
         // padding: EdgeInsets.all(mainBoxPadding / 2),
         child: textField()),
     );

@@ -48,7 +48,7 @@ class Invitations extends StatelessWidget {
       Function accept,
       Function decline,
       ThemeData theme}) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children: [
           Padding(

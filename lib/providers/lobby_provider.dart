@@ -71,6 +71,7 @@ class LobbyProvider with ChangeNotifier {
   }
 
   Future<void> fetchLobbyGames() async {
+    print('Start fetching Lobby Games');
     try {
       // make http request
       final data = await _serverProvider.fetchLobbyGames();

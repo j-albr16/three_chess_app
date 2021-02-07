@@ -71,7 +71,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   }
 
   Widget optionsWidget(ThemeData theme) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children: [
           switchTitle(
@@ -91,7 +91,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   }
 
   Widget chatWidget(Chat chat, ThemeData theme, double height) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children: [
          if(!chatFocusNode.hasFocus) switchTitle(
@@ -149,7 +149,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   }
 
   Widget playersWidget(List<Player> players) {
-    return SorroundingCard(
+    return SurroundingCard(
       child: Column(
         children:
             players.map((player) => playerWidget(player, players)).toList(),

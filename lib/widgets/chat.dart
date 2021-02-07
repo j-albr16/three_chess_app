@@ -16,7 +16,8 @@ import '../helpers/constants.dart';
 typedef void SubmitMessage(String message);
 
 class Chat extends StatelessWidget {
-  final Size size;
+  final double width;
+  final double height;
   final SubmitMessage submitMessage;
   final mod.Chat chat;
   final bool lobbyChat;
@@ -28,14 +29,17 @@ class Chat extends StatelessWidget {
   final ThemeData theme;
   final bool maxScrollExtent;
   final FocusNode chatFocusNode;
+  final bool noSorrounding;
 
   Chat({
     this.chat,
+    this.noSorrounding = false,
     this.maxScrollExtent,
     this.chatFocusNode,
     this.theme,
     this.lobbyChat,
-    this.size,
+    this.width = double.infinity,
+    this.height = double.infinity,
     this.submitMessage,
     this.chatController,
     this.scrollController,
@@ -60,51 +64,60 @@ class Chat extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Expanded(
-            child: SorroundingCard(
+            child: noSorrounding ? mainChat() : SorroundingCard(
               padding: EdgeInsets.all(mainBoxPadding / 2),
-              child: ListView.builder(
-                controller: scrollController,
-                physics: BouncingScrollPhysics(),
-                itemCount: chat.messages.length,
-                itemBuilder: (context, index) => chatObject(
-                    time: chat.messages[index].timeStamp,
-                    theme: Theme.of(context),
-                    text: chat.messages[index].text,
-                    userName: chat.messages[index].userName,
-                    owner: chat.messages[index].owner),
-              ),
+              child: mainChat(),
             ),
           ),
           textField(),
         ]);
   }
 
-  Widget textField() {
-    return SorroundingCard(
-      padding: EdgeInsets.all(mainBoxPadding
-      ),
-      child: ChessTextField(
-        controller: chatController,
-        // errorText: 'invalid',
-        focusNode: chatFocusNode,
-        // hintText: 'message',
-        labelText: 'message',
-        maxLines: 1,
-        textInputType: TextInputType.text,
-        theme: theme,
-        obscuringText: false,
-        size: Size(size.width * 0.9, 50),
-        onSubmitted: (_) => submit(),
-        suffixIcon: IconButton(
-          padding: EdgeInsets.all(6),
-          onPressed: submit,
-          icon: Icon(
-            Icons.subdirectory_arrow_right_sharp,
-            color: Colors.black26,
-          ),
+  Widget mainChat(){
+    return ListView.builder(
+                controller: scrollController,
+                physics: BouncingScrollPhysics(),
+                itemCount: chat?.messages?.length,
+                itemBuilder: (context, index) => chatObject(
+                    time: chat.messages[index].timeStamp,
+                    theme: Theme.of(context),
+                    text: chat.messages[index].text,
+                    userName: chat.messages[index].userName,
+                    owner: chat.messages[index].owner),
+              );
+  }
+
+  Widget blankTextField() {
+    return ChessTextField(
+      controller: chatController,
+      // errorText: 'invalid',
+      focusNode: chatFocusNode,
+      // hintText: 'message',
+      labelText: 'message',
+      maxLines: 1,
+      textInputType: TextInputType.text,
+      theme: theme,
+      obscuringText: false,
+      size: Size(double.infinity, 50),
+      onSubmitted: (_) => submit(),
+      suffixIcon: IconButton(
+        padding: EdgeInsets.all(6),
+        onPressed: submit,
+        icon: Icon(
+          Icons.subdirectory_arrow_right_sharp,
+          color: Colors.black26,
         ),
       ),
     );
+  }
+
+  Widget textField() {
+    return noSorrounding
+        ? blankTextField()
+        : SorroundingCard(
+            padding: EdgeInsets.all(mainBoxPadding),
+            child: blankTextField(),
+          );
   }
 
   submit() {
@@ -131,13 +144,14 @@ class Chat extends StatelessWidget {
     return align;
   }
 
-  Widget chatObjectWrapper({ThemeData theme, MessageOwner owner, Widget child}) {
+  Widget chatObjectWrapper(
+      {ThemeData theme, MessageOwner owner, Widget child}) {
     return Align(
       alignment: getAlignment(owner),
       child: Container(
           margin: EdgeInsets.all(8),
           padding: EdgeInsets.all(8),
-          constraints: BoxConstraints(maxWidth: size.width * 0.7),
+          constraints: BoxConstraints(maxWidth: width * 0.7),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: theme.colorScheme.onBackground.withOpacity(0.60),
@@ -179,7 +193,8 @@ class Chat extends StatelessWidget {
             ),
             Text(
               DateFormat.Hm().format(time),
-              style: theme.textTheme.overline.copyWith(color: theme.textTheme.subtitle2.color),
+              style: theme.textTheme.overline
+                  .copyWith(color: theme.textTheme.subtitle2.color),
             ),
           ]),
     );

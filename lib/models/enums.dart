@@ -15,6 +15,8 @@ enum RequestType {
   TakeBack,
 }
 
+enum PopUpType { SnackBar, Invitation , Endgame}
+
 const Map<RequestType, String> requestTypeInterface = {
   RequestType.TakeBack: "Take Back",
   RequestType.Remi: "Draw",
@@ -45,6 +47,9 @@ enum PieceKey {
   QueenBlack,
   QueenRed
 }
+
+
+
 enum PieceType { Pawn, Rook, Knight, Bishop, King, Queen }
 enum PlayerColor { white, black, red, none }
 
@@ -56,9 +61,16 @@ enum HowGameEnded {
 }
 
 
-enum GameType { Local, Analyze, Online }
+enum GameType { Local, Analyze, Online , Pending}
 
-Map<GameType, String> gameTypeString = {
+const Map<GameType, String> gameTypeInterface = {
+  GameType.Online: 'onlineGames',
+  GameType.Analyze: 'analyzeGames',
+  GameType.Local: 'localGames',
+  GameType.Pending: 'pendingGames',
+};
+
+const Map<GameType, String> gameTypeString = {
   GameType.Analyze: 'Analyze',
   GameType.Local: 'Local',
   GameType.Online: 'Online',

@@ -6,9 +6,11 @@ import '../providers/game_provider.dart';
 import '../providers/lobby_provider.dart';
 import '../widgets/lobby/lobby_table_mobilefull.dart';
 import '../widgets/lobby/lobby_actions.dart';
-
+import '../providers/lobby_provider.dart';
+import '../widgets/lobby/lobby_select.dart';
 import './create_game_screen.dart';
 import 'board_screen.dart';
+import '../models/online_game.dart';
 
 class LobbyScreen extends StatefulWidget {
   static const routeName = '/lobby-screen';
@@ -25,18 +27,38 @@ class _LobbyScreenState extends State<LobbyScreen> {
     super.initState();
   }
 
+  void lobbySelectPopUp(
+      BuildContext context, List<OnlineGame> onlineGames, Size size) {
+    showDialog(
+      context: context,
+      builder: (context) => LobbySelect(
+        size: size,
+        onlineGames: onlineGames,
+        selectLobbyCall: (gameId, context) =>
+            Provider.of<LobbyProvider>(context, listen: false)
+                .setAndNavigateToGameLobby(context, gameId),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         actions: [
+          Consumer<LobbyProvider>(
+            builder: (context, lobbyProvider, child) => IconButton(
+                icon: Icon(Icons.person),
+                onPressed: () => lobbySelectPopUp(
+                    context, lobbyProvider.pendingGames, size)),
+          ),
           IconButton(
             color: Colors.white,
             icon: Icon(Icons.add),
             onPressed: () {
-              return Navigator.of(context)
-                  .pushNamed(CreateGameScreen.routeName, arguments: {'friend': ''});
+              return Navigator.of(context).pushNamed(CreateGameScreen.routeName,
+                  arguments: {'friend': ''});
             },
           ),
           SizedBox(width: 20)
@@ -69,7 +91,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           .joinGame(game.id)
                           .then((valid) {
                         if (valid) {
-                          Navigator.of(context).pushNamed(BoardScreen.routeName);
+                          Navigator.of(context)
+                              .pushNamed(BoardScreen.routeName);
                         }
                       });
                     },
@@ -77,7 +100,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 ),
               ),
             ),
-            Flexible(child: LobbyActions(), flex: 2,
+            Flexible(
+              child: LobbyActions(),
+              flex: 2,
             ),
           ],
         );

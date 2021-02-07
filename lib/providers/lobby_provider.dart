@@ -1,14 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/online_game.dart';
 import '../providers/server_provider.dart';
 import '../conversion/game_conversion.dart';
 import '../models/enums.dart';
+import '../screens/game_lobby_screen.dart';
+import '../providers/popup_provider.dart';
 
 class LobbyProvider with ChangeNotifier {
   List<OnlineGame> _pendingGames = [];
   List<OnlineGame> _lobbyGames = [];
   ServerProvider _serverProvider;
+  PopupProvider _popupProvider;
 
   List<OnlineGame> get lobbyGames {
     return [..._lobbyGames];
@@ -18,11 +22,11 @@ class LobbyProvider with ChangeNotifier {
     return [..._pendingGames];
   }
 
-  String lobbyGameId;
+  String currentPendingGame;
 
-  OnlineGame get lobbyGame {
-    if (_lobbyGames.isNotEmpty && lobbyGameId != null) {
-      return _lobbyGames.firstWhere((lobbyGame) => lobbyGame.id == lobbyGameId,
+  OnlineGame get  pendingGame{
+    if (_pendingGames.isNotEmpty && currentPendingGame != null) {
+      return _pendingGames.firstWhere((lobbyGame) => lobbyGame.id == currentPendingGame,
           orElse: () => null);
     } else {
       print('No Lobby Games Or No Current Lobby OnlineGame Picked');
@@ -32,9 +36,10 @@ class LobbyProvider with ChangeNotifier {
 
   bool _isInit = false;
 
-  void update(ServerProvider serverProvider, LobbyProvider lobbyProvider) {
+  void update(ServerProvider serverProvider, LobbyProvider lobbyProvider, PopupProvider popUpProvider) {
     _pendingGames = lobbyProvider.pendingGames;
     _lobbyGames = lobbyProvider.lobbyGames;
+    _popupProvider = popUpProvider;
     _serverProvider = serverProvider;
     if (!_isInit) {
       subscribeToLobbyChannel();
@@ -42,8 +47,15 @@ class LobbyProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setAndNavigateToGameLobby(BuildContext context, String gameId ){
+    Navigator.of(context).pop();
+    currentPendingGame = gameId;
+    Navigator.of(context).pushNamed(GameLobbyScreen.routeName);
+  }
+
   void setChatId(String gameId, String chatId){
-    getLobbyGame(gameId).chatId = chatId;
+    OnlineGame game = getPendingGame(gameId);
+    game.chatId = chatId;
     notifyListeners();
   }
 
@@ -52,6 +64,10 @@ class LobbyProvider with ChangeNotifier {
         gameId,
         (String gameId) =>
             _pendingGames.removeWhere((game) => game.id == gameId));
+  }
+
+  Future<void> leaveLobby(String gameId) async {
+      final Map<String, dynamic> data = await _serverProvider.leaveLobby(gameId);
   }
 
   Future<void> fetchLobbyGames() async {
@@ -66,7 +82,7 @@ class LobbyProvider with ChangeNotifier {
   }
 
   Future<void> fetchPendingGames() async {
-    try {
+    // try {
       final Map<String, dynamic> data =
           await _serverProvider.fetchPendingGames();
       _pendingGames = GameConversion.rebaseLobbyGames(data);
@@ -74,9 +90,9 @@ class LobbyProvider with ChangeNotifier {
       _pendingGames.forEach((game) {
         addRemoveGameListener(game.id);
       });
-    } catch (error) {
-      _serverProvider.handleError('Error while Fetching Pending Games', error);
-    }
+    // } catch (error) {
+    //   _serverProvider.handleError('Error while Fetching Pending Games', error);
+    // }
   }
 
   Future<void> quickPairing({int time, int increment}) async {
@@ -134,8 +150,10 @@ class LobbyProvider with ChangeNotifier {
         posRatingRange: posRatingRange,
         time: time,
       );
-      _pendingGames.add(GameConversion.rebaseOnlineGame(data['gameData'],
-          data['gameData']['player'], data['gameData']['user']));
+      final Map<String ,dynamic> gameData =  data['gameData'];
+      final List playerData =  gameData['player'];
+      final List userData =  gameData['user'];
+      _pendingGames.add(GameConversion.rebaseOnlineGame(gameData: gameData, playerData: playerData, userData: userData));
       addRemoveGameListener(data['gameData']['_id']);
       print('successfully created game');
       notifyListeners();
@@ -149,9 +167,11 @@ class LobbyProvider with ChangeNotifier {
     try {
       // http request
       final Map<String, dynamic> data = await _serverProvider.joinGame(gameId);
-      _pendingGames.add(GameConversion.rebaseOnlineGame(data['gameData'],
-          data['gameData']['player'], data['gameData']['user']));
-      addRemoveGameListener(data['gameData']['_id']);
+      final Map<String,dynamic> gameData = data['gameData'];
+      final List<Map<String, dynamic>> playerData = gameData['player'];
+      final List<Map<String, dynamic>> userData= gameData['user'];
+      _pendingGames.add(GameConversion.rebaseOnlineGame(userData: userData, playerData: playerData, gameData: gameData));
+      addRemoveGameListener(gameData['_id']);
       print('Successfully Joined OnlineGame');
       // starts game If didStart is true => 3 Player are in the OnlineGame now and the server noticed that
       return data['valid'] as bool;

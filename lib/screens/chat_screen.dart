@@ -67,7 +67,6 @@ class _ChatScreenState extends State<ChatScreen> {
             scrollController: _scrollController,
             chatFocusNode: chatFocusNode,
             lobbyChat: true,
-            size: Size(400, 600),
             submitMessage: (text) => _chatProvider.sendTextMessage(text),
             theme: theme,
             maxScrollExtent: maxScrollExtent,

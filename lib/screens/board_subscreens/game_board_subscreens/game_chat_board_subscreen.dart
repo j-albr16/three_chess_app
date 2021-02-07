@@ -84,7 +84,7 @@ class _ChatBoardSubScreenState extends State<ChatBoardSubScreen> {
                     lobbyChat: true,
                     maxScrollExtent: maxScrollExtend,
                     scrollController: chatScrollController,
-                    size: Size(400, widget.height),
+                    height: widget.height,
                     submitMessage: (String text) => submitMessage(text),
                     theme: widget.theme,
                   ),

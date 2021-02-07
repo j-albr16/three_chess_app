@@ -4,6 +4,7 @@ class User {
   String email;
   String userName;
   int score;
+  List<String> friendIds;
 
-  User({this.userName, this.email, this.id, this.score});
+  User({this.userName, this.friendIds, this.email, this.id, this.score});
 }

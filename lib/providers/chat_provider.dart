@@ -11,6 +11,7 @@ import '../models/chat_model.dart';
 import './game_provider.dart';
 import '../conversion/chat_conversion.dart';
 import '../providers/lobby_provider.dart';
+import '../providers/popup_provider.dart';
 
 class ChatProvider with ChangeNotifier {
   String _userId = constUserId;
@@ -18,12 +19,14 @@ class ChatProvider with ChangeNotifier {
   List<Chat> _chats = [];
   int _currentChatIndex;
   ServerProvider _serverProvider;
+  PopupProvider _popUpProvider;
 
-  void update({chatIndex, chats, serverProvider}) {
+  void update({chatIndex,chats,ServerProvider serverProvider, PopupProvider popUpProvider}) {
     print('Update Chat');
     _currentChatIndex = chatIndex;
     _chats = chats;
     _serverProvider = serverProvider;
+    _popUpProvider = popUpProvider;
     notifyListeners();
   }
 
@@ -46,7 +49,7 @@ class ChatProvider with ChangeNotifier {
     return _chats[_currentChatIndex];
   }
 
-  void subsribeToAuthUserChannel({
+  void subscribeToAuthUserChannel({
     friendRequestCallback,
     friendAcceptedCallback,
     friendDeclinedCallback,

@@ -1,23 +1,23 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:three_chess/models/enums.dart';
 
 import '../models/friend.dart';
 import '../models/online_game.dart';
 import '../providers/server_provider.dart';
 import '../conversion/game_conversion.dart';
+import '../providers/popup_provider.dart';
 import '../providers/chat_provider.dart';
 import '../conversion/friend_conversion.dart';
 
 class FriendsProvider with ChangeNotifier {
   List<Friend> _friends = [];
   List<Friend> _pendingFriends = [];
-  bool newInvitation = false;
-  bool newNotification = false;
-  String notification;
 
   ServerProvider _serverProvider;
   ChatProvider _chatProvider;
-  bool _didSubscibe = false;
+  bool _didSubscribe = false;
+  PopupProvider _popUpProvider;
 
   List<Friend> get friends {
     return [..._friends];
@@ -33,15 +33,20 @@ class FriendsProvider with ChangeNotifier {
     return [..._invitations];
   }
 
-  void update({friends, serverProvider, chatProvider}) {
+  void update(
+      {friends,
+      ServerProvider serverProvider,
+      ChatProvider chatProvider,
+      PopupProvider popUpProvider}) {
     print('Update');
     _friends = friends;
+    _popUpProvider = popUpProvider;
     _serverProvider = serverProvider;
     _chatProvider = chatProvider;
-    if (!_didSubscibe) {
+    if (!_didSubscribe) {
       try {
         subscribeToAuthUserChannel();
-        _didSubscibe = true;
+        _didSubscribe = true;
       } catch (error) {
         print('Failed to Connect TO Socekt');
       }
@@ -49,14 +54,9 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void makeNewNotification(String message) {
-    notification = message;
-    newNotification = true;
-  }
-
   void subscribeToAuthUserChannel() {
     print('Did Subscribe to Auth User Channel');
-    _chatProvider.subsribeToAuthUserChannel(
+    _chatProvider.subscribeToAuthUserChannel(
       friendRemovedCallback: (userId, message) =>
           _handleFriendRemove(userId, message),
       friendDeclinedCallback: (message) => _handleFriendDeclined(message),
@@ -196,23 +196,29 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> declineInvitation({String gameId, bool all = false}) async {
     String message = 'Could decline Invitation(s)';
-    try{
-     final bool didDecline = await  _serverProvider.declineInvitation(gameId, all);
-     if(didDecline){
-       _invitations.removeWhere((invitation) => gameId.contains(invitation.id));
-       message = 'Invitation was declined';
-     }
-    }catch(error){
+    try {
+      final bool didDecline =
+          await _serverProvider.declineInvitation(gameId, all);
+      if (didDecline) {
+        _invitations
+            .removeWhere((invitation) => gameId.contains(invitation.id));
+        message = 'Invitation was declined';
+      }
+    } catch (error) {
       _serverProvider.handleError('Error While Declining Invitation', error);
-    }finally{
-      makeNewNotification(message);
-    }   
+    } finally {
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
+    }
   }
 
   void _handleGameInvitation(Map<String, dynamic> gameData) {
     print('Handling OnlineGame Invitation');
-    _invitations.add(GameConversion.rebaseOnlineGame(gameData, gameData['player'], gameData['user']));
-    newInvitation = true;
+    OnlineGame newGame = GameConversion.rebaseOnlineGame(
+        gameData: gameData,
+        playerData: gameData['player'],
+        userData: gameData['user']);
+    _invitations.add(newGame);
+    _popUpProvider.makePopUp[PopUpType.Invitation](newGame);
     notifyListeners();
   }
 
@@ -220,7 +226,7 @@ class FriendsProvider with ChangeNotifier {
     // add new Friend to _friends
     print(message);
     _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData));
-    makeNewNotification(message);
+    _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
 
@@ -228,20 +234,20 @@ class FriendsProvider with ChangeNotifier {
       Map<String, dynamic> userData, String chatId, String message) {
     print(message);
     _friends.add(FriendConversion.rebaseOneFriend(userData, chatId: chatId));
-    makeNewNotification(message);
+    _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
 
   void _handleFriendDeclined(String message) {
     print(message);
-    makeNewNotification(message);
+    _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
 
   void _handleFriendRemove(String userId, String message) {
     _friends.removeWhere((friend) => friend.user.id == userId);
     print(message);
-    makeNewNotification(message);
+    _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
 

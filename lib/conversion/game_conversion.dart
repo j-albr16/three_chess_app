@@ -5,34 +5,50 @@ import '../models/user.dart';
 import '../models/enums.dart';
 import '../models/chess_move.dart';
 
-
-typedef void GameCallback(Map<String,dynamic> gameData, Map<String,dynamic> playerData, Map<String, dynamic> userData);
+typedef void GameCallback(
+    Map<String, dynamic> gameData, List playerData, List userData);
 
 class GameConversion {
-  static OnlineGame rebaseAnalyzeGame(Map<String, dynamic> gameData){}
+  static OnlineGame rebaseAnalyzeGame(Map<String, dynamic> gameData) {}
 
- static void sortUserAndPlayer(Map<String, dynamic> data,GameCallback lobbyGameCallback){
+  static void sortUserAndPlayer(
+      Map<String, dynamic> data, GameCallback lobbyGameCallback,
+      {GameType gameType}) {
+    final Map<String, dynamic> gameData = data['gameData'];
+    final userData = gameData['user'];
+    final playerData = gameData['player'];
     // lobby OnlineGame Callback will be called for Each OnlineGame
     data['gameData']['games'].forEach((game) {
-        final playerData = data['gameData']['player']
-            ?.where((player) => player['gameId'] == game['_id']);
-        print(playerData);
-        final userData = data['gameData']['user']
-            ?.where((user) => user['gameId'] == game['_id']);
-        print(userData);
-        lobbyGameCallback(game, playerData, userData);
+      final List pData = playerData
+          .where((player) => player['gameId'] == game['_id'])
+          .toList();
+      print(pData);
+      print(userData);
+      print(gameTypeInterface[gameType]);
+      final List uData = userData.where((user) {
+        String gameTypeKey = gameTypeInterface[gameType];
+        List gameIds = user[gameTypeKey];
+        return gameIds.contains(game['_id']);
+      }).toList();
+      print(uData);
+      lobbyGameCallback(game, pData, uData);
     });
   }
 
-  static List<OnlineGame> rebaseOnlineGames(Map<String,dynamic> data){
-   List<OnlineGame> resultGames = [];
-   sortUserAndPlayer(data, (gameData, playerData, userData) {
-     resultGames.add(rebaseOnlineGame(gameData, playerData, userData));
-   });
-   return resultGames;
+  static List<OnlineGame> rebaseOnlineGames(Map<String, dynamic> data) {
+    List<OnlineGame> resultGames = [];
+    sortUserAndPlayer(data, (gameData, playerData, userData) {
+      resultGames.add(rebaseOnlineGame(
+          gameData: gameData, playerData: playerData, userData: userData));
+    }, gameType: GameType.Online);
+    return resultGames;
   }
 
-  static OnlineGame rebaseOnlineGame(Map<String, dynamic> gameData, Map<String, dynamic> playerData, Map<String, dynamic> userData) {
+  static OnlineGame rebaseOnlineGame(
+      {Map<String, dynamic> gameData,
+      List playerData = const [],
+      List userData = const []}) {
+    print('rebasing Online Game');
     // input: takes a decoded response from Server , where GameData in JSON is encoeded
     // output: Returns a game Model
     // convert Chess moves and add them to exisitng Chess Move Class
@@ -64,8 +80,9 @@ class GameConversion {
     return game;
   }
 
-
-  static OnlineGame rebaseLobbyGame({gameData, userData, playerData}) {
+  static OnlineGame rebaseLobbyGame(
+      {Map<String, dynamic> gameData, List userData, List playerData}) {
+    print('rebasing Lobby Games');
     // input: takes the decoded GameData of an JSON Response as Input
     // output: returns a converted OnlineGame that includes Lobby OnlineGame Data
     //No Chess Moves made in Lobby Games
@@ -86,7 +103,7 @@ class GameConversion {
     return game;
   }
 
-  static List<OnlineGame> rebaseLobbyGames(Map<String, dynamic> data){
+  static List<OnlineGame> rebaseLobbyGames(Map<String, dynamic> data) {
     List<OnlineGame> gamesResult = [];
     sortUserAndPlayer(data, (gameData, playerData, userData) {
       gamesResult.add(rebaseLobbyGame(
@@ -94,11 +111,12 @@ class GameConversion {
         playerData: playerData,
         userData: userData,
       ));
-    });
+    }, gameType: GameType.Pending);
     return gamesResult;
   }
 
-  static Request rebaseOneRequest(Map<String, dynamic> requestData, OnlineGame game) {
+  static Request rebaseOneRequest(
+      Map<String, dynamic> requestData, OnlineGame game) {
     PlayerColor createPlayerColor =
         getPlayerColorFromUserId(requestData['create'], game.player);
     PlayerColor acceptPlayerColor =
@@ -117,11 +135,6 @@ class GameConversion {
   }
 
   static Player rebaseOnePlayer({playerData, userData}) {
-    // input: takes player Converted Data of One Player as Input
-    // output: returns a Player Model with the Given Data
-    // print('-----------------Here-------------------------');
-    // print(playerData);
-    // print(userData);
     return new Player(
       isOnline: userData['isPlaying'],
       playerColor: PlayerColor.values[playerData['playerColor']],
@@ -134,6 +147,7 @@ class GameConversion {
     return new User(
         id: userData['_id'],
         score: userData['score'],
+        friendIds: (userData['friends'] as List).map((friend) => friend as String).toList(),
         userName: userData['userName']);
   }
 
@@ -147,16 +161,18 @@ class GameConversion {
     );
   }
 
-  static PlayerColor getPlayerColorFromUserId(String userId, List<Player> gamePlayer) {
+  static PlayerColor getPlayerColorFromUserId(
+      String userId, List<Player> gamePlayer) {
     print('Getting Player Color from UserId');
-    Player player =  gamePlayer
-        .firstWhere((player) => player.user.id == userId, orElse: () => null);
+    Player player = gamePlayer.firstWhere((player) => player.user.id == userId,
+        orElse: () => null);
     PlayerColor playerColor = player?.playerColor;
     print(playerColor);
     return playerColor;
   }
 
-  static Request getRequestFromRequestType(RequestType requestType, OnlineGame game) {
+  static Request getRequestFromRequestType(
+      RequestType requestType, OnlineGame game) {
     return game.requests
         .firstWhere((request) => request.requestType == requestType);
   }
@@ -176,13 +192,12 @@ class GameConversion {
     print('validation finished , was succesfull');
   }
 
-  static List<Player> connectUserPlayerData({users, player}) {
+  static List<Player> connectUserPlayerData({List users, List player}) {
     // input: get a Player JSON Object and a User JSON Object
     // output: return a Player model where User and Player are asigned
     List<Player> convPlayer = [];
     player.forEach((p) {
-      // print(p);
-      final user =
+      final Map<String, dynamic> user =
           users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
       // returns user object where player-userId and user.id are qual
       convPlayer.add(rebaseOnePlayer(
@@ -208,7 +223,8 @@ class GameConversion {
     );
   }
 
-  static printEverything(OnlineGame game, Player player, List<OnlineGame> games) {
+  static printEverything(
+      OnlineGame game, Player player, List<OnlineGame> games) {
     print(
         '###########################################################################################');
     if (game != null) {

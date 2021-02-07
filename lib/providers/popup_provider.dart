@@ -4,27 +4,26 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
-
 import '../screens/board_screen.dart';
 import './friends_provider.dart';
 import '../models/online_game.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../widgets/invitations/invitations.dart';
+import '../models/player.dart';
 import './game_provider.dart';
 import '../providers/lobby_provider.dart';
+import '../models/enums.dart';
 
 typedef PopUp(BuildContext context);
+typedef PopUp EndGamePopUp(
+    {OnlineGame onlineGame, Player player, Function removeGameCallback});
+typedef PopUp InvitationPopUp(OnlineGame onlineGame);
+typedef PopUp SnackBarPopUp(String text);
 
 class PopupProvider with ChangeNotifier {
   FriendsProvider _friendsProvider;
   GameProvider _gameProvider;
-
-  void update({friendsProvider, gameProvider}) {
-    _gameProvider = gameProvider;
-    _friendsProvider = friendsProvider;
-    _checklForPopUps();
-  }
 
   PopUp _popUp;
   bool hasPopup = false;
@@ -33,30 +32,21 @@ class PopupProvider with ChangeNotifier {
     return _popUp;
   }
 
-  void _checklForPopUps() {
-    // Invitation PopUps
-    if (_gameProvider.hasPopup && _gameProvider.hasGame) {
-      _gameProvider.hasPopup = false;
-      makeEndGamePopup(_gameProvider);
-      notifyListeners();
-    } else if (_friendsProvider.newInvitation) {
-      _friendsProvider.newInvitation = false;
-      makeInvitationPopup(_friendsProvider.invitations.last);
-      notifyListeners();
-    } else if (_gameProvider.hasMessage) {
-      makeSnackBar(_gameProvider.popUpMessage);
-      _gameProvider.hasMessage = false;
-      _gameProvider.popUpMessage = null;
-      notifyListeners();
-    } else if (_friendsProvider.newNotification) {
-      makeSnackBar(_friendsProvider.notification);
-      _friendsProvider.notification = null;
-      _friendsProvider.newNotification = false;
-      notifyListeners();
-    }
+  Map<PopUpType, Function> get makePopUp {
+    return {
+      PopUpType.Endgame:
+          (OnlineGame onlineGame, Player player, Function removeGameCallback) =>
+              makeEndGamePopup(
+                  onlineGame: onlineGame,
+                  player: player,
+                  removeGameCallback: removeGameCallback) as EndGamePopUp,
+      PopUpType.Invitation: (OnlineGame onlineGame) =>
+          makeInvitationPopup(onlineGame) as InvitationPopUp,
+      PopUpType.SnackBar: (String text) => makeSnackBar(text) as SnackBarPopUp,
+    };
   }
 
-  displayPopup(BuildContext context) {
+  void displayPopup(BuildContext context) {
     if (hasPopup) {
       _popUp(context);
       _popUp = null;
@@ -64,36 +54,37 @@ class PopupProvider with ChangeNotifier {
     }
   }
 
-  void makeEndGamePopup(GameProvider gameProvider) {
+  void makeEndGamePopup(
+      {OnlineGame onlineGame, Player player, removeGameCallback}) {
     _popUp = (BuildContext context) => showDialog(
         context: context,
         builder: (context) {
           Size size = MediaQuery.of(context).size;
           return EndGameAlertDialog(
-            finishedGameData: _gameProvider.onlineGame.finishedGameData,
-            player: _gameProvider.onlineGame.player,
+            finishedGameData: onlineGame.finishedGameData,
+            player: onlineGame.player,
             inspect: () {},
             leave: () {
-              gameProvider.removeGame();
+              removeGameCallback();
               Navigator.of(context).pop();
             },
             rematch: () {},
             size: Size(size.width * 0.75, size.height * 0.75),
-            you: gameProvider.player,
+            you: player,
           );
         });
     hasPopup = true;
   }
 
-  void makeSnackBar(String message) {
+  void makeSnackBar(String text) {
     _popUp = (BuildContext context) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(basicSnackbar(message));
+      ScaffoldMessenger.of(context).showSnackBar(basicSnackBar(text));
     };
     hasPopup = true;
   }
 
-  SnackBar basicSnackbar(String text) {
+  SnackBar basicSnackBar(String text) {
     return SnackBar(
       content: Text(text ?? 'Could not get Text'),
       duration: Duration(seconds: 2),

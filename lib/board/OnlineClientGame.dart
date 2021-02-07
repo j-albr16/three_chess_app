@@ -59,7 +59,7 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
     boardState.movePieceTo(start, end);
 
     waitingForResponse = true;
-    gameProvider.sendMove(boardState.chessMoves.last).then((response) {
+    gameProvider.sendMove(chessMove : boardState.chessMoves.last).then((response) {
       if (!response) {
         boardState.transformTo(boardState.chessMoves
             .sublist(0, boardState.chessMoves.length - 1));

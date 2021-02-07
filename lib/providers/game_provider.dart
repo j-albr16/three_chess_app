@@ -14,6 +14,7 @@ import '../conversion/game_conversion.dart';
 import '../models/request.dart';
 import '../data/server.dart';
 import '../helpers/user_acc.dart';
+import '../providers/popup_provider.dart';
 
 const String SERVER_URL = SERVER_ADRESS;
 
@@ -40,13 +41,15 @@ class GameProvider with ChangeNotifier {
 
   List<OnlineGame> _onlineGames = [];
   ServerProvider _serverProvider;
+  PopupProvider _popUpProvider;
 
-  void update({
-    ServerProvider serverProvider,
-    GameProvider gameProvider,
-  }) {
+  void update(
+      {ServerProvider serverProvider,
+      GameProvider gameProvider,
+      PopupProvider popUpProvider}) {
     _onlineGames = gameProvider.onlineGames;
     _serverProvider = serverProvider;
+    _popUpProvider = popUpProvider;
     if (!_wasInit) {
       _subscribeToAuthUserChannel2();
     }
@@ -58,9 +61,6 @@ class GameProvider with ChangeNotifier {
     return [..._onlineGames];
   }
 
-  bool hasPopup = false;
-  bool hasMessage = false;
-  String popUpMessage;
   String currentGameId;
 
   bool get hasGame {
@@ -138,9 +138,11 @@ class GameProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> sendMove(ChessMove chessMove) async {
+  Future<bool> sendMove({ChessMove chessMove, String gameId}) async {
     try {
-      final data = await _serverProvider.sendMove(chessMove, currentGameId);
+      // TODO: Remove gameId option
+      final data =
+          await _serverProvider.sendMove(chessMove, gameId ?? currentGameId);
       return data['moveValid'];
     } catch (error) {
       _serverProvider.handleError('Error While creating OnlineGame', error);
@@ -155,8 +157,11 @@ class GameProvider with ChangeNotifier {
           await _serverProvider.fetchOnlineGame(currentGameId);
       // Logic Starts
       _onlineGames.removeWhere((game) => game.id == data['gameData']['_id']);
-      _onlineGames.add(GameConversion.rebaseOnlineGame(data['gameData'],
-          data['gameData']['player'], data['gameData']['user']));
+      final Map<String, dynamic> gameData = data['gameData'];
+      final List<Map<String, dynamic>> playerData = gameData['player'];
+      final List<Map<String, dynamic>> userData = gameData['user'];
+      _onlineGames.add(GameConversion.rebaseOnlineGame(
+          userData: userData, playerData: playerData, gameData: gameData));
       if (_onlineGames.last.id == data['gameData']['_id']) {
         subscribeToGameChannel();
       }
@@ -183,8 +188,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error While Requesting Surrender', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -197,8 +201,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -213,8 +216,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while Decline Surrender', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -226,8 +228,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while Requesting Remi', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -240,8 +241,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -256,8 +256,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while declining Remi', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -269,8 +268,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while Declining Take Back', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -283,8 +281,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while accepting Take Back', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -299,8 +296,7 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       _serverProvider.handleError('Error while declining Take Back', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -332,8 +328,7 @@ class GameProvider with ChangeNotifier {
       _serverProvider.handleError(
           'Error while Canceling Request of request Type $requestType', error);
     } finally {
-      hasMessage = true;
-      popUpMessage = message;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
   }
@@ -388,8 +383,7 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.Surrender,
     ));
-    popUpMessage = 'Surrender Request was Made';
-    hasMessage = true;
+    _popUpProvider.makePopUp[PopUpType.SnackBar]('Surrender Request was Made');
     notifyListeners();
   }
 
@@ -425,8 +419,7 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.Remi,
     ));
-    popUpMessage = 'Remi Request was Made';
-    hasMessage = true;
+    _popUpProvider.makePopUp[PopUpType.SnackBar]('Remi Request Was Made');
     notifyListeners();
   }
 
@@ -464,8 +457,8 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.TakeBack,
     ));
-    popUpMessage = 'Take Back Request was Made';
-    hasMessage = true;
+   String message = 'Take Back Request was Made';
+    _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
 
@@ -523,7 +516,10 @@ class GameProvider with ChangeNotifier {
         HowGameEnded.values[data['howGameEnded']];
     print(finishedGameData);
     game.finishedGameData = finishedGameData;
-    hasPopup = true;
+    _popUpProvider.makePopUp[PopUpType.Endgame](
+        onlineGame: onlineGame,
+        player: player,
+        removeGameCallback: () => removeGame());
     notifyListeners();
   }
 
@@ -533,8 +529,7 @@ class GameProvider with ChangeNotifier {
       String message = 'Could not get Message';
       _onlineGames[getGameIndex(gameId)].requests.removeWhere(
           (request) => request.requestType.index == data['requestType']);
-      popUpMessage = data['message'] ?? message;
-      hasMessage = true;
+      _popUpProvider.makePopUp[PopUpType.SnackBar](data['message'] ?? message);
       notifyListeners();
     }
   }

@@ -481,7 +481,7 @@ class ServerProvider with ChangeNotifier {
         url: SERVER_ADRESS +
             'fetch-chat' +
             _authString +
-            '&id=$id&chatType=$chatType');
+            '&id=$id&chatType=${chatType.index}');
   }
 
 //#########################################################################################################
@@ -506,7 +506,15 @@ class ServerProvider with ChangeNotifier {
     return data['valid'];
   }
 
-// OnlineGame Provider -----------------------------------------------------------------------------------------
+// OnlineGame Provider #########################################################
+  // Lobby Game ----------------------------------------------------------------
+  Future<Map<String, dynamic>> leaveLobby(String gameId) async {
+    return await getSkeleton(
+      error: 'leave Lobby',
+      url: SERVER_ADRESS + 'leave-lobby/$gameId' + _authString,
+    );
+  }
+
   Future<Map<String, dynamic>> quickPairing({int time, int increment}) async {
     return await getSkeleton(
       error: 'quick pairing',
@@ -556,6 +564,28 @@ class ServerProvider with ChangeNotifier {
         body: {'gameId': gameId});
   }
 
+  Future<Map<String, dynamic>> fetchPendingGames() async {
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'fetch-pending-games' + _authString,
+      error: 'Fetch Lobbies',
+    );
+  }
+
+  Future<Map<String, dynamic>> fetchLobbyGames() async {
+    return await getSkeleton(
+        url: SERVER_URL + 'fetch-lobby-games' + _authString,
+        error: 'Fetch Lobby Games');
+  }
+
+  Future<void> createTestGame() async {
+    await getSkeleton(
+      error: 'Creating Test OnlineGame',
+      url: SERVER_ADRESS + 'create-test-game' + _authString,
+    );
+  }
+
+  // Running Game -------------------------------------------------------------
+
   Future<Map<String, dynamic>> sendMove(
       ChessMove chessMove, String gameId) async {
     return await postSkeleton(
@@ -572,13 +602,6 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> fetchPendingGames() async {
-    return await getSkeleton(
-      url: SERVER_ADRESS + 'fetch-pending-games' + _authString,
-      error: 'Fetch Lobbies',
-    );
-  }
-
   Future<Map<String, dynamic>> fetchOnlineGames() async {
     return await getSkeleton(
       error: 'Fetch Online Games',
@@ -590,19 +613,6 @@ class ServerProvider with ChangeNotifier {
     return await getSkeleton(
         url: SERVER_URL + 'fetch-online-game/$gameId' + _authString,
         error: 'Fetch OnlineGame');
-  }
-
-  Future<Map<String, dynamic>> fetchLobbyGames() async {
-    return await getSkeleton(
-        url: SERVER_URL + 'fetch-lobby-games' + _authString,
-        error: 'Fetch Lobby Games');
-  }
-
-  Future<void> createTestGame() async {
-    await getSkeleton(
-      error: 'Creating Test OnlineGame',
-      url: SERVER_ADRESS + 'create-test-game' + _authString,
-    );
   }
 
   Future<String> requestSurrender(String gameId) async {
@@ -773,14 +783,14 @@ class ServerProvider with ChangeNotifier {
 
   void _printRawData(dynamic data) {
     // if (data['action'] != 'friend-online' && data['valid'] == true) {
-    if (data['action'] != 'friend-online') {
-      print(
-          '-------------------------------------------------------------------------------------------------');
-      print(
-          'RAW DATA     ------------------------------------------------------------------------------------');
-      print(data);
-      print(
-          '-------------------------------------------------------------------------------------------------');
-    }
+    // if (data['action'] != 'friend-online') {
+    print(
+        '-------------------------------------------------------------------------------------------------');
+    print(
+        'RAW DATA     ------------------------------------------------------------------------------------');
+    print(data);
+    print(
+        '-------------------------------------------------------------------------------------------------');
   }
+// }
 }

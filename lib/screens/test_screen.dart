@@ -93,7 +93,7 @@ class _DesignTestScreenState extends State<DesignTestScreen>
             text: 'Move',
           ),
           testButtonBar(
-            callback: () => _gameProvider.sendMove(new ChessMove(
+            callback: () => _gameProvider.sendMove(chessMove: new ChessMove(
               initialTile: 'A2',
               nextTile: 'A4',
               remainingTime: 10,

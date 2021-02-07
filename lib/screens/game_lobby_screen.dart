@@ -5,11 +5,15 @@ import 'package:three_chess/models/enums.dart';
 import '../widgets/chat.dart' as widget;
 import '../providers/lobby_provider.dart';
 import '../providers/game_provider.dart';
+import '../models/online_game.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/basic/sorrounding_cart.dart';
+import '../widgets/lobby/lobby_player_tile.dart';
+import '../widgets/lobby/options_widget.dart';
 import '../models/chat_model.dart';
 import '../models/player.dart';
 import '../widgets/friends/friend_tile.dart';
+import '../models/game.dart';
 import '../widgets/basic/chess_divider.dart';
 
 class GameLobbyScreen extends StatefulWidget {
@@ -20,74 +24,232 @@ class GameLobbyScreen extends StatefulWidget {
 }
 
 class _GameLobbyScreenState extends State<GameLobbyScreen> {
-  Widget mainLobbyWidget(){
-    return Column(
-      children: [],
-    );
+  ThemeData theme;
+  OnlineGame game;
+
+  TextEditingController textController;
+  ScrollController scrollController;
+  FocusNode chatFocusNode;
+  ChatProvider chatProvider;
+  bool maxScrollExtent = false;
+  bool _wasInit = false;
+
+  bool _chatOpen = false;
+  bool _optionsOpen = false;
+
+  void leaveLobby(){
+
   }
-  Widget playersWidget(List<Player> players){
+
+  void switchOptionsOpen() {
+    setState(() {
+      _optionsOpen = !_optionsOpen;
+    });
+  }
+
+  void switchChatOpen() {
+    setState(() {
+      _chatOpen = !_chatOpen;
+    });
+  }
+
+  void submitMessage(String text) {
+    chatProvider.sendTextMessage(text);
+  }
+
+  Future<void> getChat() {
+    if (!_wasInit) {
+      Provider.of<ChatProvider>(context, listen: false)
+          .selectChatRoom(
+              chatType: ChatType.Lobby,
+              context: context,
+              id: game.chatId ?? game.id)
+          .then((_) => setState(() {
+                _wasInit = true;
+              }));
+    }
+  }
+
+  Widget optionsWidget(ThemeData theme) {
     return SorroundingCard(
       child: Column(
-        children: players.map((player) => playerWidget(player)).toList(),
+        children: [
+          switchTitle(
+            switchCall: () => switchOptionsOpen(),
+            switchBool: _optionsOpen,
+            theme: theme,
+            title: 'Options',
+          ),
+          SizedBox(height: 6),
+          if (_optionsOpen)
+            OptionsWidget(
+              onlineGame: game,
+            ),
+        ],
       ),
     );
   }
 
-  Widget playerWidget(Player player){
-    return Column(
+  Widget chatWidget(Chat chat, ThemeData theme, double height) {
+    return SorroundingCard(
+      child: Column(
+        children: [
+         if(!chatFocusNode.hasFocus) switchTitle(
+            theme: theme,
+            switchBool: _chatOpen,
+            switchCall: () => switchChatOpen(),
+            title: 'Chat',
+          ),
+          if (_chatOpen)
+            SizedBox(
+              height: height,
+              child: chat.id == null
+                  ? Text('No Chat')
+                  : widget.Chat(
+                      chat: chat,
+                      chatController: textController,
+                      noSorrounding: true,
+                      chatFocusNode: chatFocusNode,
+                      lobbyChat: true,
+                      maxScrollExtent: maxScrollExtent,
+                      scrollController: scrollController,
+                      submitMessage: (text) => submitMessage(text),
+                      theme: theme,
+                    ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget mainLobbyWidget() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          playersWidget(game.player),
+          optionsWidget(theme),
+        ],
+      ),
+    );
+  }
+
+  static Widget switchTitle(
+      {Function switchCall, ThemeData theme, bool switchBool, String title}) {
+    return Row(
       children: [
-        FriendTile(
-          model: FriendTileModel(
-            userId: player.user.id,
-            username: player.user.userName,
-            isOnline: player.isOnline,
-            isPlaying: true,
+        Expanded(
+          child: TextButton(
+            onPressed: switchCall,
+            child: Text(title, style: theme.textTheme.headline1),
           ),
         ),
-        ChessDivider()
+        Switch(value: switchBool, onChanged: (value) => switchCall())
       ],
     );
   }
 
-  Widget chatWidget(Chat chat) {
+  Widget playersWidget(List<Player> players) {
     return SorroundingCard(
-      child: widget.Chat(
-        chat: chat,
+      child: Column(
+        children:
+            players.map((player) => playerWidget(player, players)).toList(),
       ),
+    );
+  }
+
+  static bool getIsPremade(String userId, List<Player> players) {
+    players.forEach((player) {
+      if (player.user.friendIds.contains(userId)) {
+        return true;
+      }
+    });
+    return false;
+  }
+
+  Widget playerWidget(Player player, List<Player> players) {
+    return Column(
+      children: [
+        LobbyPlayerTile(
+          onTap: (_) {},
+          onLongTap: (_) {},
+          model: player,
+          isPremade: getIsPremade(player.user.id, players),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> arguments = ModalRoute.of(context).settings.arguments;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Game Lobby'),
-      ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Flexible(child: mainLobbyWidget(), flex: 2),
-            Flexible(
-              flex: 3,
-              child: FutureBuilder(
-                  future: Provider.of<ChatProvider>(context, listen: false)
-                      .selectChatRoom(
-                          chatType: ChatType.Lobby,
-                          context: context,
-                          id: arguments['gameId']),
+    game = Provider.of<LobbyProvider>(context).pendingGame;
+    Size size = MediaQuery.of(context).size;
+    theme = Theme.of(context);
+    // printGameModel(game);
+    return GestureDetector(
+      onTap: () => chatFocusNode.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Game Lobby'),
+        ),
+        body: Container(
+          child: Column(
+            children: <Widget>[
+              Expanded(child: mainLobbyWidget()),
+              FutureBuilder(
+                  future: getChat(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      SnackBar snackBar = SnackBar(
+                          content: Text('Could not retrieve Chat'),
+                          duration: Duration(seconds: 2));
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      return Text('No Chat');
+                    } else {
+                      return Consumer<ChatProvider>(
+                          builder: (context, chatP, child) =>
+                              chatWidget(chatP.chat, theme, size.height * 0.4));
                     }
-                    return Consumer<ChatProvider>(
-                        builder: (context, chatProvider, child) =>
-                            chatWidget(chatProvider.chat));
                   }),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  _scrollListener() {
+    if (scrollController.offset == scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) {
+      maxScrollExtent = true;
+    }
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero).then((_) =>
+        chatProvider = Provider.of<ChatProvider>(context, listen: false));
+    textController = TextEditingController();
+    scrollController = ScrollController();
+    scrollController.addListener(_scrollListener);
+    chatFocusNode = FocusNode();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    scrollController.dispose();
+    chatProvider.resetCurrentChat();
+    chatFocusNode.dispose();
+    super.dispose();
+  }
+
+  void printGameModel(OnlineGame onlineGame) {
+    print('Online Game');
+    print(onlineGame?.id);
+    print(onlineGame?.chatId);
   }
 }

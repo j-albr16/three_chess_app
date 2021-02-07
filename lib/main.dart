@@ -50,10 +50,9 @@ class ThreeChessApp extends StatelessWidget {
             create: (_) => GameProvider(),
             update: (_, server, popUpProvider, gameProvider) => gameProvider
               ..update(
-                serverProvider: server,
-                gameProvider: gameProvider,
-                popUpProvider: popUpProvider
-              ),
+                  serverProvider: server,
+                  gameProvider: gameProvider,
+                  popUpProvider: popUpProvider),
           ),
           ChangeNotifierProxyProvider2<ServerProvider, PopupProvider,
               ChatProvider>(
@@ -72,11 +71,10 @@ class ThreeChessApp extends StatelessWidget {
             update: (_, server, popUpProvider, chat, previousFriends) =>
                 previousFriends
                   ..update(
-                    chatProvider: chat,
-                    serverProvider: server,
-                    friends: previousFriends.friends,
-                    popUpProvider: popUpProvider
-                  ),
+                      chatProvider: chat,
+                      serverProvider: server,
+                      friends: previousFriends.friends,
+                      popUpProvider: popUpProvider),
           ),
           ChangeNotifierProxyProvider2<ServerProvider, GameProvider,
               UserProvider>(
@@ -91,10 +89,11 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProxyProvider2<ServerProvider, PopupProvider,
                   LobbyProvider>(
               create: (_) => LobbyProvider(),
-              update:
-                  (_, serverProvider, popUpProvider, previousLobbyProvider) =>
-                      previousLobbyProvider
-                        ..update(serverProvider, previousLobbyProvider, popUpProvider)),
+              update: (_, serverProvider, popUpProvider,
+                      previousLobbyProvider) =>
+                  previousLobbyProvider
+                    ..update(
+                        serverProvider, previousLobbyProvider, popUpProvider)),
           ChangeNotifierProxyProvider2<ServerProvider, GameProvider,
               OnlineProvider>(
             create: (_) => OnlineProvider(),
@@ -106,27 +105,17 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider<ScrollProvider>(
             create: (_) => ScrollProvider(),
           ),
-          ChangeNotifierProxyProvider2<GameProvider, FriendsProvider,
-                  PopupProvider>(
-              create: (_) => PopupProvider(),
-              update: (_, gameProvider, friendsProvider, popUpProvider) =>
-                  popUpProvider
-                    ..update(
-                        friendsProvider: friendsProvider,
-                        gameProvider: gameProvider)),
           ChangeNotifierProxyProvider<ServerProvider, LocalProvider>(
               create: (_) => LocalProvider(),
               update: (_, serverProvider, previousLocalProvider) =>
-              previousLocalProvider
-                ..update()), // TODO not implemented
+                  previousLocalProvider..update()), // TODO not implemented
           ChangeNotifierProxyProvider2<GameProvider, LocalProvider,
-              CurrentGamesProvider>(
+                  CurrentGamesProvider>(
               create: (_) => CurrentGamesProvider(),
               update: (_, gameProvider, localProvider, currentGamesProvider) =>
-              currentGamesProvider
-                ..update(
-                  gameProvider.onlineGames, localProvider.localGames
-                )),
+                  currentGamesProvider
+                    ..update(
+                        gameProvider.onlineGames, localProvider.localGames)),
           ChangeNotifierProvider<ChessTheme>(create: (_) => ChessTheme()),
         ],
         child: Consumer<ChessTheme>(

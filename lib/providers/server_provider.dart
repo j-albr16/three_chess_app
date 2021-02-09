@@ -268,9 +268,11 @@ class ServerProvider with ChangeNotifier {
     _printRawData(data);
     switch (data['action']) {
       case 'new-game':
+        print('Player Joined Lobby Socket Message');
         newGameCallback(data['gameData']);
         break;
       case 'player-joined':
+        print('Player Joined Socket Message');
         playerJoinedCallback(data['gameData']);
         break;
     }
@@ -784,13 +786,13 @@ class ServerProvider with ChangeNotifier {
   void _printRawData(dynamic data) {
     // if (data['action'] != 'friend-online' && data['valid'] == true) {
     if (data['action'] != 'friend-online') {
-    print(
-        '-------------------------------------------------------------------------------------------------');
-    print(
-        'RAW DATA     ------------------------------------------------------------------------------------');
-    print(data);
-    print(
-        '-------------------------------------------------------------------------------------------------');
+    // print(
+    //     '-------------------------------------------------------------------------------------------------');
+    // print(
+    //     'RAW DATA     ------------------------------------------------------------------------------------');
+    print(data['message']);
+    // print(
+        // '-------------------------------------------------------------------------------------------------');
   }
 }
 }

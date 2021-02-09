@@ -203,7 +203,8 @@ class LobbyProvider with ChangeNotifier {
   void _handleNewGameData(Map<String, dynamic> gameData) {
     print('Socket Handle New OnlineGame Data');
     // TODO unite filter somewhere specific
-    if (_lobbyGames.map((game) => game.id).toList().contains(gameData['_id'])) {
+    if (!_lobbyGames.map((game) => game.id).toList().contains(gameData['_id'])) {
+      print(gameData);
       _lobbyGames.add(GameConversion.rebaseLobbyGame(
         gameData: gameData,
         playerData: gameData['player'],
@@ -230,6 +231,7 @@ class LobbyProvider with ChangeNotifier {
     }
     if (gameData['isPublic'] || yourGame) {
       OnlineGame game = yourGame ? getPendingGame(id) : getLobbyGame(id);
+      print(gameData);
       game.player.add(GameConversion.rebaseOnePlayer(
         playerData: gameData['player'],
         userData: gameData['user'],

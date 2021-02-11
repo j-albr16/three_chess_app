@@ -203,7 +203,14 @@ class LobbyProvider with ChangeNotifier {
   void _handleNewGameData(Map<String, dynamic> gameData) {
     print('Socket Handle New OnlineGame Data');
     // TODO unite filter somewhere specific
-    if (!_lobbyGames.map((game) => game.id).toList().contains(gameData['_id'])) {
+    // Add new Lobby Game Filter
+    bool _isPendingGame =
+        _pendingGames.map((game) => game.id).toList().contains(gameData['_id']);
+    bool _containsUserId = gameData['user']
+        .map((user) => user['_id'])
+        .toList()
+        .contains(_serverProvider.userId);
+    if (!_isPendingGame && !_containsUserId) {
       print(gameData);
       _lobbyGames.add(GameConversion.rebaseLobbyGame(
         gameData: gameData,

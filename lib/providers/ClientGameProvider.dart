@@ -16,10 +16,6 @@ class ClientGameProvider with ChangeNotifier{
   ClientGame clientGame;
   GameProvider gameProvider;
 
-  ClientGameProvider(GameProvider currentGameProvider){
-    gameProvider = currentGameProvider;
-  }
-
   GameType get gameType{
     return clientGame?.gameType;
   }

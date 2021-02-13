@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/widgets/basic/switch_row.dart';
 
 import '../widgets/chat.dart' as widget;
 import '../providers/lobby_provider.dart';
@@ -14,6 +16,7 @@ import '../models/chat_model.dart';
 import '../models/player.dart';
 import '../widgets/friends/friend_tile.dart';
 import '../models/game.dart';
+import '../helpers/constants.dart';
 import '../widgets/basic/chess_divider.dart';
 
 class GameLobbyScreen extends StatefulWidget {
@@ -27,6 +30,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   ThemeData theme;
   OnlineGame game;
 
+  LobbyProvider _lobbyProvider;
+  LobbyProvider lobbyProvider;
+
   TextEditingController textController;
   ScrollController scrollController;
   FocusNode chatFocusNode;
@@ -37,9 +43,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   bool _chatOpen = false;
   bool _optionsOpen = false;
 
-  void leaveLobby(){
-
-  }
+  void leaveLobby() {}
 
   void switchOptionsOpen() {
     setState(() {
@@ -94,12 +98,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     return SurroundingCard(
       child: Column(
         children: [
-         if(!chatFocusNode.hasFocus) switchTitle(
-            theme: theme,
-            switchBool: _chatOpen,
-            switchCall: () => switchChatOpen(),
-            title: 'Chat',
-          ),
+          if (!chatFocusNode.hasFocus)
+            switchTitle(
+              theme: theme,
+              switchBool: _chatOpen,
+              switchCall: () => switchChatOpen(),
+              title: 'Chat',
+            ),
           if (_chatOpen)
             SizedBox(
               height: height,
@@ -179,9 +184,73 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     );
   }
 
+  Widget bottomButtons(ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Flexible(
+          flex: 1,
+          child: _bottomButton(
+              theme: theme, callback: () => leavePendingGame(), text: 'Leave'),
+        ),
+        Flexible(flex: 1, child: _isReadySwitch(theme)),
+      ],
+    );
+  }
+
+  Widget _isReadySwitch(ThemeData theme) {
+    bool isReady = _lobbyProvider.getYouPlayer(game.id).isReady;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text('Ready', style: theme.textTheme.bodyText1),
+        Switch(
+          value: isReady,
+          onChanged: (isReady) => updateReadyState(isReady),
+          activeColor: Colors.green,
+        ),
+      ],
+    );
+  }
+
+  void leavePendingGame() {
+    _lobbyProvider.leaveLobby(game.id).then((valid) {
+      if (valid) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  void updateReadyState(bool iReady) {
+    setState(() {
+      _lobbyProvider.setIsReady(iReady, game.id);
+    });
+    _lobbyProvider
+        .updateReadyState(isReady: iReady, gameId: game.id)
+        .then((valid) {
+      if (!valid) {
+        setState(() {
+          _lobbyProvider.setIsReady(!iReady, game.id);
+        });
+      }
+    });
+  }
+
+  Widget _bottomButton({Function callback, ThemeData theme, String text}) {
+    return TextButton(
+        onPressed: callback,
+        child: Text(text),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(cornerRadius))),
+          padding: MaterialStateProperty.all(EdgeInsets.all(10)),
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    game = Provider.of<LobbyProvider>(context).pendingGame;
+    lobbyProvider = Provider.of<LobbyProvider>(context);
+    game = lobbyProvider.pendingGame;
     Size size = MediaQuery.of(context).size;
     theme = Theme.of(context);
     // printGameModel(game);
@@ -213,6 +282,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                               chatWidget(chatP.chat, theme, size.height * 0.4));
                     }
                   }),
+              bottomButtons(theme),
             ],
           ),
         ),
@@ -233,6 +303,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         chatProvider = Provider.of<ChatProvider>(context, listen: false));
     textController = TextEditingController();
     scrollController = ScrollController();
+    _lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
     scrollController.addListener(_scrollListener);
     chatFocusNode = FocusNode();
     super.initState();

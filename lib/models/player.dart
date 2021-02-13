@@ -8,8 +8,9 @@ class Player {
   User user;
   int remainingTime; // secs
   bool isOnline;
+  bool isReady;
   
   
 
-  Player({this.playerColor, this.user, this.remainingTime, this.isOnline});
+  Player({this.playerColor,this.isReady = true, this.user, this.remainingTime, this.isOnline});
 }

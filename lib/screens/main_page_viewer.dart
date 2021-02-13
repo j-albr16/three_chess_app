@@ -85,11 +85,7 @@ class MainPageViewerState extends State<MainPageViewer>
   @override
   Widget build(BuildContext context) {
     bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
-    return ChangeNotifierProxyProvider<GameProvider, ClientGameProvider>(
-    create: (BuildContext context) => ClientGameProvider(Provider.of<GameProvider>(context, listen: false)),
-    update: (BuildContext context, GameProvider game, ClientGameProvider previousBoardStateManager) => previousBoardStateManager
-      ..update(game),
-    child: new Scaffold(
+    return Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),
         child: new Stack(
@@ -127,7 +123,7 @@ class MainPageViewerState extends State<MainPageViewer>
           ],
         ),
       ),
-    ),);
+    );
   }
 }
 

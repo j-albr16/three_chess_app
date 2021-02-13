@@ -45,6 +45,8 @@ typedef void PlayerIsOffline(String userId, String expiryDate);
 // Lobby Callbacks
 typedef void PlayerJoined(Map<String, dynamic> gameData);
 typedef void NewGame(Map<String, dynamic> gameData);
+typedef void UpdateIsReadyStatus(String userId, bool isReady, String gameId);
+typedef void RemoveGame(String gameId);
 // Auth User Channel 2
 typedef void GameStarts(Map<String, dynamic> gameData);
 // Listener
@@ -130,12 +132,29 @@ class ServerProvider with ChangeNotifier {
     });
   }
 
-  void subscribeToLobbyChannel({newGameCallback, playerJoinedCallback}) {
+  void subscribeToLobbyChannel(
+      {newGameCallback,
+      playerJoinedCallback,
+      updateIsReadyStatus,
+      removeGameCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
       print('New Lobby Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
-      _handleLobbyChannelData(data, newGameCallback, playerJoinedCallback);
+      _handleLobbyChannelData(
+          data: data,
+          newGameCallback: newGameCallback,
+          playerJoinedCallback: playerJoinedCallback,
+          updateIsReadyStatusCallback: updateIsReadyStatus,
+          removeGameCallback: removeGameCallback);
+    });
+  }
+
+  void subscribeToGameLobbyChannel({String gameId, UpdateIsReadyStatus updateIsReadyStatus}) {
+    print('Did Subscribe to Game Lobby Channel');
+    _socket.on('$gameId/lobby', (jsonData) {
+      final Map<String, dynamic> data = json.decode(jsonData);
+      _handleGameLobbyChannel(data: data, updateIsReadyStatusCb: updateIsReadyStatus);
     });
   }
 
@@ -201,7 +220,18 @@ class ServerProvider with ChangeNotifier {
 //#########################################################################################################
 
 //#########################################################################################################
-// Handle Socket Messages of different Channels -----------------------------------------------------------
+// Handatadle Socket Messages of different Channels -----------------------------------------------------------
+  void _handleGameLobbyChannel(
+      {data, UpdateIsReadyStatus updateIsReadyStatusCb}) {
+    _printRawData(data);
+    _handleSocketServerMessage(data['action'], data['message']);
+    switch (data['action']) {
+      case 'is-ready-status':
+        updateIsReadyStatusCb(data['userId'], data['isReady'], data['gameId']);
+        break;
+    }
+  }
+
   void _handleAuthUserChannelSocketData2(
       {Map<String, dynamic> data, GameStarts gameStartsCallback}) {
     _printRawData(data);
@@ -262,8 +292,12 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleLobbyChannelData(Map<String, dynamic> data,
-      NewGame newGameCallback, PlayerJoined playerJoinedCallback) {
+  void _handleLobbyChannelData(
+      {Map<String, dynamic> data,
+      NewGame newGameCallback,
+      RemoveGame removeGameCallback,
+      PlayerJoined playerJoinedCallback,
+      UpdateIsReadyStatus updateIsReadyStatusCallback}) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
     switch (data['action']) {
@@ -274,6 +308,10 @@ class ServerProvider with ChangeNotifier {
       case 'player-joined':
         print('Player Joined Socket Message');
         playerJoinedCallback(data['gameData']);
+        break;
+
+      case 'remove-game':
+        removeGameCallback(data['gameId']);
         break;
     }
   }
@@ -351,13 +389,18 @@ class ServerProvider with ChangeNotifier {
 
   // ##################################################################################
   // Listener
-  Map<String, Function> gameStartCbs = {};
+  Map<String, GameStartsListener> gameStartCbs = {};
 
   void addGameListener(String gameId, GameStartsListener gameStartsCb) {
     gameStartCbs[gameId] = gameStartsCb;
   }
 
+  void removeGameListener(String gameId) {
+    gameStartCbs.remove(gameId);
+  }
+
   void gameStartsNotifier(String gameId) {
+    print('Notifying Game Ends Listener');
     gameStartCbs[gameId](gameId);
   }
 
@@ -514,6 +557,14 @@ class ServerProvider with ChangeNotifier {
     return await getSkeleton(
       error: 'leave Lobby',
       url: SERVER_ADRESS + 'leave-lobby/$gameId' + _authString,
+    );
+  }
+
+  Future<Map<String, dynamic>> updateIsReady(
+      bool isReady, String gameId) async {
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'is-ready-status/$isReady/$gameId' + _authString,
+      error: 'Is Ready Status',
     );
   }
 
@@ -786,13 +837,13 @@ class ServerProvider with ChangeNotifier {
   void _printRawData(dynamic data) {
     // if (data['action'] != 'friend-online' && data['valid'] == true) {
     if (data['action'] != 'friend-online') {
-    // print(
-    //     '-------------------------------------------------------------------------------------------------');
-    // print(
-    //     'RAW DATA     ------------------------------------------------------------------------------------');
-    print(data['message']);
-    // print(
-        // '-------------------------------------------------------------------------------------------------');
+      // print(
+      //     '-------------------------------------------------------------------------------------------------');
+      // print(
+      //     'RAW DATA     ------------------------------------------------------------------------------------');
+      print(data['message']);
+      // print(
+      // '-------------------------------------------------------------------------------------------------');
+    }
   }
-}
 }

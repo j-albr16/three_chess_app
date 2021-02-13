@@ -457,7 +457,7 @@ class GameProvider with ChangeNotifier {
       playerResponse: playerResponse,
       requestType: RequestType.TakeBack,
     ));
-   String message = 'Take Back Request was Made';
+    String message = 'Take Back Request was Made';
     _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
   }
@@ -534,7 +534,20 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  void _handleGameStarts(Map<String, dynamic> gameData) {}
+  void _handleGameStarts(Map<String, dynamic> gameData) {
+    print('Game Starts Socket Message');
+    if (!_onlineGames.map((e) => e.id).toList().contains(gameData['_id'])) {
+      OnlineGame newOnlineGame = GameConversion.rebaseOnlineGame(
+          gameData: gameData,
+          playerData: gameData['player'],
+          userData: gameData['user']);
+      _onlineGames.add(newOnlineGame);
+      _serverProvider.gameStartsNotifier(newOnlineGame.id);
+      notifyListeners();
+    }
+  }
+
+
 
   //#########################################################################
 // helper Functions

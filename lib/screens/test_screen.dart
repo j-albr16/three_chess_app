@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/chess_move.dart';
 import '../models/enums.dart';
 import '../providers/game_provider.dart';
+import '../screens/main_page_viewer.dart';
 import '../widgets/end_game.dart';
 import '../helpers/sound_player.dart';
 import '../screens/screen_bone.dart';
@@ -17,6 +18,28 @@ class DesignTestScreen extends StatefulWidget {
 
 class _DesignTestScreenState extends State<DesignTestScreen>
     with notificationPort<DesignTestScreen> {
+  static void fetchAll(BuildContext context) {
+    Future.delayed(Duration.zero).then((_) {
+      // Provider Init
+      GameProvider gameProvider =
+          Provider.of<GameProvider>(context, listen: false);
+      LobbyProvider lobbyProvider =
+          Provider.of<LobbyProvider>(context, listen: false);
+      FriendsProvider friendsProvider =
+          Provider.of<FriendsProvider>(context, listen: false);
+      UserProvider userProvider =
+          Provider.of<UserProvider>(context, listen: false);
+      // Game Fetching
+      gameProvider.fetchOnlineGames();
+      lobbyProvider.fetchPendingGames();
+      lobbyProvider.fetchLobbyGames();
+      // Friends
+      friendsProvider.fetchFriends();
+      friendsProvider.fetchInvitations();
+      userProvider.fetchUser();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     GameProvider _gameProvider =
@@ -32,6 +55,10 @@ class _DesignTestScreenState extends State<DesignTestScreen>
           //   invitations: Provider.of<FriendsProvider>(context).invitations,
           //   size: Size(400, 300),
           // ),
+          testButtonBar(
+              color: Colors.redAccent,
+              callback: () => fetchAll(context),
+              text: 'Fetch Everything'),
           testButtonBar(
             text: 'Show fnished OnlineGame Popup',
             color: Colors.blue,
@@ -50,7 +77,8 @@ class _DesignTestScreenState extends State<DesignTestScreen>
                     finishedGameData: finishedGameData,
                     inspect: () {},
                     leave: () => Navigator.of(context).pop(),
-                    player: Provider.of<GameProvider>(context).onlineGame.player,
+                    player:
+                        Provider.of<GameProvider>(context).onlineGame.player,
                     rematch: () {},
                     size: size,
                     you: Provider.of<GameProvider>(context).player,
@@ -93,7 +121,8 @@ class _DesignTestScreenState extends State<DesignTestScreen>
             text: 'Move',
           ),
           testButtonBar(
-            callback: () => _gameProvider.sendMove(chessMove: new ChessMove(
+            callback: () => _gameProvider.sendMove(
+                chessMove: new ChessMove(
               initialTile: 'A2',
               nextTile: 'A4',
               remainingTime: 10,

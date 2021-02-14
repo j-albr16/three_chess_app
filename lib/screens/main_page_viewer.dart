@@ -17,7 +17,6 @@ import '../screens/screen_bone.dart';
 import '../providers/user_provider.dart';
 //
 
-
 class MainPageViewer extends StatefulWidget {
   static const routeName = '/main-page-viewer';
   int initPage;
@@ -41,6 +40,16 @@ class MainPageViewerState extends State<MainPageViewer>
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
+    fetchAll(context);
+    //TODO REMOVE
+    //print("########################################");
+    //ConvertDataPrint.printNewBlackAndRedOrder();
+    //print("########################################");
+
+    super.initState();
+  }
+
+  static void fetchAll(BuildContext context) {
     Future.delayed(Duration.zero).then((_) {
       // Provider Init
       GameProvider gameProvider =
@@ -60,13 +69,6 @@ class MainPageViewerState extends State<MainPageViewer>
       friendsProvider.fetchInvitations();
       userProvider.fetchUser();
     });
-
-    //TODO REMOVE
-    //print("########################################");
-    //ConvertDataPrint.printNewBlackAndRedOrder();
-    //print("########################################");
-
-    super.initState();
   }
 
   @override
@@ -84,15 +86,17 @@ class MainPageViewerState extends State<MainPageViewer>
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal || Provider.of<ScrollProvider>(context).isMakeAMoveLock;
+    bool isLocked = Provider.of<ScrollProvider>(context).isLockedHorizontal ||
+        Provider.of<ScrollProvider>(context).isMakeAMoveLock;
     return Scaffold(
       body: new IconTheme(
         data: new IconThemeData(color: _kArrowColor),
         child: new Stack(
           children: <Widget>[
             new PageView.builder(
-              physics:
-                  !isLocked ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
+              physics: !isLocked
+                  ? AlwaysScrollableScrollPhysics()
+                  : NeverScrollableScrollPhysics(),
               controller: _controller,
               itemBuilder: (BuildContext context, int index) {
                 return _pages[index % _pages.length];
@@ -161,13 +165,19 @@ class DotsIndicator extends AnimatedWidget {
 
   Widget _buildDot(int index) {
     bool toLoop = false;
-    if (controller.page != null && controller.page.ceil() % itemCount == 0 && index == 0) {
+    if (controller.page != null &&
+        controller.page.ceil() % itemCount == 0 &&
+        index == 0) {
       toLoop = true;
     }
     double selectedness = Curves.easeOut.transform(
       max(
         0.0,
-        1.0 - (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) % itemCount - (index + (toLoop ? 1 : 0))).abs(),
+        1.0 -
+            (((controller.page ?? controller.initialPage) + (toLoop ? 1 : 0)) %
+                        itemCount -
+                    (index + (toLoop ? 1 : 0)))
+                .abs(),
       ),
     );
     double zoom = 1.0 + (_kMaxZoom - 1.0) * selectedness;

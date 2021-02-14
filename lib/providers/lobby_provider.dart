@@ -80,18 +80,17 @@ class LobbyProvider with ChangeNotifier {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.leaveLobby(gameId);
-      bool isValid = data['valid'];
-      if (isValid) {
-        OnlineGame pendingGame = getPendingGame(gameId);
-        pendingGame.player
-            .removeWhere((p) => p.user.id == _serverProvider.userId);
+      OnlineGame pendingGame = getPendingGame(data['gameId']);
+      _pendingGames.remove(pendingGame);
+      if (data['remove']) {
         _lobbyGames.add(pendingGame);
-        _pendingGames.removeWhere((game) => game.id == gameId);
       }
-      return isValid;
+      return data['isValid'];
     } catch (error) {
       _serverProvider.handleError('Error while Leaving Lobby', error);
       return false;
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -282,6 +281,9 @@ class LobbyProvider with ChangeNotifier {
     OnlineGame lobbyGame = getLobbyGame(gameId);
     if (lobbyGame != null) {
       lobbyGame.player.removeWhere((p) => p.user.id == userId);
+      if (lobbyGame.player.length == 0) {
+        _lobbyGames.remove(lobbyGame);
+      }
       notifyListeners();
     }
   }

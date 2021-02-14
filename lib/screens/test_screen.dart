@@ -6,6 +6,10 @@ import '../models/enums.dart';
 import '../providers/game_provider.dart';
 import '../screens/main_page_viewer.dart';
 import '../widgets/end_game.dart';
+import '../providers/lobby_provider.dart';
+import '../providers/friends_provider.dart';
+import '../providers/user_provider.dart';
+
 import '../helpers/sound_player.dart';
 import '../screens/screen_bone.dart';
 

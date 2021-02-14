@@ -47,6 +47,7 @@ typedef void PlayerJoined(Map<String, dynamic> gameData);
 typedef void NewGame(Map<String, dynamic> gameData);
 typedef void UpdateIsReadyStatus(String userId, bool isReady, String gameId);
 typedef void RemoveGame(String gameId);
+typedef void PlayerLeft(String gameId, String userId);
 // Auth User Channel 2
 typedef void GameStarts(Map<String, dynamic> gameData);
 // Listener
@@ -136,12 +137,14 @@ class ServerProvider with ChangeNotifier {
       {newGameCallback,
       playerJoinedCallback,
       updateIsReadyStatus,
-      removeGameCallback}) {
+      removeGameCallback,
+      playerLeftCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
       print('New Lobby Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
       _handleLobbyChannelData(
+          playerLeftCallback: playerLeftCallback,
           data: data,
           newGameCallback: newGameCallback,
           playerJoinedCallback: playerJoinedCallback,
@@ -150,11 +153,13 @@ class ServerProvider with ChangeNotifier {
     });
   }
 
-  void subscribeToGameLobbyChannel({String gameId, UpdateIsReadyStatus updateIsReadyStatus}) {
+  void subscribeToGameLobbyChannel(
+      {String gameId, UpdateIsReadyStatus updateIsReadyStatus}) {
     print('Did Subscribe to Game Lobby Channel');
     _socket.on('$gameId/lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
-      _handleGameLobbyChannel(data: data, updateIsReadyStatusCb: updateIsReadyStatus);
+      _handleGameLobbyChannel(
+          data: data, updateIsReadyStatusCb: updateIsReadyStatus);
     });
   }
 
@@ -297,6 +302,7 @@ class ServerProvider with ChangeNotifier {
       NewGame newGameCallback,
       RemoveGame removeGameCallback,
       PlayerJoined playerJoinedCallback,
+      PlayerLeft playerLeftCallback,
       UpdateIsReadyStatus updateIsReadyStatusCallback}) {
     _handleSocketServerMessage(data['action'], data['message']);
     _printRawData(data);
@@ -309,9 +315,11 @@ class ServerProvider with ChangeNotifier {
         print('Player Joined Socket Message');
         playerJoinedCallback(data['gameData']);
         break;
-
       case 'remove-game':
         removeGameCallback(data['gameId']);
+        break;
+      case 'player-left-lobby':
+        playerLeftCallback(data['gameId'], data['userId']);
         break;
     }
   }

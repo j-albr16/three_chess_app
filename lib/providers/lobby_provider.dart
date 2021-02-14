@@ -82,6 +82,10 @@ class LobbyProvider with ChangeNotifier {
           await _serverProvider.leaveLobby(gameId);
       bool isValid = data['valid'];
       if (isValid) {
+        OnlineGame pendingGame = getPendingGame(gameId);
+        pendingGame.player
+            .removeWhere((p) => p.user.id == _serverProvider.userId);
+        _lobbyGames.add(pendingGame);
         _pendingGames.removeWhere((game) => game.id == gameId);
       }
       return isValid;
@@ -235,6 +239,8 @@ class LobbyProvider with ChangeNotifier {
       updateIsReadyStatus: (userId, isReady, gameId) =>
           _handleUpdatedStatus(userId, isReady, gameId),
       removeGameCallback: (gameId) => _handleGameRemove(gameId),
+      playerLeftCallback: (gameId, userId) =>
+          _handlePlayerLeftLobby(gameId, userId),
     );
   }
 
@@ -267,6 +273,15 @@ class LobbyProvider with ChangeNotifier {
         userData: gameData['user'],
       ));
       // print all OnlineGame Data if option is set on true
+      notifyListeners();
+    }
+  }
+
+  void _handlePlayerLeftLobby(String gameId, String userId) {
+    print('Socket Message Removing Player who left Lobby');
+    OnlineGame lobbyGame = getLobbyGame(gameId);
+    if (lobbyGame != null) {
+      lobbyGame.player.removeWhere((p) => p.user.id == userId);
       notifyListeners();
     }
   }

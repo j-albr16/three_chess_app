@@ -22,7 +22,7 @@ class LobbyPlayerTile extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        FriendTile.onlineIcon(model.isOnline),
+        FriendTile.onlineIcon(model.isOnline, model.isAfk),
         isPremade ? Icon(Icons.person) : Icon(Icons.person_outline),
         ],
     );

@@ -141,7 +141,8 @@ class GameConversion {
 
   static Player rebaseOnePlayer({playerData, userData}) {
     return new Player(
-      isOnline: userData['isPlaying'] ?? true,
+      isOnline: userData['status']['isOnline'] ?? true,
+      isActive: userData['status']['isActive'] ?? true,
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: rebaseOneUser(userData),
@@ -186,7 +187,7 @@ class GameConversion {
   static void validation(data) {
     // input: receives a bool as decoded JSON Object __> mainly res.json(valid)
     // output : Return whether this bool is true or false
-    // Checks whether Data was even recieved
+    // Checks whether Data was even received
     if (data == null) {
       throw ('No Data was received ... Data is equal to NULL');
     }
@@ -205,7 +206,7 @@ class GameConversion {
     player.forEach((p) {
       final Map<String, dynamic> user =
           users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
-      // returns user object where player-userId and user.id are qual
+      // returns user object where player-userId and user.id are equal
       convPlayer.add(rebaseOnePlayer(
         playerData: p,
         userData: user,

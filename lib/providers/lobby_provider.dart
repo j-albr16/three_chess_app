@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../models/online_game.dart';
 import '../providers/server_provider.dart';
@@ -85,7 +85,7 @@ class LobbyProvider with ChangeNotifier {
       if (data['remove']) {
         _lobbyGames.add(pendingGame);
       }
-      return data['isValid'];
+      return data['valid'];
     } catch (error) {
       _serverProvider.handleError('Error while Leaving Lobby', error);
       return false;
@@ -116,7 +116,10 @@ class LobbyProvider with ChangeNotifier {
     try {
       // make http request
       final data = await _serverProvider.fetchLobbyGames();
+      int amount = data['gameData']['games']?.length;
+      print('Fetched $amount Lobby Games');
       _lobbyGames = GameConversion.rebaseLobbyGames(data);
+      print('${_lobbyGames.length} were converted');
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Lobby Games', error);
@@ -124,16 +127,19 @@ class LobbyProvider with ChangeNotifier {
   }
 
   Future<void> fetchPendingGames() async {
-    // try {
+    try {
     final Map<String, dynamic> data = await _serverProvider.fetchPendingGames();
     _pendingGames = GameConversion.rebaseLobbyGames(data);
     // adding game starts listener for Each OnlineGame
+    int amount = data['gameData']['games']?.length;
+    print('Fetched $amount Pending Games');
+    print('${_pendingGames.length} were converted');
     _pendingGames.forEach((game) {
       startGameListener(game.id);
     });
-    // } catch (error) {
-    //   _serverProvider.handleError('Error while Fetching Pending Games', error);
-    // }
+    } catch (error) {
+      _serverProvider.handleError('Error while Fetching Pending Games', error);
+    }
   }
 
   Future<void> quickPairing({int time, int increment}) async {
@@ -277,7 +283,6 @@ class LobbyProvider with ChangeNotifier {
   }
 
   void _handlePlayerLeftLobby(String gameId, String userId) {
-    print('Socket Message Removing Player who left Lobby');
     OnlineGame lobbyGame = getLobbyGame(gameId);
     if (lobbyGame != null) {
       lobbyGame.player.removeWhere((p) => p.user.id == userId);
@@ -289,7 +294,6 @@ class LobbyProvider with ChangeNotifier {
   }
 
   void _handlePlayerJoinedGameData(Map<String, dynamic> gameData) {
-    print('Socket Handle Player Joined Lobby');
     String id = gameData['_id'];
     bool yourGame = _pendingGames.map((game) => game.id).toList().contains(id);
     if (gameData['user']['_id'] == _serverProvider.userId) {
@@ -298,7 +302,6 @@ class LobbyProvider with ChangeNotifier {
     print('is Public : ${gameData['isPublic']}');
     if (gameData['isPublic'] || yourGame) {
       OnlineGame game = yourGame ? getPendingGame(id) : getLobbyGame(id);
-      print(gameData);
       game.player.add(GameConversion.rebaseOnePlayer(
         playerData: gameData['player'],
         userData: gameData['user'],
@@ -309,13 +312,11 @@ class LobbyProvider with ChangeNotifier {
   }
 
   void _handleGameRemove(String gameId) {
-    print('Removing Lobby Game Because It Started');
     _lobbyGames.removeWhere((game) => game.id == gameId);
     notifyListeners();
   }
 
   void _handleUpdatedStatus(String userId, bool isReady, String gameId) {
-    print('Update isReady Status Socket Message');
     OnlineGame onlineGame = getPendingGame(gameId);
     Player player = onlineGame.player
         .firstWhere((p) => p.user.id == userId, orElse: () => null);

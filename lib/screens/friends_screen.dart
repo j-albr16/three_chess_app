@@ -9,6 +9,8 @@ import '../providers/chat_provider.dart';
 import '../providers/friends_provider.dart';
 import '../widgets/friends/friend_tile.dart';
 import '../widgets/friends/friend_action_popup.dart';
+import '../models/friend.dart';
+import '../models/user.dart';
 
 enum FriendBools { PendingSelected, IsSearchngFriend, PendingOpen }
 enum FriendAction { Watch, Battle, Profile, Delete }
@@ -24,9 +26,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
   FriendsProvider _friendsProvider;
   ChatProvider _chatProvider;
   bool _didFetch = false;
-  List<FriendTileModel> friends;
-  List<FriendTileModel> pendingFriends;
-  FriendTileModel selectedPending;
+  List<Friend> friends;
+  List<Friend> pendingFriends;
+  Friend selectedPending;
   TextEditingController controller;
   FocusNode focusNode;
 
@@ -44,7 +46,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     super.dispose();
   }
 
-  Future<void> _friendPopUp(context, FriendTileModel model) async {
+  Future<void> _friendPopUp(context, Friend model) async {
     switch (await showDialog<FriendAction>(
         context: context,
         builder: (BuildContext context) {
@@ -53,7 +55,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           );
         })) {
       case FriendAction.Battle:
-        battleFriend(model.userId);
+        battleFriend(model.user.id);
         break;
       case FriendAction.Profile:
         //TODO
@@ -64,7 +66,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       case FriendAction.Delete:
         //TODO
         Provider.of<FriendsProvider>(context, listen: false)
-            .removeFriend(model.userId)
+            .removeFriend(model.user.id)
             .then((String message) => handleServerResponse(message));
         break;
     }
@@ -100,33 +102,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
     });
   }
 
-  void provideFriends() {
-    // TODO
-    _friendsProvider = Provider.of<FriendsProvider>(context);
-    _chatProvider = Provider.of<ChatProvider>(context);
-    friends = _friendsProvider.friends
-        .map((friend) => new FriendTileModel(
-              username: friend.user.userName,
-              userId: friend.user.id,
-              chatId: friend.chatId,
-              newMessages: friend.newMessages,
-              // isOnline: friend.isOnline,
-              isOnline: friend.isOnline,
-              isPlaying: friend.isPlaying,
-            ))
-        .toList();
-    pendingFriends = _friendsProvider.pendingFriends
-        .map((pendingFriend) => new FriendTileModel(
-            username: pendingFriend.user.userName,
-            userId: pendingFriend.user.id,
-            newMessages: pendingFriend.newMessages,
-            chatId: pendingFriend.chatId))
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    provideFriends();
+    _friendsProvider = Provider.of<FriendsProvider>(context);
+    friends = _friendsProvider.friends;
+    pendingFriends = _friendsProvider.pendingFriends;
     //mobile thing
     return Scaffold(
       appBar: AppBar(
@@ -153,7 +133,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
               onTap: (friend) {
                 print('Select Chat and Navigate to new Chat after Selection');
                 return Provider.of<ChatProvider>(context, listen: false)
-                    .selectChatRoom(id: friend.userId, chatType: ChatType.Friend)
+                    .selectChatRoom(
+                        id: friend.user.id, chatType: ChatType.Friend)
                     .then((_) =>
                         Navigator.of(context).pushNamed(ChatScreen.routeName));
                 // TODO Open Chat where chat is supposed to be and not design Test Screen
@@ -173,11 +154,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
               isPendingOpen: switchBooleans[FriendBools.PendingOpen],
               onPendingAccept: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
-                      .acceptFriend(model.userId)
+                      .acceptFriend(model.user.id)
                       .then((String message) => handleServerResponse(message)),
               onPendingReject: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
-                      .declineFriend(model.userId)
+                      .declineFriend(model.user.id)
                       .then((String message) => handleServerResponse(message)),
               width: double.infinity,
             ),

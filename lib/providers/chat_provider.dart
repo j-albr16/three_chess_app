@@ -21,7 +21,11 @@ class ChatProvider with ChangeNotifier {
   ServerProvider _serverProvider;
   PopupProvider _popUpProvider;
 
-  void update({chatIndex,chats,ServerProvider serverProvider, PopupProvider popUpProvider}) {
+  void update(
+      {chatIndex,
+      chats,
+      ServerProvider serverProvider,
+      PopupProvider popUpProvider}) {
     print('Update Chat');
     _currentChatIndex = chatIndex;
     _chats = chats;
@@ -55,10 +59,7 @@ class ChatProvider with ChangeNotifier {
     friendDeclinedCallback,
     increaseNewMessageCounterCallback,
     friendRemovedCallback,
-    friendIsOnlineCallback,
-    friendIsAfkCallback,
-    friendIsPlayingCallback,
-    friendIsNotPlayingCallback,
+    FriendStatusUpdate friendStatusUpdateCallback,
     gameInvitationCallback,
   }) {
     _serverProvider.subscribeToAuthUserChannel(
@@ -66,13 +67,10 @@ class ChatProvider with ChangeNotifier {
           friendRemovedCallback(userId, message),
       friendDeclinedCallback: (message) => friendDeclinedCallback(message),
       friendAcceptedCallback: (data) => friendAcceptedCallback(data),
+      friendStatusUpdate: (userId, isOnline, isActive, isPlaying) =>
+          friendStatusUpdateCallback(userId, isOnline, isActive, isPlaying),
       friendRequestCallback: (friendData, message) =>
           friendRequestCallback(friendData, message),
-      friendIsOnlineCallback: (userId) => friendIsOnlineCallback(userId),
-      friendIsAfkCallback: (userId) => friendIsAfkCallback(userId),
-      friendIsPlayingCallback: (userId) => friendIsPlayingCallback(userId),
-      friendIsNotPlayingCallback: (userId) =>
-          friendIsNotPlayingCallback(userId),
       messageCallback: (messageData) =>
           _handleMessageData(messageData, increaseNewMessageCounterCallback),
       gameInvitationsCallback: (gameData) => gameInvitationCallback(gameData),
@@ -88,7 +86,10 @@ class ChatProvider with ChangeNotifier {
     try {
       await _serverProvider.sendMessage(text, chat.id);
     } catch (error) {
-      _serverProvider.handleError('error while Sending Text Message', error);
+      _serverProvider.handleError(
+        'error while Sending Text Message',
+        error,
+      );
     }
   }
 
@@ -112,9 +113,8 @@ class ChatProvider with ChangeNotifier {
         Provider.of<GameProvider>(context, listen: false)
             .setChatId(id, chat.id);
       }
-      print("next up fetch print:");
-      ChatConversion.printWholeChat(chat);
-      print(_chats);
+      // ChatConversion.printWholeChat(chat);
+      // print(_chats);
     } catch (error) {
       _serverProvider.handleError('Error while Fetching Chat', error);
     }

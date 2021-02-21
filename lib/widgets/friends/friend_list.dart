@@ -7,14 +7,15 @@ import '../basic/sorrounding_cart.dart';
 import './add_friend.dart';
 import './friend_tile.dart';
 import './pending_friend_tile.dart';
+import '../../models/friend.dart';
 
 typedef void SwitchBool(FriendBools friendBool);
 
 class FriendList extends StatelessWidget {
   final double width;
   final FriendDialog onPendingSelect;
-  final List<FriendTileModel> friendTiles;
-  final List<FriendTileModel> pendingFriendTiles;
+  final List<Friend> friendTiles;
+  final List<Friend> pendingFriendTiles;
   final double tileHeight;
   final FriendDialog onLongTap;
   final FriendDialog onTap;
@@ -23,7 +24,7 @@ class FriendList extends StatelessWidget {
   final bool isPendingOpen;
   final FriendDialog onPendingAccept;
   final FriendDialog onPendingReject;
-  final FriendTileModel selectedFriend;
+  final Friend selectedFriend;
   final TextEditingController controller;
   final ThemeData theme;
   final Size size;
@@ -172,7 +173,7 @@ class FriendList extends StatelessWidget {
               .map((model) => Container(
                     child: PendingFriendTile(
                       isSelected:
-                          selectedFriend?.userId == (model?.userId ?? "")
+                          selectedFriend.user.id == (model.user.id ?? "")
                               ? true
                               : false,
                       onSelected: onPendingSelect,

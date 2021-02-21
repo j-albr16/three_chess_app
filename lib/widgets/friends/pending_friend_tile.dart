@@ -6,10 +6,11 @@ import './friend_tile.dart';
 import '../../helpers/constants.dart';
 import '../basic/accept_button.dart';
 import '../basic/decline_button.dart';
+import '../../models/friend.dart';
 
 class PendingFriendTile extends StatelessWidget {
   final double height;
-  final FriendTileModel model;
+  final Friend model;
   final FriendDialog onAccept;
   final FriendDialog onReject;
   final FriendDialog onSelected;
@@ -47,7 +48,7 @@ class PendingFriendTile extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 2,
-                  child: FriendTile.usernameText(model.username)),
+                  child: FriendTile.usernameText(model.user.userName)),
                 if (isSelected) Flexible(
                   flex: 3,
                   child: confirmButtons(Size(screenWidth / 2, 2 * height / 3), theme)),

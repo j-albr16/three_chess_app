@@ -63,7 +63,7 @@ class FriendPopup extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        FriendTile.onlineIcon(friend.isOnline),
+        FriendTile.onlineIcon(friend.isOnline, friend.isAfk),
         // SizedBox(width: size.width * 0.1),
         FriendTile.usernameText(friend.user.userName),
         Spacer(),

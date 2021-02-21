@@ -12,6 +12,7 @@ import '../models/chess_move.dart';
 import '../helpers/user_acc.dart';
 import '../models/user.dart';
 import '../models/online_game.dart';
+import '../helpers/print.dart';
 import '../providers/game_provider.dart';
 import '../models/enums.dart';
 
@@ -21,10 +22,8 @@ typedef void FriendRequest(Map<String, dynamic> friendData, String message);
 typedef void FriendAccept(Map<String, dynamic> data);
 typedef void FriendDecline(String message);
 typedef void FriendRemove(String userId, String message);
-typedef void FriendIsOnline(String userId);
-typedef void FriendIsAfk(String userId);
-typedef void FriendIsPlaying(String userId);
-typedef void FriendIsNotPlaying(String userId);
+typedef void FriendStatusUpdate(
+    String userId, bool isOnline, bool isActive, bool isPlaying);
 typedef void GameInvitation(Map<String, dynamic> gameData);
 // OnlineGame Callbacks
 typedef void Move(Map<String, dynamic> chessMove, String gameId);
@@ -52,6 +51,23 @@ typedef void PlayerLeft(String gameId, String userId);
 typedef void GameStarts(Map<String, dynamic> gameData);
 // Listener
 typedef void GameStartsListener(String gameId);
+
+const List<Method> methodsInProcess = [
+  // Method.LeaveLobby,
+  // Method.HandlePlayerLeft,
+  // Method.HandleNewGame,
+  // Method.CreateGame,
+  // Method.HandleGameStarts,
+  // Method.HandlePlayerJoined,
+  // Method.HandleMessage,
+  // // Fetching
+  Method.FetchLobbyGames,
+  // Method.FetchOnlineGames,
+  // Method.FetchPendingGames,
+
+  Method.FetchFriends,
+  Method.HandleFriendStatusUpdate,
+];
 
 class ServerProvider with ChangeNotifier {
   IO.Socket _socket = IO.io(SERVER_ADRESS, <String, dynamic>{
@@ -97,6 +113,7 @@ class ServerProvider with ChangeNotifier {
     print('Subscribe To Auth User Channel 2');
     _socket.on('$_userId/2', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
+      data['ident'] = Method.values[data['ident']];
       _handleAuthUserChannelSocketData2(
           data: data, gameStartsCallback: gameStartsCallback);
     });
@@ -108,16 +125,14 @@ class ServerProvider with ChangeNotifier {
     FriendAccept friendAcceptedCallback,
     FriendDecline friendDeclinedCallback,
     FriendRemove friendRemovedCallback,
-    FriendIsOnline friendIsOnlineCallback,
-    FriendIsAfk friendIsAfkCallback,
-    FriendIsPlaying friendIsPlayingCallback,
-    FriendIsNotPlaying friendIsNotPlayingCallback,
+    FriendStatusUpdate friendStatusUpdate,
     GameInvitation gameInvitationsCallback,
   }) {
     print('Subscribe to Auth USer Channel');
     // try {
     _socket.on(_userId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
+      data['ident'] = Method.values[data['ident']];
       _handleAuthUserChannelSocketData(
           data: data,
           messageCallback: messageCallback,
@@ -125,10 +140,7 @@ class ServerProvider with ChangeNotifier {
           friendAcceptedCallback: friendAcceptedCallback,
           friendDeclinedCallback: friendDeclinedCallback,
           friendRemovedCallback: friendRemovedCallback,
-          friendIsOnlineCallback: friendIsOnlineCallback,
-          friendIsAfkCallback: friendIsAfkCallback,
-          friendIsPlayingCallback: friendIsAfkCallback,
-          friendIsNotPlayingCallback: friendIsNotPlayingCallback,
+          friendStatusUpdateCallback: friendStatusUpdate,
           gameInvitationCallback: gameInvitationsCallback);
     });
   }
@@ -141,8 +153,8 @@ class ServerProvider with ChangeNotifier {
       playerLeftCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
-      print('New Lobby Socket Message');
       final Map<String, dynamic> data = json.decode(jsonData);
+      data['ident'] = Method.values[data['ident']];
       _handleLobbyChannelData(
           playerLeftCallback: playerLeftCallback,
           data: data,
@@ -158,6 +170,7 @@ class ServerProvider with ChangeNotifier {
     print('Did Subscribe to Game Lobby Channel');
     _socket.on('$gameId/lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
+      data['ident'] = Method.values[data['ident']];
       _handleGameLobbyChannel(
           data: data, updateIsReadyStatusCb: updateIsReadyStatus);
     });
@@ -185,6 +198,7 @@ class ServerProvider with ChangeNotifier {
     // try {
     _socket.on(gameId, (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
+      data['ident'] = Method.values[data['ident']];
       _handleGameChannelData(
         data: data,
         moveMadeCallback: moveMadeCallback,
@@ -228,10 +242,9 @@ class ServerProvider with ChangeNotifier {
 // Handatadle Socket Messages of different Channels -----------------------------------------------------------
   void _handleGameLobbyChannel(
       {data, UpdateIsReadyStatus updateIsReadyStatusCb}) {
-    _printRawData(data);
-    _handleSocketServerMessage(data['action'], data['message']);
-    switch (data['action']) {
-      case 'is-ready-status':
+    _handleSocketServerMessage(data['ident'], data['message'], data);
+    switch (data['ident']) {
+      case Method.HandleUpdateIsReadyStatus:
         updateIsReadyStatusCb(data['userId'], data['isReady'], data['gameId']);
         break;
     }
@@ -239,10 +252,9 @@ class ServerProvider with ChangeNotifier {
 
   void _handleAuthUserChannelSocketData2(
       {Map<String, dynamic> data, GameStarts gameStartsCallback}) {
-    _printRawData(data);
-    _handleSocketServerMessage(data['action'], data['message']);
-    switch (data['action']) {
-      case 'game-starts':
+    _handleSocketServerMessage(data['ident'], data['message'], data);
+    switch (data['ident']) {
+      case Method.HandleGameStarts:
         gameStartsCallback(data['gameData']);
         break;
     }
@@ -255,43 +267,31 @@ class ServerProvider with ChangeNotifier {
     FriendAccept friendAcceptedCallback,
     FriendDecline friendDeclinedCallback,
     FriendRemove friendRemovedCallback,
-    FriendIsOnline friendIsOnlineCallback,
-    FriendIsAfk friendIsAfkCallback,
-    FriendIsPlaying friendIsPlayingCallback,
-    FriendIsNotPlaying friendIsNotPlayingCallback,
+    FriendStatusUpdate friendStatusUpdateCallback,
     GameInvitation gameInvitationCallback,
   }) {
-    _printRawData(data);
-    _handleSocketServerMessage(data['action'], data['message']);
-    switch (data['action']) {
-      case 'message':
+    _handleSocketServerMessage(data['ident'], data['message'], data);
+    switch (data['ident']) {
+      case Method.HandleMessage:
         messageCallback(data['messageData']);
         break;
-      case 'friend-request':
+      case Method.HandleFriendRequest:
         friendRequestCallback(data['friendData'], data['message']);
         break;
-      case 'friend-accepted':
+      case Method.HandleFriendAccept:
         friendAcceptedCallback(data);
         break;
-      case 'friend-declined':
+      case Method.HandleFriendDecline:
         friendDeclinedCallback(data['message']);
         break;
-      case 'friend-removed':
+      case Method.HandleFriendRemove:
         friendRemovedCallback(data['userId'], data['message']);
         break;
-      case 'friend-online':
-        friendIsOnlineCallback(data['userId']);
+      case Method.HandleFriendStatusUpdate:
+        friendStatusUpdateCallback(data['userId'], data['isOnline'],
+            data['isActive'], data['isPlaying']);
         break;
-      case 'friend-afk':
-        friendIsAfkCallback(data['userId']);
-        break;
-      case 'friend-playing':
-        friendIsPlayingCallback(data['userId']);
-        break;
-      case 'friend-not-playing':
-        friendIsNotPlayingCallback(data['userId']);
-        break;
-      case 'game-invitation':
+      case Method.HandleGameInvitation:
         gameInvitationCallback(data['gameData']);
         break;
     }
@@ -304,21 +304,18 @@ class ServerProvider with ChangeNotifier {
       PlayerJoined playerJoinedCallback,
       PlayerLeft playerLeftCallback,
       UpdateIsReadyStatus updateIsReadyStatusCallback}) {
-    _handleSocketServerMessage(data['action'], data['message']);
-    _printRawData(data);
-    switch (data['action']) {
-      case 'new-game':
-        print('Player Joined Lobby Socket Message');
+    _handleSocketServerMessage(data['ident'], data['message'], data);
+    switch (data['ident']) {
+      case Method.HandleNewGame:
         newGameCallback(data['gameData']);
         break;
-      case 'player-joined':
-        print('Player Joined Socket Message');
+      case Method.HandlePlayerJoined:
         playerJoinedCallback(data['gameData']);
         break;
-      case 'remove-game':
+      case Method.HandleRemoveGame:
         removeGameCallback(data['gameId']);
         break;
-      case 'player-left-lobby':
+      case Method.HandlePlayerLeft:
         playerLeftCallback(data['gameId'], data['userId']);
         break;
     }
@@ -343,53 +340,51 @@ class ServerProvider with ChangeNotifier {
     PlayerIsOffline playerIsOfflineCallback,
     RequestCancelled requestCancelledCallback,
   }) {
-    _handleSocketServerMessage(data['action'], data['message']);
-    _printRawData(data);
-    switch (data['action']) {
-      case 'move-made':
-        print('Chess Move was made');
+    _handleSocketServerMessage(data['ident'], data['message'], data);
+    switch (data['ident']) {
+      case Method.HandleMove:
         moveMadeCallback(data['chessMove'], gameId);
         break;
-      case 'surrender-request':
+      case Method.HandleSurrenderRequest:
         surrenderRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
-      case 'surrender-decline':
+      case Method.HandleSurrenderDecline:
         surrenderDeclineCallback(data['userId'], gameId);
         break;
-      case 'surrender-failed':
+      case Method.HandleSurrenderFailed:
         surrenderFailedCallback(gameId);
         break;
-      case 'remi-request':
+      case Method.HandleRemiRequest:
         remiRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
-      case 'remi-accept':
+      case Method.HandleRemiAccept:
         remiAcceptCallback(data['userId'], gameId);
         break;
-      case 'remi-decline':
+      case Method.HandleRemiDecline:
         remiDeclineCallback(data['userId'], gameId);
         break;
-      case 'request-cancel':
+      case Method.HandleRequestCancelled:
         requestCancelledCallback(data, gameId);
         break;
-      case 'takeBack-request':
+      case Method.HandleTakeBackRequest:
         takeBackRequestCallback(data['userId'], data['chessMove'], gameId);
         break;
-      case 'takeBack-accept':
+      case Method.HandleTakeBackAccept:
         takeBackAcceptCallback(data['userId'], gameId);
         break;
-      case 'taken-back':
+      case Method.HandleTakeBack:
         takenBackCallback(data['userId'], data['chessMove'], gameId);
         break;
-      case 'takeBack-decline':
+      case Method.HandleTakeBackDecline:
         takeBackDeclineCallback(data['userId'], gameId);
         break;
-      case 'game-finished':
+      case Method.HandleGameFinished:
         gameFinishedCallback(data, gameId);
         break;
-      case 'player-online':
+      case Method.HandlePlayerIsOnline:
         playerIsOnlineCallback(data['userId']);
         break;
-      case 'player-offline':
+      case Method.HandlePlayerIsOffline:
         playerIsOfflineCallback(data['userId'], data['expiryDate']);
         break;
     }
@@ -416,7 +411,6 @@ class ServerProvider with ChangeNotifier {
 // HTTP
 
   Future<Map<String, dynamic>> fetchAuthUser() async {
-    print('Start Fetching Auth User');
     try {
       return await getSkeleton(
         error: 'Fetching Auth User',
@@ -431,15 +425,12 @@ class ServerProvider with ChangeNotifier {
     final String url = SERVER_ADRESS + 'online' + _authString;
     final encodedResponse = await http.get(url);
     final Map<String, dynamic> data = json.decode(encodedResponse.body);
-    // _printRawData(data);
-    // _validation(data);
     return data;
   }
 
 //#########################################################################################################
 // Local Games -------------------------------------------------------------------------------------------
   Future<Map<String, dynamic>> fetchLocalGames() async {
-    print('Start Fetching Local Games');
     return await getSkeleton(
       error: 'Fetching Local Games',
       url: SERVER_ADRESS + 'fetch-local-games' + _authString,
@@ -825,33 +816,31 @@ class ServerProvider with ChangeNotifier {
         '------------------------------------------------------------------------------------------------');
   }
 
-  void _handleSocketServerMessage(String action, String message) {
-    if (action != 'friend-online') {
-      print(
-          '-------------------------------------------------------------------------------------------------');
+  void _handleSocketServerMessage(
+      Method ident, String message, Map<String, dynamic> data) {
+    if (methodsInProcess.contains(ident)) {
       print(
           'Received Socket Data------------------------------------------------------------------------------');
-      print(
-          'Socket Message ... :   ---------------------------------------------------------------------------');
+      // ColoredPrint.printColored(ident?.toString(), PrintColors.Red);
+      print(ident);
       print('$message   ');
-      print(
-          'Action Key String   ------------------------------------------------------------------------------');
-      print(action);
+      print(data);
       print(
           '-------------------------------------------------------------------------------------------------');
     }
   }
 
   void _printRawData(dynamic data) {
-    // if (data['action'] != 'friend-online' && data['valid'] == true) {
-    if (data['action'] != 'friend-online') {
-      // print(
-      //     '-------------------------------------------------------------------------------------------------');
-      // print(
-      //     'RAW DATA     ------------------------------------------------------------------------------------');
+    // if (data['ident'] != 'friend-online' && data['valid'] == true) {
+    if (methodsInProcess.contains(Method.values[data['ident']])) {
+      print(
+          '-------------------------------------------------------------------------------------------------');
+      // ColoredPrint.printColored(data['ident']?.toString(), PrintColors.Green);
+      print(data['ident']);
       print(data['message']);
-      // print(
-      // '-------------------------------------------------------------------------------------------------');
+      print(data);
+      print(
+          '-------------------------------------------------------------------------------------------------');
     }
   }
 }

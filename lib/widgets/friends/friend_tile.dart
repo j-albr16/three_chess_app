@@ -2,38 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../basic/message_count.dart';
 import '../../helpers/constants.dart';
+import '../../models/friend.dart';
 
-typedef void FriendDialog(FriendTileModel model);
-
-class FriendTileModel {
-  bool isOnline = false;
-  final String username;
-  bool isPlaying = false;
-  final String chatId;
-  final String userId;
-  final int newMessages;
-
-  FriendTileModel(
-      {this.chatId,
-      this.newMessages,
-      this.isPlaying,
-      this.isOnline,
-      @required this.username,
-      @required this.userId});
-}
+typedef void FriendDialog(Friend model);
 
 class FriendTile extends StatelessWidget {
   final double height;
-  final FriendTileModel model;
+  final Friend model;
   final FriendDialog onLongTap;
   final FriendDialog onTap;
 
   FriendTile({this.onLongTap, this.onTap, this.height, this.model});
 
-  static Widget onlineIcon(bool isOnline) {
+  static Widget onlineIcon(bool isOnline, bool isAfk) {
     return Icon(
       isOnline ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-      color: Colors.green,
+      color: isAfk ? Colors.red : Colors.green,
     );
   }
 
@@ -59,7 +43,7 @@ class FriendTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cornerRadius)),
       child: Container(
-      padding: EdgeInsets.all(mainBoxPadding),
+        padding: EdgeInsets.all(mainBoxPadding),
         margin: EdgeInsets.zero,
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
@@ -74,7 +58,7 @@ class FriendTile extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  onlineIcon(model.isOnline),
+                  onlineIcon(model.isOnline, model.isAfk),
                   SizedBox(width: 10),
                   playingIcon(model.isPlaying),
 
@@ -87,7 +71,7 @@ class FriendTile extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: MessageCount(model.newMessages),
               ),
-            Center(child: usernameText(model.username)),
+            Center(child: usernameText(model.user.userName)),
           ],
         ),
       ),

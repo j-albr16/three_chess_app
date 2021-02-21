@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import './friend_tile.dart';
 import '../../screens/friends_screen.dart';
+import '../../models/friend.dart';
 
 class FriendActionPopUp extends StatelessWidget {
-  final FriendTileModel model;
+  final Friend model;
 
   FriendActionPopUp({this.model});
 

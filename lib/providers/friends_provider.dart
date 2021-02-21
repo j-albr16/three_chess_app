@@ -33,11 +33,10 @@ class FriendsProvider with ChangeNotifier {
     return [..._invitations];
   }
 
-  void update(
-      {friends,
-      ServerProvider serverProvider,
-      ChatProvider chatProvider,
-      PopupProvider popUpProvider}) {
+  void update({friends,
+    ServerProvider serverProvider,
+    ChatProvider chatProvider,
+    PopupProvider popUpProvider}) {
     print('Update');
     _friends = friends;
     _popUpProvider = popUpProvider;
@@ -65,10 +64,7 @@ class FriendsProvider with ChangeNotifier {
       friendRequestCallback: (friendData, message) =>
           _handleFriendRequest(friendData, message),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
-      friendIsAfkCallback: (userId) => _handleFriendIsAfk(userId),
-      friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
-      friendIsNotPlayingCallback: (userId) => _handleFriendIsNotPlaying(userId),
-      friendIsPlayingCallback: (userId) => _handleFriendIsPlaying(userId),
+friendStatusUpdateCallback: (userId, isOnline, isActive, isPlaying) => _handleFriendStatusUpdate(userId, isOnline, isActive, isPlaying),
       gameInvitationCallback: (gameData) => _handleGameInvitation(gameData),
     );
   }
@@ -79,8 +75,10 @@ class FriendsProvider with ChangeNotifier {
       _pendingFriends = [];
       final Map<String, dynamic> data = await _serverProvider.fetchFriends();
       // destinguish between friends whoare accepted and those who are not
-      data['friends'].forEach((friend) => _friends
-          .add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
+      data['friends'].forEach((friend) =>
+          _friends
+              .add(
+              FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
       data['pendingFriends'].forEach((pendingFriend) =>
           _pendingFriends.add(FriendConversion.rebaseOneFriend(pendingFriend)));
       print('YOu have ${_friends.length} Friends');
@@ -92,10 +90,10 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> fetchInvitations() async {
     print('Fetching Invitations');
-    String message = 'An Erro Ocured. Sry';
+    String message = 'An Error Occurred. Sry';
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.fetchInvitations();
+      await _serverProvider.fetchInvitations();
       if (data['games'] == null) {
         message = 'No Invitations';
       } else {
@@ -104,7 +102,7 @@ class FriendsProvider with ChangeNotifier {
               ?.where((player) => player['gameId'] == gameData['_id']);
           print(playerData);
           final userData =
-              data['user']?.where((user) => user['gameId'] == gameData['_id']);
+          data['user']?.where((user) => user['gameId'] == gameData['_id']);
           print(userData);
           _invitations.add(GameConversion.rebaseLobbyGame(
               gameData: gameData, playerData: playerData, userData: userData));
@@ -122,7 +120,7 @@ class FriendsProvider with ChangeNotifier {
     String message = 'An Error Occured. Sorry';
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.sendFriendRequest(userName);
+      await _serverProvider.sendFriendRequest(userName);
       // add _frinds =>  but until acceptance not accepted
       notifyListeners();
       if (data['valid']) {
@@ -139,7 +137,7 @@ class FriendsProvider with ChangeNotifier {
     String message = 'An Error Occured. Sorry';
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.acceptFriend(userId);
+      await _serverProvider.acceptFriend(userId);
       _friends.add(FriendConversion.rebaseOneFriend(data['friend'],
           chatId: data['chatId']));
       _pendingFriends
@@ -159,7 +157,7 @@ class FriendsProvider with ChangeNotifier {
     String message = 'An Error Occured. Sorry';
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.friendDecline(userId);
+      await _serverProvider.friendDecline(userId);
       if (data['valid']) {
         _pendingFriends
             .removeWhere((friend) => friend.user.id == data['userId']);
@@ -179,7 +177,7 @@ class FriendsProvider with ChangeNotifier {
     String message = 'An Error Occured. Sorry';
     try {
       final Map<String, dynamic> data =
-          await _serverProvider.friendRemove(userId);
+      await _serverProvider.friendRemove(userId);
       if (data['valid']) {
         _friends.removeWhere((friend) => friend.user.id == userId);
       }
@@ -198,7 +196,7 @@ class FriendsProvider with ChangeNotifier {
     String message = 'Could decline Invitation(s)';
     try {
       final bool didDecline =
-          await _serverProvider.declineInvitation(gameId, all);
+      await _serverProvider.declineInvitation(gameId, all);
       if (didDecline) {
         _invitations
             .removeWhere((invitation) => gameId.contains(invitation.id));
@@ -230,8 +228,8 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleFriendAccepted(
-      Map<String, dynamic> userData, String chatId, String message) {
+  void _handleFriendAccepted(Map<String, dynamic> userData, String chatId,
+      String message) {
     print(message);
     _friends.add(FriendConversion.rebaseOneFriend(userData, chatId: chatId));
     _popUpProvider.makePopUp[PopUpType.SnackBar](message);
@@ -248,20 +246,6 @@ class FriendsProvider with ChangeNotifier {
     _friends.removeWhere((friend) => friend.user.id == userId);
     print(message);
     _popUpProvider.makePopUp[PopUpType.SnackBar](message);
-    notifyListeners();
-  }
-
-  void _handleFriendIsPlaying(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend?.isPlaying = true;
-    notifyListeners();
-  }
-
-  void _handleFriendIsNotPlaying(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend?.isPlaying = false;
     notifyListeners();
   }
 
@@ -283,21 +267,16 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 
-  void _handleFriendIsOnline(String userId) {
-    // print('Handling Friend is Online');
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
+  void _handleFriendStatusUpdate(String userId, bool isOnline, bool isActive,
+      bool isPlaying) {
+    Friend friend =
+    _friends.firstWhere((f) => f.user.id == userId, orElse: () => null);
     if (friend != null) {
-      friend.isOnline = true;
+      friend.isOnline = isOnline;
+      friend.isActive = isActive;
+      friend.isPlaying = isPlaying;
+      notifyListeners();
     }
-    notifyListeners();
-  }
-
-  void _handleFriendIsAfk(String userId) {
-    print('Handle Friend is AFK');
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend.isOnline = false;
-    notifyListeners();
   }
 }
+

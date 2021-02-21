@@ -144,7 +144,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   double posRatingRange;
 
   updateRatingRange(RangeValues values) {
-    print(user.score);
     if (values.start <= user.score) {
       setState(() {
         negRatingRange = values.start;
@@ -207,8 +206,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
     final String friendId = args['friend'];
-    print(friends.length);
-    print('friendId');
     print(friendId);
     if (friendId != null) {
       Friend friend = friends.firstWhere((friend) => friend.user.id == friendId,
@@ -216,7 +213,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       if (friend != null) {
         selectedFriends.add(friend);
         print('Added ${selectedFriends.length} Friends');
-        print(friendId);
       }
     }
     didCheckForPreInvites = true;
@@ -236,13 +232,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         }
         user = userProvider.user;
         friends = friendsProvider.friends;
-        print(friends);
         if (!didCheckForPreInvites) {
           checkForPreInvites();
         }
         if (posRatingRange == null) {
-          posRatingRange = user.score + 100.0;
-          negRatingRange = user.score - 100.0;
+          posRatingRange = user.score + 300.0;
+          negRatingRange = user.score - 300.0;
         }
         return CreateGame(
           allowPremades: allowPremades,

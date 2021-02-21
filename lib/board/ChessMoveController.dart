@@ -92,6 +92,7 @@ mixin ChessMoveController{
     if(draggedPiece != null){
       dragOffset = details.localPosition - startingOffset;
     }
+    update();
   }
 
   void startDrag(String whatsHit, details){

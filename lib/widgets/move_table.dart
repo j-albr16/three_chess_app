@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../board/BoardState.dart';
+import '../board/client_game.dart';
+import '../providers/ClientGameProvider.dart';
 import '../models/game.dart';
 import '../models/player.dart';
 import '../models/user.dart';
@@ -10,7 +12,6 @@ import '../models/enums.dart';
 typedef void RequestAction(RequestType requestType);
 
 class GameTable extends StatelessWidget {
-  final BoardState boardStateListen;
   final double width;
   final double bodyHeight;
   final List<RequestType> pendingActions;
@@ -23,8 +24,7 @@ class GameTable extends StatelessWidget {
   final double iconBarHeight;
 
   GameTable(
-      {this.boardStateListen,
-        this.iconBarHeight,
+      {this.iconBarHeight,
       this.onRequestCancel,
       this.onConfirmation,
       this.onConfirmationCancel,
@@ -37,6 +37,7 @@ class GameTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ClientGame clientGame = Provider.of<ClientGameProvider>(context).clientGame;
     return Container(
       width: width,
       height: bodyHeight + iconBarHeight,
@@ -53,7 +54,7 @@ class GameTable extends StatelessWidget {
           iconBar(),
           Stack(children: [
 
-            moveTable(boardStateListen),
+            moveTable(clientGame.chessMoves),
             if (pendingActions != null && pendingActions.isNotEmpty)
               Column(
                   mainAxisSize: MainAxisSize.min,
@@ -98,7 +99,7 @@ class GameTable extends StatelessWidget {
     );
   }
 
-  Widget moveTable(BoardState boardState) {
+  Widget moveTable(List<ChessMove> chessMoves) {
    // print(boardState.chessMoves.length);
     return Container(
       // height: size.height * 0.8,
@@ -108,7 +109,7 @@ class GameTable extends StatelessWidget {
         padding: EdgeInsets.all(5),
         crossAxisCount: 3,
         children: [
-          ...boardState.chessMoves.map((e) {
+          ...chessMoves.map((e) {
             return tableTile(e);
           }).toList()
         ],

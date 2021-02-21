@@ -33,6 +33,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
   final double iconBarFractionOfTable = 0.1;
   final double gameTableHeightFraction = 0.7;
   final double voteHeightFraction = 0.1;
+  final double bottomSpace = 30; //This is the grey dot Bar of the mainPage PageViewer -- should kinda be dependent on the state (when you navigator pop you want this to be 0
 
   double tableIconBarHeight(double screenHeight){
     return iconBarFractionOfTable * screenHeight;
@@ -43,7 +44,7 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
   }
 
   double chatScreenHeight(double screenHeight){
-    return screenHeight;
+    return screenHeight-bottomSpace;
   }
 
   @override
@@ -69,7 +70,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
 
   List<ScrollSection> _createSections(double screenHeight){
     return [
-      ScrollSection(name: "Chat", height: chatScreenHeight(screenHeight), isAnchorTop: true),
+      if(clientGameProvider.clientGame.hasChat)
+        ScrollSection(name: "Chat", height: chatScreenHeight(screenHeight), isAnchorTop: true),
       ScrollSection(name: "Board", height: screenHeight, isAnchorTop: true),
       ScrollSection(name: "Requests", height: 0, isAnchorTop: false),
       ScrollSection(name: "IconBar", height: tableIconBarHeight(screenHeight), isAnchorTop: false),
@@ -126,10 +128,11 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
         }
 
         List<Widget> _subScreens = [
-          ChatBoardSubScreen(
+          if(clientGame.hasChat)
+            ChatBoardSubScreen(
             height: chatScreenHeight(screenHeight),
           ),
-          BoardBoardSubScreen(),
+          BoardBoardSubScreen(bottomSpace: bottomSpace,),
           ...votes,
           TableBoardSubScreen(
               controller: ScrollController(),

@@ -9,7 +9,8 @@ import '../models/chess_move.dart';
 import '../providers/scroll_provider.dart';
 
 typedef Future<bool> ResponseMove(ChessMove chessMove);
-typedef bool OnPointer(PointerEvent details);
+typedef void OnPointerDown(PointerDownEvent details);
+typedef void OnPointerUp(PointerUpEvent details);
 
 class ThreeChessBoard extends StatefulWidget {
   final TimeCounter timeCounter = TimeCounter(); //Not used yet
@@ -42,7 +43,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
   }
 
 
-  Function scrollProviderWrap({OnPointer doHit, context, ClientGame clientGame, bool isPointerDown,}){
+  Function scrollProviderWrap({Function doHit, context, ClientGame clientGame, bool isPointerDown,}){
 
     return (details){
     String whatsHit =
@@ -66,13 +67,13 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
 
     ClientGame clientGame = Provider.of<ClientGameProvider>(context).clientGame;
 
-    OnPointer pointerDown = scrollProviderWrap(
+    OnPointerDown pointerDown = scrollProviderWrap(
         doHit: clientGameDo.doHitDown,
         context: context,
         clientGame: clientGame,
         isPointerDown: true);
 
-    OnPointer pointerUp = scrollProviderWrap(
+    OnPointerUp pointerUp = scrollProviderWrap(
         doHit: clientGameDo.doHitUp,
         context: context,
         clientGame: clientGame,
@@ -82,8 +83,8 @@ class _ThreeChessBoardState extends State<ThreeChessBoard> {
     return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerDown: pointerDown,
-      onPointerUp: clientGameDo.doHitUp,
-      onPointerMove: pointerUp,
+      onPointerUp: pointerUp,
+      onPointerMove:  clientGameDo.doHitMove,
       child: BoardPainter(
         key: painterKey,
         pieces: clientGame.selectedPieces,

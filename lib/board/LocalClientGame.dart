@@ -15,6 +15,10 @@ class LocalClientGame extends ClientGame with ChessMoveController{
   Function providerUpdate;
   LocalGame localGame;
 
+  bool get hasChat{
+    return false;
+  }
+
   GameType get gameType{
     return GameType.Local;
   }
@@ -73,7 +77,7 @@ class LocalClientGame extends ClientGame with ChessMoveController{
 
   @override
   Map<String, Piece> get pieces{
-    return pieces;
+    return boardState.pieces;
   }
 
   @override
@@ -93,6 +97,6 @@ class LocalClientGame extends ClientGame with ChessMoveController{
 
   @override
   void updateHighlighted(){
-    tileKeeper.highlightTiles(highlighted);
+    tileKeeper.highlightTiles(highlighted?.value);
   }
 }

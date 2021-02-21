@@ -92,7 +92,7 @@ Widget localGames(Size size, ThemeData theme) {
         //   gameIndex: ,
         //   gameIndexCall: gameIndexCall,
         // ),
-        ...currentGames.where((game) => (game.runtimeType is OnlineGame) || (game.runtimeType is LocalGame)).map((game) =>
+        ...currentGames.where((game) => (game.runtimeType == LocalGame)).map((game) =>
             SelectGame(
               size: size,
               game: game,
@@ -109,7 +109,7 @@ Widget localGames(Size size, ThemeData theme) {
 
   Widget onlineGames(Size size, ThemeData theme) {
     return ListView(
-      children: currentGames.where((game) => game.runtimeType is OnlineGame).map(
+      children: currentGames.where((game) => game.runtimeType == OnlineGame).map(
               (gameEntry) => SelectGame(
         confirmGame: () => confirmGame(gameEntry),
         theme: theme,
@@ -139,7 +139,7 @@ Widget localGames(Size size, ThemeData theme) {
             isSelected: onlineGamesOpen,
           ),
           // ChessDivider(),
-          if(onlineGamesOpen && currentGames.isEmpty)Text('No Online Games Available'),
+          if(onlineGamesOpen && currentGames.where((element) => element.runtimeType == OnlineGame).toList().isEmpty)Text('No Online Games Available'),
           if (onlineGamesOpen) Flexible(child: onlineGames(size, theme), flex: 1),
           // ChessDivider(),
           AdvancedSelection(

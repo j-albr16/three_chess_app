@@ -21,6 +21,7 @@ class LocalGame extends Game{
   ]; //TODO names are dependent on language, therefor should be saved somewhere else
 
   LocalGame({
+    this.followPlaying,
     Map finishedGameData,
     List<ChessMove> chessMoves,
     List<Piece>  startingBoard,

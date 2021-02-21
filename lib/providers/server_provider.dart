@@ -54,19 +54,13 @@ typedef void GameStartsListener(String gameId);
 
 const List<Method> methodsInProcess = [
   // Method.LeaveLobby,
-  // Method.HandlePlayerLeft,
-  // Method.HandleNewGame,
-  // Method.CreateGame,
-  // Method.HandleGameStarts,
-  // Method.HandlePlayerJoined,
-  // Method.HandleMessage,
-  // // Fetching
-  Method.FetchLobbyGames,
-  // Method.FetchOnlineGames,
-  // Method.FetchPendingGames,
+  Method.HandlePlayerLeft,
+  Method.HandleNewGame,
+  Method.CreateGame,
+  Method.HandleGameStarts,
+  Method.HandlePlayerJoined,
+  Method.HandleMessage,
 
-  Method.FetchFriends,
-  Method.HandleFriendStatusUpdate,
 ];
 
 class ServerProvider with ChangeNotifier {

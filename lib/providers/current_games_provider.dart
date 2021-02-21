@@ -18,6 +18,7 @@ class CurrentGamesProvider with ChangeNotifier{
   update(List<OnlineGame> onlineGames, List<LocalGame>  localGames){
     this.onlineGames = onlineGames;
     this.localGames = localGames;
+    notifyListeners();
   }
 
 }

@@ -2,9 +2,20 @@ import 'package:flutter/foundation.dart';
 
 import '../models/local_game.dart';
 
+//Testing only
+import '../board/BoardStateBone.dart';
+
 
 class LocalProvider with ChangeNotifier {
-  List<LocalGame> localGames = [];
+  List<LocalGame> localGames = [
+    //testing only
+    LocalGame(
+    id: "1",
+    didStart: true,
+    startingBoard: BoardStateBone().pieces.values.toList(),
+    chessMoves: [],
+      followPlaying: false,
+  )];
   List<LocalGame> finishedLocalGames = [];
   List<LocalGame> analyzeGames = [];
 

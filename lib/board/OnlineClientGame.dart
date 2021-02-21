@@ -21,6 +21,10 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
   bool waitingForResponse = false;
   OnlineGame onlineGame;
 
+  bool get hasChat{
+    return false;
+  }
+
   GameType get gameType{
     return GameType.Online;
   }
@@ -124,6 +128,6 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
 
   @override
   void updateHighlighted(){
-    tileKeeper.highlightTiles(highlighted);
+    tileKeeper.highlightTiles(highlighted?.value);
   }
 }

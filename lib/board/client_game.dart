@@ -21,6 +21,8 @@ import '../models/game.dart';
  Game game;
  PlayerColor clientPlayer;
 
+ bool get hasChat;
+
  ClientGame({this.game}){
   tileKeeper = createTiles;
   boardState = BoardState.generate(chessMoves: game.chessMoves);

@@ -6,6 +6,8 @@ mixin ScrollSections{
   ScrollController get controller;
   List<ScrollSection> sections;
   double _screenHeight;
+  double bottomSpace = 0;
+  bool _verbose = false;
 
   @protected
   updateHeightOf({@required int sectionIndex, @required double height}){
@@ -41,7 +43,7 @@ mixin ScrollSections{
       return controllerPosition;
     }
 
-    double controllerPosition = _screenHeight - _bottomOfSection(sectionIndex);
+    double controllerPosition = _bottomOfSection(sectionIndex) - _screenHeight;
 
     //Check weather the position is reachable and return
     return controllerPosition < 0 ? 0 : controllerPosition;
@@ -52,6 +54,9 @@ mixin ScrollSections{
     for(ScrollSection section in sections.sublist(0,sectionIndex)){
       heightIterator += section.height;
     }
+    if(_verbose){
+      print("topSection of $sectionIndex is $heightIterator");
+    }
     return heightIterator;
   }
 
@@ -60,10 +65,19 @@ mixin ScrollSections{
     for(ScrollSection section in sections.sublist(0,sectionIndex+1)){
       heightIterator += section.height;
     }
+    if(_verbose){
+      print("botSection of $sectionIndex is $heightIterator");
+    }
     return heightIterator;
   }
 
   int _nearestSection(){
+
+    if(_verbose){
+      print("_nearestSection: ");
+      print("currentPosition: ${controller.offset}");
+    }
+
     double currentPosition = controller.offset;
 
     double getDifference(int sectionsIndex, double currentPosition){
@@ -73,12 +87,28 @@ mixin ScrollSections{
     double difference = getDifference(0, currentPosition);
     int index = 0;
     //print("input: $input");
+    if(_verbose){
+      print("difference: $difference");
+      print("index: $index");
+    }
+
     for (int i = 1; i < sections.length; i++) {
+
+      if(_verbose){
+        print("difference: ${getDifference(i, currentPosition)}");
+        print("index: $i");
+      }
+
       if (getDifference(i, currentPosition) < difference) {
         difference = getDifference(i, currentPosition);
         index = i;
       }
     }
+
+    if(_verbose){
+      print("returned index: $index");
+    }
+
     return index;
   }
 

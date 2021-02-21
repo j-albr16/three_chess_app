@@ -15,8 +15,9 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/three_chess_board.dart';
 
 class BoardBoardSubScreen extends StatefulWidget {
+  final double bottomSpace;
 
-  BoardBoardSubScreen();
+  BoardBoardSubScreen({this.bottomSpace});
 
   @override
   _BoardBoardSubScreenState createState() => _BoardBoardSubScreenState();
@@ -72,7 +73,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
 
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
-      double usableHeight = screenHeight - unusableHeight;
+      double usableHeight = screenHeight - unusableHeight-widget.bottomSpace;
 
       return Container(
         height: usableHeight,

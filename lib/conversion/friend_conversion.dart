@@ -13,9 +13,9 @@ class FriendConversion {
   static Friend rebaseOneFriend(Map<String, dynamic> friendData,
       {String chatId = 'not given'}) {
     return new Friend(
-      isActive: friendData['status']['isActive'],
-      isPlaying: friendData['status']['isPlaying'],
-      isOnline: friendData['status']['isOnline'],
+      isActive: friendData['status']['isActive'] ?? true,
+      isPlaying: friendData['status']['isPlaying'] ?? true,
+      isOnline: friendData['status']['isOnline'] ?? true,
       chatId: chatId,
       user: new User(
         id: friendData['_id'],

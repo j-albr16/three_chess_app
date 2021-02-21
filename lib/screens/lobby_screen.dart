@@ -4,6 +4,7 @@ import 'package:relative_scale/relative_scale.dart';
 
 import '../providers/game_provider.dart';
 import '../providers/lobby_provider.dart';
+import '../screens/test_screen.dart';
 import '../widgets/lobby/lobby_table_mobilefull.dart';
 import '../widgets/lobby/lobby_actions.dart';
 import '../providers/lobby_provider.dart';
@@ -47,6 +48,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+              icon: Icon(Icons.dashboard_sharp),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(DesignTestScreen.routeName)),
           Consumer<LobbyProvider>(
             builder: (context, lobbyProvider, child) => IconButton(
                 icon: Icon(Icons.person),

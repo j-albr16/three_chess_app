@@ -80,14 +80,17 @@ class LobbyProvider with ChangeNotifier {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.leaveLobby(gameId);
-      bool isValid = data['valid'];
-      if (isValid) {
-        _pendingGames.removeWhere((game) => game.id == gameId);
+      OnlineGame pendingGame = getPendingGame(data['gameId']);
+      _pendingGames.remove(pendingGame);
+      if (data['remove']) {
+        _lobbyGames.add(pendingGame);
       }
-      return isValid;
+      return data['isValid'];
     } catch (error) {
       _serverProvider.handleError('Error while Leaving Lobby', error);
       return false;
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -235,6 +238,8 @@ class LobbyProvider with ChangeNotifier {
       updateIsReadyStatus: (userId, isReady, gameId) =>
           _handleUpdatedStatus(userId, isReady, gameId),
       removeGameCallback: (gameId) => _handleGameRemove(gameId),
+      playerLeftCallback: (gameId, userId) =>
+          _handlePlayerLeftLobby(gameId, userId),
     );
   }
 
@@ -267,6 +272,18 @@ class LobbyProvider with ChangeNotifier {
         userData: gameData['user'],
       ));
       // print all OnlineGame Data if option is set on true
+      notifyListeners();
+    }
+  }
+
+  void _handlePlayerLeftLobby(String gameId, String userId) {
+    print('Socket Message Removing Player who left Lobby');
+    OnlineGame lobbyGame = getLobbyGame(gameId);
+    if (lobbyGame != null) {
+      lobbyGame.player.removeWhere((p) => p.user.id == userId);
+      if (lobbyGame.player.length == 0) {
+        _lobbyGames.remove(lobbyGame);
+      }
       notifyListeners();
     }
   }

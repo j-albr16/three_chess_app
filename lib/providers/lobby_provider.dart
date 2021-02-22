@@ -225,6 +225,7 @@ class LobbyProvider with ChangeNotifier {
           userData: userData, playerData: playerData, gameData: gameData));
       startGameListener(gId);
       _lobbyGames.removeWhere((game) => game.id == gId);
+      currentPendingGame = gameId;
       print('Successfully Joined OnlineGame');
       return data['valid'] as bool;
     } catch (error) {

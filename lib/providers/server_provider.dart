@@ -46,7 +46,7 @@ typedef void PlayerJoined(Map<String, dynamic> gameData);
 typedef void NewGame(Map<String, dynamic> gameData);
 typedef void UpdateIsReadyStatus(String userId, bool isReady, String gameId);
 typedef void RemoveGame(String gameId);
-typedef void PlayerLeft(String gameId, String userId);
+typedef void PlayerLeft(String gameId, String userId, bool remove);
 // Auth User Channel 2
 typedef void GameStarts(Map<String, dynamic> gameData);
 // Listener
@@ -310,7 +310,7 @@ class ServerProvider with ChangeNotifier {
         removeGameCallback(data['gameId']);
         break;
       case Method.HandlePlayerLeft:
-        playerLeftCallback(data['gameId'], data['userId']);
+        playerLeftCallback(data['gameId'], data['userId'], data['remove']);
         break;
     }
   }

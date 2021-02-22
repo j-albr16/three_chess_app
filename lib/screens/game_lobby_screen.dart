@@ -63,7 +63,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   Future<void> getChat() {
     if (!_wasInit) {
-      Provider.of<ChatProvider>(context, listen: false)
+      return Provider.of<ChatProvider>(context, listen: false)
           .selectChatRoom(
               chatType: ChatType.Lobby,
               context: context,
@@ -72,6 +72,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 _wasInit = true;
               }));
     }
+    return null;
   }
 
   Widget optionsWidget(ThemeData theme) {

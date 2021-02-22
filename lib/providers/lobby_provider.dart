@@ -82,7 +82,7 @@ class LobbyProvider with ChangeNotifier {
           await _serverProvider.leaveLobby(gameId);
       OnlineGame pendingGame = getPendingGame(data['gameId']);
       _pendingGames.remove(pendingGame);
-      if (data['remove']) {
+      if (!data['remove']) {
         _lobbyGames.add(pendingGame);
       }
       return data['valid'];
@@ -128,15 +128,16 @@ class LobbyProvider with ChangeNotifier {
 
   Future<void> fetchPendingGames() async {
     try {
-    final Map<String, dynamic> data = await _serverProvider.fetchPendingGames();
-    _pendingGames = GameConversion.rebaseLobbyGames(data);
-    // adding game starts listener for Each OnlineGame
-    int amount = data['gameData']['games']?.length;
-    print('Fetched $amount Pending Games');
-    print('${_pendingGames.length} were converted');
-    _pendingGames.forEach((game) {
-      startGameListener(game.id);
-    });
+      final Map<String, dynamic> data =
+          await _serverProvider.fetchPendingGames();
+      _pendingGames = GameConversion.rebaseLobbyGames(data);
+      // adding game starts listener for Each OnlineGame
+      int amount = data['gameData']['games']?.length;
+      print('Fetched $amount Pending Games');
+      print('${_pendingGames.length} were converted');
+      _pendingGames.forEach((game) {
+        startGameListener(game.id);
+      });
     } catch (error) {
       _serverProvider.handleError('Error while Fetching Pending Games', error);
     }
@@ -244,8 +245,8 @@ class LobbyProvider with ChangeNotifier {
       updateIsReadyStatus: (userId, isReady, gameId) =>
           _handleUpdatedStatus(userId, isReady, gameId),
       removeGameCallback: (gameId) => _handleGameRemove(gameId),
-      playerLeftCallback: (gameId, userId) =>
-          _handlePlayerLeftLobby(gameId, userId),
+      playerLeftCallback: (gameId, userId, remove) =>
+          _handlePlayerLeftLobby(gameId, userId, remove),
     );
   }
 
@@ -282,22 +283,27 @@ class LobbyProvider with ChangeNotifier {
     }
   }
 
-  void _handlePlayerLeftLobby(String gameId, String userId) {
+  void _handlePlayerLeftLobby(String gameId, String userId, bool remove) {
+    OnlineGame pendingGame = getPendingGame(gameId);
     OnlineGame lobbyGame = getLobbyGame(gameId);
-    if (lobbyGame != null) {
-      lobbyGame.player.removeWhere((p) => p.user.id == userId);
-      if (lobbyGame.player.length == 0) {
-        _lobbyGames.remove(lobbyGame);
+    if (pendingGame != null) {
+      pendingGame.player.removeWhere((player) => player.user.id == userId);
+    } else {
+      if (lobbyGame != null) {
+        lobbyGame.player.removeWhere((p) => p.user.id == userId);
+        if (remove) {
+          _lobbyGames.remove(lobbyGame);
+        }
       }
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   void _handlePlayerJoinedGameData(Map<String, dynamic> gameData) {
     String id = gameData['_id'];
     bool yourGame = _pendingGames.map((game) => game.id).toList().contains(id);
     if (gameData['user']['_id'] == _serverProvider.userId) {
-      return;
+      return null;
     }
     print('is Public : ${gameData['isPublic']}');
     if (gameData['isPublic'] || yourGame) {

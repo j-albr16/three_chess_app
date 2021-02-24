@@ -229,8 +229,7 @@ class GameConversion {
     );
   }
 
-  static printEverything(
-      OnlineGame game, Player player, List<OnlineGame> games) {
+  static printGame(OnlineGame game) {
     print(
         '###########################################################################################');
     if (game != null) {
@@ -281,36 +280,6 @@ class GameConversion {
         print(' -> playerResponse:     ' + re.playerResponse?.toString());
         print(' -> moveIndex:     ' + re.moveIndex?.toString());
       });
-    }
-    if (player != null) {
-      print(
-          '=================================================================================================');
-      print(
-          'This Player:----------------------------------------------------------------------------------------');
-      print('playerColor: ');
-      print(player.playerColor);
-      print('remainingTime:   ' + player?.remainingTime?.toString());
-      print(
-          '---------------------------------------------------------------------------------------------------');
-      print(
-          'user:---------------------------------------------------------------------------------------------');
-      print(' -> id:          ' + player.user.id.toString());
-      print(' -> userName:    ' + player.user.userName.toString());
-      print(' -> score:       ' + player.user.score.toString());
-      print(
-          '=========================================================================================================');
-    }
-    if (games.isNotEmpty) {
-      print(
-          'games:------------------------------------------------------------------------------------------------');
-      for (game in games) {
-        print(
-            'a game:-----------------------------------------------------------------------------------------');
-        print(' -> id:        ' + game.id.toString());
-        print(' -> isRated:   ' + game.isRated.toString());
-        print(
-            '-----------------------------------------------------------------------------------------------');
-      }
     }
     print(
         '#####################################################################################################');

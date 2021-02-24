@@ -15,7 +15,7 @@ enum RequestType {
   TakeBack,
 }
 
-enum PopUpType { SnackBar, Invitation, Endgame }
+enum PopUpType { SnackBar, Invitation, Endgame , GameStarts}
 
 const Map<RequestType, String> requestTypeInterface = {
   RequestType.TakeBack: "Take Back",

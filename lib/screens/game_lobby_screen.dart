@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/screens/screen_bone.dart';
 import 'package:three_chess/widgets/basic/switch_row.dart';
 
 import '../widgets/chat.dart' as widget;
@@ -26,7 +27,8 @@ class GameLobbyScreen extends StatefulWidget {
   _GameLobbyScreenState createState() => _GameLobbyScreenState();
 }
 
-class _GameLobbyScreenState extends State<GameLobbyScreen> {
+class _GameLobbyScreenState extends State<GameLobbyScreen>
+    with notificationPort<GameLobbyScreen> {
   ThemeData theme;
   OnlineGame game;
 

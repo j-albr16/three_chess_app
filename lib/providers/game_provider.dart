@@ -525,7 +525,8 @@ class GameProvider with ChangeNotifier {
       int indexAfter = _onlineGames.length;
       print(
           'Finished Starting Online Game. Added ${indexAfter - indexFirst} online Games to _onlineGames');
-      notifyListeners();
+      GameConversion.printGame(newOnlineGame);
+      _popUpProvider.makePopUp[PopUpType.GameStarts]();
     }
   }
 

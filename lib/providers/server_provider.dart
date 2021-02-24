@@ -22,8 +22,8 @@ typedef void FriendRequest(Map<String, dynamic> friendData, String message);
 typedef void FriendAccept(Map<String, dynamic> data);
 typedef void FriendDecline(String message);
 typedef void FriendRemove(String userId, String message);
-typedef void FriendStatusUpdate(
-    String userId, bool isOnline, bool isActive, bool isPlaying);
+typedef void FriendStatusUpdate(String userId, bool isOnline, bool isActive,
+    bool isPlaying);
 typedef void GameInvitation(Map<String, dynamic> gameData);
 // OnlineGame Callbacks
 typedef void Move(Map<String, dynamic> chessMove, String gameId);
@@ -139,12 +139,11 @@ class ServerProvider with ChangeNotifier {
     });
   }
 
-  void subscribeToLobbyChannel(
-      {newGameCallback,
-      playerJoinedCallback,
-      updateIsReadyStatus,
-      removeGameCallback,
-      playerLeftCallback}) {
+  void subscribeToLobbyChannel({newGameCallback,
+    playerJoinedCallback,
+    updateIsReadyStatus,
+    removeGameCallback,
+    playerLeftCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
@@ -291,13 +290,12 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleLobbyChannelData(
-      {Map<String, dynamic> data,
-      NewGame newGameCallback,
-      RemoveGame removeGameCallback,
-      PlayerJoined playerJoinedCallback,
-      PlayerLeft playerLeftCallback,
-      UpdateIsReadyStatus updateIsReadyStatusCallback}) {
+  void _handleLobbyChannelData({Map<String, dynamic> data,
+    NewGame newGameCallback,
+    RemoveGame removeGameCallback,
+    PlayerJoined playerJoinedCallback,
+    PlayerLeft playerLeftCallback,
+    UpdateIsReadyStatus updateIsReadyStatusCallback}) {
     _handleSocketServerMessage(data['ident'], data['message'], data);
     switch (data['ident']) {
       case Method.HandleNewGame:
@@ -398,7 +396,11 @@ class ServerProvider with ChangeNotifier {
 
   void gameStartsNotifier(String gameId) {
     print('Notifying Game Ends Listener');
-    gameStartCbs[gameId](gameId);
+    GameStartsListener gameStartsListener = gameStartCbs[gameId];
+    if (gameStartsListener != null) {
+      print('Listener was found and will be executed');
+      gameStartsListener(gameId);
+    }
   }
 
 // ##############################################################################################
@@ -433,20 +435,21 @@ class ServerProvider with ChangeNotifier {
 
   List<Map<String, dynamic>> rebaseChessMoves(List<ChessMove> chessMoves) {
     return chessMoves
-        .map((chessMove) => {
-              'remainingTime': chessMove.remainingTime,
-              'initialTile': chessMove.initialTile,
-              'nextTile': chessMove.nextTile,
-            })
+        .map((chessMove) =>
+    {
+      'remainingTime': chessMove.remainingTime,
+      'initialTile': chessMove.initialTile,
+      'nextTile': chessMove.nextTile,
+    })
         .toList();
   }
 
-  Future<Map<String, dynamic>> saveGames(
-      OnlineGame localGame, OnlineGame analyzeGame) async {
+  Future<Map<String, dynamic>> saveGames(OnlineGame localGame,
+      OnlineGame analyzeGame) async {
     final List<Map<String, dynamic>> analyzeChessMoves =
-        rebaseChessMoves(analyzeGame.chessMoves);
+    rebaseChessMoves(analyzeGame.chessMoves);
     final List<Map<String, dynamic>> localChessMoves =
-        rebaseChessMoves(localGame.chessMoves);
+    rebaseChessMoves(localGame.chessMoves);
     final Map<String, dynamic> body = {
       'analyzeGame': {'chessMoves': analyzeChessMoves},
       'localGame': {
@@ -553,8 +556,8 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> updateIsReady(
-      bool isReady, String gameId) async {
+  Future<Map<String, dynamic>> updateIsReady(bool isReady,
+      String gameId) async {
     return await getSkeleton(
       url: SERVER_ADRESS + 'is-ready-status/$isReady/$gameId' + _authString,
       error: 'Is Ready Status',
@@ -577,15 +580,14 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> createGame(
-      {bool isPublic,
-      bool isRated,
-      int increment,
-      List<String> invitations,
-      int time,
-      bool allowPremades,
-      int negRatingRange,
-      int posRatingRange}) async {
+  Future<Map<String, dynamic>> createGame({bool isPublic,
+    bool isRated,
+    int increment,
+    List<String> invitations,
+    int time,
+    bool allowPremades,
+    int negRatingRange,
+    int posRatingRange}) async {
     final Map<String, dynamic> body = {
       'isPublic': isPublic,
       'isRated': isRated,
@@ -632,8 +634,8 @@ class ServerProvider with ChangeNotifier {
 
   // Running Game -------------------------------------------------------------
 
-  Future<Map<String, dynamic>> sendMove(
-      ChessMove chessMove, String gameId) async {
+  Future<Map<String, dynamic>> sendMove(ChessMove chessMove,
+      String gameId) async {
     return await postSkeleton(
       body: {
         'gameId': gameId,
@@ -724,8 +726,8 @@ class ServerProvider with ChangeNotifier {
         error: 'Decline Take Back');
   }
 
-  Future<Map<String, dynamic>> cancelRequest(
-      int requestType, String gameId) async {
+  Future<Map<String, dynamic>> cancelRequest(int requestType,
+      String gameId) async {
     return await postSkeleton(
         error: 'Cancel Request',
         url: SERVER_ADRESS + 'cancel-request/$gameId' + _authString,
@@ -810,8 +812,8 @@ class ServerProvider with ChangeNotifier {
         '------------------------------------------------------------------------------------------------');
   }
 
-  void _handleSocketServerMessage(
-      Method ident, String message, Map<String, dynamic> data) {
+  void _handleSocketServerMessage(Method ident, String message,
+      Map<String, dynamic> data) {
     if (methodsInProcess.contains(ident)) {
       print(
           'Received Socket Data------------------------------------------------------------------------------');

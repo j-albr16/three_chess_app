@@ -40,7 +40,9 @@ class MainPageViewerState extends State<MainPageViewer>
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initPage);
-    fetchAll(context);
+    Future.delayed(Duration.zero).then((_) {
+      fetchAll(context);
+    });
     //TODO REMOVE
     //print("########################################");
     //ConvertDataPrint.printNewBlackAndRedOrder();
@@ -50,25 +52,23 @@ class MainPageViewerState extends State<MainPageViewer>
   }
 
   static void fetchAll(BuildContext context) {
-    Future.delayed(Duration.zero).then((_) {
-      // Provider Init
-      GameProvider gameProvider =
-          Provider.of<GameProvider>(context, listen: false);
-      LobbyProvider lobbyProvider =
-          Provider.of<LobbyProvider>(context, listen: false);
-      FriendsProvider friendsProvider =
-          Provider.of<FriendsProvider>(context, listen: false);
-      UserProvider userProvider =
-          Provider.of<UserProvider>(context, listen: false);
-      // Game Fetching
-      gameProvider.fetchOnlineGames();
-      lobbyProvider.fetchPendingGames();
-      lobbyProvider.fetchLobbyGames();
-      // Friends
-      friendsProvider.fetchFriends();
-      friendsProvider.fetchInvitations();
-      userProvider.fetchUser();
-    });
+    // Provider Init
+    GameProvider gameProvider =
+        Provider.of<GameProvider>(context, listen: false);
+    LobbyProvider lobbyProvider =
+        Provider.of<LobbyProvider>(context, listen: false);
+    FriendsProvider friendsProvider =
+        Provider.of<FriendsProvider>(context, listen: false);
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    // Game Fetching
+    gameProvider.fetchOnlineGames();
+    lobbyProvider.fetchPendingGames();
+    lobbyProvider.fetchLobbyGames();
+    // Friends
+    friendsProvider.fetchFriends();
+    friendsProvider.fetchInvitations();
+    userProvider.fetchUser();
   }
 
   @override

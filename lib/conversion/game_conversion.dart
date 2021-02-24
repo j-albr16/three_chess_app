@@ -74,8 +74,6 @@ class GameConversion {
     game.player = convPlayer;
     game.chessMoves = chessMoves;
     List<Request> convRequests = [];
-    print('Raw Data of Requests');
-    print(gameData['requests']);
     gameData['requests']?.forEach(
         (request) => convRequests.add(rebaseOneRequest(request, game)));
     // returns the converted OnlineGame
@@ -143,6 +141,7 @@ class GameConversion {
     return new Player(
       isOnline: userData['status']['isOnline'] ?? true,
       isActive: userData['status']['isActive'] ?? true,
+      isReady: playerData['isReady'] ?? false,
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: rebaseOneUser(userData),

@@ -80,41 +80,9 @@ class GameProvider with ChangeNotifier {
         gameStartsCallback: (gameData) => _handleGameStarts(gameData));
   }
 
-  void subscribeToGameChannel() {
-    print('Did Subscribe to OnlineGame Lobby Channel');
-    _serverProvider.subscribeToGameChannel(
-      gameId: onlineGame.id,
-      // TODO
-      moveMadeCallback: (moveData, gameId) => _handleMoveData(moveData, gameId),
-      requestCancelledCallback: (data, gameId) =>
-          _handleRequestCancelled(data, gameId),
-      remiAcceptCallback: (userId, gameId) => _handleRemiAccept(userId, gameId),
-      remiDeclineCallback: (userId, gameId) =>
-          _handleRemiDecline(userId, gameId),
-      remiRequestCallback: (userId, chessMove, gameId) =>
-          _handleRemiRequest(userId, chessMove, gameId),
-      surrenderDeclineCallback: (userId, gameId) =>
-          _handleSurrenderDecline(userId, gameId),
-      surrenderRequestCallback: (userId, chessMove, gameId) =>
-          _handleSurrenderRequest(userId, chessMove, gameId),
-      takeBackAcceptCallback: (userId, gameId) =>
-          _handleTakeBackAccept(userId, gameId),
-      takeBackDeclineCallback: (userId, gameId) =>
-          _handleTakeBackDecline(userId, gameId),
-      takeBackRequestCallback: (userId, chessMove, gameId) =>
-          _handleTakeBackRequest(userId, chessMove, gameId),
-      takenBackCallback: (userId, chessMove, gameId) =>
-          _handleTakenBack(userId, chessMove, gameId),
-      gameFinishedCallback: (data, gameId) => _handleGameFinished(data, gameId),
-      surrenderFailedCallback: (gameId) => _handleSurrenderFailed(gameId),
-      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
-      playerIsOfflineCallback: (userId, expiryDate) =>
-          _handlePlayerIsOffline(userId, expiryDate),
-    );
-  }
-
   void setGameId(String gameId, {bool notify}) {
     currentGameId = gameId;
+    subscribeToGameChannel();
     if (notify) {
       notifyListeners();
     }
@@ -321,6 +289,39 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  void subscribeToGameChannel() {
+    print('Did Subscribe to OnlineGame Lobby Channel');
+    _serverProvider.subscribeToGameChannel(
+      gameId: onlineGame.id,
+      // TODO
+      moveMadeCallback: (moveData, gameId) => _handleMoveData(moveData, gameId),
+      requestCancelledCallback: (data, gameId) =>
+          _handleRequestCancelled(data, gameId),
+      remiAcceptCallback: (userId, gameId) => _handleRemiAccept(userId, gameId),
+      remiDeclineCallback: (userId, gameId) =>
+          _handleRemiDecline(userId, gameId),
+      remiRequestCallback: (userId, chessMove, gameId) =>
+          _handleRemiRequest(userId, chessMove, gameId),
+      surrenderDeclineCallback: (userId, gameId) =>
+          _handleSurrenderDecline(userId, gameId),
+      surrenderRequestCallback: (userId, chessMove, gameId) =>
+          _handleSurrenderRequest(userId, chessMove, gameId),
+      takeBackAcceptCallback: (userId, gameId) =>
+          _handleTakeBackAccept(userId, gameId),
+      takeBackDeclineCallback: (userId, gameId) =>
+          _handleTakeBackDecline(userId, gameId),
+      takeBackRequestCallback: (userId, chessMove, gameId) =>
+          _handleTakeBackRequest(userId, chessMove, gameId),
+      takenBackCallback: (userId, chessMove, gameId) =>
+          _handleTakenBack(userId, chessMove, gameId),
+      gameFinishedCallback: (data, gameId) => _handleGameFinished(data, gameId),
+      surrenderFailedCallback: (gameId) => _handleSurrenderFailed(gameId),
+      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
+      playerIsOfflineCallback: (userId, expiryDate) =>
+          _handlePlayerIsOffline(userId, expiryDate),
+    );
+  }
+
   void _handlePlayerIsOnline(String userId) {
     _onlineGames.forEach((game) {
       Player player = game.player
@@ -511,12 +512,19 @@ class GameProvider with ChangeNotifier {
 
   void _handleGameStarts(Map<String, dynamic> gameData) {
     if (!_onlineGames.map((e) => e.id).toList().contains(gameData['_id'])) {
+      int indexFirst = _onlineGames.length;
       OnlineGame newOnlineGame = GameConversion.rebaseOnlineGame(
           gameData: gameData,
           playerData: gameData['player'],
           userData: gameData['user']);
       _onlineGames.add(newOnlineGame);
-      _serverProvider.gameStartsNotifier(newOnlineGame.id);
+      if (gameData['immediateJoinUser'] != _serverProvider.userId) {
+        _serverProvider.gameStartsNotifier(newOnlineGame.id);
+        _serverProvider.removeGameListener(newOnlineGame.id);
+      }
+      int indexAfter = _onlineGames.length;
+      print(
+          'Finished Starting Online Game. Added ${indexAfter - indexFirst} online Games to _onlineGames');
       notifyListeners();
     }
   }

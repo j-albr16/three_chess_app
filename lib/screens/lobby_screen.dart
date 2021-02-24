@@ -95,13 +95,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     gameProvider: Provider.of<GameProvider>(context),
                     onGameTap: (game) {
                       Provider.of<LobbyProvider>(context, listen: false)
-                          .joinGame(game.id)
-                          .then((valid) {
-                        if (valid) {
-                          Navigator.of(context)
-                              .pushNamed(GameLobbyScreen.routeName);
-                        }
-                      });
+                          .joinGame(game.id, context);
                     },
                   ),
                 ),

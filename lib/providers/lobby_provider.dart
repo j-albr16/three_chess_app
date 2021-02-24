@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:three_chess/screens/board_screen.dart';
+import 'package:three_chess/screens/main_page_viewer.dart';
 
 import '../models/online_game.dart';
 import '../providers/server_provider.dart';
@@ -31,7 +33,7 @@ class LobbyProvider with ChangeNotifier {
           (lobbyGame) => lobbyGame.id == currentPendingGame,
           orElse: () => null);
     } else {
-      print('No Lobby Games Or No Current Lobby OnlineGame Picked');
+      print('No Lobby Games Or No Current Lobby OnlineGame Picked | Lobby Provider');
       return null;
     }
   }
@@ -212,22 +214,32 @@ class LobbyProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> joinGame(String gameId) async {
+  Future<void> joinGame(String gameId, BuildContext context) async {
     print('Try to Start Joining OnlineGame');
     try {
       // http request
       final Map<String, dynamic> data = await _serverProvider.joinGame(gameId);
-      final Map gameData = data['gameData'];
-      String gId = gameData['_id'];
-      final List playerData = gameData['player'];
-      final List userData = gameData['user'];
-      _pendingGames.add(GameConversion.rebaseOnlineGame(
-          userData: userData, playerData: playerData, gameData: gameData));
-      startGameListener(gId);
-      _lobbyGames.removeWhere((game) => game.id == gId);
-      currentPendingGame = gameId;
-      print('Successfully Joined OnlineGame');
-      return data['valid'] as bool;
+      bool  didStart = data['gameData']['didStart'] ??  false;
+      if (didStart) {
+        print('Joined Online Game. Game is Full and Will start now');
+        Navigator.of(context)
+            .pushNamed(BoardScreen.routeName);
+      } else {
+
+        // Create and Convert Game
+        final Map gameData = data['gameData'];
+        String gId = gameData['_id'];
+        final List playerData = gameData['player'];
+        final List userData = gameData['user'];
+        _pendingGames.add(GameConversion.rebaseOnlineGame(
+            userData: userData, playerData: playerData, gameData: gameData));
+
+        startGameListener(gId);
+        _lobbyGames.removeWhere((game) => game.id == gId);
+        currentPendingGame = gameId;
+        print('Successfully Joined OnlineGame');
+        Navigator.of(context).pushNamed(GameLobbyScreen.routeName);
+      }
     } catch (error) {
       _serverProvider.handleError('Error while joining OnlineGame', error);
       return false;

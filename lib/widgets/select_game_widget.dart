@@ -33,9 +33,13 @@ class SelectGame extends StatelessWidget {
   });
 
   Color get shadowColor {
-      return currentGameIndex == gameIndex
+      return isSelected
           ? theme.colorScheme.secondary
           : Colors.black26;
+  }
+
+  bool get isSelected{
+    return currentGameIndex == gameIndex;
   }
 
   Widget boardWidget(List<Piece> currentBoard) {
@@ -44,7 +48,7 @@ class SelectGame extends StatelessWidget {
     );
   }
 
-  Widget boardImage(Size size, ThemeData theme) {
+  Widget boardImage(Size size) {
     return Center(
       child: Container(
         height: size.height,
@@ -56,9 +60,7 @@ class SelectGame extends StatelessWidget {
         ),
         child: FittedBox(
           fit: BoxFit.none,
-          child: game != null
-              ? boardWidget(game.startingBoard)
-              : Text('No Image', style: theme.textTheme.bodyText1),
+          child: boardWidget(game.startingBoard),
         ),
       ),
     );
@@ -69,7 +71,7 @@ class SelectGame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text('Time', style: theme.textTheme.bodyText1),
+        Text('Time', style: theme.textTheme.bodyText1,),
         Text('Increment', style: theme.textTheme.bodyText1)
       ],
     );
@@ -112,10 +114,10 @@ class SelectGame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        if (game.runtimeType is LocalGame) // || game.runtimeType is AnalyzeGame)
+        if (game is LocalGame) // || game.runtimeType is AnalyzeGame)
           Text(gameTypeString[game.gameType] + ' Game',
               style: theme.textTheme.subtitle1),
-        if (game.runtimeType is OnlineGame) onlineGameInfo(),
+        if (game is OnlineGame) onlineGameInfo(),
       ],
     );
   }
@@ -126,7 +128,8 @@ class SelectGame extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     return GestureDetector(
-      onTap: confirmGame,
+      onTap: () => gameIndexCall(gameIndex),
+      onDoubleTap: confirmGame,
       child: SurroundingCard(
         height: size.height * 0.20,
         shadowColor: shadowColor,
@@ -134,7 +137,7 @@ class SelectGame extends StatelessWidget {
           children: [
             Flexible(
                 child: boardImage(
-                    Size(size.width * 0.35, size.height * 0.16), theme),
+                    Size(size.width * 0.35, size.height * 0.16)),
                 flex: 1),
             Flexible(child: gameInfo(theme), flex: 1)
           ],

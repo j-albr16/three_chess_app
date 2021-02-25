@@ -61,10 +61,10 @@ enum HowGameEnded {
 enum GameType { Local, Analyze, Online, Pending }
 
 const Map<GameType, String> gameTypeInterface = {
-  GameType.Online: 'onlineGames',
-  GameType.Analyze: 'analyzeGames',
-  GameType.Local: 'localGames',
-  GameType.Pending: 'pendingGames',
+  GameType.Online: 'onlineGame',
+  GameType.Analyze: 'analyzeGame',
+  GameType.Local: 'localGame',
+  GameType.Pending: 'pendingGame',
 };
 
 const Map<GameType, String> gameTypeString = {

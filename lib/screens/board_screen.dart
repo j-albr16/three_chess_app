@@ -97,7 +97,7 @@ class _BoardScreenState extends State<BoardScreen> {
         builder: (context, screenHeight, screenWidth, sy, sx) {
       return Consumer<CurrentGamesProvider>(
         builder: (context, currentGamesProvider, child) {
-          print(currentGamesProvider.games.where((e) => e.runtimeType == LocalGame).isNotEmpty);
+          print(currentGamesProvider.games.where((e) => e is LocalGame).isNotEmpty);
           return BoardStateSelector(
             controller: controller,
             width: screenWidth,

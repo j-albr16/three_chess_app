@@ -95,7 +95,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     gameProvider: Provider.of<GameProvider>(context),
                     onGameTap: (game) {
                       Provider.of<LobbyProvider>(context, listen: false)
-                          .joinGame(game.id, context);
+                          .joinGame(game.id);
                     },
                   ),
                 ),

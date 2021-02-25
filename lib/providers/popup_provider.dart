@@ -132,7 +132,7 @@ class PopupProvider with ChangeNotifier {
                 accept: () {
                   LobbyProvider gProvider =
                       Provider.of<LobbyProvider>(context, listen: false);
-                  gProvider.joinGame(game.id, context);
+                  gProvider.joinGame(game.id);
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,

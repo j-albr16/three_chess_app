@@ -19,7 +19,7 @@ class _InvitationScreenState extends State<InvitationScreen>
     with notificationPort<InvitationScreen> {
   void acceptInvitation(String gameId) {
     Provider.of<LobbyProvider>(context, listen: false)
-        .joinGame(gameId, context);
+        .joinGame(gameId);
   }
 
   bool deleteAll = false;

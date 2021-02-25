@@ -458,7 +458,7 @@ BoardStateBone cloneBones(){
       ),
       //#endregions
       //#endregion
-    ].forEach((piece) {pieces[piece.position] = piece;});
+    ].forEach((piece) {classicStartingBoard[piece.position] = piece;});
 
     return classicStartingBoard;
   }

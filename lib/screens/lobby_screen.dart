@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_scale/relative_scale.dart';
+import 'package:three_chess/screens/game_lobby_screen.dart';
 
 import '../providers/game_provider.dart';
 import '../providers/lobby_provider.dart';
@@ -94,13 +95,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     gameProvider: Provider.of<GameProvider>(context),
                     onGameTap: (game) {
                       Provider.of<LobbyProvider>(context, listen: false)
-                          .joinGame(game.id)
-                          .then((valid) {
-                        if (valid) {
-                          Navigator.of(context)
-                              .pushNamed(BoardScreen.routeName);
-                        }
-                      });
+                          .joinGame(game.id, context);
                     },
                   ),
                 ),

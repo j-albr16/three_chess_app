@@ -20,6 +20,7 @@ typedef PopUp EndGamePopUp(
     {OnlineGame onlineGame, Player player, Function removeGameCallback});
 typedef PopUp InvitationPopUp(OnlineGame onlineGame);
 typedef PopUp SnackBarPopUp(String text);
+typedef PopUp GameStarts();
 
 class PopupProvider with ChangeNotifier {
   FriendsProvider _friendsProvider;
@@ -43,15 +44,23 @@ class PopupProvider with ChangeNotifier {
       PopUpType.Invitation: (OnlineGame onlineGame) =>
           makeInvitationPopup(onlineGame) as InvitationPopUp,
       PopUpType.SnackBar: (String text) => makeSnackBar(text) as SnackBarPopUp,
+      PopUpType.GameStarts: () => gameStarts(),
     };
   }
 
   void displayPopup(BuildContext context) {
     if (hasPopup) {
+      print('Displaying PopUp');
       _popUp(context);
       _popUp = null;
       hasPopup = false;
     }
+  }
+
+  void gameStarts() {
+    _popUp = (BuildContext context) =>
+        Navigator.of(context).pushNamed(BoardScreen.routeName);
+    hasPopup = true;
   }
 
   void makeEndGamePopup(
@@ -123,11 +132,7 @@ class PopupProvider with ChangeNotifier {
                 accept: () {
                   LobbyProvider gProvider =
                       Provider.of<LobbyProvider>(context, listen: false);
-                  gProvider.joinGame(game.id).then((valid) {
-                    if (valid) {
-                      Navigator.of(context).pushNamed(BoardScreen.routeName);
-                    }
-                  });
+                  gProvider.joinGame(game.id, context);
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,

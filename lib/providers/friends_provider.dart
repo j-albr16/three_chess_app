@@ -65,10 +65,8 @@ class FriendsProvider with ChangeNotifier {
       friendRequestCallback: (friendData, message) =>
           _handleFriendRequest(friendData, message),
       increaseNewMessageCounterCallback: (userId) => _handleNewMessage(userId),
-      friendIsAfkCallback: (userId) => _handleFriendIsAfk(userId),
-      friendIsOnlineCallback: (userId) => _handleFriendIsOnline(userId),
-      friendIsNotPlayingCallback: (userId) => _handleFriendIsNotPlaying(userId),
-      friendIsPlayingCallback: (userId) => _handleFriendIsPlaying(userId),
+      friendStatusUpdateCallback: (userId, isOnline, isActive, isPlaying) =>
+          _handleFriendStatusUpdate(userId, isOnline, isActive, isPlaying),
       gameInvitationCallback: (gameData) => _handleGameInvitation(gameData),
     );
   }
@@ -92,7 +90,7 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> fetchInvitations() async {
     print('Fetching Invitations');
-    String message = 'An Erro Ocured. Sry';
+    String message = 'An Error Occurred. Sry';
     try {
       final Map<String, dynamic> data =
           await _serverProvider.fetchInvitations();
@@ -108,7 +106,6 @@ class FriendsProvider with ChangeNotifier {
           print(userData);
           _invitations.add(GameConversion.rebaseLobbyGame(
               gameData: gameData, playerData: playerData, userData: userData));
-          GameConversion.printEverything(null, null, _invitations);
           notifyListeners();
         });
       }
@@ -251,20 +248,6 @@ class FriendsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleFriendIsPlaying(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend?.isPlaying = true;
-    notifyListeners();
-  }
-
-  void _handleFriendIsNotPlaying(String userId) {
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend?.isPlaying = false;
-    notifyListeners();
-  }
-
   void resetNewMessages(String chatId) {
     Friend friend = _friends.firstWhere((friend) => friend.chatId == chatId,
         orElse: () => null);
@@ -283,21 +266,15 @@ class FriendsProvider with ChangeNotifier {
     }
   }
 
-  void _handleFriendIsOnline(String userId) {
-    // print('Handling Friend is Online');
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
+  void _handleFriendStatusUpdate(
+      String userId, bool isOnline, bool isActive, bool isPlaying) {
+    Friend friend =
+        _friends.firstWhere((f) => f.user.id == userId, orElse: () => null);
     if (friend != null) {
-      friend.isOnline = true;
+      friend.isOnline = isOnline;
+      friend.isActive = isActive;
+      friend.isPlaying = isPlaying;
+      notifyListeners();
     }
-    notifyListeners();
-  }
-
-  void _handleFriendIsAfk(String userId) {
-    print('Handle Friend is AFK');
-    Friend friend = _friends.firstWhere((friend) => friend.user.id == userId,
-        orElse: () => null);
-    friend.isOnline = false;
-    notifyListeners();
   }
 }

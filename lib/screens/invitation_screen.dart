@@ -19,10 +19,7 @@ class _InvitationScreenState extends State<InvitationScreen>
     with notificationPort<InvitationScreen> {
   void acceptInvitation(String gameId) {
     Provider.of<LobbyProvider>(context, listen: false)
-        .joinGame(gameId)
-        .then((_) {
-      Navigator.of(context).pop();
-    });
+        .joinGame(gameId, context);
   }
 
   bool deleteAll = false;
@@ -37,7 +34,7 @@ class _InvitationScreenState extends State<InvitationScreen>
       body: Container(
         child: Consumer<FriendsProvider>(
           builder: (ctx, friendsProvider, __) => SingleChildScrollView(
-                      child: Column(
+            child: Column(
               children: [
                 InvitationHead(
                   deleteAll: deleteAll,

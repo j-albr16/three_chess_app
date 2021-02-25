@@ -74,8 +74,6 @@ class GameConversion {
     game.player = convPlayer;
     game.chessMoves = chessMoves;
     List<Request> convRequests = [];
-    print('Raw Data of Requests');
-    print(gameData['requests']);
     gameData['requests']?.forEach(
         (request) => convRequests.add(rebaseOneRequest(request, game)));
     // returns the converted OnlineGame
@@ -141,7 +139,9 @@ class GameConversion {
 
   static Player rebaseOnePlayer({playerData, userData}) {
     return new Player(
-      isOnline: userData['isPlaying'] ?? true,
+      isOnline: userData['status']['isOnline'] ?? true,
+      isActive: userData['status']['isActive'] ?? true,
+      isReady: playerData['isReady'] ?? false,
       playerColor: PlayerColor.values[playerData['playerColor']],
       remainingTime: playerData['remainingTime'],
       user: rebaseOneUser(userData),
@@ -186,7 +186,7 @@ class GameConversion {
   static void validation(data) {
     // input: receives a bool as decoded JSON Object __> mainly res.json(valid)
     // output : Return whether this bool is true or false
-    // Checks whether Data was even recieved
+    // Checks whether Data was even received
     if (data == null) {
       throw ('No Data was received ... Data is equal to NULL');
     }
@@ -205,7 +205,7 @@ class GameConversion {
     player.forEach((p) {
       final Map<String, dynamic> user =
           users?.firstWhere((u) => p['userId'] == u['_id'], orElse: () => null);
-      // returns user object where player-userId and user.id are qual
+      // returns user object where player-userId and user.id are equal
       convPlayer.add(rebaseOnePlayer(
         playerData: p,
         userData: user,
@@ -229,8 +229,7 @@ class GameConversion {
     );
   }
 
-  static printEverything(
-      OnlineGame game, Player player, List<OnlineGame> games) {
+  static printGame(OnlineGame game) {
     print(
         '###########################################################################################');
     if (game != null) {
@@ -281,36 +280,6 @@ class GameConversion {
         print(' -> playerResponse:     ' + re.playerResponse?.toString());
         print(' -> moveIndex:     ' + re.moveIndex?.toString());
       });
-    }
-    if (player != null) {
-      print(
-          '=================================================================================================');
-      print(
-          'This Player:----------------------------------------------------------------------------------------');
-      print('playerColor: ');
-      print(player.playerColor);
-      print('remainingTime:   ' + player?.remainingTime?.toString());
-      print(
-          '---------------------------------------------------------------------------------------------------');
-      print(
-          'user:---------------------------------------------------------------------------------------------');
-      print(' -> id:          ' + player.user.id.toString());
-      print(' -> userName:    ' + player.user.userName.toString());
-      print(' -> score:       ' + player.user.score.toString());
-      print(
-          '=========================================================================================================');
-    }
-    if (games.isNotEmpty) {
-      print(
-          'games:------------------------------------------------------------------------------------------------');
-      for (game in games) {
-        print(
-            'a game:-----------------------------------------------------------------------------------------');
-        print(' -> id:        ' + game.id.toString());
-        print(' -> isRated:   ' + game.isRated.toString());
-        print(
-            '-----------------------------------------------------------------------------------------------');
-      }
     }
     print(
         '#####################################################################################################');

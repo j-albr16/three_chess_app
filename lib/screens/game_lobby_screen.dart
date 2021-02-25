@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/screens/screen_bone.dart';
 import 'package:three_chess/widgets/basic/switch_row.dart';
 
 import '../widgets/chat.dart' as widget;
@@ -26,7 +27,8 @@ class GameLobbyScreen extends StatefulWidget {
   _GameLobbyScreenState createState() => _GameLobbyScreenState();
 }
 
-class _GameLobbyScreenState extends State<GameLobbyScreen> {
+class _GameLobbyScreenState extends State<GameLobbyScreen>
+    with notificationPort<GameLobbyScreen> {
   ThemeData theme;
   OnlineGame game;
 
@@ -63,7 +65,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   Future<void> getChat() {
     if (!_wasInit) {
-      Provider.of<ChatProvider>(context, listen: false)
+      return Provider.of<ChatProvider>(context, listen: false)
           .selectChatRoom(
               chatType: ChatType.Lobby,
               context: context,
@@ -72,6 +74,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 _wasInit = true;
               }));
     }
+    return null;
   }
 
   Widget optionsWidget(ThemeData theme) {
@@ -260,32 +263,36 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         appBar: AppBar(
           title: Text('Game Lobby'),
         ),
-        body: Container(
-          child: Column(
-            children: <Widget>[
-              Expanded(child: mainLobbyWidget()),
-              FutureBuilder(
-                  future: getChat(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      SnackBar snackBar = SnackBar(
-                          content: Text('Could not retrieve Chat'),
-                          duration: Duration(seconds: 2));
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      return Text('No Chat');
-                    } else {
-                      return Consumer<ChatProvider>(
-                          builder: (context, chatP, child) =>
-                              chatWidget(chatP.chat, theme, size.height * 0.4));
-                    }
-                  }),
-              bottomButtons(theme),
-            ],
-          ),
-        ),
+        body: game == null
+            ? Center(child: CircularProgressIndicator())
+            : Container(
+                child: Column(
+                  children: <Widget>[
+                    Expanded(child: mainLobbyWidget()),
+                    FutureBuilder(
+                        future: getChat(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            SnackBar snackBar = SnackBar(
+                                content: Text('Could not retrieve Chat'),
+                                duration: Duration(seconds: 2));
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                            return Text('No Chat');
+                          } else {
+                            return Consumer<ChatProvider>(
+                                builder: (context, chatP, child) => chatWidget(
+                                    chatP.chat, theme, size.height * 0.4));
+                          }
+                        }),
+                    bottomButtons(theme),
+                  ],
+                ),
+              ),
       ),
     );
   }

@@ -82,7 +82,7 @@ class _BoardScreenState extends State<BoardScreen> {
     });
   }
 
-  void _selectGame(newIndex,  ) {
+  void _selectGame(newIndex) {
     setState(() {
       gameIndex =  newIndex;
     });
@@ -97,10 +97,6 @@ class _BoardScreenState extends State<BoardScreen> {
         builder: (context, screenHeight, screenWidth, sy, sx) {
       return Consumer<CurrentGamesProvider>(
         builder: (context, currentGamesProvider, child) {
-
-          print("Hey this is what i got:");
-          print(currentGamesProvider.games);
-          print("Is a game local");
           print(currentGamesProvider.games.where((e) => e.runtimeType == LocalGame).isNotEmpty);
           return BoardStateSelector(
             controller: controller,

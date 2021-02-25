@@ -114,8 +114,7 @@ class ThreeChessApp extends StatelessWidget {
                   previousLocalProvider..update()), // TODO not implemented
           ChangeNotifierProxyProvider2<GameProvider, LocalProvider,
                   CurrentGamesProvider>(
-              create: (_) => CurrentGamesProvider(
-              ),
+              create: (_) => CurrentGamesProvider(),
               update: (_, gameProvider, localProvider, currentGamesProvider) =>
                   currentGamesProvider
                     ..update(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:three_chess/screens/board_screen.dart';
 
 import '../models/chess_move.dart';
 import '../models/enums.dart';
@@ -52,6 +53,12 @@ class _DesignTestScreenState extends State<DesignTestScreen>
       appBar: AppBar(),
       body: ListView(
         children: <Widget>[
+          testButtonBar(
+            text: 'Navigate To exact Page',
+            callback: () =>
+                Navigator.of(context).pushNamed(BoardScreen.routeName),
+            color: Colors.brown,
+          ),
           // Invitations(
           //   acceptInvitation: (String gameId) =>
           //       print('Accept Invitation to ' + gameId),

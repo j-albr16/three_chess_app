@@ -12,7 +12,6 @@ const Map<int, IconData> iconInterface = {
 typedef void SelectLobby(String gameId, BuildContext context);
 
 class LobbySelect extends StatelessWidget {
-
   static getTimeString(int time, int increment) {
     int average = time * 60 + increment * 30;
     if (average < 3 * 60) {
@@ -24,16 +23,14 @@ class LobbySelect extends StatelessWidget {
     if (average < 10 * 60) {
       return 'Rapid';
     }
-    if (average < 15 * 60) {
-      return 'Classic';
-    }
+    return 'Classic';
   }
 
   final SelectLobby selectLobbyCall;
   final List<OnlineGame> onlineGames;
   final Size size;
 
-  LobbySelect({this.onlineGames,this.size, this.selectLobbyCall});
+  LobbySelect({this.onlineGames, this.size, this.selectLobbyCall});
 
   Widget lobbyGameTile(
       {ThemeData theme, OnlineGame onlineGame, BuildContext context}) {
@@ -71,9 +68,11 @@ class LobbySelect extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text(onlineGame.player[0].user.userName,
+        Text(onlineGame.player[0].user.userName ?? 'Null String',
             style: theme.textTheme.subtitle1),
-        Text(getTimeString(onlineGame.time, onlineGame.increment),
+        Text(
+            getTimeString(onlineGame.time, onlineGame.increment) ??
+                'Null String',
             style: theme.textTheme.bodyText1),
       ],
     );
@@ -87,8 +86,8 @@ class LobbySelect extends StatelessWidget {
             context: context, onlineGame: onlineGame, theme: theme))
         .toList();
     return AlertDialog(
-      titlePadding: EdgeInsets.all(10),
-        title: Text('Game Lobbies',style:   theme.textTheme.subtitle1),
+        titlePadding: EdgeInsets.all(10),
+        title: Text('Game Lobbies', style: theme.textTheme.subtitle1),
         contentPadding: EdgeInsets.all(5),
         content: Container(
           height: size.height * 0.9,

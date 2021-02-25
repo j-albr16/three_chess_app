@@ -18,14 +18,6 @@ import '../providers/popup_provider.dart';
 
 const String SERVER_URL = SERVER_ADRESS;
 
-const printCreateGame = true;
-const printJoinGame = true;
-const printFetchGame = true;
-const printFetchGameRawData = true;
-const printFetchGames = false;
-const printGameSocket = true;
-const printGameMove = true;
-
 class GameProvider with ChangeNotifier {
   String _userId = constUserId;
   bool _wasInit = false;
@@ -88,41 +80,9 @@ class GameProvider with ChangeNotifier {
         gameStartsCallback: (gameData) => _handleGameStarts(gameData));
   }
 
-  void subscribeToGameChannel() {
-    print('Did Subscribe to OnlineGame Lobby Channel');
-    _serverProvider.subscribeToGameChannel(
-      gameId: onlineGame.id,
-      // TODO
-      moveMadeCallback: (moveData, gameId) => _handleMoveData(moveData, gameId),
-      requestCancelledCallback: (data, gameId) =>
-          _handleRequestCancelled(data, gameId),
-      remiAcceptCallback: (userId, gameId) => _handleRemiAccept(userId, gameId),
-      remiDeclineCallback: (userId, gameId) =>
-          _handleRemiDecline(userId, gameId),
-      remiRequestCallback: (userId, chessMove, gameId) =>
-          _handleRemiRequest(userId, chessMove, gameId),
-      surrenderDeclineCallback: (userId, gameId) =>
-          _handleSurrenderDecline(userId, gameId),
-      surrenderRequestCallback: (userId, chessMove, gameId) =>
-          _handleSurrenderRequest(userId, chessMove, gameId),
-      takeBackAcceptCallback: (userId, gameId) =>
-          _handleTakeBackAccept(userId, gameId),
-      takeBackDeclineCallback: (userId, gameId) =>
-          _handleTakeBackDecline(userId, gameId),
-      takeBackRequestCallback: (userId, chessMove, gameId) =>
-          _handleTakeBackRequest(userId, chessMove, gameId),
-      takenBackCallback: (userId, chessMove, gameId) =>
-          _handleTakenBack(userId, chessMove, gameId),
-      gameFinishedCallback: (data, gameId) => _handleGameFinished(data, gameId),
-      surrenderFailedCallback: (gameId) => _handleSurrenderFailed(gameId),
-      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
-      playerIsOfflineCallback: (userId, expiryDate) =>
-          _handlePlayerIsOffline(userId, expiryDate),
-    );
-  }
-
   void setGameId(String gameId, {bool notify}) {
     currentGameId = gameId;
+    subscribeToGameChannel();
     if (notify) {
       notifyListeners();
     }
@@ -175,7 +135,10 @@ class GameProvider with ChangeNotifier {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.fetchOnlineGames();
+      int amount = data['gameData']['games']?.length;
+      print('Fetched $amount Online Games');
       _onlineGames = GameConversion.rebaseOnlineGames(data);
+      print('${_onlineGames.length} were converted');
     } catch (error) {
       _serverProvider.handleError('Error While Fetching Online Games', error);
     }
@@ -196,7 +159,6 @@ class GameProvider with ChangeNotifier {
   Future<void> acceptSurrender() async {
     String message = 'Could not Accept Surrender';
     try {
-      print('Accept Surrender ');
       message = await _serverProvider.acceptSurrender(currentGameId);
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Surrender', error);
@@ -209,7 +171,6 @@ class GameProvider with ChangeNotifier {
   Future<void> declineSurrender() async {
     String message = 'Could not Decline Surrender';
     try {
-      print('Decline Surrender');
       Map<String, dynamic> data =
           await _serverProvider.declineSurrender(currentGameId);
       message = data['message'];
@@ -236,7 +197,6 @@ class GameProvider with ChangeNotifier {
   Future<void> acceptRemi() async {
     String message = 'Could not Accept Remi';
     try {
-      print('Accept Remi');
       message = await _serverProvider.acceptRemi(currentGameId);
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Remi', error);
@@ -249,7 +209,6 @@ class GameProvider with ChangeNotifier {
   Future<void> declineRemi() async {
     String message = 'Could not Decline Remi';
     try {
-      print('Decline Remi');
       Map<String, dynamic> data =
           await _serverProvider.declineRemi(currentGameId);
       message = data['message'];
@@ -276,7 +235,6 @@ class GameProvider with ChangeNotifier {
   Future<void> acceptTakeBack() async {
     String message = 'Could not Accept Take Back';
     try {
-      print('Accept Take Back');
       message = await _serverProvider.acceptTakeBack(currentGameId);
     } catch (error) {
       _serverProvider.handleError('Error while accepting Take Back', error);
@@ -289,7 +247,6 @@ class GameProvider with ChangeNotifier {
   Future<void> declineTakeBack() async {
     String message = 'Could not Decline Take Back';
     try {
-      print('Decline Take Back');
       Map<String, dynamic> data =
           await _serverProvider.declineTakeBack(currentGameId);
       message = data['message'];
@@ -316,7 +273,6 @@ class GameProvider with ChangeNotifier {
       Map<String, dynamic> data =
           await _serverProvider.cancelRequest(requestType.index, currentGameId);
       message = data['message'];
-      print(message);
       if (data['didRemove']) {
         _onlineGames[getGameIndex(currentGameId)].requests.removeWhere(
             (request) =>
@@ -331,6 +287,39 @@ class GameProvider with ChangeNotifier {
       _popUpProvider.makePopUp[PopUpType.SnackBar](message);
       notifyListeners();
     }
+  }
+
+  void subscribeToGameChannel() {
+    print('Did Subscribe to OnlineGame Lobby Channel');
+    _serverProvider.subscribeToGameChannel(
+      gameId: onlineGame.id,
+      // TODO
+      moveMadeCallback: (moveData, gameId) => _handleMoveData(moveData, gameId),
+      requestCancelledCallback: (data, gameId) =>
+          _handleRequestCancelled(data, gameId),
+      remiAcceptCallback: (userId, gameId) => _handleRemiAccept(userId, gameId),
+      remiDeclineCallback: (userId, gameId) =>
+          _handleRemiDecline(userId, gameId),
+      remiRequestCallback: (userId, chessMove, gameId) =>
+          _handleRemiRequest(userId, chessMove, gameId),
+      surrenderDeclineCallback: (userId, gameId) =>
+          _handleSurrenderDecline(userId, gameId),
+      surrenderRequestCallback: (userId, chessMove, gameId) =>
+          _handleSurrenderRequest(userId, chessMove, gameId),
+      takeBackAcceptCallback: (userId, gameId) =>
+          _handleTakeBackAccept(userId, gameId),
+      takeBackDeclineCallback: (userId, gameId) =>
+          _handleTakeBackDecline(userId, gameId),
+      takeBackRequestCallback: (userId, chessMove, gameId) =>
+          _handleTakeBackRequest(userId, chessMove, gameId),
+      takenBackCallback: (userId, chessMove, gameId) =>
+          _handleTakenBack(userId, chessMove, gameId),
+      gameFinishedCallback: (data, gameId) => _handleGameFinished(data, gameId),
+      surrenderFailedCallback: (gameId) => _handleSurrenderFailed(gameId),
+      playerIsOnlineCallback: (userId) => _handlePlayerIsOnline(userId),
+      playerIsOfflineCallback: (userId, expiryDate) =>
+          _handlePlayerIsOffline(userId, expiryDate),
+    );
   }
 
   void _handlePlayerIsOnline(String userId) {
@@ -353,7 +342,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleMoveData(Map<String, dynamic> moveData, String gameId) {
-    print('Socket Handling New Move');
     OnlineGame onlineGame = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         PlayerColor.values[onlineGame.chessMoves.length % 3];
@@ -372,7 +360,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleSurrenderRequest(String userId, int chessMove, String gameId) {
-    print('Socket Handling Surrender Request');
     Map<ResponseRole, PlayerColor> playerResponse = {};
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
@@ -388,7 +375,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleSurrenderDecline(String userId, String gameId) {
-    print('Socket Handling Surrender Decline');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -398,7 +384,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleSurrenderFailed(String gameId) {
-    print('Socket Handling Surrender Failed');
     _onlineGames[getGameIndex(gameId)]
         .requests
         .removeWhere((request) => request.requestType == RequestType.Surrender);
@@ -406,7 +391,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRemiRequest(String userId, int chessMove, String gameId) {
-    print('Socket Handle Remi Request');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
@@ -424,7 +408,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRemiAccept(String userId, String gameId) {
-    print('Socket Handling Remi Accept');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -434,7 +417,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRemiDecline(String userId, String gameId) {
-    print('Socket Handling Remi Decline');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -446,7 +428,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakeBackRequest(String userId, int chessMove, String gameId) {
-    print('Socket Handling Take Back Request');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     Map<ResponseRole, PlayerColor> playerResponse = {};
     PlayerColor playerColor =
@@ -463,7 +444,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakeBackAccept(String userId, String gameId) {
-    print('Socket Handle Take Back Accept');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -473,7 +453,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakeBackDecline(String userId, String gameId) {
-    print('Socket Handle Take Back Decline');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor playerColor =
         GameConversion.getPlayerColorFromUserId(userId, game.player);
@@ -485,7 +464,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleTakenBack(String userId, int chessMove, String gameId) {
-    print('Socket Handle Taken Back');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     game.chessMoves.removeRange(chessMove, game.chessMoves.length);
     game.requests
@@ -494,7 +472,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleGameFinished(Map<String, dynamic> data, String gameId) {
-    print('Socket Handle OnlineGame Finished');
     OnlineGame game = _onlineGames[getGameIndex(gameId)];
     PlayerColor winnerPlayerColor =
         GameConversion.getPlayerColorFromUserId(data['winnerId'], game.player);
@@ -524,7 +501,6 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleRequestCancelled(Map<String, dynamic> data, String gameId) {
-    print('Socket Handle Request Cancelled');
     if (data['userId'] != _userId) {
       String message = 'Could not get Message';
       _onlineGames[getGameIndex(gameId)].requests.removeWhere(
@@ -535,19 +511,24 @@ class GameProvider with ChangeNotifier {
   }
 
   void _handleGameStarts(Map<String, dynamic> gameData) {
-    print('Game Starts Socket Message');
     if (!_onlineGames.map((e) => e.id).toList().contains(gameData['_id'])) {
+      int indexFirst = _onlineGames.length;
       OnlineGame newOnlineGame = GameConversion.rebaseOnlineGame(
           gameData: gameData,
           playerData: gameData['player'],
           userData: gameData['user']);
       _onlineGames.add(newOnlineGame);
-      _serverProvider.gameStartsNotifier(newOnlineGame.id);
-      notifyListeners();
+      if (gameData['immediateJoinUser'] != _serverProvider.userId) {
+        _serverProvider.gameStartsNotifier(newOnlineGame.id);
+        _serverProvider.removeGameListener(newOnlineGame.id);
+      }
+      int indexAfter = _onlineGames.length;
+      print(
+          'Finished Starting Online Game. Added ${indexAfter - indexFirst} online Games to _onlineGames');
+      GameConversion.printGame(newOnlineGame);
+      _popUpProvider.makePopUp[PopUpType.GameStarts]();
     }
   }
-
-
 
   //#########################################################################
 // helper Functions

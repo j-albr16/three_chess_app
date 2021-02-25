@@ -1,4 +1,6 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 
 import 'ThinkingBoard.dart';
 import '../data/board_data.dart';
@@ -14,8 +16,13 @@ class BoardStateBone{
   Map<String, Piece> pieces;
   Map<PlayerColor, String> enpassent;
   List<ChessMove> chessMoves;
+  Map<String, Piece> customStartingBoard;
+  PlayerColor startingColor;
 
-  BoardStateBone({this.chessMoves, this.enpassent, this.pieces}) {
+  BoardStateBone({this.chessMoves, this.enpassent, this.pieces, this.customStartingBoard, this.startingColor = PlayerColor.white}) {
+    if(customStartingBoard == null){
+      customStartingBoard = defaultStartingBoard();
+    }
     if(chessMoves == null && enpassent == null && pieces == null){
       newGame();
     }
@@ -24,13 +31,16 @@ class BoardStateBone{
     }
   }
 
-  BoardStateBone.takeOver({this.pieces, this.enpassent, this.chessMoves});
+  BoardStateBone.takeOver({@required this.pieces, @required this.enpassent, @required this.chessMoves, @required this.customStartingBoard, @required this.startingColor});
 
-  BoardStateBone.generate({this.chessMoves}){
+  BoardStateBone.generate({@required this.chessMoves, this.customStartingBoard, this.startingColor = PlayerColor.white}){
+    if(customStartingBoard == null){
+      customStartingBoard = defaultStartingBoard();
+    }
     _generate(chessMoves);
   }
 
-  void _generate(List<ChessMove> chessMoves){
+  void _generate(List<ChessMove> chessMoves,){
     pieces = {};
     enpassent = {};
     newGame();
@@ -41,6 +51,7 @@ class BoardStateBone{
 
   BoardStateBone clone(){
     Map<String, Piece> clonePieces = {};
+    Map<String, Piece> cloneStartingBoard = {};
     Map<PlayerColor, String> clonePassent = {};
 
     for (MapEntry potEnPass in enpassent.entries) {
@@ -53,12 +64,21 @@ class BoardStateBone{
         playerColor: piece.playerColor,
         position: piece.position,
       );
+
+    } for (Piece piece in customStartingBoard.values) {
+      cloneStartingBoard[piece.position] = Piece(
+        pieceType: piece.pieceType,
+        playerColor: piece.playerColor,
+        position: piece.position,
+      );
     }
 
     return new BoardStateBone.takeOver(
       pieces: clonePieces,
       enpassent: clonePassent,
       chessMoves: [...chessMoves],
+      customStartingBoard: cloneStartingBoard,
+      startingColor: this.startingColor,
     );
   }
 
@@ -175,8 +195,8 @@ BoardStateBone cloneBones(){
     return this.clone();
 }
 
-  void newGame() {
-    pieces = {};
+  Map<String, Piece> defaultStartingBoard(){
+      Map<String, Piece> classicStartingBoard = {};
     [
       //White
       //#region White
@@ -439,6 +459,13 @@ BoardStateBone cloneBones(){
       //#endregions
       //#endregion
     ].forEach((piece) {pieces[piece.position] = piece;});
+
+    return classicStartingBoard;
+  }
+
+  void newGame() {
+    pieces = customStartingBoard;
+    startingColor = PlayerColor.white;
     enpassent = {};
     chessMoves = [];
   }

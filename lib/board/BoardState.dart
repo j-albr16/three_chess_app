@@ -13,7 +13,7 @@ import '../models/chess_move.dart';
 import 'Tiles.dart';
 import 'chess_move_info.dart';
 
-class BoardState extends BoardStateBone{
+class BoardState extends BoardStateBone {
   List<SubBoardState> subStates;
   List<ChessMoveInfo> infoChessMoves;
   bool gameWon = false;
@@ -38,7 +38,7 @@ class BoardState extends BoardStateBone{
     return _selectedMove == null ? pieces : subStates[selectedMove + 1].pieces;
   }
 
-  BoardState() : super() {
+  BoardState({Map<String, Piece> customStartingBoard, PlayerColor startingColor}) : super(customStartingBoard: customStartingBoard, startingColor: startingColor) {
     super.chessMoves = [];
     super.pieces = {};
     super.enpassent = {};
@@ -52,8 +52,15 @@ class BoardState extends BoardStateBone{
       List<ChessMove> chessMoves,
       this.infoChessMoves,
       this.subStates,
-      int selectedMove})
-      : super(chessMoves: chessMoves, pieces: pieces, enpassent: enpassent) {
+      int selectedMove,
+      Map<String, Piece> customStartingBoard,
+      PlayerColor startingColor})
+      : super(
+            chessMoves: chessMoves,
+            pieces: pieces,
+            enpassent: enpassent,
+            startingColor: startingColor,
+            customStartingBoard: customStartingBoard) {
     if (pieces.values
             .where((element) => element.pieceType == PieceType.King)
             .toList()
@@ -63,7 +70,9 @@ class BoardState extends BoardStateBone{
     }
   }
 
-  BoardState.generate({List<ChessMove> chessMoves}) {
+  BoardState.generate({List<ChessMove> chessMoves, Map<String, Piece> customStartingBoard, PlayerColor startingColor}) {
+    super.customStartingBoard = customStartingBoard;
+    super.startingColor = startingColor;
     _generate(chessMoves ?? []);
   }
 
@@ -75,7 +84,7 @@ class BoardState extends BoardStateBone{
     newGame();
     bool isSilent = true;
     for (ChessMove chessMove in chessMoves) {
-      if(chessMove == chessMoves.last){
+      if (chessMove == chessMoves.last) {
         isSilent = false;
       }
       movePieceTo(chessMove.initialTile, chessMove.nextTile, silent: isSilent);
@@ -113,6 +122,7 @@ class BoardState extends BoardStateBone{
       subStates: cloneSubStates,
       selectedMove: selectedMove,
       infoChessMoves: [...infoChessMoves],
+      startingColor: super.startingColor,
     );
   }
 
@@ -145,10 +155,11 @@ class BoardState extends BoardStateBone{
         for (int i = newChessMoves.length - difference;
             i < newChessMoves.length;
             i++) {
-          if(i == newChessMoves.length -1){
+          if (i == newChessMoves.length - 1) {
             isSilent = false;
           }
-          movePieceTo(newChessMoves[i].initialTile, newChessMoves[i].nextTile, silent: isSilent);
+          movePieceTo(newChessMoves[i].initialTile, newChessMoves[i].nextTile,
+              silent: isSilent);
         }
       }
     } else {
@@ -159,16 +170,13 @@ class BoardState extends BoardStateBone{
   _makeASound(ChessMoveInfo chessMoveInfo) {
     // TODO sound
     if (chessMoveInfo.specialMoves.contains(SpecialMove.NoMove)) {
-       Sounds.playSound(Sound.Move);
-    }  else if (chessMoveInfo.specialMoves.contains(SpecialMove.Check)) {
-       Sounds.playSound(Sound.Check);
-    }
-    else if (chessMoveInfo.specialMoves.contains(SpecialMove.Take)) {
-
-         Sounds.playSound(Sound.Capture);
-
+      Sounds.playSound(Sound.Move);
+    } else if (chessMoveInfo.specialMoves.contains(SpecialMove.Check)) {
+      Sounds.playSound(Sound.Check);
+    } else if (chessMoveInfo.specialMoves.contains(SpecialMove.Take)) {
+      Sounds.playSound(Sound.Capture);
     } else {
-       Sounds.playSound(Sound.Move);
+      Sounds.playSound(Sound.Move);
     }
   }
 
@@ -332,12 +340,11 @@ class BoardState extends BoardStateBone{
           specialMoves: specialMoves,
           takenPiece: takenPiece,
           targetedPlayer: chessInfoTargetPlayer));
-      if(!silent){
+      if (!silent) {
         _makeASound(infoChessMoves.last);
       }
     }
   }
-
 
   @override
   void newGame() {
@@ -348,7 +355,6 @@ class BoardState extends BoardStateBone{
             .clone());
     chessMoves = [];
     infoChessMoves = [];
-
   }
 
   @override

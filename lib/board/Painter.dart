@@ -15,15 +15,15 @@ class BoardPainter extends StatelessWidget {
   final List<String> highlighted;
 
 
-  BoardPainter({Key key, @required this.pieces, @required  this.tiles, @required  this.height, @required  this.width, this.pieceOffset, this.pieceOffsetKey, this.highlighted}) : super(key: key);
+  BoardPainter({Key key, @required this.pieces, @required  this.tiles, this.height = 1000, this.width = 1000, this.pieceOffset, this.pieceOffsetKey, this.highlighted}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       //key: boardBoxKey,
-        height: 1000,
-        width: 1000,
+        height: height,
+        width: width,
         child: Stack(fit: StackFit.expand, children: [
           //The Stack of Tiles, Highlighter and Piece
           ...tiles.values,

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:three_chess/board/BoardStateBone.dart';
+import 'package:three_chess/board/Painter.dart';
+import 'package:three_chess/board/Tiles.dart';
 import 'package:three_chess/models/local_game.dart';
 import 'package:three_chess/models/online_game.dart';
 
@@ -42,27 +47,37 @@ class SelectGame extends StatelessWidget {
     return currentGameIndex == gameIndex;
   }
 
-  Widget boardWidget(List<Piece> currentBoard) {
+  Widget boardWidget(Map<String, Piece> currentBoard) {
     return Center(
-      child: Text('Need to Implement Board Image'),
+      child: BoardPainter(
+        height: 1000/2 * sqrt(3),
+        width: 1000,
+        pieces: currentBoard,
+        tiles: Tiles(perspectiveOf: PlayerColor.white).tiles, //TODO When gameModel includes it: "game.startingColor"
+      ),
     );
   }
 
   Widget boardImage(Size size) {
     return Center(
-      child: Container(
-        height: size.height,
-        width: size.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(cornerRadius / 2),
-          border: Border.all(
-              color: Colors.black26, width: 2, style: BorderStyle.solid),
+        child: Container(
+          height: size.height/2 * sqrt(3),
+          width: size.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(cornerRadius / 2),
+            border: Border.all(
+                color: Colors.black26, width: 2, style: BorderStyle.solid),
+          ),
+          child: Center(
+              child: FittedBox(
+                child: boardWidget(BoardStateBone.generate(
+                  chessMoves: game.chessMoves,
+                  customStartingBoard: Map.fromEntries(game.startingBoard.map((e) => MapEntry<String, Piece>(e.position, e))),
+                  startingColor: PlayerColor.white, // TODO When gameModel includes it: "game.startingColor"
+                ).pieces),
+            ),
+          ),
         ),
-        child: FittedBox(
-          fit: BoxFit.none,
-          child: boardWidget(game.startingBoard),
-        ),
-      ),
     );
   }
 

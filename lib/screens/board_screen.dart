@@ -2,20 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:relative_scale/relative_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:three_chess/models/local_game.dart';
-import 'package:three_chess/providers/current_games_provider.dart';
-import 'package:three_chess/providers/local_provider.dart';
-import '../providers/ClientGameProvider.dart';
-import 'dart:developer';
 
+import '../models/local_game.dart';
+import '../providers/current_games_provider.dart';
+import '../providers/ClientGameProvider.dart';
 import '../models/enums.dart';
 import '../screens/board_subscreens/game_board_screen.dart';
 import '../widgets/board_state_selector.dart';
-import '../models/enums.dart';
-import '../providers/game_provider.dart';
 import '../helpers/json_file.dart';
 import '../models/game.dart';
-import '../conversion/game_conversion.dart';
 import '../providers/server_provider.dart';
 
 class BoardScreen extends StatefulWidget {

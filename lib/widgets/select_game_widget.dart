@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:three_chess/board/BoardStateBone.dart';
-import 'package:three_chess/board/Painter.dart';
-import 'package:three_chess/board/Tiles.dart';
-import 'package:three_chess/models/local_game.dart';
-import 'package:three_chess/models/online_game.dart';
+import '../board/BoardStateBone.dart';
+import '../board/Painter.dart';
+import '../board/Tiles.dart';
+import '../models/local_game.dart';
+import '../models/online_game.dart';
 
 import './basic/sorrounding_cart.dart';
 import '../models/game.dart';

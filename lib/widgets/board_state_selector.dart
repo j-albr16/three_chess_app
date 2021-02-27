@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import '../data/board_data.dart';
 import '../helpers/constants.dart';
 import '../models/game.dart';
 import '../models/online_game.dart';
 import '../widgets/basic/advanced_selection.dart';
 
 import '../models/enums.dart';
-import '../models/online_game.dart';
-import '../models/enums.dart';
 import '../models/local_game.dart';
 import '../widgets/select_game_widget.dart';
-import '../widgets/basic/chess_divider.dart';
 
 typedef void GameCall(Game game);
 typedef void GameIndexCall(int selectedGameIndex);

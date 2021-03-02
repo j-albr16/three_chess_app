@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class ChessSlider extends StatelessWidget {
-  Size size;
-  double totalValue;
-  Function updateValue;
-  String title;
-  double min;
-  double max;
-  int divisions;
+  final Size size;
+  final double totalValue;
+  final Function updateValue;
+  final String title;
+  final double min;
+  final double max;
+  final int divisions;
 
   ChessSlider(
       {this.size,

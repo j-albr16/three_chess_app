@@ -26,7 +26,7 @@ class BoardScreen extends StatefulWidget {
   _BoardScreenState createState() => _BoardScreenState();
 }
 
-class _BoardScreenState extends State<BoardScreen> with notificationPort<BoardScreen> {
+class _BoardScreenState extends State<BoardScreen> {
   ScrollController controller;
 
   Map<String, dynamic> analyzeGameData;
@@ -40,10 +40,40 @@ class _BoardScreenState extends State<BoardScreen> with notificationPort<BoardSc
 
   bool isInit = false;
 
+  Future<void> fetchLocalGames() {
+    if (isInit) {
+      return null;
+    }
+    Future.delayed(Duration.zero).then((_) async {
+      if (kIsWeb) {
+        ServerProvider serverProvider = Provider.of(context, listen: false);
+        try {
+          Map<String, dynamic> localGames =
+              await serverProvider.fetchLocalGames();
+          analyzeGameData = localGames['analyzeGame'];
+          localGameData = localGames['localGame'];
+        } catch (error) {
+          serverProvider.handleError('Error While Fetching Local Games', error);
+        }
+      } else {
+        try {
+          analyzeGameData =
+              await JsonFile(fileKey: JsonFiles.AnalyzeGame).jsonMap;
+          localGameData = await JsonFile(fileKey: JsonFiles.LocalGame).jsonMap;
+        } catch (error) {
+          localGameData = null;
+          analyzeGameData = null;
+          print(error);
+        }
+      }
+    }).then((_) => setState(() {
+          isInit = true;
+        }));
+  }
+
   void _confirmGame(Game game, context) {
     setState(() {
-      Provider.of<ClientGameProvider>(context, listen: false)
-          .setClientGame(game);
+      Provider.of<ClientGameProvider>(context, listen:false).setClientGame(game);
     });
   }
 
@@ -55,9 +85,9 @@ class _BoardScreenState extends State<BoardScreen> with notificationPort<BoardSc
 
   void _selectGame(newIndex) {
     setState(() {
-      gameIndex = newIndex;
+      gameIndex =  newIndex;
     });
-  }
+}
 
   _buildSelectedScreen(Game game) {
     return GameBoardScreen(game: game);
@@ -67,29 +97,30 @@ class _BoardScreenState extends State<BoardScreen> with notificationPort<BoardSc
     return RelativeBuilder(
         builder: (context, screenHeight, screenWidth, sy, sx) {
       return Consumer<CurrentGamesProvider>(
-          builder: (context, currentGamesProvider, child) {
-        print(currentGamesProvider.games
-            .where((e) => e.runtimeType == LocalGame)
-            .isNotEmpty);
-        return BoardStateSelector(
-          controller: controller,
-          width: screenWidth,
-          height: screenHeight,
-          // analyzeGame: GameConversion.rebaseOnlineGame(analyzeGameData),
-          // localGame: GameConversion.rebaseOnlineGame(localGameData, localGameData[]),
-          confirmGame: (Game game) => _confirmGame(game, context),
-          localGamesOpen: localGamesOpen,
-          onlineGamesOpen: onlineGamesOpen,
-          gameType: gameType,
-          switchLocalGames: () =>
-              setState(() => localGamesOpen = !localGamesOpen),
-          switchOnlineGames: () =>
-              setState(() => onlineGamesOpen = !onlineGamesOpen),
-          currentGames: currentGamesProvider.games,
-          gameIndex: gameIndex,
-          gameIndexCall: _selectGame,
-        );
-      });
+        builder: (context, currentGamesProvider, child) {
+          print(currentGamesProvider.games.where((e) => e.runtimeType == LocalGame).isNotEmpty);
+          return BoardStateSelector(
+            controller: controller,
+            width: screenWidth,
+            height: screenHeight,
+            // analyzeGame: GameConversion.rebaseOnlineGame(analyzeGameData),
+            // localGame: GameConversion.rebaseOnlineGame(localGameData, localGameData[]),
+            confirmGame: (Game game) => _confirmGame(game, context),
+            localGamesOpen: localGamesOpen,
+            onlineGamesOpen: onlineGamesOpen,
+            gameType: gameType,
+            switchLocalGames: () =>
+                setState(() => localGamesOpen = !localGamesOpen),
+            switchOnlineGames: () =>
+                setState(() => onlineGamesOpen = !onlineGamesOpen),
+            currentGames: currentGamesProvider.games,
+            gameIndex: gameIndex,
+            gameIndexCall: _selectGame,
+
+          );
+
+        }
+      );
     });
   }
 
@@ -109,19 +140,14 @@ class _BoardScreenState extends State<BoardScreen> with notificationPort<BoardSc
               )
             : null,
         body: FutureBuilder(
-            future: Provider.of<LocalProvider>(context, listen: false)
-                .fetchLocalGames(),
+            future: fetchLocalGames(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else {
                 return Container(
-                  child: Provider.of<ClientGameProvider>(context).clientGame !=
-                          null
-                      ? _buildSelectedScreen(
-                          Provider.of<ClientGameProvider>(context)
-                              .clientGame
-                              .game)
+                  child: Provider.of<ClientGameProvider>(context).clientGame != null
+                      ? _buildSelectedScreen(Provider.of<ClientGameProvider>(context).clientGame.game)
                       : _buildChooseScreen(),
                 );
               }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../basic/text_field.dart';
 import '../basic/sorrounding_cart.dart';
-import '../../helpers/constants.dart';
 
 typedef void AddFriend(String friendToAdd);
 

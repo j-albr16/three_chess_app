@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:relative_scale/relative_scale.dart';
 
 import './friend_tile.dart';
-import './friend_tile.dart';
 import '../../helpers/constants.dart';
 import '../basic/accept_button.dart';
 import '../basic/decline_button.dart';

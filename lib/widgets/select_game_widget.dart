@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:three_chess/models/local_game.dart';
-import 'package:three_chess/models/online_game.dart';
+import 'dart:math';
+
+import '../board/BoardStateBone.dart';
+import '../board/Painter.dart';
+import '../board/Tiles.dart';
+import '../models/local_game.dart';
+import '../models/online_game.dart';
 
 import './basic/sorrounding_cart.dart';
 import '../models/game.dart';
@@ -33,34 +38,46 @@ class SelectGame extends StatelessWidget {
   });
 
   Color get shadowColor {
-      return currentGameIndex == gameIndex
+      return isSelected
           ? theme.colorScheme.secondary
           : Colors.black26;
   }
 
-  Widget boardWidget(List<Piece> currentBoard) {
+  bool get isSelected{
+    return currentGameIndex == gameIndex;
+  }
+
+  Widget boardWidget(Map<String, Piece> currentBoard) {
     return Center(
-      child: Text('Need to Implement Board Image'),
+      child: BoardPainter(
+        height: 1000/2 * sqrt(3),
+        width: 1000,
+        pieces: currentBoard,
+        tiles: Tiles(perspectiveOf: PlayerColor.white).tiles, //TODO When gameModel includes it: "game.startingColor"
+      ),
     );
   }
 
-  Widget boardImage(Size size, ThemeData theme) {
+  Widget boardImage(Size size) {
     return Center(
-      child: Container(
-        height: size.height,
-        width: size.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(cornerRadius / 2),
-          border: Border.all(
-              color: Colors.black26, width: 2, style: BorderStyle.solid),
+        child: Container(
+          height: size.height/2 * sqrt(3),
+          width: size.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(cornerRadius / 2),
+            border: Border.all(
+                color: Colors.black26, width: 2, style: BorderStyle.solid),
+          ),
+          child: Center(
+              child: FittedBox(
+                child: boardWidget(BoardStateBone.generate(
+                  chessMoves: game.chessMoves,
+                  customStartingBoard: Map.fromEntries(game.startingBoard.map((e) => MapEntry<String, Piece>(e.position, e))),
+                  startingColor: PlayerColor.white, // TODO When gameModel includes it: "game.startingColor"
+                ).pieces),
+            ),
+          ),
         ),
-        child: FittedBox(
-          fit: BoxFit.none,
-          child: game != null
-              ? boardWidget(game.startingBoard)
-              : Text('No Image', style: theme.textTheme.bodyText1),
-        ),
-      ),
     );
   }
 
@@ -69,7 +86,7 @@ class SelectGame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text('Time', style: theme.textTheme.bodyText1),
+        Text('Time', style: theme.textTheme.bodyText1,),
         Text('Increment', style: theme.textTheme.bodyText1)
       ],
     );
@@ -112,10 +129,10 @@ class SelectGame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        if (game.runtimeType is LocalGame) // || game.runtimeType is AnalyzeGame)
+        if (game is LocalGame) // || game.runtimeType is AnalyzeGame)
           Text(gameTypeString[game.gameType] + ' Game',
               style: theme.textTheme.subtitle1),
-        if (game.runtimeType is OnlineGame) onlineGameInfo(),
+        if (game is OnlineGame) onlineGameInfo(),
       ],
     );
   }
@@ -126,7 +143,8 @@ class SelectGame extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     return GestureDetector(
-      onTap: confirmGame,
+      onTap: () => gameIndexCall(gameIndex),
+      onDoubleTap: confirmGame,
       child: SurroundingCard(
         height: size.height * 0.20,
         shadowColor: shadowColor,
@@ -134,7 +152,7 @@ class SelectGame extends StatelessWidget {
           children: [
             Flexible(
                 child: boardImage(
-                    Size(size.width * 0.35, size.height * 0.16), theme),
+                    Size(size.width * 0.35, size.height * 0.16)),
                 flex: 1),
             Flexible(child: gameInfo(theme), flex: 1)
           ],

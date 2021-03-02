@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import './friend_tile.dart';
 import '../../screens/friends_screen.dart';
 import '../../models/friend.dart';
 
@@ -65,6 +64,6 @@ class FriendActionPopUp extends StatelessWidget {
         ),
       ],
     );
-    ;
+
   }
 }

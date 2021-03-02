@@ -184,6 +184,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       allowPremades}) {
     print('Create Game');
     _lobbyProvider.createGame(
+      context,
       increment: increment,
       time: time,
       invitations: invitations,
@@ -206,13 +207,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     final args =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
     final String friendId = args['friend'];
-    print(friendId);
     if (friendId != null) {
       Friend friend = friends.firstWhere((friend) => friend.user.id == friendId,
           orElse: () => null);
       if (friend != null) {
         selectedFriends.add(friend);
-        print('Added ${selectedFriends.length} Friends');
       }
     }
     didCheckForPreInvites = true;

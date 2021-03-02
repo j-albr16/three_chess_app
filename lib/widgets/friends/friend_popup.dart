@@ -24,7 +24,6 @@ class FriendPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(selectedFriendIds);
     return Container(
       height: size.height,
       width: size.width,

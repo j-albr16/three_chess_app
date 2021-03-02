@@ -34,6 +34,7 @@ class PopupProvider with ChangeNotifier {
   }
 
   Map<PopUpType, Function> get makePopUp {
+    print('Trying to display PopUp');
     return {
       PopUpType.Endgame:
           (OnlineGame onlineGame, Player player, Function removeGameCallback) =>
@@ -61,6 +62,7 @@ class PopupProvider with ChangeNotifier {
     _popUp = (BuildContext context) =>
         Navigator.of(context).pushNamed(BoardScreen.routeName);
     hasPopup = true;
+    notifyListeners();
   }
 
   void makeEndGamePopup(
@@ -83,14 +85,17 @@ class PopupProvider with ChangeNotifier {
           );
         });
     hasPopup = true;
+    notifyListeners();
   }
 
   void makeSnackBar(String text) {
+    print('Displaying Snack Bar Message');
     _popUp = (BuildContext context) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(basicSnackBar(text));
     };
     hasPopup = true;
+    notifyListeners();
   }
 
   SnackBar basicSnackBar(String text) {
@@ -112,6 +117,7 @@ class PopupProvider with ChangeNotifier {
         );
     Sounds.playSound(Sound.SocialNotify);
     hasPopup = true;
+    notifyListeners();
   }
 
   invitationDialog(OnlineGame game, Size size, BuildContext context) {
@@ -132,7 +138,7 @@ class PopupProvider with ChangeNotifier {
                 accept: () {
                   LobbyProvider gProvider =
                       Provider.of<LobbyProvider>(context, listen: false);
-                  gProvider.joinGame(game.id);
+                  gProvider.joinGame(context, game.id);
                 },
                 decline: () => Navigator.of(context).pop(),
                 game: game,

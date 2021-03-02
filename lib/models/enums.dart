@@ -1,3 +1,13 @@
+enum ErrorResponseType {
+  Snackbar,
+}
+
+enum ErrorType {
+  Response,
+  Critical,
+  UnCritical,
+}
+
 enum Direction {
   bottomRight,
   bottom,
@@ -15,7 +25,7 @@ enum RequestType {
   TakeBack,
 }
 
-enum PopUpType { SnackBar, Invitation, Endgame , GameStarts}
+enum PopUpType { SnackBar, Invitation, Endgame, GameStarts }
 
 const Map<RequestType, String> requestTypeInterface = {
   RequestType.TakeBack: "Take Back",
@@ -142,7 +152,6 @@ enum Method {
   HandlePlayerIsOnline,
   HandlePlayerIsOffline,
   HandleMove,
-
   HandleSurrenderFailed,
   HandleSurrenderRequest,
   HandleSurrenderDecline,
@@ -162,6 +171,7 @@ enum Method {
   HandleRemoveGame,
   HandlePlayerLeft,
   HandleGameStarts,
+
   // Friend
   HandleMessage,
   HandleFriendRequest,
@@ -170,5 +180,13 @@ enum Method {
   HandleFriendRemove,
   HandleGameInvitation,
 
-  HandleFriendStatusUpdate,
+  HandleUserStatusUpdate,
+
+  Unknown,
+
+  // Auth
+  PostLogin,
+  PostSignUp,
+  GetValidateSignUp,
+  TryAutoLogin,
 }

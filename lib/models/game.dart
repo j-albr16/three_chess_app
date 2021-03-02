@@ -20,8 +20,12 @@ abstract class Game {
   int increment;
   int time;
   GameType get gameType;
+
+  PlayerColor startingPlayer;
+
   Game({
     this.player,
+    this.startingPlayer = PlayerColor.white,
     this.finishedGameData,
     this.chessMoves,
     this.startingBoard,

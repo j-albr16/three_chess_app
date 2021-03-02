@@ -10,9 +10,11 @@ class Player {
   bool isOnline;
   bool isActive;
   bool isReady;
+  bool isPlaying;
 
   Player(
       {this.playerColor,
+        this.isPlaying,
       this.isReady = true,
       this.isActive = true,
       this.user,

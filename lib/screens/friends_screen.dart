@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:three_chess/models/enums.dart';
+import 'package:three_chess/screens/screen_bone.dart';
 
 import '../screens/chat_screen.dart';
 import '../screens/create_game_screen.dart';
@@ -22,7 +23,7 @@ class FriendsScreen extends StatefulWidget {
   _FriendsScreenState createState() => _FriendsScreenState();
 }
 
-class _FriendsScreenState extends State<FriendsScreen> {
+class _FriendsScreenState extends State<FriendsScreen> with notificationPort<FriendsScreen>{
   FriendsProvider _friendsProvider;
   ChatProvider _chatProvider;
   bool _didFetch = false;
@@ -66,8 +67,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       case FriendAction.Delete:
         //TODO
         Provider.of<FriendsProvider>(context, listen: false)
-            .removeFriend(model.user.id)
-            .then((String message) => handleServerResponse(message));
+            .removeFriend(model.user.id);
         break;
     }
   }
@@ -127,8 +127,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
               switchBool: switchBool,
               addFriend: (toBeAddedUsername) =>
                   Provider.of<FriendsProvider>(context, listen: false)
-                      .makeFriendRequest(toBeAddedUsername)
-                      .then((String message) => handleServerResponse(message)),
+                      .makeFriendRequest(toBeAddedUsername),
               onLongTap: (username) => _friendPopUp(context, username),
               onTap: (friend) {
                 print('Select Chat and Navigate to new Chat after Selection');
@@ -154,26 +153,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
               isPendingOpen: switchBooleans[FriendBools.PendingOpen],
               onPendingAccept: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
-                      .acceptFriend(model.user.id)
-                      .then((String message) => handleServerResponse(message)),
+                      .acceptFriend(model.user.id),
               onPendingReject: (model) =>
                   Provider.of<FriendsProvider>(context, listen: false)
-                      .declineFriend(model.user.id)
-                      .then((String message) => handleServerResponse(message)),
+                      .declineFriend(model.user.id),
               width: double.infinity,
             ),
           ),
         ),
       ),
     );
-  }
-
-  handleServerResponse(String message) {
-    SnackBar snackBar = SnackBar(
-      content: Text(message),
-      duration: Duration(seconds: 2),
-    );
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

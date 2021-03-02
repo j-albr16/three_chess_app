@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:three_chess/models/message.dart';
+import 'package:three_chess/providers/popup_provider.dart';
 
 import '../data/server.dart';
 import '../models/chess_move.dart';
@@ -22,8 +23,8 @@ typedef void FriendRequest(Map<String, dynamic> friendData, String message);
 typedef void FriendAccept(Map<String, dynamic> data);
 typedef void FriendDecline(String message);
 typedef void FriendRemove(String userId, String message);
-typedef void FriendStatusUpdate(String userId, bool isOnline, bool isActive,
-    bool isPlaying);
+typedef void FriendStatusUpdate(
+    String userId, bool isOnline, bool isActive, bool isPlaying);
 typedef void GameInvitation(Map<String, dynamic> gameData);
 // OnlineGame Callbacks
 typedef void Move(Map<String, dynamic> chessMove, String gameId);
@@ -54,13 +55,15 @@ typedef void GameStartsListener(String gameId);
 
 const List<Method> methodsInProcess = [
   // Method.LeaveLobby,
-  Method.HandlePlayerLeft,
-  Method.HandleNewGame,
-  Method.CreateGame,
-  Method.HandleGameStarts,
-  Method.HandlePlayerJoined,
-  Method.HandleMessage,
+  // Method.HandlePlayerLeft,
+  // Method.HandleNewGame,
+  // Method.CreateGame,
+  // Method.HandleGameStarts,
+  // Method.HandlePlayerJoined,
+  // Method.HandleMessage,
 
+  Method.HandleFriendRequest,
+  Method.SendFriendRequest,
 ];
 
 class ServerProvider with ChangeNotifier {
@@ -71,6 +74,8 @@ class ServerProvider with ChangeNotifier {
 
   String _token = constToken;
   String _userId = constUserId;
+
+  PopupProvider _popupProvider;
 
   String get _authString {
     return '?auth=$_token&userId=$_userId';
@@ -92,9 +97,10 @@ class ServerProvider with ChangeNotifier {
   //   );
   // }
 
-  void update({token, userId}) {
-    _token = token;
-    _userId = userId;
+  void update({String token, String userId, PopupProvider popupProvider}) {
+    // _token = token;
+    // _userId = userId;
+    _popupProvider = popupProvider;
     notifyListeners();
   }
 
@@ -139,11 +145,12 @@ class ServerProvider with ChangeNotifier {
     });
   }
 
-  void subscribeToLobbyChannel({newGameCallback,
-    playerJoinedCallback,
-    updateIsReadyStatus,
-    removeGameCallback,
-    playerLeftCallback}) {
+  void subscribeToLobbyChannel(
+      {newGameCallback,
+      playerJoinedCallback,
+      updateIsReadyStatus,
+      removeGameCallback,
+      playerLeftCallback}) {
     print('Did Subscribe to Lobby Channel');
     _socket.on('lobby', (jsonData) {
       final Map<String, dynamic> data = json.decode(jsonData);
@@ -280,7 +287,7 @@ class ServerProvider with ChangeNotifier {
       case Method.HandleFriendRemove:
         friendRemovedCallback(data['userId'], data['message']);
         break;
-      case Method.HandleFriendStatusUpdate:
+      case Method.HandleUserStatusUpdate:
         friendStatusUpdateCallback(data['userId'], data['isOnline'],
             data['isActive'], data['isPlaying']);
         break;
@@ -290,12 +297,13 @@ class ServerProvider with ChangeNotifier {
     }
   }
 
-  void _handleLobbyChannelData({Map<String, dynamic> data,
-    NewGame newGameCallback,
-    RemoveGame removeGameCallback,
-    PlayerJoined playerJoinedCallback,
-    PlayerLeft playerLeftCallback,
-    UpdateIsReadyStatus updateIsReadyStatusCallback}) {
+  void _handleLobbyChannelData(
+      {Map<String, dynamic> data,
+      NewGame newGameCallback,
+      RemoveGame removeGameCallback,
+      PlayerJoined playerJoinedCallback,
+      PlayerLeft playerLeftCallback,
+      UpdateIsReadyStatus updateIsReadyStatusCallback}) {
     _handleSocketServerMessage(data['ident'], data['message'], data);
     switch (data['ident']) {
       case Method.HandleNewGame:
@@ -435,21 +443,20 @@ class ServerProvider with ChangeNotifier {
 
   List<Map<String, dynamic>> rebaseChessMoves(List<ChessMove> chessMoves) {
     return chessMoves
-        .map((chessMove) =>
-    {
-      'remainingTime': chessMove.remainingTime,
-      'initialTile': chessMove.initialTile,
-      'nextTile': chessMove.nextTile,
-    })
+        .map((chessMove) => {
+              'remainingTime': chessMove.remainingTime,
+              'initialTile': chessMove.initialTile,
+              'nextTile': chessMove.nextTile,
+            })
         .toList();
   }
 
-  Future<Map<String, dynamic>> saveGames(OnlineGame localGame,
-      OnlineGame analyzeGame) async {
+  Future<Map<String, dynamic>> saveGames(
+      OnlineGame localGame, OnlineGame analyzeGame) async {
     final List<Map<String, dynamic>> analyzeChessMoves =
-    rebaseChessMoves(analyzeGame.chessMoves);
+        rebaseChessMoves(analyzeGame.chessMoves);
     final List<Map<String, dynamic>> localChessMoves =
-    rebaseChessMoves(localGame.chessMoves);
+        rebaseChessMoves(localGame.chessMoves);
     final Map<String, dynamic> body = {
       'analyzeGame': {'chessMoves': analyzeChessMoves},
       'localGame': {
@@ -556,8 +563,8 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> updateIsReady(bool isReady,
-      String gameId) async {
+  Future<Map<String, dynamic>> updateIsReady(
+      bool isReady, String gameId) async {
     return await getSkeleton(
       url: SERVER_ADRESS + 'is-ready-status/$isReady/$gameId' + _authString,
       error: 'Is Ready Status',
@@ -580,14 +587,15 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> createGame({bool isPublic,
-    bool isRated,
-    int increment,
-    List<String> invitations,
-    int time,
-    bool allowPremades,
-    int negRatingRange,
-    int posRatingRange}) async {
+  Future<Map<String, dynamic>> createGame(
+      {bool isPublic,
+      bool isRated,
+      int increment,
+      List<String> invitations,
+      int time,
+      bool allowPremades,
+      int negRatingRange,
+      int posRatingRange}) async {
     final Map<String, dynamic> body = {
       'isPublic': isPublic,
       'isRated': isRated,
@@ -634,8 +642,8 @@ class ServerProvider with ChangeNotifier {
 
   // Running Game -------------------------------------------------------------
 
-  Future<Map<String, dynamic>> sendMove(ChessMove chessMove,
-      String gameId) async {
+  Future<Map<String, dynamic>> sendMove(
+      ChessMove chessMove, String gameId) async {
     return await postSkeleton(
       body: {
         'gameId': gameId,
@@ -726,8 +734,8 @@ class ServerProvider with ChangeNotifier {
         error: 'Decline Take Back');
   }
 
-  Future<Map<String, dynamic>> cancelRequest(int requestType,
-      String gameId) async {
+  Future<Map<String, dynamic>> cancelRequest(
+      int requestType, String gameId) async {
     return await postSkeleton(
         error: 'Cancel Request',
         url: SERVER_ADRESS + 'cancel-request/$gameId' + _authString,
@@ -756,17 +764,23 @@ class ServerProvider with ChangeNotifier {
 
 //#########################################################################################################
 
-  void _validation(Map<String, dynamic> data) {
+  _validation(Map<String, dynamic> data) {
     if (data == null) {
-      throw ('No Data was Received. Data is null');
+      throw ('No Data was Received. Data is low');
     }
     if (!data['valid']) {
-      if (data['problem']) {
-        throw ('Data is not Valid. This is the Message sent from Server: ' +
-            data['message']);
-      } else {
-        throw (data['message']);
+      if (data['errorType'] == ErrorType.Response.index) {
+        dynamic errorBody = data['body'];
+        displayErrorPopUp(errorBody);
       }
+      throw data['message'];
+    }
+  }
+
+  void displayErrorPopUp(errorBody) {
+    if (errorBody['errorResponseType'] == ErrorResponseType.Snackbar.index) {
+      _popupProvider
+          .makePopUp[PopUpType.SnackBar](errorBody['responseMessage']);
     }
   }
 
@@ -797,23 +811,18 @@ class ServerProvider with ChangeNotifier {
       _validation(data);
       return data;
     } catch (error) {
-      throw ('ERROR: $error');
+      throw (error);
     }
   }
 
   void handleError(String errorText, dynamic error) {
-    print(
-        '-----------------------------------------------------------------------------------------------');
-    print(
-        '----------------- ------------------------------------------------------------------------------');
+    print('-' * 35);
     print(errorText);
     print(error);
-    print(
-        '------------------------------------------------------------------------------------------------');
   }
 
-  void _handleSocketServerMessage(Method ident, String message,
-      Map<String, dynamic> data) {
+  void _handleSocketServerMessage(
+      Method ident, String message, Map<String, dynamic> data) {
     if (methodsInProcess.contains(ident)) {
       print(
           'Received Socket Data------------------------------------------------------------------------------');

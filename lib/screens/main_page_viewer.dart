@@ -63,7 +63,7 @@ class MainPageViewerState extends State<MainPageViewer>
         Provider.of<UserProvider>(context, listen: false);
     // Game Fetching
     gameProvider.fetchOnlineGames();
-    lobbyProvider.fetchPendingGames();
+    lobbyProvider.fetchPendingGames(context);
     lobbyProvider.fetchLobbyGames();
     // Friends
     friendsProvider.fetchFriends();

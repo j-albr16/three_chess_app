@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/data/board_data.dart';
 
 import './player.dart';
 import './chess_move.dart';
@@ -33,7 +34,9 @@ abstract class Game {
     this.id,
     this.increment,
     this.time,
-  });
+  }){
+    startingBoard ??= BoardData.defaultStartingBoard;
+  }
 }
 
 // example for fnishedGameData : 

@@ -339,7 +339,7 @@ class CreateGame extends StatelessWidget {
         children: selectedFriends.map((e) {
           return Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(cornerRadius),
+              borderRadius: BorderRadius.circular(cornerRadius / 2),
             ),
             child: SizedBox(
                 height: size.height * 0.08,

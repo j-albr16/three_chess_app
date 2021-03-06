@@ -5,8 +5,7 @@ import './player.dart';
 import './chess_move.dart';
 import './piece.dart';
 
-class OnlineGame extends Game{
-
+class OnlineGame extends Game {
   @override
   GameType gameType = GameType.Online;
 
@@ -24,7 +23,7 @@ class OnlineGame extends Game{
     List<Player> player,
     Map finishedGameData,
     List<ChessMove> chessMoves,
-    List<Piece>  startingBoard,
+    List<Piece> startingBoard,
     bool didStart,
     String id,
     int increment,
@@ -37,14 +36,46 @@ class OnlineGame extends Game{
     this.isRated,
     this.negRatingRange,
     this.posRatingRange,
-    this.endGameExpiry,}) : super(
-      player: player,
-      finishedGameData: finishedGameData,
-      chessMoves: chessMoves,
-      startingBoard: startingBoard,
-      didStart: didStart,
-      id: id,
-      increment: increment,
-      time: time
-  );
+    this.endGameExpiry,
+  }) : super(
+            player: player,
+            finishedGameData: finishedGameData,
+            chessMoves: chessMoves,
+            startingBoard: startingBoard,
+            didStart: didStart,
+            id: id,
+            increment: increment,
+            time: time);
+
+  set didStart(bool didStart) {
+    super.didStart = didStart;
+  }
+
+  set startingBoard(List<Piece> startingBoard) {
+    super.startingBoard = startingBoard;
+  }
+
+  set chessMoves(List<ChessMove> chessMoves) {
+    super.chessMoves = chessMoves;
+  }
+
+  set time(int time) {
+    super.time = time;
+  }
+
+  set player(List<Player> player) {
+    super.player = player;
+  }
+
+  set finishedGameData(Map finishedGameData) {
+    super.finishedGameData = finishedGameData;
+  }
+
+  set id(String id) {
+    super.id = id;
+  }
+
+  set increment(int increment) {
+    super.increment = increment;
+  }
 }

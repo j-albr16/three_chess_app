@@ -104,8 +104,9 @@ Widget localGames(Size size, ThemeData theme) {
   }
 
   Widget onlineGames(Size size, ThemeData theme) {
+    List<Game> onlineGames = currentGames.where((game) => game is OnlineGame).toList();
     return ListView(
-      children: currentGames.where((game) => game is OnlineGame).map(
+      children: onlineGames.map(
               (gameEntry) => SelectGame(
         confirmGame: () => confirmGame(gameEntry),
         theme: theme,
@@ -114,7 +115,7 @@ Widget localGames(Size size, ThemeData theme) {
         size: size,
         game: gameEntry,
         gameIndex: currentGames.indexOf(gameEntry),
-      ))
+      ) ?? Text('Could not Build Select Game'))
           .toList(),
     );
   }

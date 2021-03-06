@@ -19,21 +19,21 @@ class GameConversion {
     final playerData = gameData['player'];
     // lobby OnlineGame Callback will be called for Each OnlineGame
     data['gameData']['games'].forEach((game) {
+      // pData : Where gameId is the GameId and the Id is Contained in Game
       final List pData = playerData
           .where((player) =>
-              // Check if GameId is Noticed in Player Model
               player['gameId'] == game['_id'] &&
-              // check if game Player Array contains the Player Id
               game['player'].contains(player['_id']))
           .toList();
+
       final List uData = userData.where((user) {
         List userIds = pData.map((player) => player['userId']).toList();
         String gameTypeKey = gameTypeInterface[gameType];
-        List gameIds = user[gameTypeKey];
-        // Check if userIds of the Game contain the userId
-        // Check if gameId is Noticed in User Model
+        List gameIds = user[gameTypeKey + 's'];
         return gameIds.contains(game['_id']) && userIds.contains(user['_id']);
       }).toList();
+
+
       lobbyGameCallback(game, pData, uData);
     });
   }
@@ -216,7 +216,7 @@ class GameConversion {
   }
 
   static OnlineGame createGameWithOptions(gameOptions) {
-    // input: takes JSOON OnlineGame Options as Input
+    // input: takes JSON OnlineGame Options as Input
     // output: returns a game Model where OnlineGame options are set already
     return new OnlineGame(
       increment: gameOptions['increment'],

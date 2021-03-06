@@ -40,36 +40,6 @@ class _BoardScreenState extends State<BoardScreen> {
 
   bool isInit = false;
 
-  Future<void> fetchLocalGames() {
-    if (isInit) {
-      return null;
-    }
-    Future.delayed(Duration.zero).then((_) async {
-      if (kIsWeb) {
-        ServerProvider serverProvider = Provider.of(context, listen: false);
-        try {
-          Map<String, dynamic> localGames =
-              await serverProvider.fetchLocalGames();
-          analyzeGameData = localGames['analyzeGame'];
-          localGameData = localGames['localGame'];
-        } catch (error) {
-          serverProvider.handleError('Error While Fetching Local Games', error);
-        }
-      } else {
-        try {
-          analyzeGameData =
-              await JsonFile(fileKey: JsonFiles.AnalyzeGame).jsonMap;
-          localGameData = await JsonFile(fileKey: JsonFiles.LocalGame).jsonMap;
-        } catch (error) {
-          localGameData = null;
-          analyzeGameData = null;
-          print(error);
-        }
-      }
-    }).then((_) => setState(() {
-          isInit = true;
-        }));
-  }
 
   void _confirmGame(Game game, context) {
     setState(() {
@@ -124,6 +94,10 @@ class _BoardScreenState extends State<BoardScreen> {
     });
   }
 
+  Future<void> doNothing(){
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -140,7 +114,7 @@ class _BoardScreenState extends State<BoardScreen> {
               )
             : null,
         body: FutureBuilder(
-            future: fetchLocalGames(),
+            future: doNothing(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();

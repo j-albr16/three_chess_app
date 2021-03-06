@@ -62,8 +62,10 @@ const List<Method> methodsInProcess = [
   // Method.HandlePlayerJoined,
   // Method.HandleMessage,
 
-  Method.HandleFriendRequest,
-  Method.SendFriendRequest,
+  Method.FetchOnlineGames,
+
+  // Method.HandleFriendRequest,
+  // Method.SendFriendRequest,
 ];
 
 class ServerProvider with ChangeNotifier {
@@ -819,6 +821,9 @@ class ServerProvider with ChangeNotifier {
     print('-' * 35);
     print(errorText);
     print(error);
+    if(error is Error){
+      print(error.stackTrace);
+    }
   }
 
   void _handleSocketServerMessage(

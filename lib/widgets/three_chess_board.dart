@@ -58,7 +58,7 @@ class _ThreeChessBoardState extends State<ThreeChessBoard>  with SingleTickerPro
 
   }
 
-  Future<void> animatePiece({@required String draggedPiece, @required String animatedStart, @required GetOffset getOffset, Map<String, DraggedPiece> draggedPieces, UpdateDragged updateDragged}) async { //TODO clientGame --> Function getOffset %% draggedPieces
+  Future<void> animatePiece({@required String draggedPiece, @required String animatedStart, @required GetOffset getOffset, Map<String, DraggedPiece> draggedPieces, UpdateDragged updateDragged}) async {
 
     if(draggedPiece != null && animatedStart != null){
 
@@ -71,9 +71,10 @@ class _ThreeChessBoardState extends State<ThreeChessBoard>  with SingleTickerPro
 
         _pieceMoveAnimation.addListener(offsetUpdate);
 
-        _controller.repeat().whenCompleteOrCancel(() {
+        _controller.forward().whenCompleteOrCancel(() {
           draggedPieces.remove(currentDraggedPiece.draggedPiece);
           _pieceMoveAnimation.removeListener(offsetUpdate);
+          _controller.reset();
         });
 
 

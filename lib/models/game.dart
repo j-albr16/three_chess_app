@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:three_chess/data/board_data.dart';
 
 import './player.dart';
 import './chess_move.dart';
@@ -20,8 +21,12 @@ abstract class Game {
   int increment;
   int time;
   GameType get gameType;
+
+  PlayerColor startingPlayer;
+
   Game({
     this.player,
+    this.startingPlayer = PlayerColor.white,
     this.finishedGameData,
     this.chessMoves,
     this.startingBoard,
@@ -29,7 +34,9 @@ abstract class Game {
     this.id,
     this.increment,
     this.time,
-  });
+  }){
+    startingBoard ??= BoardData.defaultStartingBoard;
+  }
 }
 
 // example for fnishedGameData : 

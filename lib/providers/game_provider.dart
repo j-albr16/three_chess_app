@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import 'package:three_chess/providers/friends_provider.dart';
 import 'package:universal_html/html.dart';
 
 import '../models/online_game.dart';
@@ -80,12 +83,32 @@ class GameProvider with ChangeNotifier {
         gameStartsCallback: (gameData) => _handleGameStarts(gameData));
   }
 
-  void setGameId(String gameId, {bool notify}) {
-    currentGameId = gameId;
+  void setGameId(String gameId, BuildContext context, {bool notify}) {
     subscribeToGameChannel();
+    removeUserStatusListener(context, currentGameId);
+    subscribeToUserStatusListener(context, gameId);
+    currentGameId = gameId;
     if (notify) {
       notifyListeners();
     }
+  }
+
+  void subscribeToUserStatusListener(BuildContext context, String gameId) {
+    Provider.of<FriendsProvider>(context, listen: false)
+        .addPlayerStatusListener(gameId,
+            (userId, isOnline, isActive, isPlaying) {
+      OnlineGame onlineGame = _onlineGames[getGameIndex(gameId)];
+      Player player = onlineGame.player
+          .firstWhere((p) => p.user.id == userId, orElse: () => null);
+      player.isActive = isActive;
+      player.isOnline = isOnline;
+      player.isPlaying = isPlaying;
+    });
+  }
+
+  void removeUserStatusListener(BuildContext context, String gameId) {
+    Provider.of<FriendsProvider>(context, listen: false)
+        .removePlayerStatusListener(gameId);
   }
 
   void removeGame() {
@@ -123,7 +146,7 @@ class GameProvider with ChangeNotifier {
       _onlineGames.add(GameConversion.rebaseOnlineGame(
           userData: userData, playerData: playerData, gameData: gameData));
       if (_onlineGames.last.id == data['gameData']['_id']) {
-        subscribeToGameChannel();
+        // subscribeToGameChannel();
       }
       notifyListeners();
     } catch (error) {

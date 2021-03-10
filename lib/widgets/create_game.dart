@@ -118,7 +118,6 @@ class CreateGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    print(selectedFriends);
     return Container(
       height: size.height,
       width: size.width,
@@ -321,7 +320,6 @@ class CreateGame extends StatelessWidget {
                       friends: friends,
                       size: Size(size.width * 0.7, size.height * 0.7),
                       updateFriendSelectionStatus: (bool value, String id) {
-                        print(selectedFriends);
                         if (value && selectedFriends.length < 3) {
                           selectedFriendIds.add(id);
                         } else if (!value) {
@@ -341,7 +339,7 @@ class CreateGame extends StatelessWidget {
         children: selectedFriends.map((e) {
           return Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(cornerRadius),
+              borderRadius: BorderRadius.circular(cornerRadius / 2),
             ),
             child: SizedBox(
                 height: size.height * 0.08,

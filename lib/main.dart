@@ -40,14 +40,15 @@ class ThreeChessApp extends StatelessWidget {
           ChangeNotifierProvider<PopupProvider>(
             create: (_) => PopupProvider(),
           ),
-          ChangeNotifierProxyProvider<AuthProvider, ServerProvider>(
+          ChangeNotifierProxyProvider2<PopupProvider, AuthProvider,
+                  ServerProvider>(
               create: (_) => ServerProvider(),
-              update: (_, auth, previousServer) => previousServer
-              // ..update(
-              //   token: auth.token,
-              //   userId: auth.userId,
-              // )
-              ),
+              update: (_, popUpProvider, auth, previousServer) => previousServer
+                ..update(
+                  popupProvider: popUpProvider,
+                  token: auth.token,
+                  userId: auth.userId,
+                )),
           ChangeNotifierProxyProvider2<ServerProvider, PopupProvider,
               GameProvider>(
             create: (_) => GameProvider(),

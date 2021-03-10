@@ -10,6 +10,9 @@ import '../providers/popup_provider.dart';
 import '../providers/chat_provider.dart';
 import '../conversion/friend_conversion.dart';
 
+typedef void PlayerStatusListener(
+    String userId, bool isOnline, bool isActive, bool isPlaying);
+
 class FriendsProvider with ChangeNotifier {
   List<Friend> _friends = [];
   List<Friend> _pendingFriends = [];
@@ -76,7 +79,7 @@ class FriendsProvider with ChangeNotifier {
       _friends = [];
       _pendingFriends = [];
       final Map<String, dynamic> data = await _serverProvider.fetchFriends();
-      // destinguish between friends whoare accepted and those who are not
+      // distinguish between friends who are accepted and those who are not
       data['friends'].forEach((friend) => _friends
           .add(FriendConversion.matchChatIdAndFriend(friend, data['chats'])));
       data['pendingFriends'].forEach((pendingFriend) =>
@@ -90,50 +93,38 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> fetchInvitations() async {
     print('Fetching Invitations');
-    String message = 'An Error Occurred. Sry';
     try {
       final Map<String, dynamic> data =
           await _serverProvider.fetchInvitations();
-      if (data['games'] == null) {
-        message = 'No Invitations';
-      } else {
-        data['games'].forEach((gameData) {
-          final playerData = data['player']
-              ?.where((player) => player['gameId'] == gameData['_id']);
-          print(playerData);
-          final userData =
-              data['user']?.where((user) => user['gameId'] == gameData['_id']);
-          print(userData);
-          _invitations.add(GameConversion.rebaseLobbyGame(
-              gameData: gameData, playerData: playerData, userData: userData));
-          notifyListeners();
-        });
-      }
+
+      data['games'].forEach((gameData) {
+        final playerData = data['player']
+            ?.where((player) => player['gameId'] == gameData['_id']);
+        print(playerData);
+        final userData =
+            data['user']?.where((user) => user['gameId'] == gameData['_id']);
+        print(userData);
+        _invitations.add(GameConversion.rebaseLobbyGame(
+            gameData: gameData, playerData: playerData, userData: userData));
+        notifyListeners();
+      });
     } catch (error) {
       _serverProvider.handleError('Error while fetching Invitations', error);
     }
     ;
   }
 
-  Future<String> makeFriendRequest(String userName) async {
-    String message = 'An Error Occured. Sorry';
+  Future<void> makeFriendRequest(String userName) async {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.sendFriendRequest(userName);
-      // add _frinds =>  but until acceptance not accepted
       notifyListeners();
-      if (data['valid']) {
-        message = data['message'];
-      }
     } catch (error) {
-      _serverProvider.handleError('Erorr while Making Friend Request', error);
-    } finally {
-      return message;
+      _serverProvider.handleError('Error while Making Friend Request', error);
     }
   }
 
-  Future<String> acceptFriend(String userId) async {
-    String message = 'An Error Occured. Sorry';
+  Future<void> acceptFriend(String userId) async {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.acceptFriend(userId);
@@ -141,19 +132,12 @@ class FriendsProvider with ChangeNotifier {
           chatId: data['chatId']));
       _pendingFriends
           .removeWhere((pFriend) => pFriend.user.id == data['friend']['_id']);
-      if (data['valid']) {
-        message = data['message'];
-      }
     } catch (error) {
-      _serverProvider.handleError('Error whle Accepting Friend', error);
-    } finally {
-      notifyListeners();
-      return message;
+      _serverProvider.handleError('Error while Accepting Friend', error);
     }
   }
 
-  Future<String> declineFriend(String userId) async {
-    String message = 'An Error Occured. Sorry';
+  Future<void> declineFriend(String userId) async {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.friendDecline(userId);
@@ -161,38 +145,27 @@ class FriendsProvider with ChangeNotifier {
         _pendingFriends
             .removeWhere((friend) => friend.user.id == data['userId']);
       }
-      if (data['valid']) {
-        message = data['message'];
-      }
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error While declining Friend', error);
-    } finally {
-      return message;
     }
   }
 
-  Future<String> removeFriend(String userId) async {
-    String message = 'An Error Occured. Sorry';
+  Future<void> removeFriend(String userId) async {
     try {
       final Map<String, dynamic> data =
           await _serverProvider.friendRemove(userId);
       if (data['valid']) {
         _friends.removeWhere((friend) => friend.user.id == userId);
       }
-      if (data['valid']) {
-        message = data['message'];
-      }
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error While Removing Friend', error);
-    } finally {
-      return message;
     }
   }
 
   Future<void> declineInvitation({String gameId, bool all = false}) async {
-    String message = 'Could decline Invitation(s)';
+    String message = 'Could not  decline Invitation(s)';
     try {
       final bool didDecline =
           await _serverProvider.declineInvitation(gameId, all);
@@ -221,7 +194,6 @@ class FriendsProvider with ChangeNotifier {
 
   void _handleFriendRequest(Map<String, dynamic> friendData, String message) {
     // add new Friend to _friends
-    print(message);
     _pendingFriends.add(FriendConversion.rebaseOneFriend(friendData));
     _popUpProvider.makePopUp[PopUpType.SnackBar](message);
     notifyListeners();
@@ -276,5 +248,23 @@ class FriendsProvider with ChangeNotifier {
       friend.isPlaying = isPlaying;
       notifyListeners();
     }
+    notifyPlayerStatusListener(userId, isOnline, isActive, isPlaying);
+  }
+
+  Map<String, PlayerStatusListener> _playerStatusListener = {};
+
+  void notifyPlayerStatusListener(
+      String userId, bool isOnline, bool isActive, bool isPlaying) {
+    _playerStatusListener.forEach(
+        (gameId, listener) => listener(userId, isOnline, isActive, isPlaying));
+  }
+
+  void addPlayerStatusListener(
+      String gameId, PlayerStatusListener playerStatusListener) {
+    _playerStatusListener[gameId] = playerStatusListener;
+  }
+
+  void removePlayerStatusListener(String gameId) {
+    _playerStatusListener.remove(gameId);
   }
 }

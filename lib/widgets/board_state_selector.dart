@@ -8,12 +8,12 @@ import '../models/enums.dart';
 import '../models/local_game.dart';
 import '../widgets/select_game_widget.dart';
 
-typedef void GameCall(Game game);
+typedef void GameCallExtended(Game game, BuildContext context);
 typedef void GameIndexCall(int selectedGameIndex);
 typedef void ConfirmGame();
 
 class BoardStateSelector extends StatelessWidget {
-  final GameCall confirmGame;
+  final GameCallExtended confirmGame;
   final GameIndexCall gameIndexCall;
 
   final bool onlineGamesOpen;
@@ -51,10 +51,10 @@ class BoardStateSelector extends StatelessWidget {
     this.switchOnlineGames,
   });
 
-  Widget confirmSelection(ThemeData theme) {
+  Widget confirmSelection(ThemeData theme, BuildContext context) {
     return FlatButton(
       minWidth: double.infinity,
-      onPressed: () => confirmGame(gameIndex != null ? currentGames[gameIndex] : null),
+      onPressed: () => confirmGame(gameIndex != null ? currentGames[gameIndex] : null, context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(cornerRadius),
       ),
@@ -67,7 +67,7 @@ class BoardStateSelector extends StatelessWidget {
     );
   }
 
-Widget localGames(Size size, ThemeData theme) {
+Widget localGames(Size size, ThemeData theme, BuildContext context) {
     return Column(
       children: [
         // SelectGame(
@@ -93,7 +93,7 @@ Widget localGames(Size size, ThemeData theme) {
               size: size,
               game: game,
               theme: theme,
-              confirmGame: () => confirmGame(game),
+              confirmGame: () => confirmGame(game, context),
               currentGameIndex: gameIndex,
               gameIndex: currentGames.indexOf(game),
               gameIndexCall: gameIndexCall,
@@ -103,12 +103,12 @@ Widget localGames(Size size, ThemeData theme) {
     );
   }
 
-  Widget onlineGames(Size size, ThemeData theme) {
+  Widget onlineGames(Size size, ThemeData theme, BuildContext context) {
     List<Game> onlineGames = currentGames.where((game) => game is OnlineGame).toList();
     return ListView(
       children: onlineGames.map(
               (gameEntry) => SelectGame(
-        confirmGame: () => confirmGame(gameEntry),
+        confirmGame: () => confirmGame(gameEntry, context),
         theme: theme,
         currentGameIndex: gameIndex,
         gameIndexCall: gameIndexCall,
@@ -137,7 +137,7 @@ Widget localGames(Size size, ThemeData theme) {
           ),
           // ChessDivider(),
           if(onlineGamesOpen && currentGames.where((element) => element is OnlineGame).toList().isEmpty)Text('No Online Games Available'),
-          if (onlineGamesOpen) Flexible(child: onlineGames(size, theme), flex: 1),
+          if (onlineGamesOpen) Flexible(child: onlineGames(size, theme, context), flex: 1),
           // ChessDivider(),
           AdvancedSelection(
             isSelected: localGamesOpen,
@@ -146,8 +146,8 @@ Widget localGames(Size size, ThemeData theme) {
             updateSelection: switchLocalGames,
           ),
           // ChessDivider(),
-          if (localGamesOpen) localGames(size, theme),
-          if (gameType != null) confirmSelection(theme),
+          if (localGamesOpen) localGames(size, theme, context),
+          if (gameType != null) confirmSelection(theme, context),
           SizedBox(height: 28),
         ],
       ),

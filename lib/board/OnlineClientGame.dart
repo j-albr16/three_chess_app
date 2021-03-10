@@ -29,7 +29,7 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
     return GameType.Online;
   }
 
-  OnlineClientGame({OnlineGame onlineGame, this.providerUpdate, this.gameProvider}) : this.onlineGame = onlineGame,  super(game: onlineGame);
+  OnlineClientGame({OnlineGame onlineGame, this.providerUpdate, this.gameProvider}) : this.onlineGame = onlineGame, super(game: onlineGame);
 
   @override
   get createTiles{

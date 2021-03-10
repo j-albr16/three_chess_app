@@ -43,7 +43,7 @@ class _BoardScreenState extends State<BoardScreen> {
 
   void _confirmGame(Game game, context) {
     setState(() {
-      Provider.of<ClientGameProvider>(context, listen:false).setClientGame(game);
+      Provider.of<ClientGameProvider>(context, listen: false).setClientGame(game, context: context);
     });
   }
 

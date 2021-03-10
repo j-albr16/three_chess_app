@@ -97,7 +97,7 @@ class SelectGame extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text(game.time.toString(), style: theme.textTheme.bodyText1),
-        Text( game.increment.toString() , style: theme.textTheme.bodyText1)
+        Text(game.increment.toString() , style: theme.textTheme.bodyText1)
       ],
     );
   }

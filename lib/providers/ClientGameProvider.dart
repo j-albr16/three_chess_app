@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:three_chess/board/LocalClientGame.dart';
 import 'package:three_chess/board/OnlineClientGame.dart';
 import '../models/local_game.dart';
@@ -30,13 +30,14 @@ class ClientGameProvider with ChangeNotifier{
     }
   }
 
-  setClientGame(Game game) {
+  setClientGame(Game game, {BuildContext context}) {
     if (game == null) {
       clientGame = null;
     }
     else {
       switch (game.runtimeType) {
         case OnlineGame:
+          gameProvider.setGameId(game.id, context);
           clientGame = OnlineClientGame(
               gameProvider: gameProvider,
               onlineGame: game,

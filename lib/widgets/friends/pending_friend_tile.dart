@@ -47,7 +47,7 @@ class PendingFriendTile extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 2,
-                  child: FriendTile.usernameText(model.user.userName)),
+                  child: FriendTile.usernameText(model.user.userName, theme)),
                 if (isSelected) Flexible(
                   flex: 3,
                   child: confirmButtons(Size(screenWidth / 2, 2 * height / 3), theme)),
@@ -72,7 +72,7 @@ class PendingFriendTile extends StatelessWidget {
             size: buttonSize,
             theme: theme,
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 30),
           DeclineButton(
             onDecline:() =>  onReject(model),
             margin: EdgeInsets.zero,

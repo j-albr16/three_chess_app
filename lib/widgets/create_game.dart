@@ -67,6 +67,8 @@ class CreateGame extends StatelessWidget {
   CreateGameCallback createGame;
   Function cancelCreateGame;
 
+  ThemeData theme;
+
   int get playerColor {
     if (playerColorSelection == 5) {
       return null;
@@ -85,6 +87,7 @@ class CreateGame extends StatelessWidget {
       {this.cancelCreateGame,
       this.createGame,
       this.allowPremades,
+        this.theme,
       this.posRatingRange,
       this.advancedSettings,
       this.updateAdvancedSettings,
@@ -130,8 +133,7 @@ class CreateGame extends StatelessWidget {
           Divider(thickness: dividerThickness),
           advancedSettingsWidget(),
           Divider(thickness: dividerThickness),
-          if(advancedSettings)
-          boolBlock(),
+          if (advancedSettings) boolBlock(),
           inviteFriend(context),
           if (selectedFriends.length > 0) invitedFriends(),
           Divider(thickness: dividerThickness),
@@ -274,7 +276,8 @@ class CreateGame extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(negRatingRange.round().toStringAsFixed(0), style: theme.textTheme.bodyText1),
+            Text(negRatingRange.round().toStringAsFixed(0),
+                style: theme.textTheme.bodyText1),
             SizedBox(
               height: size.height * 0.1,
               width: size.width * 0.6,
@@ -282,13 +285,14 @@ class CreateGame extends StatelessWidget {
                 min: 0,
                 max: user.score + 1000.0,
                 divisions: user.score + 1000,
-                labels: RangeLabels(
-                    negRatingRange.round().toStringAsFixed(0), posRatingRange.round().toStringAsFixed(0)),
+                labels: RangeLabels(negRatingRange.round().toStringAsFixed(0),
+                    posRatingRange.round().toStringAsFixed(0)),
                 onChanged: (RangeValues values) => updateRatingRange(values),
                 values: RangeValues(negRatingRange, posRatingRange),
               ),
             ),
-            Text(posRatingRange.round().toStringAsFixed(0), style: theme.textTheme.bodyText1),
+            Text(posRatingRange.round().toStringAsFixed(0),
+                style: theme.textTheme.bodyText1),
           ],
         ),
       ],
@@ -333,7 +337,6 @@ class CreateGame extends StatelessWidget {
   }
 
   Widget invitedFriends() {
-    print('Create invite Friends');
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: selectedFriends.map((e) {
@@ -344,10 +347,9 @@ class CreateGame extends StatelessWidget {
             child: SizedBox(
                 height: size.height * 0.08,
                 width: size.width / 2.5,
-                child: FriendPopup.friendTile(e, size,
+                child: FriendPopup.friendTile(e, size, theme,
                     remove: true,
                     removeCallback: (String id) => removeFriend(id))),
-            // child: Text(e.user.userName),
             elevation: 3,
           );
         }).toList());

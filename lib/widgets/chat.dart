@@ -63,28 +63,30 @@ class Chat extends StatelessWidget {
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          Expanded(
-            child: noSorrounding ? mainChat() : SurroundingCard(
-              padding: EdgeInsets.all(mainBoxPadding / 2),
-              child: mainChat(),
-            ),
+          chat == null ? Center(child: CircularProgressIndicator()) : Expanded(
+            child: noSorrounding
+                ? mainChat()
+                : SurroundingCard(
+                    padding: EdgeInsets.all(mainBoxPadding / 2),
+                    child: mainChat(),
+                  ),
           ),
           textField(),
         ]);
   }
 
-  Widget mainChat(){
-    return ListView.builder(
-                controller: scrollController,
-                physics: BouncingScrollPhysics(),
-                itemCount: chat?.messages?.length,
-                itemBuilder: (context, index) => chatObject(
-                    time: chat.messages[index].timeStamp,
-                    theme: Theme.of(context),
-                    text: chat.messages[index].text,
-                    userName: chat.messages[index].userName,
-                    owner: chat.messages[index].owner),
-              );
+  Widget mainChat() {
+      return ListView.builder(
+        controller: scrollController,
+        physics: BouncingScrollPhysics(),
+        itemCount: chat?.messages?.length,
+        itemBuilder: (context, index) => chatObject(
+            time: chat?.messages[index]?.timeStamp,
+            theme: Theme.of(context),
+            text: chat?.messages[index]?.text,
+            userName: chat?.messages[index]?.userName,
+            owner: chat?.messages[index]?.owner),
+      );
   }
 
   Widget blankTextField() {

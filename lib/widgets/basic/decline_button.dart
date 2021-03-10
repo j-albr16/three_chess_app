@@ -16,6 +16,7 @@ class DeclineButton extends StatelessWidget {
     this.onDecline,
     this.size,
   });
+
   Widget get getChild {
     if (child != null) {
       return child;
@@ -32,17 +33,26 @@ class DeclineButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: size.height,
-      width: size.width,
+      // height: size.height,
+      // width: size.width,
       child: InkWell(
-        child: Card(
-          margin: margin,
-          elevation: 4,
-          // margin: EdgeInsets.all(5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(cornerRadius / 2),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 100,
           ),
-          color: theme.colorScheme.error,
+          margin: margin,
+          // margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(cornerRadius / 2),
+            color: theme.colorScheme.error,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey,
+                  offset: Offset(1, 0),
+                  blurRadius: 2,
+                  spreadRadius: 1),
+            ],
+          ),
           child: Center(
             child: getChild,
           ),

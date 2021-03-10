@@ -268,6 +268,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
           timeDivisions: timeDivisions,
           timeMax: timeMax,
           friends: friends,
+          theme: Theme.of(context),
           timeMin: timeMin,
           removeFriend: (String id) => removeFriend(id),
           cancelFriendInvitation: () => cancelFriendSelection(),

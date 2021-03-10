@@ -23,7 +23,8 @@ class FriendsScreen extends StatefulWidget {
   _FriendsScreenState createState() => _FriendsScreenState();
 }
 
-class _FriendsScreenState extends State<FriendsScreen> with notificationPort<FriendsScreen>{
+class _FriendsScreenState extends State<FriendsScreen>
+    with notificationPort<FriendsScreen> {
   FriendsProvider _friendsProvider;
   ChatProvider _chatProvider;
   bool _didFetch = false;
@@ -102,6 +103,18 @@ class _FriendsScreenState extends State<FriendsScreen> with notificationPort<Fri
     });
   }
 
+  void pendingAccept(Friend model) {
+    switchBooleans[FriendBools.IsSearchngFriend] = false;
+    switchBooleans[FriendBools.PendingOpen] = false;
+    Provider.of<FriendsProvider>(context, listen: false)
+        .acceptFriend(model.user.id);
+  }
+
+  void pendingReject(Friend model) {
+    Provider.of<FriendsProvider>(context, listen: false)
+        .declineFriend(model.user.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     _friendsProvider = Provider.of<FriendsProvider>(context);
@@ -151,12 +164,8 @@ class _FriendsScreenState extends State<FriendsScreen> with notificationPort<Fri
               theme: Theme.of(context),
               selectedFriend: selectedPending,
               isPendingOpen: switchBooleans[FriendBools.PendingOpen],
-              onPendingAccept: (model) =>
-                  Provider.of<FriendsProvider>(context, listen: false)
-                      .acceptFriend(model.user.id),
-              onPendingReject: (model) =>
-                  Provider.of<FriendsProvider>(context, listen: false)
-                      .declineFriend(model.user.id),
+              onPendingAccept: (model) => pendingAccept(model),
+              onPendingReject: (model) => pendingReject(model),
               width: double.infinity,
             ),
           ),

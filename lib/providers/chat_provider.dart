@@ -44,11 +44,11 @@ class ChatProvider with ChangeNotifier {
 
   Chat get chat {
     if (_currentChatIndex == null) {
-      return new Chat();
+      return null;
     }
     if (_chats[_currentChatIndex] == null) {
       // TODO
-      return new Chat();
+      return null;
     }
     return _chats[_currentChatIndex];
   }

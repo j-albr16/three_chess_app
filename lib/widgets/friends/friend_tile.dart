@@ -26,18 +26,19 @@ class FriendTile extends StatelessWidget {
         color: isPlaying ? Colors.red : Colors.black);
   }
 
-  static Widget usernameText(String username) {
+  static Widget usernameText(String username, ThemeData theme) {
     return Padding(
       padding: EdgeInsets.all(4),
       child: Text(
         username,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: theme.textTheme.bodyText1,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return FlatButton(
       height: height,
       shape: RoundedRectangleBorder(
@@ -71,7 +72,7 @@ class FriendTile extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: MessageCount(model.newMessages),
               ),
-            Center(child: usernameText(model.user.userName)),
+            Center(child: usernameText(model.user.userName, theme)),
           ],
         ),
       ),

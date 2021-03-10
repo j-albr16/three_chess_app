@@ -85,6 +85,7 @@ class FriendsProvider with ChangeNotifier {
       data['pendingFriends'].forEach((pendingFriend) =>
           _pendingFriends.add(FriendConversion.rebaseOneFriend(pendingFriend)));
       print('YOu have ${_friends.length} Friends');
+      print('YOu have ${_pendingFriends.length} Pending Friends');
       notifyListeners();
     } catch (error) {
       _serverProvider.handleError('error While fetching Friends', error);
@@ -132,6 +133,7 @@ class FriendsProvider with ChangeNotifier {
           chatId: data['chatId']));
       _pendingFriends
           .removeWhere((pFriend) => pFriend.user.id == data['friend']['_id']);
+      notifyListeners();
     } catch (error) {
       _serverProvider.handleError('Error while Accepting Friend', error);
     }
@@ -139,6 +141,7 @@ class FriendsProvider with ChangeNotifier {
 
   Future<void> declineFriend(String userId) async {
     try {
+      print(userId);
       final Map<String, dynamic> data =
           await _serverProvider.friendDecline(userId);
       if (data['valid']) {

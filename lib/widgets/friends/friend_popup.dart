@@ -31,7 +31,7 @@ class FriendPopup extends StatelessWidget {
             height: size.height * 0.75,
             width: size.width,
             child: ListView(
-              children: friends.map((friend) => checkBoxTile(friend)).toList(),
+              children: friends.map((friend) => checkBoxTile(friend, Theme.of(context))).toList(),
             ),
           ),
           Text(
@@ -45,27 +45,27 @@ class FriendPopup extends StatelessWidget {
     );
   }
 
-  Widget checkBoxTile(Friend friend) {
+  Widget checkBoxTile(Friend friend, ThemeData theme) {
     return CheckboxListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
         contentPadding: EdgeInsets.all(8),
         value: selectedFriendIds.contains(friend.user.id),
-        title: friendTile(friend, size),
+        title: friendTile(friend, size, theme),
         onChanged: (bool value) =>
             updateFriendSelectionStatus(value, friend.user.id));
   }
 
-  static Widget friendTile(Friend friend, Size size,
+  static Widget friendTile(Friend friend, Size size, ThemeData theme,
       {bool remove = false, Function removeCallback}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         FriendTile.onlineIcon(friend.isOnline, friend.isAfk),
         // SizedBox(width: size.width * 0.1),
-        FriendTile.usernameText(friend.user.userName),
-        Spacer(),
-        Text(friend.user.score.toString()),
-        // SizedBox(width: size.width * 0.06),
+        FriendTile.usernameText(friend.user.userName, theme),
+        // Spacer(),
+        Text(friend.user.score.toString(), style: theme.textTheme.bodyText1),
+        // SizedBox(width: size.width * 0.06)
         if (remove)
           IconButton(
             icon: Icon(

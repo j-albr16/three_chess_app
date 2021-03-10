@@ -30,15 +30,23 @@ class AcceptButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: size.height,
-      width: size.width,
+      // height: size.height,
+      // width: size.width,
       child: InkWell(
-        child: Card(
+        child: Container(
           margin: margin,
-          color: Colors.green[600],
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(cornerRadius / 2)),
-          elevation: 4,
+          constraints: BoxConstraints(
+            maxWidth: 100,
+          ),
+          decoration: BoxDecoration(
+            color:Colors.green[600] ,
+            borderRadius: BorderRadius.circular(cornerRadius / 2),
+            boxShadow: [  BoxShadow(
+              color: Colors.grey,
+              offset: Offset(1, 0),
+              blurRadius: 2,
+              spreadRadius: 1),],
+          ),
           child: Center(child: getChild),
         ),
         onTap: () => onAccept(),

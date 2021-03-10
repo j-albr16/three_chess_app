@@ -62,10 +62,9 @@ const List<Method> methodsInProcess = [
   // Method.HandlePlayerJoined,
   // Method.HandleMessage,
 
-  Method.FetchOnlineGames,
+  // Method.FetchOnlineGames,
 
-  // Method.HandleFriendRequest,
-  // Method.SendFriendRequest,
+  Method.FetchChat,
 ];
 
 class ServerProvider with ChangeNotifier {
@@ -775,7 +774,10 @@ class ServerProvider with ChangeNotifier {
         dynamic errorBody = data['body'];
         displayErrorPopUp(errorBody);
       }
-      throw data['message'];
+      // else if (data['errorType'] == ErrorType.Critical) {
+        throw data['message'];
+      // }
+      // throw 'Valid Error';
     }
   }
 
@@ -821,7 +823,7 @@ class ServerProvider with ChangeNotifier {
     print('-' * 35);
     print(errorText);
     print(error);
-    if(error is Error){
+    if (error is Error) {
       print(error.stackTrace);
     }
   }

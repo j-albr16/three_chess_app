@@ -83,8 +83,8 @@ class GameProvider with ChangeNotifier {
         gameStartsCallback: (gameData) => _handleGameStarts(gameData));
   }
 
-  void setGameId(String gameId, BuildContext context, {bool notify}) {
-    subscribeToGameChannel();
+  void setGameId(String gameId, BuildContext context, {bool notify = false}) {
+    subscribeToGameChannel(gameId);
     removeUserStatusListener(context, currentGameId);
     subscribeToUserStatusListener(context, gameId);
     currentGameId = gameId;
@@ -312,10 +312,10 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  void subscribeToGameChannel() {
+  void subscribeToGameChannel(String gameId) {
     print('Did Subscribe to OnlineGame Lobby Channel');
     _serverProvider.subscribeToGameChannel(
-      gameId: onlineGame.id,
+      gameId: gameId,
       // TODO
       moveMadeCallback: (moveData, gameId) => _handleMoveData(moveData, gameId),
       requestCancelledCallback: (data, gameId) =>

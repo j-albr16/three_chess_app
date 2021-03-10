@@ -91,6 +91,11 @@ class LocalClientGame extends ClientGame with ChessMoveController{
   }
 
   @override
+  Offset getOffset(String tile){
+    return Offset(tileKeeper.tiles[tile].middle.x, tileKeeper.tiles[tile].middle.y);
+  }
+
+  @override
   void update(){
     providerUpdate();
   }

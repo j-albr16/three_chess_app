@@ -20,8 +20,10 @@ import '../models/game.dart';
  Tiles tileKeeper;
  Game game;
  PlayerColor clientPlayer;
+ AnimationFunction  onAnimate;
 
- bool get hasChat;
+
+  bool get hasChat;
 
  ClientGame({this.game}){
   tileKeeper = createTiles;

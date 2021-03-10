@@ -70,13 +70,11 @@ class BoardState extends BoardStateBone {
     }
   }
 
-  BoardState.generate({List<ChessMove> chessMoves, Map<String, Piece> customStartingBoard, PlayerColor startingColor}) {
-    super.customStartingBoard = customStartingBoard;
-    super.startingColor = startingColor;
-    _generate(chessMoves ?? []);
+  BoardState.generate({List<ChessMove> chessMoves, Map<String, Piece> customStartingBoard, PlayerColor startingColor}) : super.generate(customStartingBoard: customStartingBoard, startingColor: startingColor, chessMoves: chessMoves) {
   }
 
-  void _generate(List<ChessMove> chessMoves) {
+  @override
+  void generates(List<ChessMove> chessMoves) {
     infoChessMoves = [];
     super.pieces = {};
     super.enpassent = {};
@@ -163,7 +161,7 @@ class BoardState extends BoardStateBone {
         }
       }
     } else {
-      _generate(newChessMoves);
+      generates(newChessMoves);
     }
   }
 

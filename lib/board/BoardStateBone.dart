@@ -37,10 +37,11 @@ class BoardStateBone{
     if(customStartingBoard == null){
       customStartingBoard = defaultStartingBoard();
     }
-    _generate(chessMoves);
+    generates(chessMoves);
   }
 
-  void _generate(List<ChessMove> chessMoves,){
+  void generates(List<ChessMove> chessMoves,){
+
     pieces = {};
     enpassent = {};
     newGame();

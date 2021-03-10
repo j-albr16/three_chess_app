@@ -196,7 +196,11 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                         ),
                       ),
                     ),
-                    threeChessBoard,
+                    SizedBox(
+                      height: screenWidth/2 *sqrt(3),
+                        width: screenWidth,
+                        child: threeChessBoard,
+                    ),
                   ],
                 ),
               ),

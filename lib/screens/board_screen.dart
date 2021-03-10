@@ -75,10 +75,7 @@ class _BoardScreenState extends State<BoardScreen> {
             height: screenHeight,
             // analyzeGame: GameConversion.rebaseOnlineGame(analyzeGameData),
             // localGame: GameConversion.rebaseOnlineGame(localGameData, localGameData[]),
-            confirmGame: (Game game, buildContext) {
-              print("JUST TESTING PLS DELETE WHEN YOU SEE" + buildContext.toString());
-              _confirmGame(game, buildContext);
-            } ,
+            confirmGame: (Game game) => _confirmGame(game, context),
             localGamesOpen: localGamesOpen,
             onlineGamesOpen: onlineGamesOpen,
             gameType: gameType,

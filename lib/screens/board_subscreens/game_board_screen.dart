@@ -52,7 +52,6 @@ class _GameBoardScreenState extends State<GameBoardScreen> with ScrollSections{
     controller = ScrollController();
     Future.delayed(Duration.zero).then((_) {
       clientGameProvider = Provider.of<ClientGameProvider>(context, listen:false);
-         // ..setClientGame(widget.game);
       sections = _createSections(MediaQuery.of(context).size.height);
     });
 

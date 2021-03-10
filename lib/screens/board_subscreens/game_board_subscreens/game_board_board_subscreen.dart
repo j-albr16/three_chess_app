@@ -24,7 +24,6 @@ class BoardBoardSubScreen extends StatefulWidget {
 }
 
 class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
-  ThreeChessBoard threeChessBoard;
 
   @override
   void initState() {
@@ -51,10 +50,7 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
     Player leftCorner;
     Player rightCorner;
 
-    threeChessBoard = ThreeChessBoard(
-      height: 500,
-      width: 500,
-    );
+
 
     Player getPlayer(PlayerColor playerColor) {
       return clientGame?.game?.player?.firstWhere(
@@ -196,10 +192,11 @@ class _BoardBoardSubScreenState extends State<BoardBoardSubScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: screenWidth/2 *sqrt(3),
-                        width: screenWidth,
-                        child: threeChessBoard,
+                    Container(
+                        child: ThreeChessBoard(
+                          height: 1000,
+                          width: 1000,
+                        ),
                     ),
                   ],
                 ),

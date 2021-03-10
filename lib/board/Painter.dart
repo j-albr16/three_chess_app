@@ -20,7 +20,7 @@ class BoardPainter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       //key: boardBoxKey,
         height: height,
         width: width,

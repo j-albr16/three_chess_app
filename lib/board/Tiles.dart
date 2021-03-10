@@ -96,7 +96,7 @@ class Tiles{
         path: tile.path);
   }
 
-    perspectiveOf = PlayerColor.values[perspectiveOf.index + 1 % 3];
+    perspectiveOf = PlayerColor.values[(perspectiveOf.index + 1) % 3];
     tiles = newTiles;
   }
 

@@ -99,7 +99,7 @@ mixin ChessMoveController{
       else if(highlighted != null){
         if(whatsHit != null && highlighted.value.contains(whatsHit)){
           clientMove(highlighted.key, whatsHit);
-          //TODO ANIMATION
+
           animatePiece(draggedPiece: whatsHit, animatedStart: highlighted.key);
           
           finishMove();

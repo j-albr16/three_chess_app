@@ -47,13 +47,13 @@ class SelectGame extends StatelessWidget {
     return currentGameIndex == gameIndex;
   }
 
-  Widget boardWidget(Map<String, Piece> currentBoard) {
+  Widget boardWidget(Map<String, Piece> currentBoard, PlayerColor startingPlayer) {
     return Center(
       child: BoardPainter(
         height: 1000/2 * sqrt(3),
         width: 1000,
         pieces: currentBoard,
-        tiles: Tiles(perspectiveOf: PlayerColor.white).tiles, //TODO When gameModel includes it: "game.startingColor"
+        tiles: Tiles(perspectiveOf: PlayerColor.white).tiles,
       ),
     );
   }
@@ -73,8 +73,8 @@ class SelectGame extends StatelessWidget {
                 child: boardWidget(BoardStateBone.generate(
                   chessMoves: game.chessMoves,
                   customStartingBoard: Map.fromEntries(game.startingBoard.map((e) => MapEntry<String, Piece>(e.position, e))),
-                  startingColor: PlayerColor.white, // TODO When gameModel includes it: "game.startingColor"
-                ).pieces),
+                  startingColor: game.startingPlayer,
+                ).pieces, game.startingPlayer),
             ),
           ),
         ),

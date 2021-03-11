@@ -166,7 +166,7 @@ class BoardState extends BoardStateBone {
   }
 
   _makeASound(ChessMoveInfo chessMoveInfo) {
-    // TODO sound
+
     if (chessMoveInfo.specialMoves.contains(SpecialMove.NoMove)) {
       Sounds.playSound(Sound.Move);
     } else if (chessMoveInfo.specialMoves.contains(SpecialMove.Check)) {

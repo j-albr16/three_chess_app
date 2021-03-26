@@ -8,12 +8,12 @@ import '../models/enums.dart';
 import '../models/local_game.dart';
 import '../widgets/select_game_widget.dart';
 
-typedef void GameCallExtended(Game game, BuildContext context);
+typedef void GameCall(Game game);
 typedef void GameIndexCall(int selectedGameIndex);
 typedef void ConfirmGame();
 
 class BoardStateSelector extends StatelessWidget {
-  final GameCallExtended confirmGame;
+  final GameCall confirmGame;
   final GameIndexCall gameIndexCall;
 
   final bool onlineGamesOpen;
@@ -54,7 +54,7 @@ class BoardStateSelector extends StatelessWidget {
   Widget confirmSelection(ThemeData theme, BuildContext context) {
     return FlatButton(
       minWidth: double.infinity,
-      onPressed: () => confirmGame(gameIndex != null ? currentGames[gameIndex] : null, context),
+      onPressed: () => confirmGame(gameIndex != null ? currentGames[gameIndex] : null),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(cornerRadius),
       ),
@@ -93,7 +93,7 @@ Widget localGames(Size size, ThemeData theme, BuildContext context) {
               size: size,
               game: game,
               theme: theme,
-              confirmGame: () => confirmGame(game, context),
+              confirmGame: () => confirmGame(game),
               currentGameIndex: gameIndex,
               gameIndex: currentGames.indexOf(game),
               gameIndexCall: gameIndexCall,
@@ -108,7 +108,7 @@ Widget localGames(Size size, ThemeData theme, BuildContext context) {
     return ListView(
       children: onlineGames.map(
               (gameEntry) => SelectGame(
-        confirmGame: () => confirmGame(gameEntry, context),
+        confirmGame: () => confirmGame(gameEntry),
         theme: theme,
         currentGameIndex: gameIndex,
         gameIndexCall: gameIndexCall,

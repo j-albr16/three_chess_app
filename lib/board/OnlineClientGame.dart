@@ -103,7 +103,7 @@ class OnlineClientGame extends ClientGame with ChessMoveController{
 
   @override
   PlayerColor get clientPlayer{
-    return gameProvider.player.playerColor; //TODO Can also be taken by onlineGame (model). To be decided in the future.
+    return gameProvider.player.playerColor;
   }
 
   @override

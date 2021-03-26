@@ -112,6 +112,7 @@ enum Method {
   // Local Games
   SaveGames,
   // Online Game
+  GetPossiblePairings,
   CreateTestGame,
   SendMove,
   RequestSurrender,
@@ -133,6 +134,7 @@ enum Method {
   LeaveLobby,
   FindAGameLike,
   QuickPairing,
+  StopQuickPairing,
   CreateGame,
   JoinGame,
   // Friend

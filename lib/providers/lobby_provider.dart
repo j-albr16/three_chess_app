@@ -169,11 +169,26 @@ class LobbyProvider with ChangeNotifier {
     }
   }
 
-  Future<void> quickPairing({int time, int increment}) async {
+  Future<Map<String, dynamic>> quickPairing({int time, int increment}) async {
     try {
-      final Map<String, dynamic> data = await _serverProvider.quickPairing();
+      return await _serverProvider.quickPairing(
+          increment: increment, time: time);
     } catch (error) {
       _serverProvider.handleError('Error While making Quick Paring', error);
+      return {
+        'valid': false,
+        'possibleMatches': 0,
+      };
+    }
+  }
+
+  Future<bool> stopQuickPairing() async {
+    try {
+      final data = await _serverProvider.stopQuickPairing();
+      return data['valid'];
+    } catch (e) {
+      _serverProvider.handleError('Error while Stopping Quick Pairing', e);
+      return false;
     }
   }
 

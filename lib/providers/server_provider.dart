@@ -63,8 +63,9 @@ const List<Method> methodsInProcess = [
   // Method.HandleMessage,
 
   // Method.FetchOnlineGames,
-
-  Method.FetchChat,
+  Method.QuickPairing,
+  Method.StopQuickPairing,
+  Method.GetPossiblePairings,
 ];
 
 class ServerProvider with ChangeNotifier {
@@ -579,6 +580,22 @@ class ServerProvider with ChangeNotifier {
     );
   }
 
+  Future<Map<String, dynamic>> stopQuickPairing() async {
+    return await getSkeleton(
+      url: SERVER_ADRESS + 'stop-quick-pairing' + _authString,
+      error: 'stop quick Pairing',
+    );
+  }
+
+  Future<Map<String, dynamic>> getPossibleMatches(
+      int time, int increment) async {
+    return await getSkeleton(
+      url:
+          SERVER_ADRESS + 'get-possible-matches/$time/$increment' + _authString,
+      error: 'Getting Possible Matches',
+    );
+  }
+
   Future<Map<String, dynamic>> findAGameLike(
       Map<String, dynamic> settings) async {
     return await postSkeleton(
@@ -775,7 +792,7 @@ class ServerProvider with ChangeNotifier {
         displayErrorPopUp(errorBody);
       }
       // else if (data['errorType'] == ErrorType.Critical) {
-        throw data['message'];
+      throw data['message'];
       // }
       // throw 'Valid Error';
     }

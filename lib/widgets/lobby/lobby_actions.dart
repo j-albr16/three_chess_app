@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:three_chess/screens/lobby_screen.dart';
 
 import '../../helpers/constants.dart';
 import '../basic/sorrounding_cart.dart';
@@ -23,6 +24,9 @@ const List<List<MapEntry>> quickParingButtons = [
 ];
 
 class LobbyActions extends StatelessWidget {
+  final StartQuickPairing startQuickPairing;
+
+  LobbyActions({this.startQuickPairing});
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +50,18 @@ class LobbyActions extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: column
                               .map(
-                                (child) =>  lobbyButton(
-                                    figures:
-                                        " ${child.key[0]} + ${child.key[1]}",
-                                    size: size,
-                                    description: child.value,
-                                    buttonSize: Size(
-                                        size.width * 0.25, size.height * 0.06),
-                                    theme: theme,
-                                    onTap: _createGameTap(child.key),
-                                  ),
+                                (child) => lobbyButton(
+                                  figures: " ${child.key[0]} + ${child.key[1]}",
+                                  size: size,
+                                  description: child.value,
+                                  buttonSize: Size(
+                                      size.width * 0.25, size.height * 0.06),
+                                  theme: theme,
+                                  onTap: () => startQuickPairing(
+                                      time: child.key[0],
+                                      increment: child.key[1],
+                                      context: context),
+                                ),
                               )
                               .toList(),
                         ))
@@ -91,7 +97,7 @@ class LobbyActions extends StatelessWidget {
 
   Widget lobbyButton(
       {String figures,
-        Size size,
+      Size size,
       Color color,
       String description,
       Function onTap,
@@ -106,10 +112,10 @@ class LobbyActions extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(figures, style: theme.textTheme.bodyText2),
-            if(description != null)
-            Text(description,
-                style: theme.textTheme.overline
-                    .copyWith(color: theme.colorScheme.onSecondary)),
+            if (description != null)
+              Text(description,
+                  style: theme.textTheme.overline
+                      .copyWith(color: theme.colorScheme.onSecondary)),
           ],
         ),
       ),

@@ -50,17 +50,20 @@ class LobbyActions extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: column
                               .map(
-                                (child) => lobbyButton(
-                                  figures: " ${child.key[0]} + ${child.key[1]}",
-                                  size: size,
-                                  description: child.value,
-                                  buttonSize: Size(
-                                      size.width * 0.25, size.height * 0.06),
-                                  theme: theme,
-                                  onTap: () => startQuickPairing(
-                                      time: child.key[0],
-                                      increment: child.key[1],
-                                      context: context),
+                                (child) => Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: lobbyButton(
+                                    figures: " ${child.key[0]} + ${child.key[1]}",
+                                    size: size,
+                                    description: child.value,
+                                    buttonSize: Size(
+                                        size.width * 0.25, size.height * 0.06),
+                                    theme: theme,
+                                    onTap: () => startQuickPairing(
+                                        time: child.key[0],
+                                        increment: child.key[1],
+                                        context: context),
+                                  ),
                                 ),
                               )
                               .toList(),

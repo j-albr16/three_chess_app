@@ -33,10 +33,13 @@ class _LobbyScreenState extends State<LobbyScreen>
     with notificationPort<LobbyScreen> {
   LobbyTable lobbyTable;
   LobbyProvider _lobbyProvider;
+  OnlineProvider _onlineProvider;
 
   @override
   void initState() {
     _lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
+    _onlineProvider = Provider.of<OnlineProvider>(context, listen: false);
+
     super.initState();
   }
 
@@ -57,72 +60,69 @@ class _LobbyScreenState extends State<LobbyScreen>
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return GestureDetector(
-      onTap: () => stopQuickPairing(),
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            IconButton(
-                icon: Icon(Icons.dashboard_sharp),
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(DesignTestScreen.routeName)),
-            Consumer<LobbyProvider>(
-              builder: (context, lobbyProvider, child) => IconButton(
-                  icon: Icon(Icons.person),
-                  onPressed: () => lobbySelectPopUp(
-                      context, lobbyProvider.pendingGames, size)),
-            ),
-            IconButton(
-              color: Colors.white,
-              icon: Icon(Icons.add),
-              onPressed: () {
-                return Navigator.of(context).pushNamed(
-                    CreateGameScreen.routeName,
-                    arguments: {'friend': ''});
-              },
-            ),
-            SizedBox(width: 20)
-          ],
-          title: Text('Lobby'),
-        ),
-        body: RelativeBuilder(
-            builder: (context, screenHeight, screenWidth, sy, sx) {
-          return Column(
-            // mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                flex: 3,
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              icon: Icon(Icons.dashboard_sharp),
+              onPressed: () => Navigator.of(context)
+                  .pushNamed(DesignTestScreen.routeName)),
+          Consumer<LobbyProvider>(
+            builder: (context, lobbyProvider, child) => IconButton(
+                icon: Icon(Icons.person),
+                onPressed: () => lobbySelectPopUp(
+                    context, lobbyProvider.pendingGames, size)),
+          ),
+          IconButton(
+            color: Colors.white,
+            icon: Icon(Icons.add),
+            onPressed: () {
+              return Navigator.of(context).pushNamed(
+                  CreateGameScreen.routeName,
+                  arguments: {'friend': ''});
+            },
+          ),
+          SizedBox(width: 20)
+        ],
+        title: Text('Lobby'),
+      ),
+      body: RelativeBuilder(
+          builder: (context, screenHeight, screenWidth, sy, sx) {
+        return Column(
+          // mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              flex: 3,
+              child: Container(
+                width: screenWidth,
                 child: Container(
-                  width: screenWidth,
-                  child: Container(
-                    child: LobbyTable(
-                      width: screenWidth,
-                      lobbyProvider: Provider.of<LobbyProvider>(context),
-                      theme: Theme.of(context),
-                      height: screenHeight * 0.5,
-                      selectedColumns: [
-                        ColumnType.Time,
-                        ColumnType.AverageScore,
-                        ColumnType.Mode,
-                        ColumnType.UserNames
-                      ],
-                      gameProvider: Provider.of<GameProvider>(context),
-                      onGameTap: (game) {
-                        Provider.of<LobbyProvider>(context, listen: false)
-                            .joinGame(context, game.id);
-                      },
-                    ),
+                  child: LobbyTable(
+                    width: screenWidth,
+                    lobbyProvider: Provider.of<LobbyProvider>(context),
+                    theme: Theme.of(context),
+                    height: screenHeight * 0.5,
+                    selectedColumns: [
+                      ColumnType.Time,
+                      ColumnType.AverageScore,
+                      ColumnType.Mode,
+                      ColumnType.UserNames
+                    ],
+                    gameProvider: Provider.of<GameProvider>(context),
+                    onGameTap: (game) {
+                      Provider.of<LobbyProvider>(context, listen: false)
+                          .joinGame(context, game.id);
+                    },
                   ),
                 ),
               ),
-              Flexible(
-                child: LobbyActions(startQuickPairing: startQuickParing),
-                flex: 2,
-              ),
-            ],
-          );
-        }),
-      ),
+            ),
+            Flexible(
+              child: LobbyActions(startQuickPairing: startQuickParing),
+              flex: 2,
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -130,8 +130,9 @@ class _LobbyScreenState extends State<LobbyScreen>
     Map<String, dynamic> data =
         await _lobbyProvider.quickPairing(time: time, increment: increment);
     if (data['valid']) {
-      Provider.of<OnlineProvider>(context, listen: false)
-          .setGetPossibleMatchesTimer(time, increment, data['possibleMatches']);
+      _onlineProvider.setGetPossibleMatchesTimer(
+          time, increment, data['possibleMatches']);
+      _onlineProvider.setStopWatch();
       return showDialog(
           context: context,
           builder: (context) {
@@ -150,7 +151,7 @@ class _LobbyScreenState extends State<LobbyScreen>
       print('SOMETHING WENT WRONG STOPPING QUICK PAIRING');
       return null;
     }
-    Provider.of<OnlineProvider>(context, listen: false)
-        .stopGetPossibleMatchesTimer();
+    _onlineProvider.stopGetPossibleMatchesTimer();
+    _onlineProvider.stopStopWatch();
   }
 }

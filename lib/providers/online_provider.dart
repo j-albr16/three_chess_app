@@ -9,6 +9,7 @@ class OnlineProvider with ChangeNotifier {
   Timer _keepOnlineTimer;
   Timer _getCountTimer;
   Timer _getPossibleMatchesTimer;
+  Timer _stopWatchTimer;
 
   int _usersCount = 0;
   int _playerCount = 0;
@@ -16,7 +17,13 @@ class OnlineProvider with ChangeNotifier {
 
   int possibleMatches = 0;
 
-  void setPossibleMatches(int amount){
+  int _stopWatch = 0;
+
+  int get stopWatch {
+    return _stopWatch;
+  }
+
+  void setPossibleMatches(int amount) {
     possibleMatches = amount;
   }
 
@@ -50,22 +57,38 @@ class OnlineProvider with ChangeNotifier {
     }
   }
 
-  Future<void> setGetPossibleMatchesTimer(int time, int increment, int defaultValue) async {
+  Future<void> setGetPossibleMatchesTimer(
+      int time, int increment, int defaultValue) async {
     print('Getting Possible Matches Timer');
-    try{
+    try {
       possibleMatches = defaultValue;
       _getPossibleMatchesTimer?.cancel();
-      _getPossibleMatchesTimer = new Timer.periodic(Duration(seconds: 2), (Timer timer) async  {
+      _getPossibleMatchesTimer =
+          new Timer.periodic(Duration(seconds: 2), (Timer timer) async {
         final data = await _serverProvider.getPossibleMatches(time, increment);
         possibleMatches = data['possibleMatches'];
         notifyListeners();
       });
-    }catch(e){
-      _serverProvider.handleError('Error while Setting Get Possible MAtches Timer',e );
+    } catch (e) {
+      _serverProvider.handleError(
+          'Error while Setting Get Possible Matches Timer', e);
     }
   }
 
-  void stopGetPossibleMatchesTimer(){
+  Future<void> setStopWatch() async {
+    _stopWatchTimer?.cancel();
+    _stopWatchTimer = new Timer.periodic(Duration(seconds: 1), (timer) async {
+      _stopWatch++;
+      notifyListeners();
+    });
+  }
+
+  Future<void> stopStopWatch() async {
+    _stopWatchTimer?.cancel();
+    _stopWatch = 0;
+  }
+
+  void stopGetPossibleMatchesTimer() {
     _getPossibleMatchesTimer?.cancel();
   }
 
